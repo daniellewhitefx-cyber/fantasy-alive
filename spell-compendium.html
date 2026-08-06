@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spell Compendium &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+:root{
+  --spell-row-a: #ece1cd;
+  --spell-row-b: #f0d99a;
+}
+.spell-item{ display:none !important; }
+
+/* ---------- HERO ---------- */
+.spell-page-hero{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  align-items:center;
+  height: 320px;
+  overflow: hidden;
+}
+.spell-page-hero-content{
+  padding: 2rem 3rem 2rem 5.5rem;
+  text-align: center;
+}
+.spell-page-hero-content img{
+  width:100%; max-width: 440px; height:auto; display:block; margin: 0 auto;
+}
+.spell-page-hero-content h1{
+  font-family: 'EB Garamond', serif;
+  font-weight: 500;
+  font-size: 3rem;
+  margin: 0.5rem 0 0;
+  color: var(--brown);
+  text-align: center;
+}
+.spell-page-hero-image{
+  position:relative;
+  overflow:hidden;
+  height: 100%;
+  min-height: 320px;
+}
+.spell-page-hero-image::after{
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width: 45%; height:100%;
+  background: linear-gradient(to left, rgba(236,225,205,0) 0%, var(--cream) 100%);
+  pointer-events: none;
+}
+.spell-page-hero-image img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+
+/* ---------- LAYOUT ---------- */
+.spell-page{
+  display:grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem 3rem;
+  align-items:start;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--cream);
+  color: var(--brown);
+  font-family: 'Cinzel', serif;
+}
+
+/* ---------- SIDEBAR ---------- */
+.spell-sidebar{
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  overflow:hidden;
+  position: sticky;
+  top: 1.5rem;
+}
+.spell-level-list{
+  display: flex;
+  flex-direction: column;
+}
+.spell-level-btn{
+  display:block;
+  width:100%;
+  text-align:left;
+  background: var(--ink);
+  border: none;
+  border-bottom: 1px solid var(--gold-dark);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.65rem 1rem;
+  cursor:pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+.spell-level-btn:last-child{ border-bottom: none; }
+.spell-level-btn.active{
+  background: var(--gold);
+  color: var(--ink);
+}
+.spell-level-btn:not(.active):hover{
+  background: var(--gold-dark);
+  color: var(--cream);
+}
+
+/* ---------- DARK MODE TOGGLE ---------- */
+.spell-mode-toggle{
+  display:flex;
+  align-items:center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--cream-deep);
+  border-bottom: 2px solid var(--gold-dark);
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--brown);
+}
+.spell-toggle-switch{
+  position:relative;
+  width: 34px; height: 18px;
+  background: #3a352a;
+  border-radius: 10px;
+  border: none;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.spell-toggle-switch.on{ background: var(--gold); }
+.spell-toggle-switch::after{
+  content:"";
+  position:absolute;
+  top:2px; left:2px;
+  width:14px; height:14px;
+  border-radius:50%;
+  background: #fff;
+  transition: left 0.15s ease;
+}
+.spell-toggle-switch.on::after{ left: 18px; }
+
+/* ---------- SEARCH ---------- */
+.spell-search{
+  padding: 0.6rem;
+  background: var(--ink);
+  border-bottom: 3px solid var(--gold);
+}
+.spell-search input{
+  width:100%;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.6rem;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown);
+}
+.spell-search-results{
+  display:flex;
+  flex-direction: column;
+}
+.spell-search-result{
+  display:block;
+  width:100%;
+  text-align:left;
+  background: var(--cream-deep);
+  border: none;
+  border-bottom: 1px dotted var(--gold-dark);
+  color: var(--brown);
+  padding: 0.55rem 0.8rem;
+  cursor:pointer;
+}
+.spell-search-result:last-child{ border-bottom:none; }
+.spell-search-result:hover{ background: var(--gold); }
+.spell-search-result .lsr-title{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.1rem;
+}
+.spell-search-result .lsr-cat{
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 0.2rem;
+}
+.spell-search-result .lsr-excerpt{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--brown-dark);
+}
+.spell-search-result mark{
+  background: var(--gold);
+  color: var(--ink);
+  padding: 0 1px;
+}
+.spell-search-empty{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--brown-dark);
+  padding: 0.8rem;
+}
+
+/* ---------- MAIN PANE & TIGHTENED TABLE ---------- */
+.spell-article{
+  background: transparent;
+}
+.spell-article h2{
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.8rem;
+  color: var(--brown-dark);
+}
+
+.spell-table-wrap{
+  width: 100%;
+  box-shadow: 6px 6px 0 0 var(--gold);
+  overflow-x: auto;
+}
+.spell-table{
+  width:100%;
+  border-collapse: collapse;
+  border: 2px solid var(--gold);
+  background: var(--spell-row-a);
+}
+.spell-table th{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.4rem;
+  border-bottom: 3px solid var(--gold);
+  text-align: center;
+  color: var(--brown-dark);
+  white-space: nowrap;
+}
+.spell-table th:not(:last-child),
+.spell-table td:not(:last-child){
+  border-right: 1px dotted var(--gold-dark);
+}
+.spell-table td{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  padding: 0.45rem 0.5rem;
+  text-align: center;
+  line-height: 1.25;
+  color: var(--brown-dark);
+}
+.spell-table td.col-name{
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.spell-table td.col-incant{
+  font-style: italic;
+  text-align: left;
+}
+.spell-table td.col-desc{
+  text-align: left;
+}
+
+.spell-table tbody tr:nth-child(odd){ background: var(--spell-row-b); }
+.spell-table tbody tr:nth-child(even){ background: var(--spell-row-a); }
+
+.spell-table tr.highlighted{
+  background-color: var(--gold) !important;
+  color: var(--ink) !important;
+}
+
+.spell-empty{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  color: var(--brown-dark);
+  padding: 1.5rem;
+}
+
+/* ---------- DARK MODE ---------- */
+.spell-page.spell-dark{
+  --spell-dbg: #1b1812;
+  --spell-dpanel: #26221a;
+  --spell-dtext: #e8ddc8;
+  --spell-dtext-soft: #c9bda0;
+  --spell-row-a: #26221a;
+  --spell-row-b: #322d22;
+}
+.spell-page.spell-dark .spell-level-btn{
+  background: var(--spell-dpanel);
+  color: var(--spell-dtext);
+}
+.spell-page.spell-dark .spell-level-btn.active{
+  background: var(--gold);
+  color: var(--ink);
+}
+.spell-page.spell-dark .spell-level-btn:not(.active):hover{
+  background: var(--gold-dark);
+  color: var(--ink);
+}
+.spell-page.spell-dark .spell-search-result{
+  background: var(--spell-dpanel);
+  color: var(--spell-dtext);
+}
+.spell-page.spell-dark .spell-search-result:hover{ background: var(--gold-dark); }
+.spell-page.spell-dark .spell-search-result .lsr-excerpt{ color: var(--spell-dtext-soft); }
+.spell-page.spell-dark .spell-search-empty{ color: var(--spell-dtext-soft); }
+.spell-page.spell-dark .spell-article h2{
+  color: var(--spell-dtext);
+}
+.spell-page.spell-dark .spell-table{
+  background: var(--spell-row-a);
+}
+.spell-page.spell-dark .spell-table th{
+  color: var(--gold);
+}
+.spell-page.spell-dark .spell-table td{
+  color: var(--spell-dtext);
+}
+.spell-page.spell-dark .spell-table tbody tr:nth-child(odd){ background: var(--spell-row-b); }
+.spell-page.spell-dark .spell-table tbody tr:nth-child(even){ background: var(--spell-row-a); }
+.spell-page.spell-dark .spell-table tr.highlighted{
+  background-color: var(--gold-dark) !important;
+  color: #fff !important;
+}
+.spell-page.spell-dark .spell-empty{ color: var(--spell-dtext-soft); }
+
+/* ---------- MOBILE MEDIA QUERIES ---------- */
+@media (max-width: 850px){
+  .spell-page-hero{
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .spell-page-hero-content{
+    padding: 1.5rem 1rem;
+  }
+  .spell-page-hero-content h1{
+    font-size: 2.2rem;
+  }
+  .spell-page-hero-image{
+    height: 180px;
+    min-height: 180px;
+  }
+  .spell-page-hero-image::after{
+    width: 100%; height: 50%;
+    background: linear-gradient(to bottom, var(--cream) 0%, rgba(236,225,205,0) 100%);
+  }
+
+  .spell-page{
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .spell-sidebar{
+    position: static;
+  }
+  .spell-level-list{
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .spell-level-btn{
+    border-bottom: none;
+    border-right: 1px solid var(--gold-dark);
+    padding: 0.6rem 0.9rem;
+    text-align: center;
+  }
+}
+
+/* Card view on small mobile screens */
+@media (max-width: 600px){
+  .spell-table-wrap{
+    box-shadow: 3px 3px 0 0 var(--gold);
+  }
+  .spell-table, .spell-table thead, .spell-table tbody, .spell-table th, .spell-table td, .spell-table tr{
+    display: block;
+  }
+  .spell-table thead{
+    display: none;
+  }
+  .spell-table tr{
+    margin-bottom: 0.8rem;
+    border: 1px solid var(--gold-dark);
+    padding: 0.6rem;
+  }
+  .spell-table td{
+    text-align: left !important;
+    padding: 0.25rem 0;
+    border-right: none !important;
+  }
+  .spell-table td.col-name{
+    font-size: 1rem;
+    color: var(--brown-dark);
+    border-bottom: 1px solid var(--gold-dark);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.4rem;
+    white-space: normal;
+  }
+  .spell-table td::before{
+    content: attr(data-label);
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gold-dark);
+    display: block;
+    text-transform: uppercase;
+  }
+  .spell-table td.col-name::before{
+    display: none;
+  }
+
+  .spell-page.spell-dark .spell-table td.col-name{
+    color: var(--gold);
+  }
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<section class="spell-page-hero">
+<div class="spell-page-hero-content">
+<img src="https://i.imgur.com/YUATL72.png" alt="Fantasy Alive">
+<h1>Spell Compendium</h1>
+</div>
+<div class="spell-page-hero-image">
+<img src="https://i.imgur.com/zOtOU6q.png" alt="Fantasy Alive spell banner">
+</div>
+</section>
+
+<div class="spell-page" id="spell-page">
+<nav class="spell-sidebar">
+<div class="spell-mode-toggle">
+<button class="spell-toggle-switch" id="spell-dark-toggle" onclick="spell_toggleDark()"></button>
+<span>Dark mode</span>
+</div>
+<div class="spell-search">
+<input type="text" id="spell-search-input" placeholder="Search spell name..." oninput="spell_search(this.value)">
+</div>
+<div id="spell-sidebar-content"><p class="spell-empty" style="padding:1rem;">Loading spell levels&hellip;</p></div>
+</nav>
+<article class="spell-article" id="spell-display">
+<p class="spell-empty">Loading the spell list from the spreadsheet&hellip;</p>
+</article>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script>
+(function(){
+// The published Google Sheet this page reads live. Editing the sheet
+// updates this page on next load — nothing here needs to be redeployed.
+const SPELL_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1JEUuwBntPy8VxTATpzjb6juloHflbGBW4EgBXY7bSZE/export?format=csv';
+
+const ORDINAL_LEVEL_NAMES = {
+  '1': '1st Level', '2': '2nd Level', '3': '3rd Level', '4': '4th Level',
+  '5': '5th Level', '6': '6th Level', '7': '7th Level', '8': '8th Level', '9': '9th Level'
+};
+const LEVEL_ORDER = [
+  '1st Level', '2nd Level', '3rd Level', '4th Level', '5th Level',
+  '6th Level', '7th Level', '8th Level', '9th Level', 'Cantrips', 'Rituals'
+];
+
+let activeLevel = '1st Level';
+let highlightedSpell = null;
+let allSpells = [];
+let loadError = null;
+
+// Minimal RFC4180-style CSV parser: handles quoted fields, commas and
+// newlines inside quotes, and "" as an escaped quote.
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i + 1] === '"'){ field += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        field += c;
+      }
+    } else if(c === '"'){
+      inQuotes = true;
+    } else if(c === ','){
+      row.push(field); field = '';
+    } else if(c === '\n'){
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if(c === '\r'){
+      // ignore, paired \n handles the line break
+    } else {
+      field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+function levelLabel(raw){
+  const trimmed = (raw || '').trim();
+  return ORDINAL_LEVEL_NAMES[trimmed] || trimmed || 'Unsorted';
+}
+
+async function loadSpells(){
+  try{
+    const res = await fetch(SPELL_SHEET_CSV_URL, { cache: 'no-store' });
+    if(!res.ok) throw new Error('Sheet request failed (' + res.status + ')');
+    const csvText = await res.text();
+    const rows = parseCSV(csvText).filter(r => r.some(cell => (cell || '').trim() !== ''));
+    const header = (rows.shift() || []).map(h => h.trim().toLowerCase());
+    const col = name => header.indexOf(name);
+
+    const iLvl = col('lvl'), iName = col('name'), iEnergy = col('energy'),
+      iIncant = col('incant'), iDesc = col('description'), iDuration = col('duration'),
+      iCategory = col('category'), iMel = col('mel'), iMix = col('mix');
+
+    allSpells = rows.map(r => ({
+      level: levelLabel(r[iLvl]),
+      title: (r[iName] || 'Untitled Spell').trim(),
+      energy: (r[iEnergy] || '').trim(),
+      incant: (r[iIncant] || '').trim(),
+      desc: (r[iDesc] || '').trim(),
+      duration: (r[iDuration] || '').trim(),
+      category: (r[iCategory] || '').trim(),
+      mel: (r[iMel] || '0').trim(),
+      mix: (r[iMix] || 'No').trim()
+    }));
+
+    const levels = orderedLevels();
+    if(levels.length && !levels.includes(activeLevel)) activeLevel = levels[0];
+  } catch(err){
+    loadError = err;
+  }
+  renderSidebar();
+  renderDisplay();
+}
+
+function spell_selectLevel(level, spellToHighlight){
+  if(spellToHighlight === undefined) spellToHighlight = null;
+  activeLevel = level;
+  highlightedSpell = spellToHighlight;
+  renderDisplay();
+  renderSidebar();
+
+  if(highlightedSpell){
+    const targetRow = document.getElementById('spell-row-' + highlightedSpell.replace(/[^a-zA-Z0-9]/g, '-'));
+    if(targetRow) targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function spell_selectSearchResult(level, spellTitle){
+  spell_selectLevel(level, spellTitle);
+  const searchInput = document.getElementById('spell-search-input');
+  if(searchInput) searchInput.value = '';
+}
+
+function spellsByLevel(){
+  const byLevel = {};
+  allSpells.forEach(s => {
+    if(!byLevel[s.level]) byLevel[s.level] = [];
+    byLevel[s.level].push(s);
+  });
+  return byLevel;
+}
+
+function orderedLevels(){
+  const byLevel = spellsByLevel();
+  const known = LEVEL_ORDER.filter(l => byLevel[l]);
+  const unknown = Object.keys(byLevel).filter(l => !LEVEL_ORDER.includes(l)).sort();
+  return [...known, ...unknown];
+}
+
+function renderSidebar(){
+  const target = document.getElementById('spell-sidebar-content');
+  const searchInput = document.getElementById('spell-search-input');
+  if(searchInput && searchInput.value.trim()) return; // a search is active, leave results showing
+
+  if(loadError){
+    target.innerHTML = '<p class="spell-empty" style="padding:1rem;">Couldn\'t load the spell list. Refresh to try again.</p>';
+    return;
+  }
+
+  const levels = orderedLevels();
+  if(levels.length === 0){
+    target.innerHTML = '<p class="spell-empty" style="padding:1rem;">No spells found in the spreadsheet yet.</p>';
+    return;
+  }
+
+  target.innerHTML = `
+    <div class="spell-level-list">
+      ${levels.map(lvl => `
+        <button class="spell-level-btn ${lvl === activeLevel ? 'active' : ''}"
+          onclick="spell_selectLevel('${lvl.replace(/'/g, "\\'")}')">
+          ${lvl}
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function makeExcerpt(text, query){
+  const lower = text.toLowerCase();
+  const idx = lower.indexOf(query.toLowerCase());
+  if(idx === -1) return escapeHtml(text.slice(0, 140)) + (text.length > 140 ? '&hellip;' : '');
+  const start = Math.max(0, idx - 50);
+  const end = Math.min(text.length, idx + query.length + 90);
+  const before = escapeHtml(text.slice(start, idx));
+  const match = escapeHtml(text.slice(idx, idx + query.length));
+  const after = escapeHtml(text.slice(idx + query.length, end));
+  return (start > 0 ? '&hellip;' : '') + before + '<mark>' + match + '</mark>' + after + (end < text.length ? '&hellip;' : '');
+}
+
+function spell_search(rawQuery){
+  const query = rawQuery.trim();
+  const target = document.getElementById('spell-sidebar-content');
+
+  if(!query){
+    renderSidebar();
+    return;
+  }
+
+  const lowerQuery = query.toLowerCase();
+  const results = allSpells.map(s => {
+    const bodyText = s.desc.replace(/\s+/g, ' ').trim();
+    const titleMatch = s.title.toLowerCase().includes(lowerQuery);
+    const bodyMatch = bodyText.toLowerCase().includes(lowerQuery);
+    if(!titleMatch && !bodyMatch) return null;
+    return { level: s.level, title: s.title, bodyText, rank: titleMatch ? 0 : 1 };
+  }).filter(Boolean).sort((a, b) => a.rank - b.rank || a.title.localeCompare(b.title));
+
+  if(results.length === 0){
+    target.innerHTML = '<p class="spell-search-empty">No spells found matching &ldquo;' + escapeHtml(query) + '&rdquo;.</p>';
+    return;
+  }
+
+  target.innerHTML = '<div class="spell-search-results">' + results.map(r => `
+    <button class="spell-search-result" onclick="spell_selectSearchResult('${r.level.replace(/'/g, "\\'")}', '${r.title.replace(/'/g, "\\'")}')">
+      <div class="lsr-cat">${escapeHtml(r.level)}</div>
+      <div class="lsr-title">${escapeHtml(r.title)}</div>
+      <div class="lsr-excerpt">${r.rank === 0 ? escapeHtml(r.bodyText.slice(0, 140)) + (r.bodyText.length > 140 ? '&hellip;' : '') : makeExcerpt(r.bodyText, query)}</div>
+    </button>
+  `).join('') + '</div>';
+}
+
+function renderDisplay(){
+  const display = document.getElementById('spell-display');
+
+  if(loadError){
+    display.innerHTML = '<p class="spell-empty">Couldn\'t load the spell list from the spreadsheet. Refresh to try again.</p>';
+    return;
+  }
+
+  const spells = spellsByLevel()[activeLevel] || [];
+  if(spells.length === 0){
+    display.innerHTML = '<p class="spell-empty">Select a spell level or search for a spell name to begin.</p>';
+    return;
+  }
+
+  const tableRows = spells.map(s => {
+    const isHighlighted = s.title === highlightedSpell;
+    const rowId = 'spell-row-' + s.title.replace(/[^a-zA-Z0-9]/g, '-');
+    return `
+      <tr id="${rowId}" class="${isHighlighted ? 'highlighted' : ''}">
+        <td class="col-name" data-label="Name">${escapeHtml(s.title)}</td>
+        <td data-label="Energy">${escapeHtml(s.energy)}</td>
+        <td class="col-incant" data-label="Incant">${escapeHtml(s.incant)}</td>
+        <td class="col-desc" data-label="Description">${escapeHtml(s.desc)}</td>
+        <td data-label="Duration">${escapeHtml(s.duration)}</td>
+        <td data-label="Category">${escapeHtml(s.category)}</td>
+        <td data-label="MEL">${escapeHtml(s.mel)}</td>
+        <td data-label="Mix">${escapeHtml(s.mix)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  display.innerHTML = `
+    <h2>${escapeHtml(activeLevel)}</h2>
+    <div class="spell-table-wrap">
+      <table class="spell-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Energy</th>
+            <th>Incant</th>
+            <th>Description</th>
+            <th>Duration</th>
+            <th>Category</th>
+            <th>MEL</th>
+            <th>Mix</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function spell_toggleDark(){
+  const page = document.getElementById('spell-page');
+  const btn = document.getElementById('spell-dark-toggle');
+  const isDark = page.classList.toggle('spell-dark');
+  btn.classList.toggle('on', isDark);
+  try{ localStorage.setItem('fa-spell-dark', isDark ? '1' : '0'); }catch(e){}
+}
+
+window.spell_selectLevel = spell_selectLevel;
+window.spell_selectSearchResult = spell_selectSearchResult;
+window.spell_search = spell_search;
+window.spell_toggleDark = spell_toggleDark;
+
+function init(){
+  let savedDark = false;
+  try{ savedDark = localStorage.getItem('fa-spell-dark') === '1'; }catch(e){}
+  if(savedDark){
+    document.getElementById('spell-page').classList.add('spell-dark');
+    document.getElementById('spell-dark-toggle').classList.add('on');
+  }
+  loadSpells();
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+})();
+</script>
+
+</body>
+</html>
