@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script src="js/vendor/supabase-js.min.js"></script>
 <style>
 /* ---------- HERO ---------- */
 .lore-page-hero{
@@ -396,6 +397,143 @@
 .lore-page.lore-dark .lore-article tbody tr:nth-child(even){ background: var(--lore-dpanel); }
 .lore-page.lore-dark .lore-empty{ color: var(--lore-dtext-soft); }
 
+/* ---------- EDITOR CONTROLS (Add / Edit / Delete) ---------- */
+.lore-add-entry-wrap{
+  padding: 0.7rem;
+  background: var(--cream-deep);
+  border-bottom: 2px solid var(--gold-dark);
+}
+.lore-add-entry-wrap:empty{ display:none; }
+.lore-editor-btn{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown-dark);
+  cursor: pointer;
+}
+.lore-editor-btn:hover{ background: var(--gold); border-color: var(--gold); }
+.lore-editor-btn.add{
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+  width: 100%;
+}
+.lore-editor-btn.add:hover{ background: var(--gold-dark); }
+.lore-editor-btn.danger{ border-color: var(--bad); color: var(--bad); }
+.lore-editor-btn.danger:hover{ background: var(--bad); color: #fff; }
+
+.lore-article-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.4rem;
+}
+.lore-article-head h2{ margin: 0; flex: 1; min-width: 200px; }
+.lore-editor-controls{
+  display:flex;
+  gap: 0.6rem;
+  flex-shrink:0;
+}
+
+/* ---------- ADD/EDIT MODAL ---------- */
+.lore-editor-modal{
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+.lore-modal-backdrop{
+  position: absolute;
+  inset: 0;
+  background: rgba(20,18,15,0.6);
+}
+.lore-modal{
+  position: relative;
+  max-width: 640px;
+  margin: 3rem auto;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--cream);
+  border: 3px solid var(--gold);
+  box-shadow: 10px 10px 0 0 var(--gold);
+  padding: 1.8rem 2rem 2rem;
+  font-family: 'EB Garamond', serif;
+  color: var(--brown);
+}
+.lore-modal h3{
+  font-family: 'Cinzel', serif;
+  color: var(--brown-dark);
+  margin: 0 0 1.2rem;
+}
+.lore-field-label{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  display:block;
+  margin: 1rem 0 0.4rem;
+}
+.lore-modal input[type="text"],
+.lore-modal textarea{
+  width:100%;
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown);
+}
+.lore-modal textarea{
+  font-family: 'Courier New', monospace;
+  font-size: 0.92rem;
+  resize: vertical;
+}
+.lore-editor-help{
+  font-size: 0.82rem;
+  color: var(--brown-dark);
+  background: var(--cream-deep);
+  border-left: 3px solid var(--gold);
+  padding: 0.5rem 0.8rem;
+  margin: 0.4rem 0 0.6rem;
+  line-height: 1.5;
+}
+.lore-editor-help code{
+  background: rgba(0,0,0,0.06);
+  padding: 0 0.25rem;
+  border-radius: 3px;
+}
+.lore-editor-image-row{
+  display:flex;
+  align-items:center;
+  gap: 0.7rem;
+  margin-top: 0.8rem;
+  flex-wrap: wrap;
+}
+.lore-editor-image-row span{ font-size: 0.85rem; font-style: italic; color: var(--brown-dark); }
+.lore-editor-error{
+  color: var(--bad);
+  font-size: 0.9rem;
+  margin-top: 0.8rem;
+}
+.lore-modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+}
+
+.lore-page.lore-dark .lore-add-entry-wrap{ background: var(--lore-dpanel); }
+.lore-page.lore-dark .lore-editor-btn{ background: var(--lore-dbg); color: var(--lore-dtext); }
+.lore-page.lore-dark .lore-editor-btn:hover{ background: var(--gold); color: var(--ink); }
+
 @media (max-width: 900px){
   .lore-page{ grid-template-columns: 1fr; }
   .lore-sidebar{ position: static; }
@@ -418,6 +556,7 @@
 
 <div class="lore-page" id="lore-page">
   <nav class="lore-sidebar">
+  <div id="lore-add-entry-wrap" class="lore-add-entry-wrap"></div>
   <div class="lore-mode-toggle">
     <button class="lore-toggle-switch" id="lore-dark-toggle" onclick="lore_toggleDark()"></button>
     <span>Dark mode</span>
@@ -432,10 +571,12 @@
   </article>
 </div>
 
+<div id="lore-editor-modal" class="lore-editor-modal" style="display:none;"></div>
+
 <div data-include="partials/footer.html"></div>
 
 <script src="js/include.js"></script>
-<script src="lore/manifest.js"></script>
+<script src="js/lore-cms.js"></script>
 <script src="js/lore-engine.js"></script>
 </body>
 </html>
