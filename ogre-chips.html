@@ -57,10 +57,27 @@
   width:100%;
   object-fit: cover;
 }
-.oc-photo.hero-slot{ height:100%; min-height:320px; }
 .oc-photo.section-slot{ height:280px; border-radius:6px; }
 .oc-photo.card-slot{ height:130px; }
 .oc-earn-card .oc-photo{ border-bottom: 2px solid var(--gold-dark); }
+
+.oc-hero-image{
+  position:relative;
+  overflow:hidden;
+  height:100%;
+  min-height:320px;
+}
+.oc-hero-image::after{
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width: 45%; height:100%;
+  background: linear-gradient(to left, rgba(236,225,205,0) 0%, var(--cream) 100%);
+  pointer-events: none;
+}
+.oc-hero-image img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
 
 .oc-section{
   max-width: 1100px;
@@ -173,7 +190,11 @@
   .page-hero-content{ padding: 1.5rem 1rem; }
   .page-hero h1{ font-size: 2.2rem; }
   .photo-slot.hero-slot{ height:180px; min-height:180px; }
-  .oc-photo.hero-slot{ height:180px; min-height:180px; }
+  .oc-hero-image{ height:180px; min-height:180px; }
+  .oc-hero-image::after{
+    width: 100%; height: 50%;
+    background: linear-gradient(to bottom, var(--cream) 0%, rgba(236,225,205,0) 100%);
+  }
   .oc-intro{ grid-template-columns: 1fr; }
   .oc-card-grid{ grid-template-columns: 1fr; }
   .oc-earn-grid{ grid-template-columns: 1fr; }
@@ -189,7 +210,9 @@
 <img src="https://i.imgur.com/YUATL72.png" alt="Fantasy Alive" class="logo-img">
 <h1>Ogre Chips</h1>
 </div>
-<img src="images/ogre-chips-hero.jpg" alt="Knight in armor raising an arm to a cheering crowd" class="oc-photo hero-slot">
+<div class="oc-hero-image">
+<img src="images/ogre-chips-hero.jpg" alt="Knight in armor raising an arm to a cheering crowd">
+</div>
 </section>
 
 <section class="oc-section">
@@ -238,46 +261,31 @@
 </div>
 </div>
 <div class="oc-earn-card">
-<div class="photo-slot card-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/earn-marshal-role.jpg" alt="Armored knight kneeling by a campfire" class="oc-photo card-slot">
 <div class="oc-earn-body">
 <p>Take on a marshal role. Our plot marshals guide the stories that are told in our setting. Our rules marshals help to determine how the rules of play apply in any given situation. Weapons and armour marshals help to keep everyone safe, and similar roles, like our new player representatives, character history marshals, and other, comparable roles, all help to make sure that the game functions well and safely.</p>
 </div>
 </div>
 <div class="oc-earn-card">
-<div class="photo-slot card-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/earn-drive-people.jpg" alt="Suits of armor on horseback in a museum hall" class="oc-photo card-slot">
 <div class="oc-earn-body">
 <p>Drive people to and from events. Transportation to site can be a difficult hurdle for some players to overcome, and carpooling helps to save gas and the environment. If you're driving someone to or from an event, let us know &ndash; we're happy to reward that with some OC.</p>
 </div>
 </div>
 <div class="oc-earn-card">
-<div class="photo-slot card-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/earn-setup-cleanup.jpg" alt="Painted heraldic shields on a wooden chest" class="oc-photo card-slot">
 <div class="oc-earn-body">
 <p>Help to set up or take down decorations, or clean up. Set-up and take-down can be time consuming and dusty work. Helping to make sure that we keep a good relationship with our hosts by leaving the site clean and ready for the next group to rent it is always appreciated.</p>
 </div>
 </div>
 <div class="oc-earn-card">
-<div class="photo-slot card-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/earn-donating-props.jpg" alt="Rack of practice swords and a gauntlet" class="oc-photo card-slot">
 <div class="oc-earn-body">
 <p>Donating props, costumes, or equipment. While the game of Fantasy Alive does purchase and make its own materials, there are times when we will ask for specific props, costume pieces, or so forth, to help the game look great and feel immersive. If you have something that you can spare that fits the bill, or the skills to make it, the game will reward this with OC on a case-by-case basis. While we appreciate all generous intentions, please know that the game only needs certain pieces &ndash; ask before bringing stuff out.</p>
 </div>
 </div>
 <div class="oc-earn-card">
-<div class="photo-slot card-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/earn-promotion.jpg" alt="Craftsperson carving wooden spoons at an event" class="oc-photo card-slot">
 <div class="oc-earn-body">
 <p>Helping with promotion. We show up at cons and faires to tell people about our game. Show up with us &ndash; help us to recruit new players and storytellers so that the adventure can continue.</p>
 </div>
