@@ -1,0 +1,366 @@
+/* Shared styles for the Members area (Characters, Friends, Kudos,
+   Teachable Skills, XP/OC Log, OC Submission). Colors and base type
+   come from css/style.css; this file is dashboard-specific layout. */
+
+button{ font-family:'Cinzel', serif; }
+
+/* Hide the dashboard until members-auth.js confirms the visitor is
+   logged in and has filled in their name, so nobody sees a flash of
+   someone else's layout or "Loading..." placeholders. */
+.dashboard{ visibility:hidden; }
+body.members-ready .dashboard{ visibility:visible; }
+
+/* ---------- DASHBOARD LAYOUT ---------- */
+.dashboard{
+  display:grid;
+  grid-template-columns: 220px 1fr;
+  gap: 2rem;
+  padding: 2rem 2.5rem 3rem;
+  align-items:start;
+}
+.account-tab{
+  display:inline-block;
+  background: var(--ink);
+  color: var(--cream);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.7rem 1.2rem;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  margin-bottom: 0.9rem;
+  width: 100%;
+  text-align:center;
+}
+.side-nav{
+  display:flex;
+  flex-direction: column;
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  overflow:hidden;
+}
+.side-nav a{
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-bottom: 1px dotted var(--gold-dark);
+  background: var(--row-b);
+}
+.side-nav a:last-child{ border-bottom:none; }
+.side-nav a.active{ background: var(--ink); color: var(--cream); }
+.side-nav a:not(.active):hover{ background: var(--gold); }
+
+/* ---------- SHARED MAIN-PANEL PIECES ---------- */
+.page-title{
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem;
+}
+.page-subhead{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.05rem;
+  color: var(--brown-dark);
+  margin: 0 0 1.4rem;
+}
+
+/* Character switcher (shown on pages where content is per-character) */
+.char-switcher{
+  display:flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+.char-switcher button{
+  background: #fff;
+  border: 2px solid var(--line);
+  color: var(--brown);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 4px;
+  cursor:pointer;
+}
+.char-switcher button.active{
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--gold);
+}
+.char-switcher button:not(.active):hover{ border-color: var(--gold-dark); }
+
+.panel-shadow{ box-shadow: 10px 10px 0 0 var(--gold); }
+
+/* Generic data table (reused for skills/log) */
+.data-table{
+  width:100%;
+  border-collapse: collapse;
+  background: var(--row-a);
+  border: 3px solid var(--gold);
+}
+.data-table th{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.85rem;
+  border-bottom: 4px solid var(--gold);
+  text-align:center;
+}
+.data-table th:not(:last-child),
+.data-table td:not(:last-child){
+  border-right: 2px dotted var(--gold-dark);
+}
+.data-table td{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.02rem;
+  padding: 0.7rem 1rem;
+  text-align:center;
+}
+.data-table tbody tr:nth-child(odd){ background: var(--row-b); }
+.data-table tbody tr:nth-child(even){ background: var(--row-a); }
+
+/* Generic cards (friends, kudos targets) */
+.card-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.9rem;
+}
+.info-card{
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  background: #fff;
+  font-family: 'EB Garamond', serif;
+  font-size: 1.05rem;
+}
+
+/* Form pieces */
+.field-label{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  display:block;
+  margin-bottom: 0.4rem;
+}
+select, input[type="text"], input[type="number"], textarea{
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown);
+  width:100%;
+}
+textarea{ resize: vertical; min-height: 90px; }
+.btn-gold{
+  background: var(--gold);
+  color: var(--ink);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.7rem 1.4rem;
+  border:none;
+  border-radius: 4px;
+  cursor:pointer;
+}
+.btn-gold:hover{ background: var(--gold-dark); }
+.btn-outline{
+  background: transparent;
+  color: var(--brown-dark);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  cursor:pointer;
+}
+.btn-outline:hover{ background: var(--cream-deep); }
+
+.row-inline{
+  display:flex;
+  gap: 0.8rem;
+  align-items:flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.row-inline .grow{ flex: 1; min-width: 220px; }
+
+.section-block{
+  margin-bottom: 2rem;
+}
+.section-block h3{
+  font-size: 1.05rem;
+  margin: 0 0 0.8rem;
+}
+
+@media (max-width: 900px){
+  .dashboard{ grid-template-columns: 1fr; }
+}
+
+/* ---------- CHARACTERS PAGE ---------- */
+.char-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+.char-tab{
+  display:inline-block;
+  background: var(--ink);
+  color: var(--cream);
+  font-weight: 700;
+  font-size: 1.3rem;
+  padding: 0.6rem 1.4rem;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+}
+.char-panel{
+  display:grid;
+  grid-template-columns: 280px 1fr;
+  border: 3px solid var(--gold);
+}
+.stat-panel{
+  background: var(--ink);
+  color: var(--cream);
+  padding: 1.6rem 1.6rem;
+  font-family: 'EB Garamond', serif;
+  font-size: 1.15rem;
+}
+.stat-panel .stat-row{ margin-bottom: 1.1rem; }
+.stat-panel .stat-label{ font-family:'Cinzel', serif; font-weight:600; }
+@media (max-width: 900px){ .char-panel{ grid-template-columns: 1fr; } }
+
+/* ---------- KUDOS PAGE ---------- */
+.kudos-target{
+  background: var(--cream-deep);
+  border-left: 3px solid var(--gold);
+  padding: 0.6rem 0.9rem;
+  border-radius: 3px;
+  font-family:'EB Garamond', serif;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+.submitted-list{
+  margin-top: 2rem;
+}
+.submitted-item{
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  background:#fff;
+  margin-bottom: 0.7rem;
+  font-family:'EB Garamond', serif;
+}
+.submitted-item .who{ font-family:'Cinzel', serif; font-weight:700; }
+
+/* ---------- XP/OC LOG PAGE ---------- */
+.log-type{
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  color:#fff;
+  display:inline-block;
+}
+.log-type.xp{ background: var(--good); }
+.log-type.oc{ background: #7a4f9e; }
+
+/* ---------- TEACHABLE SKILLS PAGE ---------- */
+.data-table td.teach-cell{ text-align:center; }
+.data-table input[type="checkbox"]{
+  width: 20px; height:20px;
+  accent-color: var(--gold-dark);
+  cursor:pointer;
+}
+.save-row{
+  margin-top: 1.2rem;
+  display:flex;
+  align-items:center;
+  gap: 1rem;
+}
+.saved-note{
+  font-family:'EB Garamond', serif;
+  font-style: italic;
+  color: var(--good);
+  font-size: 0.95rem;
+  opacity:0;
+  transition: opacity 0.2s ease;
+}
+.saved-note.show{ opacity:1; }
+
+/* ---------- OC SUBMISSION PAGE ---------- */
+.oc-row{
+  display:grid;
+  grid-template-columns: 140px 1fr auto;
+  gap: 0.8rem;
+  align-items:end;
+  margin-bottom: 1rem;
+}
+.oc-row .remove-btn{
+  background: transparent;
+  border: 2px solid var(--line);
+  color: var(--brown-dark);
+  border-radius: 4px;
+  width: 42px;
+  height: 42px;
+  font-size: 1.2rem;
+  cursor:pointer;
+  line-height:1;
+}
+.oc-row .remove-btn:hover{ border-color: var(--bad); color: var(--bad); }
+.add-row-btn{ margin-bottom: 1.6rem; }
+.confirm-note{
+  font-family:'EB Garamond', serif;
+  font-style: italic;
+  color: var(--good);
+  margin-top: 1rem;
+  opacity:0;
+  transition: opacity 0.2s ease;
+}
+.confirm-note.show{ opacity:1; }
+.quick-add-box{
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 1.1rem 1.2rem 1.3rem;
+  background: #fff;
+  margin-bottom: 2rem;
+}
+.quick-add-extra{
+  margin-top: 0.9rem;
+}
+.quick-add-note{
+  font-family:'EB Garamond', serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--brown-dark);
+  margin: 0.6rem 0 0;
+}
+.day-toggle{
+  display:flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
+}
+.day-toggle button{
+  background: #fff;
+  border: 2px solid var(--line);
+  color: var(--brown);
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 4px;
+  cursor:pointer;
+}
+.day-toggle button.active{
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--gold);
+}
+@media (max-width: 700px){
+  .oc-row{ grid-template-columns: 1fr; }
+}

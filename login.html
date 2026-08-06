@@ -152,16 +152,14 @@ async function handleLogin(){
   msg.textContent = 'Logged in! Redirecting...';
   msg.classList.add('success');
 
-  // Once you have a real account/dashboard page, redirect there instead:
-  // window.location.href = 'account.html';
+  window.location.href = 'characters.html';
 }
 
-// If someone's already logged in and lands on this page, you could
-// redirect them straight to their account instead of showing the form.
-// Uncomment once account.html exists:
-// supabase.auth.getSession().then(({ data }) => {
-//   if(data.session) window.location.href = 'account.html';
-// });
+// If someone's already logged in and lands on this page, send them
+// straight to the Members area instead of showing the form again.
+supabase.auth.getSession().then(({ data }) => {
+  if(data.session) window.location.href = 'characters.html';
+});
 </script>
 
 </body>
