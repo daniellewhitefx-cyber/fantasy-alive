@@ -119,7 +119,7 @@ const SUPABASE_URL = 'https://xdchluuvicuuqyqsejnq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99';
 // -------------------------------------------------------------
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function handleSignup(){
   const displayName = document.getElementById('display-name').value.trim();
@@ -145,7 +145,7 @@ async function handleSignup(){
   btn.disabled = true;
   btn.textContent = 'Creating account...';
 
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await supabaseClient.auth.signUp({
     email: email,
     password: password,
     options: {
