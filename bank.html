@@ -32,87 +32,102 @@
   </label>
 </div>
 
-<div class="reg-section">
-  <div class="reg-section-label">Send Coin</div>
-  <div class="bank-form-grid">
-    <div class="bank-recipient-picker" data-picker="send">
-      <label class="field-label" for="bank-send-recipient-input">To</label>
-      <input type="text" id="bank-send-recipient-input" placeholder="Search player name..." autocomplete="off"
-        oninput="bank_searchRecipients('send', this.value)">
-      <div class="bank-recipient-results" id="bank-send-recipient-results"></div>
-      <p class="bank-selected-recipient" id="bank-send-selected" style="display:none;"></p>
+<div class="bank-tabs" role="tablist">
+  <button class="bank-tab active" data-tab="withdraw" onclick="bank_switchTab('withdraw')">Withdraw</button>
+  <button class="bank-tab" data-tab="send" onclick="bank_switchTab('send')">Send</button>
+  <button class="bank-tab" data-tab="bill" onclick="bank_switchTab('bill')">Bill</button>
+  <button class="bank-tab" data-tab="history" onclick="bank_switchTab('history')">History</button>
+</div>
+
+<div class="bank-tab-panel" data-panel="withdraw">
+  <div class="reg-section">
+    <div class="reg-section-label">Request a Withdrawal</div>
+    <p class="page-subhead" style="margin-bottom:0.8rem;">Ahead of an event, request coin to be handed to you in person. Staff will fulfill it at the event.</p>
+    <div class="bank-form-grid">
+      <div>
+        <label class="field-label" for="bank-withdraw-amount">Amount</label>
+        <input type="number" id="bank-withdraw-amount" min="1" step="1" placeholder="0">
+      </div>
+      <div>
+        <label class="field-label" for="bank-withdraw-note">Note (optional)</label>
+        <input type="text" id="bank-withdraw-note" placeholder="e.g. for the Saturday market">
+      </div>
     </div>
-    <div>
-      <label class="field-label" for="bank-send-amount">Amount</label>
-      <input type="number" id="bank-send-amount" min="1" step="1" placeholder="0">
-    </div>
+    <button class="btn-gold" style="margin-top:1rem;" onclick="bank_requestWithdrawal()">Request Withdrawal</button>
+    <p class="reg-error-note" id="bank-withdraw-error" style="display:none;"></p>
   </div>
-  <label class="field-label" for="bank-send-note">Note (optional)</label>
-  <input type="text" id="bank-send-note" placeholder="What's this for?">
-  <button class="btn-gold" style="margin-top:1rem;" onclick="bank_sendCoin()">Send Coin</button>
-  <p class="reg-error-note" id="bank-send-error" style="display:none;"></p>
-</div>
 
-<div class="reg-section">
-  <div class="reg-section-label">Bill a Player</div>
-  <p class="page-subhead" style="margin-bottom:0.8rem;">Request coin from someone else. They'll see it as a pending bill they can pay or decline.</p>
-  <div class="bank-form-grid">
-    <div class="bank-recipient-picker" data-picker="bill">
-      <label class="field-label" for="bank-bill-recipient-input">Bill</label>
-      <input type="text" id="bank-bill-recipient-input" placeholder="Search player name..." autocomplete="off"
-        oninput="bank_searchRecipients('bill', this.value)">
-      <div class="bank-recipient-results" id="bank-bill-recipient-results"></div>
-      <p class="bank-selected-recipient" id="bank-bill-selected" style="display:none;"></p>
-    </div>
-    <div>
-      <label class="field-label" for="bank-bill-amount">Amount</label>
-      <input type="number" id="bank-bill-amount" min="1" step="1" placeholder="0">
-    </div>
+  <div class="reg-section">
+    <div class="reg-section-label">Your Withdrawal Requests</div>
+    <div id="bank-withdrawal-list"><p class="reg-empty-note">None yet.</p></div>
   </div>
-  <label class="field-label" for="bank-bill-note">Note (optional)</label>
-  <input type="text" id="bank-bill-note" placeholder="What's this for?">
-  <button class="btn-gold" style="margin-top:1rem;" onclick="bank_sendBill()">Send Bill</button>
-  <p class="reg-error-note" id="bank-bill-error" style="display:none;"></p>
 </div>
 
-<div class="reg-section">
-  <div class="reg-section-label">Bills Waiting on You</div>
-  <div id="bank-bills-to-me"><p class="reg-empty-note">None right now.</p></div>
-</div>
-
-<div class="reg-section">
-  <div class="reg-section-label">Bills You've Sent</div>
-  <div id="bank-bills-from-me"><p class="reg-empty-note">None right now.</p></div>
-</div>
-
-<div class="reg-section">
-  <div class="reg-section-label">Request a Withdrawal</div>
-  <p class="page-subhead" style="margin-bottom:0.8rem;">Ahead of an event, request coin to be handed to you in person. Staff will fulfill it at the event.</p>
-  <div class="bank-form-grid">
-    <div>
-      <label class="field-label" for="bank-withdraw-amount">Amount</label>
-      <input type="number" id="bank-withdraw-amount" min="1" step="1" placeholder="0">
+<div class="bank-tab-panel" data-panel="send" style="display:none;">
+  <div class="reg-section">
+    <div class="reg-section-label">Send Coin</div>
+    <div class="bank-form-grid">
+      <div class="bank-recipient-picker" data-picker="send">
+        <label class="field-label" for="bank-send-recipient-input">To</label>
+        <input type="text" id="bank-send-recipient-input" placeholder="Search player name..." autocomplete="off"
+          oninput="bank_searchRecipients('send', this.value)">
+        <div class="bank-recipient-results" id="bank-send-recipient-results"></div>
+        <p class="bank-selected-recipient" id="bank-send-selected" style="display:none;"></p>
+      </div>
+      <div>
+        <label class="field-label" for="bank-send-amount">Amount</label>
+        <input type="number" id="bank-send-amount" min="1" step="1" placeholder="0">
+      </div>
     </div>
-    <div>
-      <label class="field-label" for="bank-withdraw-note">Note (optional)</label>
-      <input type="text" id="bank-withdraw-note" placeholder="e.g. for the Saturday market">
-    </div>
+    <label class="field-label" for="bank-send-note">Note (optional)</label>
+    <input type="text" id="bank-send-note" placeholder="What's this for?">
+    <button class="btn-gold" style="margin-top:1rem;" onclick="bank_sendCoin()">Send Coin</button>
+    <p class="reg-error-note" id="bank-send-error" style="display:none;"></p>
   </div>
-  <button class="btn-gold" style="margin-top:1rem;" onclick="bank_requestWithdrawal()">Request Withdrawal</button>
-  <p class="reg-error-note" id="bank-withdraw-error" style="display:none;"></p>
 </div>
 
-<div class="reg-section">
-  <div class="reg-section-label">Your Withdrawal Requests</div>
-  <div id="bank-withdrawal-list"><p class="reg-empty-note">None yet.</p></div>
+<div class="bank-tab-panel" data-panel="bill" style="display:none;">
+  <div class="reg-section">
+    <div class="reg-section-label">Bill a Player</div>
+    <p class="page-subhead" style="margin-bottom:0.8rem;">Request coin from someone else. They'll see it as a pending bill they can pay or decline.</p>
+    <div class="bank-form-grid">
+      <div class="bank-recipient-picker" data-picker="bill">
+        <label class="field-label" for="bank-bill-recipient-input">Bill</label>
+        <input type="text" id="bank-bill-recipient-input" placeholder="Search player name..." autocomplete="off"
+          oninput="bank_searchRecipients('bill', this.value)">
+        <div class="bank-recipient-results" id="bank-bill-recipient-results"></div>
+        <p class="bank-selected-recipient" id="bank-bill-selected" style="display:none;"></p>
+      </div>
+      <div>
+        <label class="field-label" for="bank-bill-amount">Amount</label>
+        <input type="number" id="bank-bill-amount" min="1" step="1" placeholder="0">
+      </div>
+    </div>
+    <label class="field-label" for="bank-bill-note">Note (optional)</label>
+    <input type="text" id="bank-bill-note" placeholder="What's this for?">
+    <button class="btn-gold" style="margin-top:1rem;" onclick="bank_sendBill()">Send Bill</button>
+    <p class="reg-error-note" id="bank-bill-error" style="display:none;"></p>
+  </div>
+
+  <div class="reg-section">
+    <div class="reg-section-label">Bills Waiting on You</div>
+    <div id="bank-bills-to-me"><p class="reg-empty-note">None right now.</p></div>
+  </div>
+
+  <div class="reg-section">
+    <div class="reg-section-label">Bills You've Sent</div>
+    <div id="bank-bills-from-me"><p class="reg-empty-note">None right now.</p></div>
+  </div>
 </div>
 
-<div class="reg-section">
-  <div class="reg-section-label">Transaction History</div>
-  <table class="data-table">
-    <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>With</th><th>Note</th></tr></thead>
-    <tbody id="bank-history-body"><tr><td colspan="5">Loading&hellip;</td></tr></tbody>
-  </table>
+<div class="bank-tab-panel" data-panel="history" style="display:none;">
+  <div class="reg-section">
+    <div class="reg-section-label">Transaction History</div>
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>With</th><th>Note</th></tr></thead>
+      <tbody id="bank-history-body"><tr><td colspan="5">Loading&hellip;</td></tr></tbody>
+    </table>
+  </div>
 </div>
 
 <div class="reg-section bank-staff-section" id="bank-staff-section" style="display:none;">
@@ -334,6 +349,15 @@ function showError(el, msg){
   el.style.display = 'block';
 }
 
+function bank_switchTab(tab){
+  document.querySelectorAll('.bank-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  document.querySelectorAll('.bank-tab-panel').forEach(panel => {
+    panel.style.display = panel.dataset.panel === tab ? 'block' : 'none';
+  });
+}
+
 async function refreshBalance(){
   const { data, error } = await membersSupabase.rpc('bank_my_balance');
   document.getElementById('bank-balance-amount').textContent = error ? 'Unavailable' : (fmtAmount(data) + ' coin');
@@ -477,6 +501,7 @@ window.bank_cancelWithdrawal = bank_cancelWithdrawal;
 window.bank_staffDeposit = bank_staffDeposit;
 window.bank_staffFulfill = bank_staffFulfill;
 window.bank_toggleAutoBank = bank_toggleAutoBank;
+window.bank_switchTab = bank_switchTab;
 
 document.addEventListener('fa-members-ready', async (e) => {
   const user = e.detail.user;
