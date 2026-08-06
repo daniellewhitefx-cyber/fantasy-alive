@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lore &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* ---------- HERO ---------- */
+.lore-page-hero{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  align-items:center;
+  height: 320px;
+  overflow: hidden;
+}
+.lore-page-hero-content{
+  padding: 2rem 3rem 2rem 5.5rem;
+  text-align: center;
+}
+.lore-page-hero-content img{
+  width:100%; max-width: 440px; height:auto; display:block; margin: 0 auto;
+}
+.lore-page-hero-content h1{
+  font-family: 'EB Garamond', serif;
+  font-weight: 500;
+  font-size: 3rem;
+  margin: 0.5rem 0 0;
+  color: var(--brown);
+  text-align: center;
+}
+.lore-page-hero-image{
+  position:relative;
+  overflow:hidden;
+  height: 100%;
+  min-height: 320px;
+}
+.lore-page-hero-image::after{
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width: 45%; height:100%;
+  background: linear-gradient(to left, rgba(236,225,205,0) 0%, var(--cream) 100%);
+  pointer-events: none;
+}
+.lore-page-hero-image img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+
+/* ---------- LAYOUT ---------- */
+.lore-page{
+  display:grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2.5rem;
+  padding: 2rem 3rem 4rem;
+  align-items:start;
+  max-width: 1300px;
+  margin: 0 auto;
+  background: var(--cream);
+  color: var(--brown);
+  font-family: 'Cinzel', serif;
+}
+
+/* ---------- SIDEBAR ---------- */
+.lore-sidebar{
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  overflow:hidden;
+  position: sticky;
+  top: 1.5rem;
+}
+.lore-cat{
+  border-bottom: 1px solid var(--gold-dark);
+}
+.lore-cat:last-child{ border-bottom:none; }
+.lore-cat-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  background: var(--ink);
+  color: var(--gold);
+  border:none;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  padding: 0.7rem 1rem;
+  cursor:pointer;
+  text-align:left;
+}
+.lore-cat-header .chev{
+  transition: transform 0.15s ease;
+  font-size: 0.75rem;
+}
+.lore-cat.open .lore-cat-header .chev{ transform: rotate(90deg); }
+.lore-cat-items{
+  display:none;
+  flex-direction: column;
+}
+.lore-cat.open .lore-cat-items{ display:flex; }
+.lore-cat-items button{
+  display:block;
+  width:100%;
+  text-align:left;
+  background: var(--cream-deep);
+  border: none;
+  border-top: 1px dotted var(--gold-dark);
+  color: var(--brown);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.65rem 1rem 0.65rem 1.4rem;
+  cursor:pointer;
+}
+.lore-cat-items button.active{
+  background: var(--gold);
+  color: var(--ink);
+}
+.lore-cat-items button:not(.active):hover{ background: var(--gold-dark); color: var(--cream); }
+
+/* ---------- DARK MODE TOGGLE ---------- */
+.lore-mode-toggle{
+  display:flex;
+  align-items:center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--cream-deep);
+  border-bottom: 2px solid var(--gold-dark);
+  font-family: 'Cinzel', serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--brown);
+}
+.lore-toggle-switch{
+  position:relative;
+  width: 38px; height: 20px;
+  background: #3a352a;
+  border-radius: 10px;
+  border: none;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.lore-toggle-switch.on{ background: var(--gold); }
+.lore-toggle-switch::after{
+  content:"";
+  position:absolute;
+  top:2px; left:2px;
+  width:16px; height:16px;
+  border-radius:50%;
+  background: #fff;
+  transition: left 0.15s ease;
+}
+.lore-toggle-switch.on::after{ left: 20px; }
+
+/* ---------- SEARCH ---------- */
+.lore-search{
+  padding: 0.8rem;
+  background: var(--ink);
+  border-bottom: 3px solid var(--gold);
+}
+.lore-search input{
+  width:100%;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  padding: 0.55rem 0.8rem;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown);
+}
+.lore-search-results{
+  display:flex;
+  flex-direction: column;
+}
+.lore-search-result{
+  display:block;
+  width:100%;
+  text-align:left;
+  background: var(--cream-deep);
+  border: none;
+  border-bottom: 1px dotted var(--gold-dark);
+  color: var(--brown);
+  padding: 0.7rem 1rem;
+  cursor:pointer;
+}
+.lore-search-result:last-child{ border-bottom:none; }
+.lore-search-result:hover{ background: var(--gold); }
+.lore-search-result .lsr-title{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.15rem;
+}
+.lore-search-result .lsr-cat{
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 0.3rem;
+}
+.lore-search-result .lsr-excerpt{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--brown-dark);
+}
+.lore-search-result mark{
+  background: var(--gold);
+  color: var(--ink);
+  padding: 0 1px;
+}
+.lore-search-empty{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--brown-dark);
+  padding: 1rem;
+}
+
+/* ---------- READING PANE ---------- */
+.lore-article{
+  background: #fff;
+  border: 3px solid var(--gold);
+  box-shadow: 10px 10px 0 0 var(--gold);
+  padding: 2.2rem 2.6rem 2.6rem;
+}
+.lore-article h2{
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin: 0 0 1.4rem;
+  color: var(--brown-dark);
+}
+.lore-article h3{
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1.8rem 0 0.9rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--gold);
+  color: var(--brown-dark);
+}
+.lore-article h4{
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 1.4rem 0 0.7rem;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.lore-article .lore-quote{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--brown-dark);
+  border-left: 3px solid var(--gold);
+  padding: 0.4rem 0 0.4rem 1.1rem;
+  margin: 0 0 1.6rem;
+}
+.lore-article .lore-quote cite{
+  display:block;
+  font-style: normal;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  color: var(--gold-dark);
+}
+.lore-article p{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.12rem;
+  line-height: 1.75;
+  margin: 0 0 1.1rem;
+  color: #2e2415;
+}
+.lore-article p.lore-attribution{
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--gold-dark);
+  margin-top: 1.8rem;
+  padding-top: 1rem;
+  border-top: 1px dotted var(--line);
+}
+.lore-article a{
+  color: var(--gold-dark);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.lore-article a:hover{ color: var(--brown-dark); }
+.lore-article img{
+  display:block;
+  max-width: 100%;
+  height:auto;
+  margin: 1.6rem auto;
+  border: 3px solid var(--gold);
+  box-shadow: 8px 8px 0 0 var(--gold);
+}
+.lore-article figure{
+  margin: 1.6rem 0;
+}
+.lore-article figure img{ margin: 0 auto 0.6rem; }
+.lore-article figcaption{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--brown-dark);
+  text-align:center;
+}
+.lore-article table{
+  width:100%;
+  border-collapse: collapse;
+  background: var(--cream-deep);
+  border: 3px solid var(--gold);
+  margin: 1.6rem 0;
+}
+.lore-article th{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 4px solid var(--gold);
+  text-align:left;
+}
+.lore-article th:not(:last-child),
+.lore-article td:not(:last-child){
+  border-right: 2px dotted var(--gold-dark);
+}
+.lore-article td{
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  padding: 0.6rem 0.9rem;
+}
+.lore-article tbody tr:nth-child(odd){ background: var(--cream); }
+.lore-article tbody tr:nth-child(even){ background: var(--cream-deep); }
+.lore-empty{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  color: var(--brown-dark);
+  padding: 2rem;
+}
+
+/* ---------- DARK MODE ---------- */
+.lore-page.lore-dark{
+  --lore-dbg: #1b1812;
+  --lore-dpanel: #26221a;
+  --lore-dtext: #e8ddc8;
+  --lore-dtext-soft: #c9bda0;
+}
+.lore-page.lore-dark .lore-cat-items button{
+  background: var(--lore-dpanel);
+  color: var(--lore-dtext);
+}
+.lore-page.lore-dark .lore-cat-items button.active{
+  background: var(--gold);
+  color: var(--ink);
+}
+.lore-page.lore-dark .lore-cat-items button:not(.active):hover{
+  background: var(--gold-dark);
+  color: var(--ink);
+}
+.lore-page.lore-dark .lore-search-result{
+  background: var(--lore-dpanel);
+  color: var(--lore-dtext);
+}
+.lore-page.lore-dark .lore-search-result:hover{ background: var(--gold-dark); }
+.lore-page.lore-dark .lore-search-result .lsr-excerpt{ color: var(--lore-dtext-soft); }
+.lore-page.lore-dark .lore-search-empty{ color: var(--lore-dtext-soft); }
+.lore-page.lore-dark .lore-article{
+  background: var(--lore-dpanel);
+}
+.lore-page.lore-dark .lore-article h2,
+.lore-page.lore-dark .lore-article h3{
+  color: var(--lore-dtext);
+}
+.lore-page.lore-dark .lore-article h4{
+  color: var(--gold);
+}
+.lore-page.lore-dark .lore-article p{
+  color: var(--lore-dtext-soft);
+}
+.lore-page.lore-dark .lore-article .lore-quote{
+  color: var(--lore-dtext);
+}
+.lore-page.lore-dark .lore-article a{
+  color: var(--gold);
+}
+.lore-page.lore-dark .lore-article a:hover{ color: var(--lore-dtext); }
+.lore-page.lore-dark .lore-article figcaption{ color: var(--lore-dtext-soft); }
+.lore-page.lore-dark .lore-article table{ background: var(--lore-dpanel); }
+.lore-page.lore-dark .lore-article th{ color: var(--lore-dtext); }
+.lore-page.lore-dark .lore-article td{ color: var(--lore-dtext-soft); }
+.lore-page.lore-dark .lore-article tbody tr:nth-child(odd){ background: #201c15; }
+.lore-page.lore-dark .lore-article tbody tr:nth-child(even){ background: var(--lore-dpanel); }
+.lore-page.lore-dark .lore-empty{ color: var(--lore-dtext-soft); }
+
+@media (max-width: 900px){
+  .lore-page{ grid-template-columns: 1fr; }
+  .lore-sidebar{ position: static; }
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<section class="lore-page-hero">
+  <div class="lore-page-hero-content">
+    <img src="https://i.imgur.com/YUATL72.png" alt="Fantasy Alive">
+    <h1>Lore</h1>
+  </div>
+  <div class="lore-page-hero-image">
+    <img src="https://i.imgur.com/SnDEnTG.jpeg" alt="Fantasy Alive lore banner">
+  </div>
+</section>
+
+<div class="lore-page" id="lore-page">
+  <nav class="lore-sidebar">
+  <div class="lore-mode-toggle">
+    <button class="lore-toggle-switch" id="lore-dark-toggle" onclick="lore_toggleDark()"></button>
+    <span>Dark mode</span>
+  </div>
+  <div class="lore-search">
+    <input type="text" id="lore-search-input" placeholder="Search the lore..." oninput="lore_search(this.value)">
+  </div>
+  <div id="lore-sidebar-content"></div>
+</nav>
+  <article class="lore-article" id="lore-display">
+    <p class="lore-empty">Select a topic from the list to begin reading.</p>
+  </article>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="lore/manifest.js"></script>
+<script src="js/lore-engine.js"></script>
+</body>
+</html>

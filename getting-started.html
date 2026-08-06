@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Getting Started &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* ---------- PAGE HERO ---------- */
+.page-hero{
+display:grid;
+grid-template-columns: 1fr 1fr;
+align-items:center;
+height: 320px;
+overflow: hidden;
+}
+.page-hero-content{
+padding: 2rem 3rem 2rem 5.5rem;
+text-align: center;
+}
+.page-hero .logo-img{ width:100%; max-width: 440px; height:auto; display:block; margin: 0 auto; }
+.page-hero h1{
+font-family: 'EB Garamond', serif;
+font-weight: 500;
+font-size: 3rem;
+margin: 0.5rem 0 0;
+color: var(--brown);
+text-align: center;
+}
+.page-hero-image{
+position:relative;
+overflow:hidden;
+height: 100%;
+min-height: 320px;
+}
+.page-hero-image::after{
+content:"";
+position:absolute;
+top:0; left:0;
+width: 45%; height:100%;
+background: linear-gradient(to left, rgba(236,225,205,0) 0%, var(--cream) 100%);
+pointer-events: none;
+}
+.page-hero-image img{
+width:100%; height:100%; object-fit:cover; display:block;
+}
+
+/* ---------- WHAT IS LARP ---------- */
+.larp-section{
+display:grid;
+grid-template-columns: 0.75fr 1.6fr;
+gap: 3rem;
+padding: 3rem 3.5rem;
+align-items: start;
+}
+.larp-photo{ position:relative; }
+.larp-photo img{
+width:100%; aspect-ratio: 3/4; object-fit:cover; display:block;
+box-shadow: 10px 10px 0 0 var(--gold);
+}
+.larp-section h2{
+font-size: 2rem;
+margin: 0 0 1.4rem;
+font-weight: 700;
+}
+.checklist{
+display:grid;
+grid-template-columns: 1fr 1fr;
+gap: 1.3rem 2.2rem;
+}
+.check-item, .x-item{
+display:flex;
+align-items:flex-start;
+gap: 0.7rem;
+}
+.check-item .icon{ color: var(--good); }
+.x-item .icon{ color: var(--bad); }
+.check-item .icon, .x-item .icon{
+font-family: 'Cinzel', serif;
+font-weight: 700;
+font-size: 1.15rem;
+line-height: 1.5;
+flex-shrink:0;
+}
+.check-item p, .x-item p{
+font-family: 'EB Garamond', serif;
+font-weight: 400;
+font-size: 1.08rem;
+line-height: 1.45;
+margin:0;
+color: #2e2415;
+}
+
+/* ---------- COMBAT SAFETY ---------- */
+.combat-safety{
+background: var(--ink);
+color: var(--cream);
+padding: 2.5rem 3rem 3rem;
+}
+.combat-safety-heading{
+display:flex;
+align-items:center;
+justify-content:center;
+gap: 1rem;
+margin: 0 0 2rem;
+font-size: 2rem;
+font-weight: 700;
+}
+.combat-safety-heading svg{ width: 36px; height:36px; flex-shrink:0; }
+.combat-grid{
+display:grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 2.5rem;
+}
+.combat-grid p{
+font-family: 'EB Garamond', serif;
+font-weight: 400;
+font-size: 1.05rem;
+line-height: 1.6;
+margin: 0 0 1rem;
+}
+.zebra-col{ position:relative; }
+.zebra-title{
+display:flex;
+align-items:center;
+justify-content:flex-start;
+gap: 0.75rem;
+font-family: 'Cinzel Decorative', serif;
+font-weight: 700;
+font-size: 1.7rem;
+color: var(--cream);
+letter-spacing: 0.03em;
+margin: 0 0 1rem;
+}
+.zebra-title .zebra-icon{ width: 68px; height:68px; flex-shrink:0; object-fit:contain; }
+
+/* ---------- FAQ ---------- */
+.faq-section{
+display:grid;
+grid-template-columns: 1.6fr 0.9fr;
+gap: 3rem;
+padding: 3rem 3.5rem;
+align-items:start;
+}
+.faq-section h2{
+font-size: 2.2rem;
+margin: 0 0 1.5rem;
+font-weight: 700;
+}
+.faq-item{ margin-bottom: 1.8rem; }
+.faq-item .q{
+font-family: 'EB Garamond', serif;
+font-style: italic;
+font-weight: 700;
+font-size: 1.2rem;
+margin: 0 0 0.5rem;
+color: var(--brown-dark);
+}
+.faq-item .a{
+font-family: 'EB Garamond', serif;
+font-weight: 400;
+font-size: 1.08rem;
+line-height: 1.55;
+margin:0;
+color: #2e2415;
+}
+.faq-photo img{
+width:100%; aspect-ratio: 3/4; object-fit:cover; display:block;
+box-shadow: 10px 10px 0 0 var(--gold);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 900px){
+.page-hero{ grid-template-columns: 1fr; }
+.larp-section{ grid-template-columns: 1fr; padding: 2rem 1.5rem; }
+.checklist{ grid-template-columns: 1fr; }
+.combat-grid{ grid-template-columns: 1fr; }
+.faq-section{ grid-template-columns: 1fr; padding: 2rem 1.5rem; }
+.faq-photo{ order: -1; }
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+<div class="page-hero-content">
+<img src="https://i.imgur.com/YUATL72.png" alt="Fantasy Alive" class="logo-img">
+<h1>Getting Started</h1>
+</div>
+<div class="page-hero-image">
+<img src="https://i.imgur.com/zOtOU6q.png" alt="A bard playing lute in costume">
+</div>
+</section>
+
+<!-- WHAT IS LARP -->
+<section class="larp-section">
+<div class="larp-photo">
+<img src="https://i.imgur.com/JlTy36o.png" alt="A player in a cloak greeting the sunrise">
+</div>
+<div class="larp-text">
+<h2>What is LARP?</h2>
+<div class="checklist">
+<div class="check-item"><span class="icon">&#10003;</span><p>Take on the role of a character and act out their actions yourself</p></div>
+<div class="x-item"><span class="icon">&#10007;</span><p>No dice! Unlike tabletop RPGs like D&amp;D, success or failure isn't determined by chance or a roll.</p></div>
+<div class="check-item"><span class="icon">&#10003;</span><p>Collaborative, in person storytelling</p></div>
+<div class="x-item"><span class="icon">&#10007;</span><p>No passive spectating. You embody your character and act them out!</p></div>
+<div class="check-item"><span class="icon">&#10003;</span><p>Generally fantasy focused but there are many genres!</p></div>
+<div class="x-item"><span class="icon">&#10007;</span><p>Not scripted or predetermined. Your choices shape how the story unfolds!</p></div>
+<div class="check-item"><span class="icon">&#10003;</span><p>Uses props, costumes and immersive settings. A forest path can be an enchanted wood. A field becomes a battlefield!</p></div>
+<div class="check-item"><span class="icon">&#10003;</span><p>Expected to stay in character throughout but you can go out of character (OOG) to ask questions and take breaks</p></div>
+</div>
+</div>
+</section>
+
+<!-- COMBAT SAFETY -->
+<section class="combat-safety">
+<h2 class="combat-safety-heading">
+<svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round">
+<path d="M5 20 19 6"/>
+<path d="M19 20 5 6"/>
+<path d="M5 17 9 21"/>
+<path d="M19 17 15 21"/>
+<circle cx="4" cy="21" r="1.1" fill="var(--gold)" stroke="none"/>
+<circle cx="20" cy="21" r="1.1" fill="var(--gold)" stroke="none"/>
+</svg>
+Combat Safety
+<svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round">
+<path d="M5 20 19 6"/>
+<path d="M19 20 5 6"/>
+<path d="M5 17 9 21"/>
+<path d="M19 17 15 21"/>
+<circle cx="4" cy="21" r="1.1" fill="var(--gold)" stroke="none"/>
+<circle cx="20" cy="21" r="1.1" fill="var(--gold)" stroke="none"/>
+</svg>
+</h2>
+<div class="combat-grid">
+<div>
+<p>Fantasy Alive is a "boffer LARP" which means combat is simulated with padded foam weapons. Characters have Life Points and Armour Points (if they're wearing armour). Based on the weapon or skill used, a number is called out and that many points are deducted from the target. Other effects like stuns are called the same way.</p>
+</div>
+<div>
+<p>Magic works much the same, delivered either through touch, a foam "fist boffer" or a thrown packet. The caster calls out the spell effect and then does the action. If you're ever unsure about what a spell does, it's okay to ask!</p>
+<p>Fantasy Alive encourages dramatic combat! Big actions and reactions are encouraged, from yelps of surprise to groans of mock pain. For safety reasons, the head and groin are always off-limits for attacks.</p>
+</div>
+<div class="zebra-col">
+<div class="zebra-title">
+"ZEBRA!"
+<img src="https://i.imgur.com/IKo4Deg.png" alt="Zebra symbol" class="zebra-icon">
+</div>
+<p>Accidents happen, especially outdoors. If someone needs combat to stop immediately (often because of a real injury), they shout "Zebra!" Since zebras don't exist anywhere in the game world, it can't be mistaken for anything in game. This makes it the unmistakable signal to pause until it's safe to continue with the phrase: "Lay on."</p>
+</div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+<div class="faq-text">
+<h2>FAQ</h2>
+<div class="faq-item">
+<p class="q">Can I participate if I have reduced mobility or other barriers?</p>
+<p class="a">Absolutely! In fact, Fantasy Alive has a specific non-combat system for those that want to opt out of physical combat entirely, regardless of their disability or if they simply don't want to participate in that aspect and our management is also happy to find ways to get everyone involved!</p>
+</div>
+<div class="faq-item">
+<p class="q">How do I get props/costumes/weapons/etc?</p>
+<p class="a">Our aesthetic is medieval fantasy but it's not strictly enforced nor do we enforce any kind of "gender norm". There are many players who are happy to lend equipment if you're in need but if you're looking at your own kit, thrifting is a great way to get started! We just ask you avoid jeans and logos on your clothes! It's best to start out simple and build your look over time!</p>
+</div>
+</div>
+<div class="faq-photo">
+<img src="https://i.imgur.com/FvTxzIl.png" alt="A player in an ornate red and gold gown">
+</div>
+</section>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+</body>
+</html>

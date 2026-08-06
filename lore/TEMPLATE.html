@@ -1,0 +1,57 @@
+<!--
+LORE ARTICLE TEMPLATE
+
+To add a new article:
+  1. Copy this file into /lore/, rename it something like new-article-name.html
+  2. Delete this comment block and anything you don't need (quote, image, table, subheadings)
+  3. Add ONE line to /lore/manifest.js pointing to it, with the category and title
+
+This file should ONLY contain the article's own content below.
+No wrapping <div>, no data-category or data-title here anymore, those live in manifest.js now.
+-->
+
+<!-- Optional quote block. Delete this whole div if there's no epigraph. -->
+<div class="lore-quote">
+  Quote text goes here.
+  <cite>Attribution goes here</cite>
+</div>
+
+<!-- Body paragraphs -->
+<p>First paragraph.</p>
+
+<!--
+Internal link to another lore article: use lore_goto('Exact Title') with the OTHER
+article's exact title (as written in manifest.js). Jumps straight to that article.
+-->
+<p>You can mention something like the <a href="#" onclick="return lore_goto('Curtainborn')">Curtainborn</a> and link straight to that article.</p>
+
+<!-- External link. Real relative links no longer need target="_top" now that this is a real site. -->
+<p>You can also link out to <a href="https://fantasyalivelrp.com">an outside page</a> normally.</p>
+
+<!-- Subheadings: h3 for a main section break, h4 for a smaller sub-section -->
+<h3>Main Section Heading</h3>
+<p>Paragraph under the main section heading.</p>
+
+<h4>Smaller Sub-Section Heading</h4>
+<p>Paragraph under the smaller sub-section heading.</p>
+
+<!-- Image, optionally with a caption -->
+<figure>
+  <img src="https://your-image-url-here.jpg" alt="Describe the image">
+  <figcaption>Optional caption text goes here.</figcaption>
+</figure>
+
+<!-- Table, styled automatically, no extra classes needed -->
+<table>
+  <thead>
+    <tr><th>Column One</th><th>Column Two</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Row one, cell one</td><td>Row one, cell two</td></tr>
+    <tr><td>Row two, cell one</td><td>Row two, cell two</td></tr>
+  </tbody>
+</table>
+
+<p>More paragraphs can follow.</p>
+
+<p class="lore-attribution">Authored by NAME, Fantasy Alive Lore Team YEAR. Copyright &copy; Endless Adventures Ontario.</p>
