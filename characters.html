@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Characters &mdash; Fantasy Alive</title>
+<title>Characters - Fantasy Alive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -18,7 +18,6 @@
 
 <div data-include="partials/members-sidebar.html"></div>
 
-<!-- MAIN PANEL -->
 <div>
 
 <div class="char-switcher" id="chars-char-switcher"></div>
@@ -103,12 +102,10 @@ async function updateRegisterStatus(character){
     const user = await faGetCurrentUser();
     if(!user) return;
     const result = await faCheckRegistration(window.FA_NEXT_EVENT.label, 'character', character.name, user.email);
-    // Only apply the result if the user hasn't switched characters since we asked
     if(result.registered && activeCharId === character.id){
       el.innerHTML = `<a href="register.html" class="chars-registered-badge">&#10003; You're Registered for ${escapeHtml(window.FA_NEXT_EVENT.label)}</a>`;
     }
   } catch(err){
-    // fail open — leave the default Register button showing
   }
 }
 

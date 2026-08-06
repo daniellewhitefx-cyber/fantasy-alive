@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Log In — Fantasy Alive</title>
+<title>Log In - Fantasy Alive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
 <script src="js/vendor/supabase-js.min.js"></script>
@@ -110,10 +110,8 @@ button:disabled{ opacity: 0.6; cursor: not-allowed; }
 </div>
 
 <script>
-// ---- FILL THESE IN with your actual Supabase project values ----
 const SUPABASE_URL = 'https://xdchluuvicuuqyqsejnq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99';
-// -------------------------------------------------------------
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -155,8 +153,6 @@ async function handleLogin(){
   window.location.href = 'characters.html';
 }
 
-// If someone's already logged in and lands on this page, send them
-// straight to the Members area instead of showing the form again.
 supabaseClient.auth.getSession().then(({ data }) => {
   if(data.session) window.location.href = 'characters.html';
 });

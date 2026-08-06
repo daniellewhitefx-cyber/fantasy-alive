@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bank &mdash; Fantasy Alive</title>
+<title>Bank - Fantasy Alive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -18,7 +18,6 @@
 
 <div data-include="partials/members-sidebar.html"></div>
 
-<!-- MAIN PANEL -->
 <div>
 
 <h1 class="page-title">Bank</h1>
@@ -371,7 +370,7 @@ async function refreshHistory(){
       <td>${fmtDate(t.created_at)}</td>
       <td>${TYPE_LABELS[t.type] || t.type}</td>
       <td>${fmtAmount(t.amount)}</td>
-      <td>${t.counterparty_id ? escapeHtml(nameFor(t.counterparty_id)) : '&mdash;'}</td>
+      <td>${t.counterparty_id ? escapeHtml(nameFor(t.counterparty_id)) : '-'}</td>
       <td>${t.note ? escapeHtml(t.note) : ''}</td>
     </tr>
   `).join('');
@@ -392,7 +391,7 @@ async function refreshBills(){
   const toMeEl = document.getElementById('bank-bills-to-me');
   toMeEl.innerHTML = toMe.length === 0 ? '<p class="reg-empty-note">None right now.</p>' : toMe.map(b => `
     <div class="bank-bill-card">
-      <div><strong>${escapeHtml(nameFor(b.from_player_id))}</strong> billed you <strong>${fmtAmount(b.amount)} coin</strong>${b.note ? ' &mdash; ' + escapeHtml(b.note) : ''}</div>
+      <div><strong>${escapeHtml(nameFor(b.from_player_id))}</strong> billed you <strong>${fmtAmount(b.amount)} coin</strong>${b.note ? ' - ' + escapeHtml(b.note) : ''}</div>
       <div class="bank-bill-actions">
         <button class="btn-gold" onclick="bank_payBill('${b.id}')">Pay</button>
         <button class="btn-outline" onclick="bank_declineBill('${b.id}')">Decline</button>
@@ -403,7 +402,7 @@ async function refreshBills(){
   const fromMeEl = document.getElementById('bank-bills-from-me');
   fromMeEl.innerHTML = fromMe.length === 0 ? '<p class="reg-empty-note">None right now.</p>' : fromMe.map(b => `
     <div class="bank-bill-card">
-      <div>You billed <strong>${escapeHtml(nameFor(b.to_player_id))}</strong> <strong>${fmtAmount(b.amount)} coin</strong>${b.note ? ' &mdash; ' + escapeHtml(b.note) : ''} &mdash; waiting for payment</div>
+      <div>You billed <strong>${escapeHtml(nameFor(b.to_player_id))}</strong> <strong>${fmtAmount(b.amount)} coin</strong>${b.note ? ' - ' + escapeHtml(b.note) : ''} - waiting for payment</div>
       <div class="bank-bill-actions">
         <button class="btn-outline" onclick="bank_cancelBill('${b.id}')">Cancel</button>
       </div>
@@ -425,7 +424,7 @@ async function refreshWithdrawals(){
 
   target.innerHTML = data.map(w => `
     <div class="bank-bill-card">
-      <div><strong>${fmtAmount(w.amount)} coin</strong> &mdash; ${w.status}${w.note ? ' &mdash; ' + escapeHtml(w.note) : ''} <span class="bank-request-date">(${fmtDate(w.created_at)})</span></div>
+      <div><strong>${fmtAmount(w.amount)} coin</strong> - ${w.status}${w.note ? ' - ' + escapeHtml(w.note) : ''} <span class="bank-request-date">(${fmtDate(w.created_at)})</span></div>
       ${w.status === 'pending' ? `<div class="bank-bill-actions"><button class="btn-outline" onclick="bank_cancelWithdrawal('${w.id}')">Cancel</button></div>` : ''}
     </div>
   `).join('');
@@ -447,7 +446,7 @@ async function refreshStaffWithdrawals(){
 
   target.innerHTML = data.map(w => `
     <div class="bank-bill-card">
-      <div><strong>${escapeHtml(nameFor(w.player_id))}</strong> requested <strong>${fmtAmount(w.amount)} coin</strong>${w.note ? ' &mdash; ' + escapeHtml(w.note) : ''} <span class="bank-request-date">(${fmtDate(w.created_at)})</span></div>
+      <div><strong>${escapeHtml(nameFor(w.player_id))}</strong> requested <strong>${fmtAmount(w.amount)} coin</strong>${w.note ? ' - ' + escapeHtml(w.note) : ''} <span class="bank-request-date">(${fmtDate(w.created_at)})</span></div>
       <div class="bank-bill-actions">
         <button class="btn-gold" onclick="bank_staffFulfill('${w.id}')">Mark Fulfilled</button>
       </div>

@@ -1,23 +1,3 @@
--- Fantasy Alive — Banking system setup.
--- Run this once in the Supabase SQL Editor (Dashboard -> SQL Editor -> New query).
--- Safe to re-run: uses "if not exists" / "or replace" throughout.
---
--- Design notes:
---   * Coin belongs to the PLAYER (their account), not any one character —
---     matches "coin is shared between characters that player owns".
---   * bank_transactions is an append-only ledger. Nothing ever UPDATEs a
---     balance directly; a player's balance is always the sum of their rows.
---     This makes it easy to show full transaction history for free, and
---     means there's no single "balance" number that can drift out of sync.
---   * Regular players can never INSERT/UPDATE/DELETE bank_transactions or
---     bills directly — there are deliberately no RLS policies allowing it.
---     All money movement happens through the functions below, which run
---     as SECURITY DEFINER (so they can write despite RLS) and each check
---     for themselves who's allowed to do what and that balances are
---     sufficient before moving anything.
-
--- ---------- profiles (public display-name directory for picking recipients) ----------
-
 create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   display_name text not null,
@@ -32,7 +12,6 @@ create policy "Profiles are publicly readable"
   on profiles for select
   using (true);
 
--- Keeps profiles in sync automatically whenever someone signs up.
 create or replace function handle_new_user()
 returns trigger language plpgsql security definer as $$
 begin
@@ -48,12 +27,10 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function handle_new_user();
 
--- Backfill profiles for accounts that signed up before this existed.
 insert into profiles (id, display_name)
 select id, coalesce(raw_user_meta_data ->> 'display_name', email) from auth.users
 on conflict (id) do nothing;
 
--- Lets a player turn their own "bank log coin automatically" preference on/off.
 create or replace function bank_set_auto_bank_preference(p_enabled boolean)
 returns void language plpgsql security definer as $$
 begin
@@ -61,8 +38,6 @@ begin
   update profiles set auto_bank_log_coin = p_enabled where id = auth.uid();
 end;
 $$;
-
--- ---------- ledger ----------
 
 create table if not exists bank_transactions (
   id uuid primary key default gen_random_uuid(),
@@ -89,11 +64,7 @@ create policy "Players see their own transactions"
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean is true
   );
--- Deliberately no insert/update/delete policy — writes only happen via
--- the SECURITY DEFINER functions below.
 
--- Internal helper: current balance for a player. Not directly callable by
--- clients (see revoke below) — only used inside the functions in this file.
 create or replace function bank_balance(p_player uuid)
 returns numeric language sql stable security definer as $$
   select coalesce(sum(
@@ -109,13 +80,11 @@ $$;
 
 revoke execute on function bank_balance(uuid) from public, authenticated, anon;
 
--- Public: a signed-in player's own balance.
 create or replace function bank_my_balance()
 returns numeric language sql stable security definer as $$
   select bank_balance(auth.uid());
 $$;
 
--- Staff-only: look up any player's balance (e.g. before recording a deposit).
 create or replace function bank_staff_player_balance(p_player uuid)
 returns numeric language plpgsql stable security definer as $$
 begin
@@ -125,8 +94,6 @@ begin
   return bank_balance(p_player);
 end;
 $$;
-
--- ---------- transfers between players ----------
 
 create or replace function bank_send_coin(p_recipient uuid, p_amount numeric, p_note text)
 returns void language plpgsql security definer as $$
@@ -148,12 +115,10 @@ begin
 end;
 $$;
 
--- ---------- bills (requesting coin from another player) ----------
-
 create table if not exists bank_bills (
   id uuid primary key default gen_random_uuid(),
-  from_player_id uuid not null references auth.users(id), -- who's owed
-  to_player_id uuid not null references auth.users(id),   -- who's being billed
+  from_player_id uuid not null references auth.users(id),
+  to_player_id uuid not null references auth.users(id),
   amount numeric(12,2) not null check (amount > 0),
   note text,
   status text not null default 'pending' check (status in ('pending', 'paid', 'declined', 'cancelled')),
@@ -167,7 +132,6 @@ drop policy if exists "Bills are visible to both parties" on bank_bills;
 create policy "Bills are visible to both parties"
   on bank_bills for select
   using (from_player_id = auth.uid() or to_player_id = auth.uid());
--- No insert/update/delete policy — see the functions below.
 
 create or replace function bank_request_bill(p_target uuid, p_amount numeric, p_note text)
 returns void language plpgsql security definer as $$
@@ -233,8 +197,6 @@ begin
 end;
 $$;
 
--- ---------- withdrawal requests (picked up by staff at the event) ----------
-
 create table if not exists bank_withdrawal_requests (
   id uuid primary key default gen_random_uuid(),
   player_id uuid not null references auth.users(id),
@@ -260,8 +222,6 @@ drop policy if exists "Players create their own withdrawal requests" on bank_wit
 create policy "Players create their own withdrawal requests"
   on bank_withdrawal_requests for insert
   with check (player_id = auth.uid());
--- Update (cancel/fulfill) still goes through functions, not direct RLS,
--- since fulfillment needs to touch bank_transactions atomically too.
 
 create or replace function bank_request_withdrawal(p_amount numeric, p_note text)
 returns void language plpgsql security definer as $$
@@ -288,8 +248,6 @@ begin
 end;
 $$;
 
--- Staff only. Balance is re-checked at fulfillment time (not request time),
--- since time may have passed and the player's balance may have changed.
 create or replace function bank_staff_fulfill_withdrawal(p_request_id uuid)
 returns void language plpgsql security definer as $$
 declare
@@ -316,8 +274,6 @@ begin
 end;
 $$;
 
--- ---------- staff: recording a deposit made in person at the event ----------
-
 create or replace function bank_staff_deposit(p_player uuid, p_amount numeric, p_note text)
 returns void language plpgsql security definer as $$
 declare
@@ -335,11 +291,6 @@ begin
     values (p_player, 'deposit', p_amount, p_note, v_staff);
 end;
 $$;
-
--- ---------- table grants ----------
--- RLS policies only filter rows; the underlying role still needs base
--- table privileges too. Functions are SECURITY DEFINER and enforce their
--- own rules internally, so they don't need row-level grants here.
 
 grant select on profiles to authenticated, anon;
 grant select on bank_transactions to authenticated;

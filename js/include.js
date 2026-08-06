@@ -1,6 +1,3 @@
-// Fetches whatever partial file is named in each [data-include] element
-// and injects it in place. Used for the shared header and footer so
-// they only ever need to be edited in one place: /partials/
 function loadIncludes(){
   const targets = document.querySelectorAll('[data-include]');
   targets.forEach(el => {

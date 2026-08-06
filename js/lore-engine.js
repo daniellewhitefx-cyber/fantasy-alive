@@ -1,5 +1,4 @@
 (function(){
-// Fixed display order for categories; anything not listed falls to the end, alphabetically
 const CATEGORY_ORDER = [
   'Getting Started', 'History', 'Kingdoms & Regions', 'Towns & Settlements',
   'Cosmology & Planes', 'Mortal Races', 'Other Beings', 'Deities',
@@ -167,8 +166,6 @@ function lore_toggleDark(){
   try{ localStorage.setItem('fa-lore-dark', isDark ? '1' : '0'); }catch(e){}
 }
 
-// ---------- editor: add / edit / delete ----------
-
 function renderAddButton(){
   const target = document.getElementById('lore-add-entry-wrap');
   if(!target) return;
@@ -243,7 +240,7 @@ async function lore_uploadImageIntoBody(){
     const markup = `![${file.name.replace(/\.[^.]+$/, '')}](${url})`;
     const pos = textarea.selectionStart || textarea.value.length;
     textarea.value = textarea.value.slice(0, pos) + '\n\n' + markup + '\n\n' + textarea.value.slice(pos);
-    status.textContent = 'Image added below — move the line if you want it elsewhere.';
+    status.textContent = 'Image added below - move the line if you want it elsewhere.';
     fileInput.value = '';
   } catch(err){
     status.textContent = 'Upload failed. Try again.';

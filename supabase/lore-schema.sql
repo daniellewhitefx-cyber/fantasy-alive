@@ -1,8 +1,4 @@
--- Fantasy Alive — Lore CMS setup.
--- Run this once in the Supabase SQL Editor (Dashboard -> SQL Editor -> New query).
--- Safe to re-run: uses "if not exists" / "on conflict do nothing" throughout.
 
--- ---------- table ----------
 
 create table if not exists lore_entries (
   id uuid primary key default gen_random_uuid(),
@@ -37,7 +33,6 @@ create policy "Only lore editors can delete"
   on lore_entries for delete
   using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor');
 
--- ---------- image storage ----------
 
 insert into storage.buckets (id, name, public)
 values ('lore-images', 'lore-images', true)
@@ -58,7 +53,6 @@ create policy "Lore editors can delete images"
   on storage.objects for delete
   using (bucket_id = 'lore-images' and (auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor');
 
--- ---------- migrated seed data (the 5 existing static lore pages) ----------
 
 insert into lore_entries (slug, title, category, body) values
 ('welcome', 'Welcome to the World of Fantasy Alive!', 'Getting Started', $body1$Welcome, adventurer! Fantasy Alive is set on the continent of Ariel, with two games set within the Lakes Region. The region is dotted with ruins dating back to the fallen Golden Age of Magic, containing monsters, traps, exquisite treasures, and lost magics, as, over the centuries, kingdoms have risen and fallen, leaving behind the wonders that they created, and the horrors that they were unable to destroy.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Register for an Event &mdash; Fantasy Alive</title>
+<title>Register for an Event - Fantasy Alive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -18,11 +18,10 @@
 
 <div data-include="partials/members-sidebar.html"></div>
 
-<!-- MAIN PANEL -->
 <div>
 
 <h1 class="page-title">Register for an Event</h1>
-<p class="page-subhead">Pick a date, choose your pass, and everything else fills itself in based on your account. Payment isn't collected online yet &mdash; you'll settle up at the event.</p>
+<p class="page-subhead">Pick a date, choose your pass, and everything else fills itself in based on your account. Payment isn't collected online yet - you'll settle up at the event.</p>
 
 <div class="reg-section">
 <div class="reg-section-label">Event Date</div>
@@ -86,8 +85,6 @@
 (function(){
 const REGISTRATION_ENDPOINT = window.FA_REGISTRATION_ENDPOINT;
 
-// Placeholder account data, matching the rest of the Members area until
-// real per-account purchase history and Flex credit tracking exist.
 const ACCOUNT = {
   firstTime: true,
   flexEventCredits: 0
@@ -180,7 +177,7 @@ async function checkExistingRegistration(){
     const result = await faCheckRegistration(state.event.label, state.who, characterName, user.email);
     existingRegistration = result.registered ? (result.registration || {}) : null;
   } catch(err){
-    existingRegistration = null; // fail open — don't block registering if the check itself fails
+    existingRegistration = null; // fail open - don't block registering if the check itself fails
   } finally {
     checkingRegistration = false;
     render();
@@ -285,7 +282,7 @@ function render(){
       ${r.passName ? ` with the <strong>${escapeHtml(r.passName)}</strong> pass` : ''}.</p>
       ${r.mealName && r.mealName !== 'None' ? `<p>Meal plan: ${escapeHtml(r.mealName)}</p>` : ''}
       ${r.daysAttending ? `<p>Days attending: ${escapeHtml(r.daysAttending)}</p>` : ''}
-      <p class="reg-empty-note">Need to change something? Contact us directly &mdash; there's no self-serve edit yet.</p>
+      <p class="reg-empty-note">Need to change something? Contact us directly - there's no self-serve edit yet.</p>
     `;
     formSections.forEach(el => { if(el) el.style.display = 'none'; });
     document.getElementById('reg-pay-btn').disabled = true;
@@ -455,7 +452,7 @@ async function reg_submit(){
   errorNote.style.display = 'none';
 
   if(!REGISTRATION_ENDPOINT){
-    errorNote.textContent = "Registration isn't connected to the spreadsheet yet — this part still needs a one-time setup step.";
+    errorNote.textContent = "Registration isn't connected to the spreadsheet yet - this part still needs a one-time setup step.";
     errorNote.style.display = 'block';
     return;
   }
@@ -501,7 +498,7 @@ async function reg_submit(){
     success.innerHTML = `
       <h3>You're registered!</h3>
       <p>${escapeHtml(payload.characterName)} is signed up for <strong>${escapeHtml(payload.eventLabel)}</strong>.
-      ${payload.total > 0 ? `$${payload.total} will be due at the event.` : 'This is a free entry &mdash; see you there!'}</p>
+      ${payload.total > 0 ? `$${payload.total} will be due at the event.` : 'This is a free entry - see you there!'}</p>
     `;
   } catch(err){
     errorNote.textContent = "Something went wrong submitting your registration. Please try again.";

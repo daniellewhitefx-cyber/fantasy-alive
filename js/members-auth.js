@@ -1,7 +1,3 @@
-// Shared login gate for every page in the Members area. Include this
-// after the Supabase script tag and after js/include.js. It redirects
-// signed-out visitors to login.html, then fills in the signed-in
-// player's name and highlights the current page in the sidebar.
 
 const SUPABASE_URL = 'https://xdchluuvicuuqyqsejnq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99';
