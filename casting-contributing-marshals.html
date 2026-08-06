@@ -52,6 +52,15 @@
 .photo-slot.section-slot{ min-height:220px; }
 .photo-slot.card-slot{ min-height:120px; }
 
+.cm-photo{
+  display:block;
+  width:100%;
+  object-fit: cover;
+}
+.cm-photo.hero-slot{ height:100%; min-height:320px; }
+.cm-photo.section-slot{ height:220px; border-radius:6px; }
+.cm-photo.card-slot{ height:120px; }
+
 .cm-intro{
   max-width: 900px;
   margin: 0 auto;
@@ -111,6 +120,13 @@
   max-width: 850px;
   margin: 0 auto 1.2rem;
 }
+.cm-lead-block p{
+  font-family:'EB Garamond', serif;
+  font-size: 1.06rem;
+  line-height: 1.65;
+  color: #2e2415;
+  margin: 0;
+}
 
 .cm-lead-block{
   display:grid;
@@ -135,6 +151,7 @@
   box-shadow: 6px 6px 0 0 var(--gold);
 }
 .cm-role-card .photo-slot{ border:none; border-bottom: 2px solid var(--gold-dark); border-radius:0; }
+.cm-role-card .cm-photo{ border-bottom: 2px solid var(--gold-dark); }
 .cm-role-card-body{ padding: 1.1rem 1.3rem 1.4rem; }
 .cm-role-card h3{
   font-size: 1.15rem;
@@ -235,10 +252,7 @@
 <img src="https://i.imgur.com/YUATL72.png" alt="Fantasy Alive" class="logo-img">
 <h1>Casting, Contributing, and Marshal Roles</h1>
 </div>
-<div class="photo-slot hero-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/casting-hero.jpg" alt="Castle on the water" class="cm-photo hero-slot">
 </section>
 
 <div class="cm-intro">
@@ -259,19 +273,13 @@ Add a photo
 <div>
 <p>"Casting" is the catch-all term for playing non-player characters at Fantasy Alive. Cast members take on the role of monsters, villagers, merchants and others, not represented by a player character. In general, cast are asked to wear black clothing without any writing on it if possible, and will be provided costume pieces to wear over this from the costume and prop reserves that the game possesses. Some roles may also involve masks or makeup, but while combat is often a part of casting, people who cannot safely perform combat roles may still cast &ndash; although they may not be able to participate in every mod.</p>
 </div>
-<div class="photo-slot section-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/casting-intro.jpg" alt="Close-up of a sword, chainmail, and leather armor" class="cm-photo section-slot">
 </div>
 <p>It is advised that people who wish to spend time acting as a plot marshal spend some time casting before they do so. This helps them to be more familiar with how the game works behind the scenes, to understand the expectations that are a part of that role.</p>
 
 <div class="cm-role-grid">
 <div class="cm-role-card">
-<div class="photo-slot card-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/cast-shift.jpg" alt="Two LARPers sparring with swords and shields" class="cm-photo card-slot">
 <div class="cm-role-card-body">
 <h3>Cast Shift</h3>
 <p>Cast Shift is the lowest impact way of playing a cast role. This is an option for players who want to take a break from playing their characters, of who want to help out, in exchange for some ogre chips. Cast shift is available to most players during the course of their game, when they will temporarily set aside their player character and come to represent non-player characters for a while. In some instances, plot or owners will ask if anyone is willing to join cast for a 'mod' (self-contained adventure or part of an adventure), often when more numbers are needed.</p>
@@ -279,20 +287,14 @@ Add a photo
 </div>
 </div>
 <div class="cm-role-card">
-<div class="photo-slot card-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/event-cast.jpg" alt="Players in medieval costume at an event" class="cm-photo card-slot">
 <div class="cm-role-card-body">
 <h3>Event Cast</h3>
 <p>Event Cast are playing a cast role for an entire event. Event cast are encouraged (but not required) to stay for the majority of the event, and will take on a number of non-player character roles in that span. In addition to being awarded Ogre Chips, the event fee for those who are casting for the entire event is waived, although being on meal plan will still have a (discounted) cost. Casting for an event can be a good way to practice skills such as combat and spellcasting, and to otherwise familiarize oneself with parts of the game that they might not encounter as a player character.</p>
 </div>
 </div>
 <div class="cm-role-card">
-<div class="photo-slot card-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/permacast.jpg" alt="Three armored figures in a forest" class="cm-photo card-slot">
 <div class="cm-role-card-body">
 <h3>"Permacast"</h3>
 <p>Permacast are players who are taking on a cast role for a protracted period, often an entire season. Permacast receive Ogre Chips and, like event cast, have their event fees waived and a discount applied if they wish to be on meal plan. Permacasting is a great way to practice LARP skills and to thoroughly learn the rules of play, and permacast who have shown that they are capable in roles that they have been assigned may be given roles that are more complex, or which are recurring characters for the span of their time on cast.</p>
@@ -307,10 +309,7 @@ Add a photo
 <div>
 <p>Technically a marshal role, Plot Marshals (or simply Plot) are those players in the game who have taken on the responsibility of creating characters, planning, and presenting stories for the game of Fantasy Alive. Plot is responsible for creating both individual events, and multi-event storylines, which players can investigate, explore, and interact with, using the rules in the rulebook. In addition to work done at events, the plot team will hold a 'plot meeting' between events, where they coordinate the plans for an event or storyline, and will also answer questions or address some between-game in-character concerns via email.</p>
 </div>
-<div class="photo-slot section-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/plot-section.jpg" alt="Stained glass window of a robed artisan figure" class="cm-photo section-slot">
 </div>
 <p>At event, plot members will give description for scenes (particularly when an area like a cave or building cannot be directly represented). They will make on-the-spot calls for how the rules interact with their story (called a 'field call'), informed by their familiarity with the rules, although they may defer this responsibility to rules marshals. Although plot team members may generally be expected to be familiar with all active storylines, they may defer to the plot member who came up with or is leading that story, in order to ensure that the story is consistent. Plot members at events will also effectively act as cast members &ndash; taking on serious roles to ensure that they are played in accordance with the story and rules of the game.</p>
 <p>Usually, the role of plot lasts for a year (or 'season'), with some exceptions. In general, in addition to being expected to attend all or most of the events in a given season, plot marshals will have 7-10 hours of work, preparing characters, writing up notes for the event, and preparing any other materials that they may need for an event. Following an event, they will also be expected to briefly summarize those parts of the event that they directly contributed to, for posterity and continuity purposes. Plot members, like cast, have their event fee waived, and receive a larger bolus of OC per event, as a way of thanking them for their hard work.</p>
@@ -318,10 +317,7 @@ Add a photo
 
 <div class="cm-role-grid cm-two-col" style="grid-template-columns: 1fr; max-width:700px; margin-left:auto; margin-right:auto;">
 <div class="cm-role-card">
-<div class="photo-slot card-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/head-of-plot.jpg" alt="Armored knight raising an arm to a crowd" class="cm-photo card-slot">
 <div class="cm-role-card-body">
 <h3>The Head of Plot</h3>
 <p>The Head of Plot takes on a role somewhere between 'artistic director' and 'project manager' for a season. They are expected to be familiar with all of the active storylines for a season, and to work in coordination with the owners of the game in order to maintain a consistency of theme and message from plot team to plot team. The Head of Plot is usually expected to have spent at least one year on the plot team, and while acting in this role is a big responsibility, it can be both fun and engaging to help to shape the world and the stories that occur within it.</p>
