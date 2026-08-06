@@ -364,3 +364,225 @@ textarea{ resize: vertical; min-height: 90px; }
 @media (max-width: 700px){
   .oc-row{ grid-template-columns: 1fr; }
 }
+
+/* ---------- REGISTER PAGE ---------- */
+.reg-section{
+  margin-bottom: 2.2rem;
+}
+.reg-section-label{
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin: 0 0 0.8rem;
+}
+select.reg-date-select{
+  width:100%;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 0.8rem 1rem;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown);
+}
+.reg-flex-banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background: var(--gold);
+  color: var(--ink);
+  padding: 1rem 1.4rem;
+  border-radius: 6px;
+  margin-bottom: 1.2rem;
+  gap: 1rem;
+}
+.reg-flex-banner .ftext{ font-weight: 600; font-family: 'EB Garamond', serif; }
+.reg-flex-banner .ftext strong{ font-family:'Cinzel', serif; }
+.reg-flex-banner button{
+  background: var(--ink);
+  color: var(--cream);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor:pointer;
+  white-space: nowrap;
+}
+.reg-flex-banner button:hover{ background: #2a2620; }
+
+.reg-pass-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.9rem;
+}
+.reg-pass-card{
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+  background: #fff;
+  cursor:pointer;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  position:relative;
+  font-family: 'EB Garamond', serif;
+}
+.reg-pass-card:hover{ border-color: var(--gold-dark); }
+.reg-pass-card.selected{
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold) inset;
+  background: #fff9ec;
+}
+.reg-pass-card .pname{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.02rem;
+  margin: 0 0 0.35rem;
+}
+.reg-pass-card .pprice{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  color: var(--gold-dark);
+  font-size: 0.95rem;
+  margin: 0 0 0.4rem;
+}
+.reg-pass-card .pgrants{
+  font-size: 0.92rem;
+  line-height:1.4;
+  color: var(--brown-dark);
+  margin:0;
+}
+.reg-pass-card .badge{
+  position:absolute;
+  top: -9px; right: 10px;
+  background: var(--good);
+  color: #fff;
+  font-family:'Cinzel', serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.reg-pass-card .badge.cast{ background: #7a4f9e; }
+.reg-pass-card .badge.first{ background: #b5652f; }
+
+.reg-who-hint{
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--brown-dark);
+  margin: 0.9rem 0 0;
+}
+.reg-days-row{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+}
+.reg-day-check{
+  display:flex;
+  align-items:center;
+  gap: 0.5rem;
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+}
+.reg-day-check input[type="checkbox"]{
+  width: 20px; height:20px;
+  accent-color: var(--gold-dark);
+  cursor:pointer;
+}
+.reg-single-meal-picker{
+  margin-top: 1rem;
+  display:flex;
+  align-items:center;
+  gap: 0.7rem;
+}
+.reg-single-meal-picker label{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.reg-single-meal-picker select{
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  padding: 0.5rem 0.8rem;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown);
+}
+.reg-meal-note{
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--brown-dark);
+  background: var(--cream-deep);
+  border-left: 3px solid var(--gold);
+  padding: 0.6rem 0.9rem;
+  border-radius: 3px;
+  font-family: 'EB Garamond', serif;
+}
+
+.reg-summary{
+  border-top: 3px solid var(--gold);
+  padding-top: 1.4rem;
+  margin-top: 2.5rem;
+}
+.reg-summary-row{
+  display:flex;
+  justify-content:space-between;
+  font-size: 1rem;
+  padding: 0.3rem 0;
+  font-family: 'EB Garamond', serif;
+}
+.reg-summary-row.total{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  border-top: 1px solid var(--line);
+  margin-top: 0.6rem;
+  padding-top: 0.7rem;
+}
+.reg-pay-btn{
+  width:100%;
+  margin-top: 1.2rem;
+  background: var(--gold);
+  color: var(--ink);
+  border:none;
+  font-family:'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 1rem;
+  border-radius: 6px;
+  cursor:pointer;
+}
+.reg-pay-btn:hover{ background: var(--gold-dark); }
+.reg-pay-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+.reg-empty-note{
+  font-style: italic;
+  color: var(--brown-dark);
+  font-size: 0.95rem;
+  font-family: 'EB Garamond', serif;
+}
+.reg-success{
+  border: 2px solid var(--good);
+  background: #f2f9f2;
+  border-radius: 6px;
+  padding: 1.4rem 1.6rem;
+  font-family: 'EB Garamond', serif;
+  font-size: 1.05rem;
+  color: var(--brown-dark);
+}
+.reg-success h3{
+  font-family: 'Cinzel', serif;
+  color: var(--good);
+  margin: 0 0 0.6rem;
+}
+.reg-error-note{
+  color: var(--bad);
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  margin-top: 0.8rem;
+}

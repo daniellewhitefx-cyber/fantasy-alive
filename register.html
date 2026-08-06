@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register for an Event &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<!-- MAIN PANEL -->
+<div>
+
+<h1 class="page-title">Register for an Event</h1>
+<p class="page-subhead">Pick a date, choose your pass, and everything else fills itself in based on your account. Payment isn't collected online yet &mdash; you'll settle up at the event.</p>
+
+<div class="reg-section">
+<div class="reg-section-label">Event Date</div>
+<select class="reg-date-select" id="reg-date-select" onchange="reg_selectEvent(this.value)"></select>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Who's this registration for?</div>
+<div class="reg-pass-grid" id="reg-who-grid"></div>
+<p class="reg-who-hint" id="reg-who-hint" style="display:none;"></p>
+</div>
+
+<div id="reg-rest-of-form" style="display:none;">
+
+<div class="reg-section" id="reg-flex-banner-wrap"></div>
+
+<div class="reg-section">
+<div class="reg-section-label">Event Pass</div>
+<div class="reg-pass-grid" id="reg-pass-grid"></div>
+</div>
+
+<div class="reg-section" id="reg-combat-section">
+<div class="reg-section-label">Combat or Non-Combat</div>
+<div class="reg-pass-grid" id="reg-combat-grid"></div>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Days Attending</div>
+<div class="reg-days-row" id="reg-days-row"></div>
+</div>
+
+<div class="reg-section" id="reg-meal-section">
+<div class="reg-section-label">Meal Plan</div>
+<div id="reg-meal-content"></div>
+</div>
+
+<div class="reg-summary" id="reg-summary-wrap">
+<div class="reg-summary-row"><span id="reg-summary-pass-name">No pass selected</span><span id="reg-summary-pass-price">N/A</span></div>
+<div class="reg-summary-row" id="reg-summary-meal-row" style="display:none;"><span id="reg-summary-meal-name"></span><span id="reg-summary-meal-price"></span></div>
+<div class="reg-summary-row total"><span>Total</span><span id="reg-summary-total">$0</span></div>
+<button class="reg-pay-btn" id="reg-pay-btn" disabled onclick="reg_submit()">Select a pass to continue</button>
+<p class="reg-error-note" id="reg-error-note" style="display:none;"></p>
+</div>
+
+<div class="reg-success" id="reg-success" style="display:none;"></div>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+// ---- Paste your Google Apps Script Web App URL here once it's deployed ----
+const REGISTRATION_ENDPOINT = '';
+// -----------------------------------------------------------------------
+
+// Placeholder account data, matching the rest of the Members area until
+// real per-account purchase history and Flex credit tracking exist.
+const ACCOUNT = {
+  firstTime: true,
+  flexEventCredits: 0
+};
+
+const CHARACTERS = [
+  { id:'lucifer', name:'Lucifer Ambrosias' },
+  { id:'char2', name:'Character 2' }
+];
+
+const EVENTS = [
+  { value:'aug-7-9', label:'Aug 7-9, Welcome to the Mysterious Faire',
+    days:[{ id:'fri', label:'Friday, Aug 7' }, { id:'sat', label:'Saturday, Aug 8' }, { id:'sun', label:'Sunday, Aug 9' }] },
+  { value:'sep-4-6', label:'Sep 4-6, The Silent Guilds',
+    days:[{ id:'fri', label:'Friday, Sep 4' }, { id:'sat', label:'Saturday, Sep 5' }, { id:'sun', label:'Sunday, Sep 6' }] },
+  { value:'oct-2-4', label:'Oct 2-4, Ruins of the Lakes Region',
+    days:[{ id:'fri', label:'Friday, Oct 2' }, { id:'sat', label:'Saturday, Oct 3' }, { id:'sun', label:'Sunday, Oct 4' }] }
+];
+
+const PASSES = [
+  { id:'regular', name:'Regular Weekend', price:97, grants:'45 XP', modes:['character'], show: s => !s.firstTime },
+  { id:'bonusitem', name:'Bonus Item Event', price:111, grants:'45 XP + 3 item-tag draws at check-in', modes:['character'], show: s => !s.firstTime },
+  { id:'bonusxp', name:'Bonus XP Event', price:142, grants:'50 XP', modes:['character'], show: s => !s.firstTime },
+  { id:'supporter', name:'FA Supporter Event', price:226, grants:'45 XP + 50 XP + 50 OC + 3 item-tag draws', modes:['character'], show: s => !s.firstTime },
+  { id:'townsfolk', name:'Townsfolk Weekend Entry', price:25, grants:'RP only, no character or log', modes:['character'], show: s => true },
+  { id:'first-free', name:'First-Time FREE Weekend', price:0, grants:'45 XP', modes:['character'], show: s => s.firstTime, badge:'First-Time' },
+  { id:'first-wellfed', name:'First-Time Well-Fed Weekend', price:60, grants:'45 XP + Full Meal Plan (included)', modes:['character'], show: s => s.firstTime, badge:'First-Time', bundlesMeal:true },
+  { id:'first-vip', name:'First-Time VIP Weekend', price:80, grants:'45 XP + 50 XP + Full Meal Plan (included)', modes:['character'], show: s => s.firstTime, badge:'First-Time', bundlesMeal:true },
+  { id:'cast', name:'Casting Weekend Event', price:0, grants:'Free entry, plus an OC bonus awarded after the event', modes:['cast'], show: s => true, badge:'Cast', marksCast:true }
+];
+
+const COMBAT_OPTIONS = [
+  { id:'combat', name:'Combat', grants:'You can be called into physical (boffer) combat encounters.' },
+  { id:'noncombat', name:'Non-Combat', grants:'You will not be placed into physical combat encounters.' }
+];
+
+const SINGLE_MEAL_OPTIONS = ['Saturday Breakfast', 'Saturday Lunch', 'Saturday Dinner', 'Sunday Breakfast'];
+
+const MEALS = [
+  { id:'full', name:'Full Meal Plan', price:73, flavor:'Saturday Breakfast, Lunch, Dinner (including dessert!), and Breakfast Sunday.', slots:['Saturday Breakfast','Saturday Lunch','Saturday Dinner','Sunday Breakfast'], show: s => s.who === 'character' },
+  { id:'half', name:'Half Meal Plan', price:48, flavor:'Saturday Lunch, and Dinner (including dessert!).', slots:['Saturday Lunch','Saturday Dinner'], show: s => s.who === 'character' },
+  { id:'single', name:'Single Meal', price:24, flavor:'One of the meals listed in Full Meal Plan. Please specify which meal.', slots:[], show: s => s.who === 'character' },
+  { id:'castmeal', name:'Cast Meal Plan', price:40, flavor:'Saturday Breakfast, Lunch, Dinner (including dessert!), and Breakfast Sunday.', slots:['Saturday Breakfast','Saturday Lunch','Saturday Dinner','Sunday Breakfast'], show: s => s.who === 'cast' }
+];
+
+const state = {
+  firstTime: ACCOUNT.firstTime,
+  isCast: false,
+  flexEvent: ACCOUNT.flexEventCredits,
+  who: null,
+  character: null,
+  event: EVENTS[0]
+};
+
+let selectedPass = null;
+let selectedCombat = null;
+let selectedMeal = null;
+let singleMealChoice = null;
+let selectedDays = new Set();
+let submitting = false;
+let submitted = false;
+let currentUser = null;
+
+function reg_selectEvent(value){
+  state.event = EVENTS.find(e => e.value === value) || EVENTS[0];
+  selectedDays = new Set(state.event.days.map(d => d.id));
+  render();
+}
+
+function reg_selectWho(mode, characterId){
+  state.who = mode;
+  state.character = mode === 'character' ? characterId : null;
+  state.isCast = (mode === 'cast');
+  selectedPass = null;
+  selectedMeal = null;
+  selectedCombat = null;
+  render();
+}
+
+function reg_selectPass(id){
+  selectedPass = id;
+  selectedMeal = null;
+  render();
+}
+
+function reg_selectCombat(id){
+  selectedCombat = id;
+  render();
+}
+
+function reg_toggleDay(id){
+  if(selectedDays.has(id)) selectedDays.delete(id);
+  else selectedDays.add(id);
+  render();
+}
+
+function reg_selectMeal(id){
+  selectedMeal = id;
+  singleMealChoice = null;
+  render();
+}
+
+function reg_setSingleMealChoice(val){
+  singleMealChoice = val;
+  render();
+}
+
+function reg_useFlex(){
+  selectedPass = 'flex-used';
+  selectedMeal = null;
+  singleMealChoice = null;
+  render();
+}
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function render(){
+  const dateSelect = document.getElementById('reg-date-select');
+  if(!dateSelect.options.length){
+    dateSelect.innerHTML = EVENTS.map(e => `<option value="${e.value}">${escapeHtml(e.label)}</option>`).join('');
+    dateSelect.value = state.event.value;
+  }
+
+  const whoGrid = document.getElementById('reg-who-grid');
+  const whoHint = document.getElementById('reg-who-hint');
+  const restOfForm = document.getElementById('reg-rest-of-form');
+
+  const whoCards = [
+    ...CHARACTERS.map(c => `
+      <div class="reg-pass-card ${state.who==='character' && state.character===c.id ? 'selected':''}" onclick="reg_selectWho('character','${c.id}')">
+        <div class="pname">${escapeHtml(c.name)}</div>
+        <p class="pgrants">Play as this character. XP and log actions apply to them</p>
+      </div>`),
+    `<div class="reg-pass-card ${state.who==='cast' ? 'selected':''}" onclick="reg_selectWho('cast', null)">
+       <div class="badge cast">Cast</div>
+       <div class="pname">Cast / NPC this weekend</div>
+       <p class="pgrants">Not tied to a character. You'll play monsters and NPCs and earn OC instead of XP</p>
+     </div>`
+  ];
+  whoGrid.innerHTML = whoCards.join('');
+
+  if(state.who === 'character'){
+    const c = CHARACTERS.find(ch => ch.id === state.character);
+    whoHint.style.display = 'block';
+    whoHint.textContent = `Registering as ${c ? c.name : 'a new character'}. Any XP granted below will apply to this character.`;
+    restOfForm.style.display = 'block';
+  } else if(state.who === 'cast'){
+    whoHint.style.display = 'block';
+    whoHint.textContent = `Registering to Cast this event. This isn't tied to a character. You'll be marked Cast for this date and see Cast-only options below.`;
+    restOfForm.style.display = 'block';
+  } else {
+    whoHint.style.display = 'none';
+    restOfForm.style.display = 'none';
+    return;
+  }
+
+  const flexWrap = document.getElementById('reg-flex-banner-wrap');
+  if(state.who === 'character' && state.flexEvent > 0){
+    flexWrap.innerHTML = `
+      <div class="reg-flex-banner">
+        <div class="ftext">You have <strong>${state.flexEvent}</strong> Flex event credit${state.flexEvent===1?'':'s'} available.</div>
+        <button onclick="reg_useFlex()">Use Flex Pass</button>
+      </div>`;
+  } else {
+    flexWrap.innerHTML = '';
+  }
+
+  const grid = document.getElementById('reg-pass-grid');
+  const visible = PASSES.filter(p => p.modes.includes(state.who) && p.show(state));
+  grid.innerHTML = visible.map(p => `
+    <div class="reg-pass-card ${selectedPass===p.id?'selected':''}" onclick="reg_selectPass('${p.id}')">
+      ${p.badge ? `<div class="badge ${p.badge==='Cast'?'cast':'first'}">${p.badge}</div>` : ''}
+      <div class="pname">${escapeHtml(p.name)}</div>
+      <div class="pprice">${p.price===0?'Free':'$'+p.price}</div>
+      <p class="pgrants">${escapeHtml(p.grants)}</p>
+    </div>
+  `).join('');
+
+  const combatSection = document.getElementById('reg-combat-section');
+  if(state.who === 'character'){
+    combatSection.style.display = 'block';
+    document.getElementById('reg-combat-grid').innerHTML = COMBAT_OPTIONS.map(c => `
+      <div class="reg-pass-card ${selectedCombat===c.id?'selected':''}" onclick="reg_selectCombat('${c.id}')">
+        <div class="pname">${escapeHtml(c.name)}</div>
+        <p class="pgrants">${escapeHtml(c.grants)}</p>
+      </div>
+    `).join('');
+  } else {
+    combatSection.style.display = 'none';
+    selectedCombat = null;
+  }
+
+  document.getElementById('reg-days-row').innerHTML = state.event.days.map(d => `
+    <label class="reg-day-check">
+      <input type="checkbox" ${selectedDays.has(d.id)?'checked':''} onchange="reg_toggleDay('${d.id}')">
+      ${escapeHtml(d.label)}
+    </label>
+  `).join('');
+
+  const passObj = PASSES.find(p => p.id === selectedPass);
+  const mealContent = document.getElementById('reg-meal-content');
+  if(passObj && passObj.bundlesMeal){
+    mealContent.innerHTML = `<p class="reg-meal-note">A Full Meal Plan is already included with this pass. No need to add one separately.</p>`;
+  } else {
+    const visibleMeals = MEALS.filter(m => m.show(state));
+    let mealHtml = `<div class="reg-pass-grid">` + visibleMeals.map(m => `
+      <div class="reg-pass-card ${selectedMeal===m.id?'selected':''}" onclick="reg_selectMeal('${m.id}')">
+        <div class="pname">${escapeHtml(m.name)}</div>
+        <div class="pprice">$${m.price}</div>
+        <p class="pgrants">${escapeHtml(m.flavor)}</p>
+      </div>
+    `).join('') + `</div>`;
+
+    if(selectedMeal === 'single'){
+      mealHtml += `
+        <div class="reg-single-meal-picker">
+          <label for="reg-single-meal-select">Which meal?</label>
+          <select id="reg-single-meal-select" onchange="reg_setSingleMealChoice(this.value)">
+            <option value="" ${!singleMealChoice ? 'selected' : ''} disabled>Choose one</option>
+            ${SINGLE_MEAL_OPTIONS.map(opt => `<option value="${opt}" ${singleMealChoice===opt?'selected':''}>${opt}</option>`).join('')}
+          </select>
+        </div>`;
+    }
+    mealContent.innerHTML = mealHtml;
+  }
+
+  const passName = document.getElementById('reg-summary-pass-name');
+  const passPrice = document.getElementById('reg-summary-pass-price');
+  const mealRow = document.getElementById('reg-summary-meal-row');
+  const mealName = document.getElementById('reg-summary-meal-name');
+  const mealPrice = document.getElementById('reg-summary-meal-price');
+  const total = document.getElementById('reg-summary-total');
+  const payBtn = document.getElementById('reg-pay-btn');
+
+  let sum = 0;
+  if(selectedPass === 'flex-used'){
+    passName.textContent = 'Flex Pass redeemed (1 credit used)';
+    passPrice.textContent = 'Free';
+  } else if(passObj){
+    passName.textContent = passObj.name + (passObj.marksCast ? ' (marks you Cast for this date)' : '');
+    passPrice.textContent = passObj.price===0 ? 'Free' : '$'+passObj.price;
+    sum += passObj.price;
+  } else {
+    passName.textContent = 'No pass selected';
+    passPrice.textContent = 'N/A';
+  }
+
+  const mealObj = MEALS.find(m => m.id === selectedMeal);
+  const bundled = passObj && passObj.bundlesMeal;
+  if(mealObj && selectedPass !== 'flex-used' && !bundled){
+    mealRow.style.display = 'flex';
+    mealName.textContent = mealObj.id === 'single' && singleMealChoice
+      ? `${mealObj.name} (${singleMealChoice})`
+      : mealObj.name;
+    mealPrice.textContent = '$'+mealObj.price;
+    sum += mealObj.price;
+  } else {
+    mealRow.style.display = 'none';
+  }
+
+  const singleMealIncomplete = selectedMeal === 'single' && !singleMealChoice && selectedPass !== 'flex-used';
+  const combatIncomplete = state.who === 'character' && !selectedCombat;
+  const daysIncomplete = selectedDays.size === 0;
+  const havePass = !!selectedPass;
+
+  total.textContent = '$'+sum;
+  payBtn.disabled = !havePass || singleMealIncomplete || combatIncomplete || daysIncomplete || submitting;
+
+  if(!havePass){
+    payBtn.textContent = 'Select a pass to continue';
+  } else if(combatIncomplete){
+    payBtn.textContent = 'Choose Combat or Non-Combat to continue';
+  } else if(daysIncomplete){
+    payBtn.textContent = 'Choose at least one day to continue';
+  } else if(singleMealIncomplete){
+    payBtn.textContent = 'Choose a meal to continue';
+  } else if(submitting){
+    payBtn.textContent = 'Submitting...';
+  } else {
+    payBtn.textContent = sum === 0 ? 'Confirm Free Registration' : `Complete Registration ($${sum} due at event)`;
+  }
+}
+
+function mealSlotsFor(passObj, mealObj){
+  const slots = {};
+  SINGLE_MEAL_OPTIONS.forEach(s => slots[s] = false);
+  if(passObj && passObj.bundlesMeal){
+    SINGLE_MEAL_OPTIONS.forEach(s => slots[s] = true);
+    return slots;
+  }
+  if(!mealObj) return slots;
+  if(mealObj.id === 'single'){
+    if(singleMealChoice) slots[singleMealChoice] = true;
+  } else {
+    mealObj.slots.forEach(s => slots[s] = true);
+  }
+  return slots;
+}
+
+async function reg_submit(){
+  const passObj = PASSES.find(p => p.id === selectedPass);
+  const mealObj = MEALS.find(m => m.id === selectedMeal);
+  const bundled = passObj && passObj.bundlesMeal;
+  const character = CHARACTERS.find(c => c.id === state.character);
+
+  const sumEl = document.getElementById('reg-summary-total');
+  const errorNote = document.getElementById('reg-error-note');
+  errorNote.style.display = 'none';
+
+  if(!REGISTRATION_ENDPOINT){
+    errorNote.textContent = "Registration isn't connected to the spreadsheet yet — this part still needs a one-time setup step.";
+    errorNote.style.display = 'block';
+    return;
+  }
+
+  const payload = {
+    eventValue: state.event.value,
+    eventLabel: state.event.label,
+    playerEmail: currentUser ? currentUser.email : '',
+    playerName: currentUser && currentUser.user_metadata && currentUser.user_metadata.display_name
+      ? currentUser.user_metadata.display_name
+      : (currentUser ? currentUser.email : ''),
+    who: state.who,
+    characterName: state.who === 'character' ? (character ? character.name : '') : 'Cast',
+    passId: selectedPass,
+    passName: selectedPass === 'flex-used' ? 'Flex Pass' : (passObj ? passObj.name : ''),
+    passPrice: selectedPass === 'flex-used' ? 0 : (passObj ? passObj.price : 0),
+    combatStatus: selectedCombat === 'combat' ? 'Combat' : (selectedCombat === 'noncombat' ? 'Non-Combat' : ''),
+    daysAttending: state.event.days.filter(d => selectedDays.has(d.id)).map(d => d.label),
+    mealName: bundled ? (passObj.name + ' (included)') : (mealObj ? mealObj.name : ''),
+    mealPrice: bundled ? 0 : (mealObj ? mealObj.price : 0),
+    singleMealChoice: (mealObj && mealObj.id === 'single') ? (singleMealChoice || '') : '',
+    mealSlots: mealSlotsFor(passObj, mealObj),
+    total: parseInt(sumEl.textContent.replace('$',''), 10) || 0
+  };
+
+  submitting = true;
+  render();
+
+  try{
+    const res = await fetch(REGISTRATION_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error('Request failed (' + res.status + ')');
+
+    submitted = true;
+    document.getElementById('reg-rest-of-form').querySelectorAll('.reg-section, #reg-summary-wrap').forEach(el => el.style.display = 'none');
+    const success = document.getElementById('reg-success');
+    success.style.display = 'block';
+    success.innerHTML = `
+      <h3>You're registered!</h3>
+      <p>${escapeHtml(payload.characterName)} is signed up for <strong>${escapeHtml(payload.eventLabel)}</strong>.
+      ${payload.total > 0 ? `$${payload.total} will be due at the event.` : 'This is a free entry &mdash; see you there!'}</p>
+    `;
+  } catch(err){
+    errorNote.textContent = "Something went wrong submitting your registration. Please try again.";
+    errorNote.style.display = 'block';
+  } finally {
+    submitting = false;
+    render();
+  }
+}
+
+window.reg_selectEvent = reg_selectEvent;
+window.reg_selectWho = reg_selectWho;
+window.reg_selectPass = reg_selectPass;
+window.reg_selectCombat = reg_selectCombat;
+window.reg_toggleDay = reg_toggleDay;
+window.reg_selectMeal = reg_selectMeal;
+window.reg_setSingleMealChoice = reg_setSingleMealChoice;
+window.reg_useFlex = reg_useFlex;
+window.reg_submit = reg_submit;
+
+selectedDays = new Set(state.event.days.map(d => d.id));
+
+document.addEventListener('DOMContentLoaded', function(){
+  membersSupabase.auth.getSession().then(({ data }) => {
+    if(data.session) currentUser = data.session.user;
+  });
+});
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', render);
+} else {
+  render();
+}
+})();
+</script>
+
+</body>
+</html>
