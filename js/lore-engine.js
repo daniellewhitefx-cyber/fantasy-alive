@@ -5,9 +5,9 @@ const CATEGORY_ORDER = [
   'Magic', 'Crafting & Trade', 'Culture & Society'
 ];
 
-let articles = []; // populated by loadAllArticles(): { id, category, title, body, html, key }
+let articles = [];
 let activeKey = null;
-let editorUser = null; // { user, isEditor } or null if signed out
+let editorUser = null;
 
 async function loadAllArticles(){
   const rows = await loreLoadEntries();

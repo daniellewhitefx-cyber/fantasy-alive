@@ -177,7 +177,7 @@ async function checkExistingRegistration(){
     const result = await faCheckRegistration(state.event.label, state.who, characterName, user.email);
     existingRegistration = result.registered ? (result.registration || {}) : null;
   } catch(err){
-    existingRegistration = null; // fail open - don't block registering if the check itself fails
+    existingRegistration = null;
   } finally {
     checkingRegistration = false;
     render();

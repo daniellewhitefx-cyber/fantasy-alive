@@ -566,7 +566,7 @@ function orderedLevels(){
 function renderSidebar(){
   const target = document.getElementById('spell-sidebar-content');
   const searchInput = document.getElementById('spell-search-input');
-  if(searchInput && searchInput.value.trim()) return; // a search is active, leave results showing
+  if(searchInput && searchInput.value.trim()) return;
 
   if(loadError){
     target.innerHTML = '<p class="spell-empty" style="padding:1rem;">Couldn\'t load the spell list. Refresh to try again.</p>';

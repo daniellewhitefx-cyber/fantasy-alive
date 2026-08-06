@@ -55,13 +55,13 @@
 <script>
 (function(){
 const RATES = {
-  driveOneWay: 5, // per player, each way (to site or home)
-  cleanupSunday: 15, // flat
-  castingHourly: 5, // per hour
-  castingFullDay: 40, // flat, per Fri/Sat/Sun
-  castingFullWeekend: 100, // flat
-  outsideEventHourly: 5, // per hour
-  snacks: 10, // flat
+  driveOneWay: 5,
+  cleanupSunday: 15,
+  castingHourly: 5,
+  castingFullDay: 40,
+  castingFullWeekend: 100,
+  outsideEventHourly: 5,
+  snacks: 10,
 };
 
 let rows = [{ amount:'', reason:'' }];
@@ -187,7 +187,7 @@ function ocsub_addRow(){
 }
 
 function ocsub_removeRow(i){
-  if(rows.length === 1) return; // always keep at least one row
+  if(rows.length === 1) return;
   rows.splice(i, 1);
   render();
 }
