@@ -37,6 +37,9 @@
 
 <div id="reg-rest-of-form" style="display:none;">
 
+<p class="reg-empty-note" id="reg-checking-note" style="display:none;">Checking your registration status&hellip;</p>
+<div class="reg-already-registered" id="reg-already-registered" style="display:none;"></div>
+
 <div class="reg-section" id="reg-flex-banner-wrap"></div>
 
 <div class="reg-section">
@@ -78,9 +81,10 @@
 
 <script src="js/include.js"></script>
 <script src="js/members-auth.js"></script>
+<script src="js/registration-status.js"></script>
 <script>
 (function(){
-const REGISTRATION_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzDzyi7jPDy_EwueBo_q8CPeOUY2sBVjWPBKRBBPoY5wKJpX8WMdzerUKOnI3Kx6614pA/exec';
+const REGISTRATION_ENDPOINT = window.FA_REGISTRATION_ENDPOINT;
 
 // Placeholder account data, matching the rest of the Members area until
 // real per-account purchase history and Flex credit tracking exist.
@@ -94,14 +98,7 @@ const CHARACTERS = [
   { id:'char2', name:'Character 2' }
 ];
 
-const EVENTS = [
-  { value:'aug-7-9', label:'Aug 7-9, Welcome to the Mysterious Faire',
-    days:[{ id:'fri', label:'Friday, Aug 7' }, { id:'sat', label:'Saturday, Aug 8' }, { id:'sun', label:'Sunday, Aug 9' }] },
-  { value:'sep-4-6', label:'Sep 4-6, The Silent Guilds',
-    days:[{ id:'fri', label:'Friday, Sep 4' }, { id:'sat', label:'Saturday, Sep 5' }, { id:'sun', label:'Sunday, Sep 6' }] },
-  { value:'oct-2-4', label:'Oct 2-4, Ruins of the Lakes Region',
-    days:[{ id:'fri', label:'Friday, Oct 2' }, { id:'sat', label:'Saturday, Oct 3' }, { id:'sun', label:'Sunday, Oct 4' }] }
-];
+const EVENTS = window.FA_EVENTS;
 
 const PASSES = [
   { id:'regular', name:'Regular Weekend', price:97, grants:'45 XP', modes:['character'], show: s => !s.firstTime },
@@ -146,11 +143,15 @@ let selectedDays = new Set();
 let submitting = false;
 let submitted = false;
 let currentUser = null;
+let existingRegistration = null;
+let checkingRegistration = false;
 
 function reg_selectEvent(value){
   state.event = EVENTS.find(e => e.value === value) || EVENTS[0];
   selectedDays = new Set(state.event.days.map(d => d.id));
+  existingRegistration = null;
   render();
+  if(state.who) checkExistingRegistration();
 }
 
 function reg_selectWho(mode, characterId){
@@ -160,7 +161,30 @@ function reg_selectWho(mode, characterId){
   selectedPass = null;
   selectedMeal = null;
   selectedCombat = null;
+  existingRegistration = null;
   render();
+  checkExistingRegistration();
+}
+
+async function checkExistingRegistration(){
+  const character = CHARACTERS.find(c => c.id === state.character);
+  const characterName = state.who === 'cast' ? 'Cast' : (character ? character.name : '');
+  if(!characterName) return;
+
+  checkingRegistration = true;
+  render();
+
+  try{
+    const user = await faGetCurrentUser();
+    if(!user) return;
+    const result = await faCheckRegistration(state.event.label, state.who, characterName, user.email);
+    existingRegistration = result.registered ? (result.registration || {}) : null;
+  } catch(err){
+    existingRegistration = null; // fail open — don't block registering if the check itself fails
+  } finally {
+    checkingRegistration = false;
+    render();
+  }
 }
 
 function reg_selectPass(id){
@@ -241,6 +265,41 @@ function render(){
     restOfForm.style.display = 'none';
     return;
   }
+
+  const checkingNote = document.getElementById('reg-checking-note');
+  const alreadyRegisteredWrap = document.getElementById('reg-already-registered');
+  const formSections = [
+    ...document.querySelectorAll('#reg-rest-of-form > .reg-section'),
+    document.getElementById('reg-summary-wrap')
+  ];
+
+  checkingNote.style.display = checkingRegistration ? 'block' : 'none';
+
+  if(existingRegistration){
+    const r = existingRegistration;
+    alreadyRegisteredWrap.style.display = 'block';
+    alreadyRegisteredWrap.innerHTML = `
+      <h3>&#10003; You're Registered!</h3>
+      <p>${escapeHtml(state.who === 'cast' ? 'You' : (CHARACTERS.find(c=>c.id===state.character)||{}).name || 'This character')}
+      ${state.who === 'cast' ? "are" : "is"} already signed up for <strong>${escapeHtml(state.event.label)}</strong>
+      ${r.passName ? ` with the <strong>${escapeHtml(r.passName)}</strong> pass` : ''}.</p>
+      ${r.mealName && r.mealName !== 'None' ? `<p>Meal plan: ${escapeHtml(r.mealName)}</p>` : ''}
+      ${r.daysAttending ? `<p>Days attending: ${escapeHtml(r.daysAttending)}</p>` : ''}
+      <p class="reg-empty-note">Need to change something? Contact us directly &mdash; there's no self-serve edit yet.</p>
+    `;
+    formSections.forEach(el => { if(el) el.style.display = 'none'; });
+    document.getElementById('reg-pay-btn').disabled = true;
+    return;
+  } else {
+    alreadyRegisteredWrap.style.display = 'none';
+    alreadyRegisteredWrap.innerHTML = '';
+  }
+
+  if(checkingRegistration){
+    formSections.forEach(el => { if(el) el.style.display = 'none'; });
+    return;
+  }
+  formSections.forEach(el => { if(el) el.style.display = ''; });
 
   const flexWrap = document.getElementById('reg-flex-banner-wrap');
   if(state.who === 'character' && state.flexEvent > 0){
@@ -401,6 +460,8 @@ async function reg_submit(){
     return;
   }
 
+  currentUser = await faGetCurrentUser();
+
   const payload = {
     eventValue: state.event.value,
     eventLabel: state.event.label,
@@ -462,12 +523,6 @@ window.reg_useFlex = reg_useFlex;
 window.reg_submit = reg_submit;
 
 selectedDays = new Set(state.event.days.map(d => d.id));
-
-document.addEventListener('DOMContentLoaded', function(){
-  membersSupabase.auth.getSession().then(({ data }) => {
-    if(data.session) currentUser = data.session.user;
-  });
-});
 
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', render);
