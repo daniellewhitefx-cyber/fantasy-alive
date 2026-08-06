@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OC Submission &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<!-- MAIN PANEL -->
+<div>
+
+<h1 class="page-title">OC Submission</h1>
+<p class="page-subhead">Request Ogre Coins for things you've done. OC applies to your account as a whole, not a specific character. Add as many entries as you need before submitting.</p>
+
+<div class="quick-add-box">
+<label class="field-label" for="ocsub-quick-type">Quick add</label>
+<select id="ocsub-quick-type" onchange="ocsub_selectQuickType(this.value)">
+<option value="">Choose what you did</option>
+<option value="drive-to">Driving a player to site</option>
+<option value="drive-home">Driving a player home</option>
+<option value="cleanup">Helping clean up on Sunday</option>
+<option value="casting">Casting</option>
+<option value="outside-event">Assisting with an outside event</option>
+<option value="snacks">Providing snacks/drinks</option>
+</select>
+<div class="quick-add-extra" id="ocsub-quick-extra"></div>
+<p class="quick-add-note">OC amounts here are placeholders and will likely change.</p>
+</div>
+
+<div id="ocsub-oc-rows"></div>
+
+<button class="btn-outline add-row-btn" onclick="ocsub_addRow()">+ Add another</button>
+<br>
+<button class="btn-gold" onclick="ocsub_submitForm()">Submit</button>
+<span class="confirm-note" id="ocsub-confirm-note">Submitted.</span>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+// Placeholder OC rates, likely to change later
+const RATES = {
+  driveOneWay: 5, // per player, each way (to site or home)
+  cleanupSunday: 15, // flat
+  castingHourly: 5, // per hour
+  castingFullDay: 40, // flat, per Fri/Sat/Sun
+  castingFullWeekend: 100, // flat
+  outsideEventHourly: 5, // per hour
+  snacks: 10, // flat
+};
+
+let rows = [{ amount:'', reason:'' }];
+
+let quick = { type:'', players:'', hours:'', castingMode:'hours', castingHours:'' };
+
+function ocsub_selectQuickType(type){
+  quick = { type, players:'', hours:'', castingMode:'hours', castingHours:'' };
+  renderQuickExtra();
+}
+
+function ocsub_updateQuickField(key, val){
+  quick[key] = val;
+  renderQuickExtra();
+}
+
+function ocsub_setCastingMode(mode){
+  quick.castingMode = mode;
+  renderQuickExtra();
+}
+
+function quickPreview(){
+  switch(quick.type){
+    case 'drive-to': {
+      const n = parseInt(quick.players, 10);
+      if(!n || n < 1) return null;
+      return { amount: n * RATES.driveOneWay, reason: `Drove ${n} player${n===1?'':'s'} to site` };
+    }
+    case 'drive-home': {
+      const n = parseInt(quick.players, 10);
+      if(!n || n < 1) return null;
+      return { amount: n * RATES.driveOneWay, reason: `Drove ${n} player${n===1?'':'s'} home` };
+    }
+    case 'cleanup':
+      return { amount: RATES.cleanupSunday, reason: 'Helped clean up on Sunday' };
+    case 'casting': {
+      if(quick.castingMode === 'hours'){
+        const h = parseFloat(quick.castingHours);
+        if(!h || h <= 0) return null;
+        return { amount: Math.round(h * RATES.castingHourly), reason: `Cast for ${h} hour${h===1?'':'s'}` };
+      }
+      if(quick.castingMode === 'weekend'){
+        return { amount: RATES.castingFullWeekend, reason: 'Cast the full weekend' };
+      }
+      const dayLabel = quick.castingMode.charAt(0).toUpperCase() + quick.castingMode.slice(1);
+      return { amount: RATES.castingFullDay, reason: `Cast full day (${dayLabel})` };
+    }
+    case 'outside-event': {
+      const h = parseFloat(quick.hours);
+      if(!h || h <= 0) return null;
+      return { amount: Math.round(h * RATES.outsideEventHourly), reason: `Assisted with an outside event for ${h} hour${h===1?'':'s'}` };
+    }
+    case 'snacks':
+      return { amount: RATES.snacks, reason: 'Provided snacks/drinks' };
+    default:
+      return null;
+  }
+}
+
+function ocsub_addQuickRow(){
+  const preview = quickPreview();
+  if(!preview) return;
+  pushRow(preview.amount, preview.reason);
+  document.getElementById('ocsub-quick-type').value = '';
+  quick = { type:'', players:'', hours:'', castingMode:'hours', castingHours:'' };
+  renderQuickExtra();
+  render();
+}
+
+function pushRow(amount, reason){
+  // if the only row is still blank, fill it instead of stacking an empty one above
+  if(rows.length === 1 && !rows[0].amount && !rows[0].reason){
+    rows[0] = { amount, reason };
+  } else {
+    rows.push({ amount, reason });
+  }
+}
+
+function renderQuickExtra(){
+  const el = document.getElementById('ocsub-quick-extra');
+  const preview = quickPreview();
+  const addBtn = (label) => `<button class="btn-gold" onclick="ocsub_addQuickRow()" ${preview ? '' : 'disabled'}>${label}${preview ? ' (' + preview.amount + ' OC)' : ''}</button>`;
+
+  switch(quick.type){
+    case 'drive-to':
+    case 'drive-home':
+      el.innerHTML = `
+        <label class="field-label">Number of players</label>
+        <input type="number" min="1" value="${quick.players}" oninput="ocsub_updateQuickField('players', this.value)">
+        <div style="margin-top:0.8rem;">${addBtn('Add')}</div>`;
+      break;
+    case 'cleanup':
+      el.innerHTML = `<div>${addBtn('Add')}</div>`;
+      break;
+    case 'casting':
+      el.innerHTML = `
+        <div class="day-toggle">
+          <button class="${quick.castingMode==='hours'?'active':''}" onclick="ocsub_setCastingMode('hours')">Enter hours</button>
+          <button class="${quick.castingMode==='friday'?'active':''}" onclick="ocsub_setCastingMode('friday')">Full day, Friday</button>
+          <button class="${quick.castingMode==='saturday'?'active':''}" onclick="ocsub_setCastingMode('saturday')">Full day, Saturday</button>
+          <button class="${quick.castingMode==='sunday'?'active':''}" onclick="ocsub_setCastingMode('sunday')">Full day, Sunday</button>
+          <button class="${quick.castingMode==='weekend'?'active':''}" onclick="ocsub_setCastingMode('weekend')">Full weekend</button>
+        </div>
+        ${quick.castingMode === 'hours' ? `<input type="number" min="0" step="0.5" value="${quick.castingHours}" oninput="ocsub_updateQuickField('castingHours', this.value)" placeholder="Hours cast">` : ''}
+        <div style="margin-top:0.8rem;">${addBtn('Add')}</div>`;
+      break;
+    case 'outside-event':
+      el.innerHTML = `
+        <label class="field-label">Hours</label>
+        <input type="number" min="0" step="0.5" value="${quick.hours}" oninput="ocsub_updateQuickField('hours', this.value)">
+        <div style="margin-top:0.8rem;">${addBtn('Add')}</div>`;
+      break;
+    case 'snacks':
+      el.innerHTML = `<div>${addBtn('Add')}</div>`;
+      break;
+    default:
+      el.innerHTML = '';
+  }
+}
+
+function ocsub_addRow(){
+  rows.push({ amount:'', reason:'' });
+  render();
+}
+
+function ocsub_removeRow(i){
+  if(rows.length === 1) return; // always keep at least one row
+  rows.splice(i, 1);
+  render();
+}
+
+function ocsub_updateAmount(i, val){ rows[i].amount = val; }
+function ocsub_updateReason(i, val){ rows[i].reason = val; }
+
+function ocsub_submitForm(){
+  const incomplete = rows.some(r => !r.amount || !r.reason.trim());
+  if(incomplete){
+    alert('Fill in an amount and reasoning for every row before submitting.');
+    return;
+  }
+  const note = document.getElementById('ocsub-confirm-note');
+  note.classList.add('show');
+  setTimeout(() => note.classList.remove('show'), 2000);
+  rows = [{ amount:'', reason:'' }];
+  render();
+}
+
+function render(){
+  document.getElementById('ocsub-oc-rows').innerHTML = rows.map((r, i) => `
+    <div class="oc-row">
+      <div>
+        <label class="field-label">Amount</label>
+        <input type="number" min="0" value="${r.amount}" oninput="ocsub_updateAmount(${i}, this.value)">
+      </div>
+      <div>
+        <label class="field-label">Reasoning</label>
+        <input type="text" value="${r.reason}" oninput="ocsub_updateReason(${i}, this.value)" placeholder="What did you do to earn this?">
+      </div>
+      <button class="remove-btn" onclick="ocsub_removeRow(${i})" title="Remove this row">&times;</button>
+    </div>
+  `).join('');
+}
+
+window.ocsub_addRow = ocsub_addRow;
+window.ocsub_removeRow = ocsub_removeRow;
+window.ocsub_updateAmount = ocsub_updateAmount;
+window.ocsub_updateReason = ocsub_updateReason;
+window.ocsub_submitForm = ocsub_submitForm;
+window.ocsub_selectQuickType = ocsub_selectQuickType;
+window.ocsub_updateQuickField = ocsub_updateQuickField;
+window.ocsub_setCastingMode = ocsub_setCastingMode;
+window.ocsub_addQuickRow = ocsub_addQuickRow;
+render();
+})();
+</script>
+
+</body>
+</html>

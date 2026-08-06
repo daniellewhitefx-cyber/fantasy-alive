@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friends &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<!-- MAIN PANEL -->
+<div>
+
+<div class="char-switcher" id="char-switcher"></div>
+
+<h1 class="page-title">Friends</h1>
+<p class="page-subhead">Friends are tracked per character. Add people you've met at events, or search for anyone in the system.</p>
+
+<div class="section-block">
+<div class="row-inline">
+<div class="grow">
+<label class="field-label" for="last-event-select">Add a friend from the last event</label>
+<select id="last-event-select">
+<option value="">Choose a character who attended</option>
+</select>
+</div>
+<button class="btn-gold" onclick="addFriend('last-event-select')">Add</button>
+</div>
+
+<div class="row-inline">
+<div class="grow">
+<label class="field-label" for="general-select">Add a friend (search all characters)</label>
+<select id="general-select">
+<option value="">Choose a character</option>
+</select>
+</div>
+<button class="btn-gold" onclick="addFriend('general-select')">Add</button>
+</div>
+</div>
+
+<div class="section-block">
+<h3>Current Friends</h3>
+<div class="card-grid" id="friends-list"></div>
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+const CHARACTERS = [
+  { id:'lucifer', name:'Lucifer Ambrosias' },
+  { id:'char2', name:'Character 2' },
+];
+let activeCharId = CHARACTERS[0].id;
+
+// Mock roster of who attended the last event
+const LAST_EVENT_ROSTER = [
+  { id:'c5', label:'Character 5, Human [Player 5]' },
+  { id:'c6', label:'Character 6, Dwarf [Player 6]' },
+  { id:'c7', label:'Character 7, Orc [Player 7]' },
+];
+
+// Mock full character directory, for the general search
+const ALL_CHARACTERS = [
+  { id:'c5', label:'Character 5, Human [Player 5]' },
+  { id:'c6', label:'Character 6, Dwarf [Player 6]' },
+  { id:'c7', label:'Character 7, Orc [Player 7]' },
+  { id:'c8', label:'Character 8, Gnome [Player 8]' },
+  { id:'c9', label:'Character 9, Minotaur [Player 9]' },
+];
+
+// Friends list, keyed per character
+const friendsByChar = {
+  lucifer: [
+    { id:'c2', label:'Character 2, Elf [Player 2]' },
+    { id:'c3', label:'Character 3, Dwarf [Player 3]' },
+  ],
+  char2: [
+    { id:'c4', label:'Character 4, Human [Player 4]' },
+  ],
+};
+
+function selectChar(id){
+  activeCharId = id;
+  render();
+}
+
+function addFriend(selectId){
+  const el = document.getElementById(selectId);
+  const val = el.value;
+  if(!val) return;
+  const source = selectId === 'last-event-select' ? LAST_EVENT_ROSTER : ALL_CHARACTERS;
+  const entry = source.find(c => c.id === val);
+  if(!entry) return;
+  const list = friendsByChar[activeCharId];
+  if(!list.some(f => f.id === entry.id)){
+    list.push(entry);
+  }
+  el.value = '';
+  render();
+}
+
+function render(){
+  const switcher = document.getElementById('char-switcher');
+  switcher.innerHTML = CHARACTERS.map(ch =>
+    `<button class="${ch.id===activeCharId?'active':''}" onclick="selectChar('${ch.id}')">${ch.name}</button>`
+  ).join('');
+
+  const lastEventSelect = document.getElementById('last-event-select');
+  lastEventSelect.innerHTML = `<option value="">Choose a character who attended</option>` +
+    LAST_EVENT_ROSTER.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+
+  const generalSelect = document.getElementById('general-select');
+  generalSelect.innerHTML = `<option value="">Choose a character</option>` +
+    ALL_CHARACTERS.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+
+  const list = friendsByChar[activeCharId] || [];
+  const friendsList = document.getElementById('friends-list');
+  friendsList.innerHTML = list.length
+    ? list.map(f => `<div class="info-card">${f.label}</div>`).join('')
+    : `<p class="page-subhead" style="margin:0;">No friends added yet for this character.</p>`;
+}
+
+render();
+</script>
+
+</body>
+</html>

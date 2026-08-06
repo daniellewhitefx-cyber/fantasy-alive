@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kudos &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<!-- MAIN PANEL -->
+<div>
+
+<h1 class="page-title">Kudos</h1>
+<p class="page-subhead">Give a quick pat on the back to a player or cast member. You can only select one person per submission, but you can submit as many as you like.</p>
+
+<div class="row-inline">
+<div class="grow">
+<label class="field-label" for="kudos-pc-select">Kudos for a PC</label>
+<select id="kudos-pc-select" onchange="kudos_pickPerson('pc', this.value)">
+<option value="">Choose a character</option>
+<option value="c2">Character 2, Elf [Player 2]</option>
+<option value="c3">Character 3, Dwarf [Player 3]</option>
+<option value="c4">Character 4, Human [Player 4]</option>
+</select>
+</div>
+<div class="grow">
+<label class="field-label" for="kudos-cast-select">Kudos for Cast</label>
+<select id="kudos-cast-select" onchange="kudos_pickPerson('cast', this.value)">
+<option value="">Choose a cast member</option>
+<option value="cast1">Character 5, Human [Player 5] (Cast)</option>
+<option value="cast2">Character 6, Orc [Player 6] (Cast)</option>
+</select>
+</div>
+</div>
+
+<div id="kudos-selected-note"></div>
+
+<div class="section-block">
+<label class="field-label" for="kudos-kudos-text">Your feedback</label>
+<textarea id="kudos-kudos-text" placeholder="Say what they did well..."></textarea>
+</div>
+
+<button class="btn-gold" onclick="kudos_submitKudos()">Submit Kudos</button>
+
+<div class="submitted-list" id="kudos-submitted-list"></div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let selectedPerson = null; // { type: 'pc'|'cast', label: '...' }
+const submitted = [];
+
+const LABELS = {
+  pc: {
+    c2: 'Character 2, Elf [Player 2]',
+    c3: 'Character 3, Dwarf [Player 3]',
+    c4: 'Character 4, Human [Player 4]',
+  },
+  cast: {
+    cast1: 'Character 5, Human [Player 5] (Cast)',
+    cast2: 'Character 6, Orc [Player 6] (Cast)',
+  }
+};
+
+function kudos_pickPerson(type, val){
+  if(!val){
+    selectedPerson = null;
+  } else {
+    selectedPerson = { type, label: LABELS[type][val] };
+    // clear the other dropdown, since only one person can be selected at a time
+    document.getElementById(type === 'pc' ? 'kudos-cast-select' : 'kudos-pc-select').value = '';
+  }
+  render();
+}
+
+function kudos_submitKudos(){
+  const text = document.getElementById('kudos-kudos-text').value.trim();
+  if(!selectedPerson){
+    alert('Choose a person to give kudos to first.');
+    return;
+  }
+  if(!text){
+    alert('Write a quick note before submitting.');
+    return;
+  }
+  submitted.push({ who: selectedPerson.label, text });
+
+  // reset for the next submission
+  selectedPerson = null;
+  document.getElementById('kudos-pc-select').value = '';
+  document.getElementById('kudos-cast-select').value = '';
+  document.getElementById('kudos-kudos-text').value = '';
+  render();
+}
+
+function render(){
+  const note = document.getElementById('kudos-selected-note');
+  note.innerHTML = selectedPerson
+    ? `<div class="kudos-target">Giving kudos to <strong>${selectedPerson.label}</strong></div>`
+    : '';
+
+  const list = document.getElementById('kudos-submitted-list');
+  list.innerHTML = submitted.length
+    ? `<h3>Submitted this session</h3>` + submitted.map(s =>
+        `<div class="submitted-item"><div class="who">${s.who}</div>${s.text}</div>`
+      ).join('')
+    : '';
+}
+
+window.kudos_pickPerson = kudos_pickPerson;
+window.kudos_submitKudos = kudos_submitKudos;
+render();
+})();
+</script>
+
+</body>
+</html>

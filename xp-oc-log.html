@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XP/OC Log &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<!-- MAIN PANEL -->
+<div>
+
+<h1 class="page-title">XP / OC Log</h1>
+<p class="page-subhead">XP is earned per character. OC is shared across your whole account. Every entry below shows which character earned it, where applicable.</p>
+
+<table class="data-table">
+<thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Character</th><th>Note</th></tr></thead>
+<tbody id="log-log-body"></tbody>
+</table>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+// One combined log for the account. XP entries are tied to a specific character.
+// OC entries apply to the account as a whole, so "character" is left blank.
+const LOG = [
+  { date:'2026-06-08', type:'XP', amount:45, character:'Lucifer Ambrosias', note:'Regular Weekend, Faire of the Bright Coast' },
+  { date:'2026-06-08', type:'OC', amount:50, character:'', note:'FA Supporter Event bonus' },
+  { date:'2026-04-12', type:'XP', amount:45, character:'Lucifer Ambrosias', note:'Regular Weekend, The Silent Guilds' },
+  { date:'2026-04-12', type:'OC', amount:12, character:'', note:'Kudos received from another player' },
+  { date:'2026-02-15', type:'XP', amount:45, character:'Lucifer Ambrosias', note:'Regular Weekend, Ruins of the Lakes Region' },
+  { date:'2026-02-15', type:'OC', amount:20, character:'', note:'Manual OC grant, Cast bonus' },
+  { date:'2026-06-08', type:'XP', amount:45, character:'Character 2', note:'First-Time FREE Weekend' },
+];
+
+function render(){
+  document.getElementById('log-log-body').innerHTML = LOG.map(l => `
+    <tr>
+      <td>${l.date}</td>
+      <td><span class="log-type ${l.type.toLowerCase()}">${l.type}</span></td>
+      <td>${l.amount}</td>
+      <td>${l.character || 'N/A'}</td>
+      <td>${l.note}</td>
+    </tr>
+  `).join('');
+}
+
+render();
+})();
+</script>
+
+</body>
+</html>

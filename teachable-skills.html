@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teachable Skills &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<!-- MAIN PANEL -->
+<div>
+
+<div class="char-switcher" id="teach-char-switcher"></div>
+
+<h1 class="page-title">Teachable Skills</h1>
+<p class="page-subhead">Check any skill this character can teach to others. Teaching a skill cuts down how long it takes the other player to learn it.</p>
+
+<table class="data-table">
+<thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>Teachable</th></tr></thead>
+<tbody id="teach-skills-body"></tbody>
+</table>
+
+<div class="save-row">
+<button class="btn-gold" onclick="teach_saveTeachable()">Save Changes</button>
+<span class="saved-note" id="teach-saved-note">Saved.</span>
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+const CHARACTERS = [
+  {
+    id:'lucifer',
+    name:'Lucifer Ambrosias',
+    skills:[
+      {name:'Spirit Sense', type:'Ability', focus:'', level:'', teachable:false},
+      {name:'Theology', type:'Academic', focus:'', level:'', teachable:true},
+      {name:'Clerical Investment', type:'Academic', focus:'Apenca', level:3, teachable:false},
+      {name:'Read & Write', type:'Academic', focus:'', level:'', teachable:true},
+      {name:'Spiritual Energy', type:'Academic', focus:'', level:8, teachable:false},
+      {name:'Physician', type:'Trade', focus:'', level:2, teachable:false},
+      {name:'Craftsman', type:'Trade', focus:'Glassblower', level:1, teachable:false},
+      {name:'Dodge', type:'Combat', focus:'', level:1, teachable:false},
+    ]
+  },
+  {
+    id:'char2',
+    name:'Character 2',
+    skills:[
+      {name:'Read & Write', type:'Academic', focus:'', level:'', teachable:false},
+      {name:'Dodge', type:'Combat', focus:'', level:1, teachable:false},
+    ]
+  }
+];
+
+let activeCharId = CHARACTERS[0].id;
+
+function teach_selectChar(id){
+  activeCharId = id;
+  document.getElementById('teach-saved-note').classList.remove('show');
+  render();
+}
+
+function teach_toggleTeach(index){
+  const c = CHARACTERS.find(ch => ch.id === activeCharId);
+  c.skills[index].teachable = !c.skills[index].teachable;
+}
+
+function teach_saveTeachable(){
+  const note = document.getElementById('teach-saved-note');
+  note.classList.add('show');
+  setTimeout(() => note.classList.remove('show'), 1800);
+}
+
+function render(){
+  const switcher = document.getElementById('teach-char-switcher');
+  switcher.innerHTML = CHARACTERS.map(ch =>
+    `<button class="${ch.id===activeCharId?'active':''}" onclick="teach_selectChar('${ch.id}')">${ch.name}</button>`
+  ).join('');
+
+  const c = CHARACTERS.find(ch => ch.id === activeCharId);
+  document.getElementById('teach-skills-body').innerHTML = c.skills.map((s, i) => `
+    <tr>
+      <td>${s.name}</td>
+      <td>${s.type}</td>
+      <td>${s.focus}</td>
+      <td>${s.level}</td>
+      <td class="teach-cell"><input type="checkbox" ${s.teachable?'checked':''} onchange="teach_toggleTeach(${i})"></td>
+    </tr>
+  `).join('');
+}
+
+window.teach_selectChar = teach_selectChar;
+window.teach_toggleTeach = teach_toggleTeach;
+window.teach_saveTeachable = teach_saveTeachable;
+render();
+})();
+</script>
+
+</body>
+</html>
