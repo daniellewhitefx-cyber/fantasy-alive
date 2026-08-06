@@ -164,6 +164,29 @@ textarea{ resize: vertical; min-height: 90px; }
   cursor:pointer;
 }
 .btn-outline:hover{ background: var(--cream-deep); }
+.bank-tabs{
+  display:flex;
+  gap: 0.6rem;
+  margin-bottom: 1.8rem;
+  flex-wrap: wrap;
+}
+.bank-tab{
+  background: transparent;
+  color: var(--brown-dark);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.7rem 1.4rem;
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  cursor:pointer;
+}
+.bank-tab:hover{ background: var(--cream-deep); }
+.bank-tab.active{
+  background: var(--gold);
+  color: var(--ink);
+  border-color: var(--gold);
+}
 
 .row-inline{
   display:flex;
