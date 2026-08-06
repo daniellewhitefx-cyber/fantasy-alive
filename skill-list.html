@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill List - Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+:root{
+  --skill-row-a: #ece1cd;
+  --skill-row-b: #f0d99a;
+}
+
+.skill-page-hero{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  align-items:center;
+  height: 320px;
+  overflow: hidden;
+}
+.skill-page-hero-content{
+  padding: 2rem 3rem 2rem 5.5rem;
+  text-align: center;
+}
+.skill-page-hero-content img{
+  width:100%; max-width: 440px; height:auto; display:block; margin: 0 auto;
+}
+.skill-page-hero-content h1{
+  font-family: 'EB Garamond', serif;
+  font-weight: 500;
+  font-size: 3rem;
+  margin: 0.5rem 0 0;
+  color: var(--brown);
+  text-align: center;
+}
+.skill-page-hero-image{
+  position:relative;
+  overflow:hidden;
+  height: 100%;
+  min-height: 320px;
+}
+.skill-page-hero-image::after{
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width: 45%; height:100%;
+  background: linear-gradient(to left, rgba(236,225,205,0) 0%, var(--cream) 100%);
+  pointer-events: none;
+}
+.skill-page-hero-image img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+
+.skill-page{
+  display:grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem 3rem;
+  align-items:start;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--cream);
+  color: var(--brown);
+  font-family: 'Cinzel', serif;
+}
+
+.skill-sidebar{
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  overflow:hidden;
+  position: sticky;
+  top: 1.5rem;
+}
+.skill-category-list{
+  display: flex;
+  flex-direction: column;
+}
+.skill-category-btn{
+  display:block;
+  width:100%;
+  text-align:left;
+  background: var(--ink);
+  border: none;
+  border-bottom: 1px solid var(--gold-dark);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.65rem 1rem;
+  cursor:pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+.skill-category-btn:last-child{ border-bottom: none; }
+.skill-category-btn.active{
+  background: var(--gold);
+  color: var(--ink);
+}
+.skill-category-btn:not(.active):hover{
+  background: var(--gold-dark);
+  color: var(--cream);
+}
+
+.skill-search{
+  padding: 0.6rem;
+  background: var(--ink);
+  border-bottom: 3px solid var(--gold);
+}
+.skill-search input{
+  width:100%;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.6rem;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown);
+}
+.skill-search-results{
+  display:flex;
+  flex-direction: column;
+}
+.skill-search-result{
+  display:block;
+  width:100%;
+  text-align:left;
+  background: var(--cream-deep);
+  border: none;
+  border-bottom: 1px dotted var(--gold-dark);
+  color: var(--brown);
+  padding: 0.55rem 0.8rem;
+  cursor:pointer;
+}
+.skill-search-result:last-child{ border-bottom:none; }
+.skill-search-result:hover{ background: var(--gold); }
+.skill-search-result .ssr-title{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.1rem;
+}
+.skill-search-result .ssr-cat{
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 0.2rem;
+}
+.skill-search-result .ssr-excerpt{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--brown-dark);
+}
+.skill-search-result mark{
+  background: var(--gold);
+  color: var(--ink);
+  padding: 0 1px;
+}
+.skill-search-empty{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--brown-dark);
+  padding: 0.8rem;
+}
+
+.skill-article{ background: transparent; }
+.skill-article h2{
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.8rem;
+  color: var(--brown-dark);
+}
+
+.skill-table-wrap{
+  width: 100%;
+  box-shadow: 6px 6px 0 0 var(--gold);
+  overflow-x: auto;
+}
+.skill-table{
+  width:100%;
+  border-collapse: collapse;
+  border: 2px solid var(--gold);
+  background: var(--skill-row-a);
+}
+.skill-table th{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.4rem;
+  border-bottom: 3px solid var(--gold);
+  text-align: center;
+  color: var(--brown-dark);
+  white-space: nowrap;
+}
+.skill-table th:not(:last-child),
+.skill-table td:not(:last-child){
+  border-right: 1px dotted var(--gold-dark);
+}
+.skill-table td{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  padding: 0.45rem 0.5rem;
+  text-align: center;
+  line-height: 1.3;
+  color: var(--brown-dark);
+}
+.skill-table td.col-name{
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.skill-table td.col-prereq{
+  text-align: left;
+}
+.skill-table td.col-desc{
+  text-align: left;
+}
+
+.skill-table tbody tr:nth-child(odd){ background: var(--skill-row-b); }
+.skill-table tbody tr:nth-child(even){ background: var(--skill-row-a); }
+
+.skill-table tr.highlighted{
+  background-color: var(--gold) !important;
+  color: var(--ink) !important;
+}
+
+.skill-empty{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  color: var(--brown-dark);
+  padding: 1.5rem;
+}
+
+@media (max-width: 850px){
+  .skill-page-hero{ grid-template-columns: 1fr; height: auto; }
+  .skill-page-hero-content{ padding: 1.5rem 1rem; }
+  .skill-page-hero-content h1{ font-size: 2.2rem; }
+  .skill-page-hero-image{ height: 180px; min-height: 180px; }
+  .skill-page-hero-image::after{
+    width: 100%; height: 50%;
+    background: linear-gradient(to bottom, var(--cream) 0%, rgba(236,225,205,0) 100%);
+  }
+
+  .skill-page{ grid-template-columns: 1fr; padding: 1rem; gap: 1rem; }
+  .skill-sidebar{ position: static; }
+  .skill-category-list{ flex-direction: row; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .skill-category-btn{ border-bottom: none; border-right: 1px solid var(--gold-dark); padding: 0.6rem 0.9rem; text-align: center; }
+}
+
+@media (max-width: 600px){
+  .skill-table-wrap{ box-shadow: 3px 3px 0 0 var(--gold); }
+  .skill-table, .skill-table thead, .skill-table tbody, .skill-table th, .skill-table td, .skill-table tr{ display: block; }
+  .skill-table thead{ display: none; }
+  .skill-table tr{ margin-bottom: 0.8rem; border: 1px solid var(--gold-dark); padding: 0.6rem; }
+  .skill-table td{ text-align: left !important; padding: 0.25rem 0; border-right: none !important; }
+  .skill-table td.col-name{
+    font-size: 1rem;
+    color: var(--brown-dark);
+    border-bottom: 1px solid var(--gold-dark);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.4rem;
+    white-space: normal;
+  }
+  .skill-table td::before{
+    content: attr(data-label);
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gold-dark);
+    display: block;
+    text-transform: uppercase;
+  }
+  .skill-table td.col-name::before{ display: none; }
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<section class="skill-page-hero">
+<div class="skill-page-hero-content">
+<img src="https://i.imgur.com/YUATL72.png" alt="Fantasy Alive">
+<h1>Skill List</h1>
+</div>
+<div class="skill-page-hero-image">
+<img src="https://i.imgur.com/zOtOU6q.png" alt="Fantasy Alive skill banner">
+</div>
+</section>
+
+<div class="skill-page" id="skill-page">
+<nav class="skill-sidebar">
+<div class="skill-search">
+<input type="text" id="skill-search-input" placeholder="Search skill name..." oninput="skill_search(this.value)">
+</div>
+<div id="skill-sidebar-content"><p class="skill-empty" style="padding:1rem;">Loading skill categories&hellip;</p></div>
+</nav>
+<article class="skill-article" id="skill-display">
+<p class="skill-empty">Loading the skill list from the spreadsheet&hellip;</p>
+</article>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script>
+(function(){
+const SKILL_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1ywI52NIOEB6EKIe5WvLzerY6w0ZmU0bAkOrKq5ggrP8/export?format=csv';
+
+const CATEGORY_ORDER = ['Combat Skill', 'Weapon Skill', 'Academic Skill', 'Trade Skill', 'Ability'];
+
+let activeCategory = 'Combat Skill';
+let highlightedSkill = null;
+let allSkills = [];
+let loadError = null;
+
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i + 1] === '"'){ field += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        field += c;
+      }
+    } else if(c === '"'){
+      inQuotes = true;
+    } else if(c === ','){
+      row.push(field); field = '';
+    } else if(c === '\n'){
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if(c === '\r'){
+    } else {
+      field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+async function loadSkills(){
+  try{
+    const res = await fetch(SKILL_SHEET_CSV_URL, { cache: 'no-store' });
+    if(!res.ok) throw new Error('Sheet request failed (' + res.status + ')');
+    const csvText = await res.text();
+    const rows = parseCSV(csvText).filter(r => r.some(cell => (cell || '').trim() !== ''));
+    const header = (rows.shift() || []).map(h => h.trim().toLowerCase());
+    const col = name => header.indexOf(name);
+
+    const iCategory = col('category'), iName = col('name'), iCost = col('cost'),
+      iPrereq = col('prerequisite'), iDesc = col('description');
+
+    allSkills = rows.map(r => ({
+      category: (r[iCategory] || 'Uncategorized').trim(),
+      title: (r[iName] || 'Untitled Skill').trim(),
+      cost: (r[iCost] || '').trim(),
+      prereq: (r[iPrereq] || '').trim(),
+      desc: (r[iDesc] || '').trim()
+    }));
+
+    const categories = orderedCategories();
+    if(categories.length && !categories.includes(activeCategory)) activeCategory = categories[0];
+  } catch(err){
+    loadError = err;
+  }
+  renderSidebar();
+  renderDisplay();
+}
+
+function skill_selectCategory(category, skillToHighlight){
+  if(skillToHighlight === undefined) skillToHighlight = null;
+  activeCategory = category;
+  highlightedSkill = skillToHighlight;
+  renderDisplay();
+  renderSidebar();
+
+  if(highlightedSkill){
+    const targetRow = document.getElementById('skill-row-' + highlightedSkill.replace(/[^a-zA-Z0-9]/g, '-'));
+    if(targetRow) targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function skill_selectSearchResult(category, skillTitle){
+  skill_selectCategory(category, skillTitle);
+  const searchInput = document.getElementById('skill-search-input');
+  if(searchInput) searchInput.value = '';
+}
+
+function skillsByCategory(){
+  const byCategory = {};
+  allSkills.forEach(s => {
+    if(!byCategory[s.category]) byCategory[s.category] = [];
+    byCategory[s.category].push(s);
+  });
+  return byCategory;
+}
+
+function orderedCategories(){
+  const byCategory = skillsByCategory();
+  const known = CATEGORY_ORDER.filter(c => byCategory[c]);
+  const unknown = Object.keys(byCategory).filter(c => !CATEGORY_ORDER.includes(c)).sort();
+  return [...known, ...unknown];
+}
+
+function renderSidebar(){
+  const target = document.getElementById('skill-sidebar-content');
+  const searchInput = document.getElementById('skill-search-input');
+  if(searchInput && searchInput.value.trim()) return;
+
+  if(loadError){
+    target.innerHTML = '<p class="skill-empty" style="padding:1rem;">Couldn\'t load the skill list. Refresh to try again.</p>';
+    return;
+  }
+
+  const categories = orderedCategories();
+  if(categories.length === 0){
+    target.innerHTML = '<p class="skill-empty" style="padding:1rem;">No skills found in the spreadsheet yet.</p>';
+    return;
+  }
+
+  target.innerHTML = `
+    <div class="skill-category-list">
+      ${categories.map(cat => `
+        <button class="skill-category-btn ${cat === activeCategory ? 'active' : ''}"
+          onclick="skill_selectCategory('${cat.replace(/'/g, "\\'")}')">
+          ${cat}
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function makeExcerpt(text, query){
+  const lower = text.toLowerCase();
+  const idx = lower.indexOf(query.toLowerCase());
+  if(idx === -1) return escapeHtml(text.slice(0, 140)) + (text.length > 140 ? '&hellip;' : '');
+  const start = Math.max(0, idx - 50);
+  const end = Math.min(text.length, idx + query.length + 90);
+  const before = escapeHtml(text.slice(start, idx));
+  const match = escapeHtml(text.slice(idx, idx + query.length));
+  const after = escapeHtml(text.slice(idx + query.length, end));
+  return (start > 0 ? '&hellip;' : '') + before + '<mark>' + match + '</mark>' + after + (end < text.length ? '&hellip;' : '');
+}
+
+function skill_search(rawQuery){
+  const query = rawQuery.trim();
+  const target = document.getElementById('skill-sidebar-content');
+
+  if(!query){
+    renderSidebar();
+    return;
+  }
+
+  const lowerQuery = query.toLowerCase();
+  const results = allSkills.map(s => {
+    const bodyText = s.desc.replace(/\s+/g, ' ').trim();
+    const titleMatch = s.title.toLowerCase().includes(lowerQuery);
+    const bodyMatch = bodyText.toLowerCase().includes(lowerQuery);
+    if(!titleMatch && !bodyMatch) return null;
+    return { category: s.category, title: s.title, bodyText, rank: titleMatch ? 0 : 1 };
+  }).filter(Boolean).sort((a, b) => a.rank - b.rank || a.title.localeCompare(b.title));
+
+  if(results.length === 0){
+    target.innerHTML = '<p class="skill-search-empty">No skills found matching &ldquo;' + escapeHtml(query) + '&rdquo;.</p>';
+    return;
+  }
+
+  target.innerHTML = '<div class="skill-search-results">' + results.map(r => `
+    <button class="skill-search-result" onclick="skill_selectSearchResult('${r.category.replace(/'/g, "\\'")}', '${r.title.replace(/'/g, "\\'")}')">
+      <div class="ssr-cat">${escapeHtml(r.category)}</div>
+      <div class="ssr-title">${escapeHtml(r.title)}</div>
+      <div class="ssr-excerpt">${r.rank === 0 ? escapeHtml(r.bodyText.slice(0, 140)) + (r.bodyText.length > 140 ? '&hellip;' : '') : makeExcerpt(r.bodyText, query)}</div>
+    </button>
+  `).join('') + '</div>';
+}
+
+function renderDisplay(){
+  const display = document.getElementById('skill-display');
+
+  if(loadError){
+    display.innerHTML = '<p class="skill-empty">Couldn\'t load the skill list from the spreadsheet. Refresh to try again.</p>';
+    return;
+  }
+
+  const skills = skillsByCategory()[activeCategory] || [];
+  if(skills.length === 0){
+    display.innerHTML = '<p class="skill-empty">Select a skill category or search for a skill name to begin.</p>';
+    return;
+  }
+
+  const tableRows = skills.map(s => {
+    const isHighlighted = s.title === highlightedSkill;
+    const rowId = 'skill-row-' + s.title.replace(/[^a-zA-Z0-9]/g, '-');
+    return `
+      <tr id="${rowId}" class="${isHighlighted ? 'highlighted' : ''}">
+        <td class="col-name" data-label="Name">${escapeHtml(s.title)}</td>
+        <td data-label="Cost">${escapeHtml(s.cost)}</td>
+        <td class="col-prereq" data-label="Prerequisite">${escapeHtml(s.prereq)}</td>
+        <td class="col-desc" data-label="Description">${escapeHtml(s.desc)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  display.innerHTML = `
+    <h2>${escapeHtml(activeCategory)}</h2>
+    <div class="skill-table-wrap">
+      <table class="skill-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Cost</th>
+            <th>Prerequisite</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.skill_selectCategory = skill_selectCategory;
+window.skill_selectSearchResult = skill_selectSearchResult;
+window.skill_search = skill_search;
+
+function init(){
+  loadSkills();
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+})();
+</script>
+
+</body>
+</html>
