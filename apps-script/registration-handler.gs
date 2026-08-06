@@ -26,6 +26,62 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// Lets the site ask "has this player already registered this
+// character (or Cast) for this event?" so register.html and
+// characters.html can show a "You're Registered!" state instead of
+// letting someone sign up twice.
+//
+// Expected query params: ?action=check&event=<event label>
+//   &who=character|cast&character=<character name, or "Cast">&email=<player email>
+function doGet(e) {
+  var params = e.parameter;
+
+  if (params.action !== 'check') {
+    return jsonOutput({ error: 'Unknown action' });
+  }
+
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName(params.event + ' - Roster');
+  if (!sheet) {
+    return jsonOutput({ registered: false });
+  }
+
+  var data = sheet.getDataRange().getValues();
+  var header = data[0];
+  var emailCol = header.indexOf('Player Email');
+  var charCol = header.indexOf('Character / Cast');
+
+  var wantEmail = (params.email || '').toLowerCase();
+  var wantCharacter = params.character || (params.who === 'cast' ? 'Cast' : '');
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var rowEmail = (row[emailCol] || '').toString().toLowerCase();
+    var rowCharacter = (row[charCol] || '').toString();
+
+    if (rowEmail === wantEmail && rowCharacter === wantCharacter) {
+      return jsonOutput({
+        registered: true,
+        registration: {
+          passName: row[header.indexOf('Pass')],
+          combatStatus: row[header.indexOf('Combat Status')],
+          daysAttending: row[header.indexOf('Days Attending')],
+          mealName: row[header.indexOf('Meal Plan')],
+          total: row[header.indexOf('Total')]
+        }
+      });
+    }
+  }
+
+  return jsonOutput({ registered: false });
+}
+
+function jsonOutput(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 function appendToRoster(ss, body) {
   var sheetName = body.eventLabel + ' - Roster';
   var sheet = ss.getSheetByName(sheetName);

@@ -42,7 +42,9 @@ async function initMembersPage(){
   document.getElementById('member-account-name').textContent = displayName;
   markActiveNavLink();
 
+  window.faCurrentUser = user;
   document.body.classList.add('members-ready');
+  document.dispatchEvent(new CustomEvent('fa-members-ready', { detail: { user } }));
 }
 
 window.membersSignOut = membersSignOut;

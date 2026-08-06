@@ -586,3 +586,37 @@ select.reg-date-select{
   font-size: 0.95rem;
   margin-top: 0.8rem;
 }
+.reg-already-registered{
+  border: 2px solid var(--good);
+  background: #f2f9f2;
+  border-radius: 6px;
+  padding: 1.4rem 1.6rem;
+  font-family: 'EB Garamond', serif;
+  font-size: 1.05rem;
+  color: var(--brown-dark);
+  margin-bottom: 2rem;
+}
+.reg-already-registered h3{
+  font-family: 'Cinzel', serif;
+  color: var(--good);
+  margin: 0 0 0.6rem;
+}
+.reg-already-registered p{
+  margin: 0.4rem 0;
+}
+
+/* ---------- "You're Registered" badge (Characters page) ---------- */
+.chars-registered-badge{
+  display:inline-flex;
+  align-items:center;
+  gap: 0.5rem;
+  background: #f2f9f2;
+  border: 2px solid var(--good);
+  color: var(--good);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 4px;
+}
+.chars-registered-badge:hover{ background: #e6f4e6; }
