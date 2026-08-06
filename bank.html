@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank &mdash; Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<!-- MAIN PANEL -->
+<div>
+
+<h1 class="page-title">Bank</h1>
+<p class="page-subhead">Your coin is shared across every character you own. Deposit coin in person at events, send or bill other players, or request a withdrawal ahead of your next event.</p>
+
+<div class="bank-balance-card">
+  <div class="bank-balance-label">Current Balance</div>
+  <div class="bank-balance-amount" id="bank-balance-amount">&hellip;</div>
+  <label class="bank-auto-toggle">
+    <input type="checkbox" id="bank-auto-bank-checkbox" onchange="bank_toggleAutoBank(this.checked)">
+    Bank my log/OC earnings automatically instead of receiving them at the event
+  </label>
+</div>
+
+<div class="reg-section">
+  <div class="reg-section-label">Send Coin</div>
+  <div class="bank-form-grid">
+    <div class="bank-recipient-picker" data-picker="send">
+      <label class="field-label" for="bank-send-recipient-input">To</label>
+      <input type="text" id="bank-send-recipient-input" placeholder="Search player name..." autocomplete="off"
+        oninput="bank_searchRecipients('send', this.value)">
+      <div class="bank-recipient-results" id="bank-send-recipient-results"></div>
+      <p class="bank-selected-recipient" id="bank-send-selected" style="display:none;"></p>
+    </div>
+    <div>
+      <label class="field-label" for="bank-send-amount">Amount</label>
+      <input type="number" id="bank-send-amount" min="1" step="1" placeholder="0">
+    </div>
+  </div>
+  <label class="field-label" for="bank-send-note">Note (optional)</label>
+  <input type="text" id="bank-send-note" placeholder="What's this for?">
+  <button class="btn-gold" style="margin-top:1rem;" onclick="bank_sendCoin()">Send Coin</button>
+  <p class="reg-error-note" id="bank-send-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+  <div class="reg-section-label">Bill a Player</div>
+  <p class="page-subhead" style="margin-bottom:0.8rem;">Request coin from someone else &mdash; they'll see it as a pending bill they can pay or decline.</p>
+  <div class="bank-form-grid">
+    <div class="bank-recipient-picker" data-picker="bill">
+      <label class="field-label" for="bank-bill-recipient-input">Bill</label>
+      <input type="text" id="bank-bill-recipient-input" placeholder="Search player name..." autocomplete="off"
+        oninput="bank_searchRecipients('bill', this.value)">
+      <div class="bank-recipient-results" id="bank-bill-recipient-results"></div>
+      <p class="bank-selected-recipient" id="bank-bill-selected" style="display:none;"></p>
+    </div>
+    <div>
+      <label class="field-label" for="bank-bill-amount">Amount</label>
+      <input type="number" id="bank-bill-amount" min="1" step="1" placeholder="0">
+    </div>
+  </div>
+  <label class="field-label" for="bank-bill-note">Note (optional)</label>
+  <input type="text" id="bank-bill-note" placeholder="What's this for?">
+  <button class="btn-gold" style="margin-top:1rem;" onclick="bank_sendBill()">Send Bill</button>
+  <p class="reg-error-note" id="bank-bill-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+  <div class="reg-section-label">Bills Waiting on You</div>
+  <div id="bank-bills-to-me"><p class="reg-empty-note">None right now.</p></div>
+</div>
+
+<div class="reg-section">
+  <div class="reg-section-label">Bills You've Sent</div>
+  <div id="bank-bills-from-me"><p class="reg-empty-note">None right now.</p></div>
+</div>
+
+<div class="reg-section">
+  <div class="reg-section-label">Request a Withdrawal</div>
+  <p class="page-subhead" style="margin-bottom:0.8rem;">Ahead of an event, request coin to be handed to you in person. Staff will fulfill it at the event.</p>
+  <div class="bank-form-grid">
+    <div>
+      <label class="field-label" for="bank-withdraw-amount">Amount</label>
+      <input type="number" id="bank-withdraw-amount" min="1" step="1" placeholder="0">
+    </div>
+    <div>
+      <label class="field-label" for="bank-withdraw-note">Note (optional)</label>
+      <input type="text" id="bank-withdraw-note" placeholder="e.g. for the Saturday market">
+    </div>
+  </div>
+  <button class="btn-gold" style="margin-top:1rem;" onclick="bank_requestWithdrawal()">Request Withdrawal</button>
+  <p class="reg-error-note" id="bank-withdraw-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+  <div class="reg-section-label">Your Withdrawal Requests</div>
+  <div id="bank-withdrawal-list"><p class="reg-empty-note">None yet.</p></div>
+</div>
+
+<div class="reg-section">
+  <div class="reg-section-label">Transaction History</div>
+  <table class="data-table">
+    <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>With</th><th>Note</th></tr></thead>
+    <tbody id="bank-history-body"><tr><td colspan="5">Loading&hellip;</td></tr></tbody>
+  </table>
+</div>
+
+<div class="reg-section bank-staff-section" id="bank-staff-section" style="display:none;">
+  <div class="reg-section-label">Staff Tools</div>
+
+  <div class="bank-staff-block">
+    <h3>Record a Deposit</h3>
+    <div class="bank-form-grid">
+      <div class="bank-recipient-picker" data-picker="deposit">
+        <label class="field-label" for="bank-deposit-recipient-input">Player</label>
+        <input type="text" id="bank-deposit-recipient-input" placeholder="Search player name..." autocomplete="off"
+          oninput="bank_searchRecipients('deposit', this.value)">
+        <div class="bank-recipient-results" id="bank-deposit-recipient-results"></div>
+        <p class="bank-selected-recipient" id="bank-deposit-selected" style="display:none;"></p>
+      </div>
+      <div>
+        <label class="field-label" for="bank-deposit-amount">Amount</label>
+        <input type="number" id="bank-deposit-amount" min="1" step="1" placeholder="0">
+      </div>
+    </div>
+    <label class="field-label" for="bank-deposit-note">Note (optional)</label>
+    <input type="text" id="bank-deposit-note" placeholder="e.g. handed over at check-in">
+    <button class="btn-gold" style="margin-top:1rem;" onclick="bank_staffDeposit()">Record Deposit</button>
+    <p class="reg-error-note" id="bank-deposit-error" style="display:none;"></p>
+  </div>
+
+  <div class="bank-staff-block">
+    <h3>Pending Withdrawal Requests (All Players)</h3>
+    <div id="bank-staff-withdrawals"><p class="reg-empty-note">Loading&hellip;</p></div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let isStaff = false;
+let profileMap = {}; // id -> display_name, loaded once
+let selectedRecipient = { send: null, bill: null, deposit: null };
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fmtAmount(n){
+  return Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+function fmtDate(iso){
+  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+async function loadProfiles(){
+  const { data, error } = await membersSupabase.from('profiles').select('id, display_name');
+  if(error) return;
+  profileMap = {};
+  (data || []).forEach(p => { profileMap[p.id] = p.display_name; });
+}
+
+function nameFor(id){
+  return profileMap[id] || 'Unknown player';
+}
+
+async function bank_searchRecipients(picker, query){
+  const results = document.getElementById(`bank-${picker}-recipient-results`);
+  const q = query.trim();
+  if(!q){ results.innerHTML = ''; return; }
+
+  const { data, error } = await membersSupabase
+    .from('profiles')
+    .select('id, display_name')
+    .ilike('display_name', `%${q}%`)
+    .neq('id', window.faCurrentUser ? window.faCurrentUser.id : '')
+    .limit(8);
+
+  if(error || !data || data.length === 0){
+    results.innerHTML = '<div class="bank-recipient-empty">No matching players.</div>';
+    return;
+  }
+
+  results.innerHTML = data.map(p => `
+    <button class="bank-recipient-result" onclick="bank_pickRecipient('${picker}', '${p.id}', '${p.display_name.replace(/'/g, "\\'")}')">${escapeHtml(p.display_name)}</button>
+  `).join('');
+}
+
+function bank_pickRecipient(picker, id, name){
+  selectedRecipient[picker] = id;
+  document.getElementById(`bank-${picker}-recipient-results`).innerHTML = '';
+  document.getElementById(`bank-${picker}-recipient-input`).value = '';
+  const selectedEl = document.getElementById(`bank-${picker}-selected`);
+  selectedEl.style.display = 'block';
+  selectedEl.textContent = `Selected: ${name}`;
+}
+
+async function bank_sendCoin(){
+  const errorEl = document.getElementById('bank-send-error');
+  errorEl.style.display = 'none';
+  const recipient = selectedRecipient.send;
+  const amount = parseFloat(document.getElementById('bank-send-amount').value);
+  const note = document.getElementById('bank-send-note').value.trim();
+
+  if(!recipient){ showError(errorEl, 'Search for and select who you\'re sending coin to.'); return; }
+  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
+
+  const { error } = await membersSupabase.rpc('bank_send_coin', { p_recipient: recipient, p_amount: amount, p_note: note || null });
+  if(error){ showError(errorEl, error.message); return; }
+
+  document.getElementById('bank-send-amount').value = '';
+  document.getElementById('bank-send-note').value = '';
+  document.getElementById('bank-send-selected').style.display = 'none';
+  selectedRecipient.send = null;
+  await refreshEverything();
+}
+
+async function bank_sendBill(){
+  const errorEl = document.getElementById('bank-bill-error');
+  errorEl.style.display = 'none';
+  const target = selectedRecipient.bill;
+  const amount = parseFloat(document.getElementById('bank-bill-amount').value);
+  const note = document.getElementById('bank-bill-note').value.trim();
+
+  if(!target){ showError(errorEl, 'Search for and select who you\'re billing.'); return; }
+  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
+
+  const { error } = await membersSupabase.rpc('bank_request_bill', { p_target: target, p_amount: amount, p_note: note || null });
+  if(error){ showError(errorEl, error.message); return; }
+
+  document.getElementById('bank-bill-amount').value = '';
+  document.getElementById('bank-bill-note').value = '';
+  document.getElementById('bank-bill-selected').style.display = 'none';
+  selectedRecipient.bill = null;
+  await refreshEverything();
+}
+
+async function bank_payBill(id){
+  const { error } = await membersSupabase.rpc('bank_pay_bill', { p_bill_id: id });
+  if(error){ alert('Could not pay this bill: ' + error.message); return; }
+  await refreshEverything();
+}
+
+async function bank_declineBill(id){
+  if(!confirm('Decline this bill?')) return;
+  const { error } = await membersSupabase.rpc('bank_decline_bill', { p_bill_id: id });
+  if(error){ alert('Could not decline this bill: ' + error.message); return; }
+  await refreshEverything();
+}
+
+async function bank_cancelBill(id){
+  if(!confirm('Cancel this bill you sent?')) return;
+  const { error } = await membersSupabase.rpc('bank_cancel_bill', { p_bill_id: id });
+  if(error){ alert('Could not cancel this bill: ' + error.message); return; }
+  await refreshEverything();
+}
+
+async function bank_requestWithdrawal(){
+  const errorEl = document.getElementById('bank-withdraw-error');
+  errorEl.style.display = 'none';
+  const amount = parseFloat(document.getElementById('bank-withdraw-amount').value);
+  const note = document.getElementById('bank-withdraw-note').value.trim();
+
+  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
+
+  const { error } = await membersSupabase.rpc('bank_request_withdrawal', { p_amount: amount, p_note: note || null });
+  if(error){ showError(errorEl, error.message); return; }
+
+  document.getElementById('bank-withdraw-amount').value = '';
+  document.getElementById('bank-withdraw-note').value = '';
+  await refreshEverything();
+}
+
+async function bank_cancelWithdrawal(id){
+  if(!confirm('Cancel this withdrawal request?')) return;
+  const { error } = await membersSupabase.rpc('bank_cancel_withdrawal', { p_request_id: id });
+  if(error){ alert('Could not cancel: ' + error.message); return; }
+  await refreshEverything();
+}
+
+async function bank_staffDeposit(){
+  const errorEl = document.getElementById('bank-deposit-error');
+  errorEl.style.display = 'none';
+  const player = selectedRecipient.deposit;
+  const amount = parseFloat(document.getElementById('bank-deposit-amount').value);
+  const note = document.getElementById('bank-deposit-note').value.trim();
+
+  if(!player){ showError(errorEl, 'Search for and select the player.'); return; }
+  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
+
+  const { error } = await membersSupabase.rpc('bank_staff_deposit', { p_player: player, p_amount: amount, p_note: note || null });
+  if(error){ showError(errorEl, error.message); return; }
+
+  document.getElementById('bank-deposit-amount').value = '';
+  document.getElementById('bank-deposit-note').value = '';
+  document.getElementById('bank-deposit-selected').style.display = 'none';
+  selectedRecipient.deposit = null;
+  await refreshEverything();
+}
+
+async function bank_staffFulfill(id){
+  const { error } = await membersSupabase.rpc('bank_staff_fulfill_withdrawal', { p_request_id: id });
+  if(error){ alert('Could not fulfill this request: ' + error.message); return; }
+  await refreshEverything();
+}
+
+async function bank_toggleAutoBank(checked){
+  const { error } = await membersSupabase.rpc('bank_set_auto_bank_preference', { p_enabled: checked });
+  if(error){
+    alert('Could not save that preference: ' + error.message);
+    document.getElementById('bank-auto-bank-checkbox').checked = !checked;
+  }
+}
+
+function showError(el, msg){
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function refreshBalance(){
+  const { data, error } = await membersSupabase.rpc('bank_my_balance');
+  document.getElementById('bank-balance-amount').textContent = error ? 'Unavailable' : (fmtAmount(data) + ' coin');
+}
+
+async function refreshAutoBankPreference(){
+  const user = window.faCurrentUser;
+  if(!user) return;
+  const { data } = await membersSupabase.from('profiles').select('auto_bank_log_coin').eq('id', user.id).maybeSingle();
+  document.getElementById('bank-auto-bank-checkbox').checked = !!(data && data.auto_bank_log_coin);
+}
+
+async function refreshHistory(){
+  const body = document.getElementById('bank-history-body');
+  const { data, error } = await membersSupabase
+    .from('bank_transactions')
+    .select('type, amount, note, counterparty_id, created_at')
+    .order('created_at', { ascending: false });
+
+  if(error || !data || data.length === 0){
+    body.innerHTML = '<tr><td colspan="5">No transactions yet.</td></tr>';
+    return;
+  }
+
+  const TYPE_LABELS = {
+    deposit: 'Deposit', withdrawal: 'Withdrawal',
+    transfer_in: 'Received', transfer_out: 'Sent',
+    bill_payment_in: 'Bill Paid to You', bill_payment_out: 'Bill Paid',
+    log_bank: 'Log Coin Banked'
+  };
+
+  body.innerHTML = data.map(t => `
+    <tr>
+      <td>${fmtDate(t.created_at)}</td>
+      <td>${TYPE_LABELS[t.type] || t.type}</td>
+      <td>${fmtAmount(t.amount)}</td>
+      <td>${t.counterparty_id ? escapeHtml(nameFor(t.counterparty_id)) : '&mdash;'}</td>
+      <td>${t.note ? escapeHtml(t.note) : ''}</td>
+    </tr>
+  `).join('');
+}
+
+async function refreshBills(){
+  const user = window.faCurrentUser;
+  if(!user) return;
+
+  const { data } = await membersSupabase
+    .from('bank_bills')
+    .select('id, from_player_id, to_player_id, amount, note, status, created_at')
+    .order('created_at', { ascending: false });
+
+  const toMe = (data || []).filter(b => b.to_player_id === user.id && b.status === 'pending');
+  const fromMe = (data || []).filter(b => b.from_player_id === user.id && b.status === 'pending');
+
+  const toMeEl = document.getElementById('bank-bills-to-me');
+  toMeEl.innerHTML = toMe.length === 0 ? '<p class="reg-empty-note">None right now.</p>' : toMe.map(b => `
+    <div class="bank-bill-card">
+      <div><strong>${escapeHtml(nameFor(b.from_player_id))}</strong> billed you <strong>${fmtAmount(b.amount)} coin</strong>${b.note ? ' &mdash; ' + escapeHtml(b.note) : ''}</div>
+      <div class="bank-bill-actions">
+        <button class="btn-gold" onclick="bank_payBill('${b.id}')">Pay</button>
+        <button class="btn-outline" onclick="bank_declineBill('${b.id}')">Decline</button>
+      </div>
+    </div>
+  `).join('');
+
+  const fromMeEl = document.getElementById('bank-bills-from-me');
+  fromMeEl.innerHTML = fromMe.length === 0 ? '<p class="reg-empty-note">None right now.</p>' : fromMe.map(b => `
+    <div class="bank-bill-card">
+      <div>You billed <strong>${escapeHtml(nameFor(b.to_player_id))}</strong> <strong>${fmtAmount(b.amount)} coin</strong>${b.note ? ' &mdash; ' + escapeHtml(b.note) : ''} &mdash; waiting for payment</div>
+      <div class="bank-bill-actions">
+        <button class="btn-outline" onclick="bank_cancelBill('${b.id}')">Cancel</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function refreshWithdrawals(){
+  const { data } = await membersSupabase
+    .from('bank_withdrawal_requests')
+    .select('id, amount, note, status, created_at')
+    .order('created_at', { ascending: false });
+
+  const target = document.getElementById('bank-withdrawal-list');
+  if(!data || data.length === 0){
+    target.innerHTML = '<p class="reg-empty-note">None yet.</p>';
+    return;
+  }
+
+  target.innerHTML = data.map(w => `
+    <div class="bank-bill-card">
+      <div><strong>${fmtAmount(w.amount)} coin</strong> &mdash; ${w.status}${w.note ? ' &mdash; ' + escapeHtml(w.note) : ''} <span class="bank-request-date">(${fmtDate(w.created_at)})</span></div>
+      ${w.status === 'pending' ? `<div class="bank-bill-actions"><button class="btn-outline" onclick="bank_cancelWithdrawal('${w.id}')">Cancel</button></div>` : ''}
+    </div>
+  `).join('');
+}
+
+async function refreshStaffWithdrawals(){
+  if(!isStaff) return;
+  const { data } = await membersSupabase
+    .from('bank_withdrawal_requests')
+    .select('id, player_id, amount, note, status, created_at')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+
+  const target = document.getElementById('bank-staff-withdrawals');
+  if(!data || data.length === 0){
+    target.innerHTML = '<p class="reg-empty-note">No pending withdrawal requests.</p>';
+    return;
+  }
+
+  target.innerHTML = data.map(w => `
+    <div class="bank-bill-card">
+      <div><strong>${escapeHtml(nameFor(w.player_id))}</strong> requested <strong>${fmtAmount(w.amount)} coin</strong>${w.note ? ' &mdash; ' + escapeHtml(w.note) : ''} <span class="bank-request-date">(${fmtDate(w.created_at)})</span></div>
+      <div class="bank-bill-actions">
+        <button class="btn-gold" onclick="bank_staffFulfill('${w.id}')">Mark Fulfilled</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function refreshEverything(){
+  await loadProfiles();
+  await Promise.all([
+    refreshBalance(),
+    refreshHistory(),
+    refreshBills(),
+    refreshWithdrawals(),
+    refreshStaffWithdrawals()
+  ]);
+}
+
+window.bank_searchRecipients = bank_searchRecipients;
+window.bank_pickRecipient = bank_pickRecipient;
+window.bank_sendCoin = bank_sendCoin;
+window.bank_sendBill = bank_sendBill;
+window.bank_payBill = bank_payBill;
+window.bank_declineBill = bank_declineBill;
+window.bank_cancelBill = bank_cancelBill;
+window.bank_requestWithdrawal = bank_requestWithdrawal;
+window.bank_cancelWithdrawal = bank_cancelWithdrawal;
+window.bank_staffDeposit = bank_staffDeposit;
+window.bank_staffFulfill = bank_staffFulfill;
+window.bank_toggleAutoBank = bank_toggleAutoBank;
+
+document.addEventListener('fa-members-ready', async (e) => {
+  const user = e.detail.user;
+  isStaff = !!(user.app_metadata && user.app_metadata.bank_staff);
+  if(isStaff) document.getElementById('bank-staff-section').style.display = 'block';
+  await refreshAutoBankPreference();
+  await refreshEverything();
+});
+})();
+</script>
+
+</body>
+</html>

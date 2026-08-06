@@ -620,3 +620,134 @@ select.reg-date-select{
   border-radius: 4px;
 }
 .chars-registered-badge:hover{ background: #e6f4e6; }
+
+/* ---------- BANK PAGE ---------- */
+.bank-balance-card{
+  background: var(--ink);
+  color: var(--cream);
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+  padding: 1.6rem 1.8rem;
+  margin-bottom: 2rem;
+}
+.bank-balance-label{
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+.bank-balance-amount{
+  font-family: 'Cinzel', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.9rem;
+}
+.bank-auto-toggle{
+  display:flex;
+  align-items:center;
+  gap: 0.6rem;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--cream);
+  cursor: pointer;
+}
+.bank-auto-toggle input[type="checkbox"]{
+  width: 20px; height:20px;
+  accent-color: var(--gold);
+  cursor:pointer;
+  flex-shrink:0;
+}
+
+.bank-form-grid{
+  display:grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+.bank-recipient-picker{
+  position: relative;
+}
+.bank-recipient-results{
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 2px solid var(--gold);
+  border-top: none;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.bank-recipient-result{
+  display:block;
+  width:100%;
+  text-align:left;
+  background: #fff;
+  border: none;
+  border-bottom: 1px dotted var(--line);
+  padding: 0.5rem 0.8rem;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--brown);
+  cursor:pointer;
+}
+.bank-recipient-result:hover{ background: var(--gold); }
+.bank-recipient-empty{
+  padding: 0.6rem 0.8rem;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--brown-dark);
+  background: #fff;
+  border: 2px solid var(--gold);
+  border-top: none;
+}
+.bank-selected-recipient{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--good);
+  margin: 0.4rem 0 0;
+}
+
+.bank-bill-card{
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  background: #fff;
+  margin-bottom: 0.8rem;
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+}
+.bank-bill-actions{
+  display:flex;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+.bank-request-date{
+  font-size: 0.85rem;
+  color: var(--brown-dark);
+}
+
+.bank-staff-section{
+  border-top: 3px solid var(--gold);
+  padding-top: 1.6rem;
+}
+.bank-staff-block{
+  margin-bottom: 2rem;
+}
+.bank-staff-block h3{
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  color: var(--brown-dark);
+  margin: 0 0 0.8rem;
+}
+
+@media (max-width: 700px){
+  .bank-form-grid{ grid-template-columns: 1fr; }
+}
