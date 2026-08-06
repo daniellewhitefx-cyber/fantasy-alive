@@ -6,22 +6,17 @@ const CATEGORY_ORDER = [
   'Magic', 'Crafting & Trade', 'Culture & Society'
 ];
 
-let articles = []; // populated by loadAllArticles(): { category, title, file, html, key }
+let articles = []; // populated by loadAllArticles(): { id, category, title, body, html, key }
 let activeKey = null;
+let editorUser = null; // { user, isEditor } or null if signed out
 
 async function loadAllArticles(){
-  const loaded = await Promise.all(LORE_MANIFEST.map(async entry => {
-    try{
-      const res = await fetch(entry.file);
-      if(!res.ok) throw new Error(res.status);
-      const html = await res.text();
-      return { ...entry, html, key: entry.category + '||' + entry.title };
-    } catch(err){
-      console.error('Could not load lore article:', entry.file, err);
-      return { ...entry, html: '<p>This article failed to load.</p>', key: entry.category + '||' + entry.title };
-    }
+  const rows = await loreLoadEntries();
+  articles = rows.map(row => ({
+    ...row,
+    html: loreParseMarkup(row.body),
+    key: row.id
   }));
-  articles = loaded;
 }
 
 function lore_selectItem(key){
@@ -73,7 +68,7 @@ function renderSidebar(){
           <span>${cat}</span><span class="chev">&#9656;</span>
         </button>
         <div class="lore-cat-items">
-          ${items.map(i => `<button class="${i.key===activeKey?'active':''}" onclick="lore_selectItem('${i.key.replace(/'/g, "\\'")}')">${i.title}</button>`).join('')}
+          ${items.map(i => `<button class="${i.key===activeKey?'active':''}" onclick="lore_selectItem('${i.key}')">${i.title}</button>`).join('')}
         </div>
       </div>`;
   }).join('');
@@ -126,7 +121,7 @@ function lore_search(rawQuery){
   }
 
   target.innerHTML = '<div class="lore-search-results">' + results.map(r => `
-    <button class="lore-search-result" onclick="lore_selectItem('${r.key.replace(/'/g, "\\'")}')">
+    <button class="lore-search-result" onclick="lore_selectItem('${r.key}')">
       <div class="lsr-cat">${escapeHtml(r.cat)}</div>
       <div class="lsr-title">${escapeHtml(r.title)}</div>
       <div class="lsr-excerpt">${r.rank === 0 ? escapeHtml(r.bodyText.slice(0, 140)) + (r.bodyText.length > 140 ? '&hellip;' : '') : makeExcerpt(r.bodyText, query)}</div>
@@ -143,7 +138,14 @@ function renderDisplay(){
     return;
   }
 
-  display.innerHTML = `<h2>${found.title}</h2>` + found.html;
+  const editorControls = (editorUser && editorUser.isEditor)
+    ? `<div class="lore-editor-controls">
+         <button class="lore-editor-btn" onclick="lore_openEditor('${found.key}')">Edit Entry</button>
+         <button class="lore-editor-btn danger" onclick="lore_confirmDelete('${found.key}')">Delete Entry</button>
+       </div>`
+    : '';
+
+  display.innerHTML = `<div class="lore-article-head"><h2>${found.title}</h2>${editorControls}</div>` + found.html;
 }
 
 function lore_goto(title){
@@ -165,17 +167,169 @@ function lore_toggleDark(){
   try{ localStorage.setItem('fa-lore-dark', isDark ? '1' : '0'); }catch(e){}
 }
 
+// ---------- editor: add / edit / delete ----------
+
+function renderAddButton(){
+  const target = document.getElementById('lore-add-entry-wrap');
+  if(!target) return;
+  target.innerHTML = (editorUser && editorUser.isEditor)
+    ? `<button class="lore-editor-btn add" onclick="lore_openEditor(null)">+ Add Entry</button>`
+    : '';
+}
+
+function lore_openEditor(key){
+  const existing = key ? articles.find(a => a.key === key) : null;
+  const modal = document.getElementById('lore-editor-modal');
+
+  const categories = [...new Set([...CATEGORY_ORDER, ...articles.map(a => a.category)])];
+
+  modal.innerHTML = `
+    <div class="lore-modal-backdrop" onclick="lore_closeEditor()"></div>
+    <div class="lore-modal">
+      <h3>${existing ? 'Edit Entry' : 'Add Entry'}</h3>
+
+      <label class="lore-field-label" for="lore-edit-title">Title</label>
+      <input type="text" id="lore-edit-title" value="${existing ? loreEscapeHtml(existing.title) : ''}">
+
+      <label class="lore-field-label" for="lore-edit-category">Category</label>
+      <input type="text" id="lore-edit-category" list="lore-category-options" value="${existing ? loreEscapeHtml(existing.category) : ''}">
+      <datalist id="lore-category-options">
+        ${categories.map(c => `<option value="${loreEscapeHtml(c)}">`).join('')}
+      </datalist>
+
+      <label class="lore-field-label" for="lore-edit-body">Content</label>
+      <div class="lore-editor-help">
+        Blank line = new paragraph &bull; <code>## Heading</code> &bull; <code>&gt; quote</code> then <code>&gt; -- who said it</code> &bull;
+        <code>[[Other Article]]</code> to link another entry &bull; <code>[text](url)</code> for a link &bull;
+        <code>![alt](image url)</code> for an image &bull; <code>~ credit line</code>
+      </div>
+      <textarea id="lore-edit-body" rows="14">${existing ? loreEscapeHtml(existing.body) : ''}</textarea>
+
+      <div class="lore-editor-image-row">
+        <input type="file" id="lore-edit-image-file" accept="image/*">
+        <button class="lore-editor-btn" onclick="lore_uploadImageIntoBody()">Upload Image</button>
+        <span id="lore-edit-image-status"></span>
+      </div>
+
+      <p class="lore-editor-error" id="lore-edit-error" style="display:none;"></p>
+
+      <div class="lore-modal-actions">
+        <button class="lore-editor-btn" onclick="lore_closeEditor()">Cancel</button>
+        <button class="lore-editor-btn add" id="lore-edit-save-btn" onclick="lore_saveEditor('${existing ? existing.key : ''}')">Save</button>
+      </div>
+    </div>
+  `;
+  modal.style.display = 'block';
+}
+
+function lore_closeEditor(){
+  const modal = document.getElementById('lore-editor-modal');
+  modal.style.display = 'none';
+  modal.innerHTML = '';
+}
+
+async function lore_uploadImageIntoBody(){
+  const fileInput = document.getElementById('lore-edit-image-file');
+  const status = document.getElementById('lore-edit-image-status');
+  const file = fileInput.files[0];
+  if(!file){
+    status.textContent = 'Choose a file first.';
+    return;
+  }
+  status.textContent = 'Uploading...';
+  try{
+    const url = await loreUploadImage(file);
+    const textarea = document.getElementById('lore-edit-body');
+    const markup = `![${file.name.replace(/\.[^.]+$/, '')}](${url})`;
+    const pos = textarea.selectionStart || textarea.value.length;
+    textarea.value = textarea.value.slice(0, pos) + '\n\n' + markup + '\n\n' + textarea.value.slice(pos);
+    status.textContent = 'Image added below — move the line if you want it elsewhere.';
+    fileInput.value = '';
+  } catch(err){
+    status.textContent = 'Upload failed. Try again.';
+  }
+}
+
+async function lore_saveEditor(key){
+  const title = document.getElementById('lore-edit-title').value.trim();
+  const category = document.getElementById('lore-edit-category').value.trim();
+  const body = document.getElementById('lore-edit-body').value.trim();
+  const errorEl = document.getElementById('lore-edit-error');
+  const saveBtn = document.getElementById('lore-edit-save-btn');
+  errorEl.style.display = 'none';
+
+  if(!title || !category || !body){
+    errorEl.textContent = 'Title, category, and content are all required.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving...';
+  try{
+    if(key){
+      await loreUpdateEntry(key, { title, category, body });
+    } else {
+      await loreCreateEntry({ title, category, body });
+    }
+    lore_closeEditor();
+    await loadAllArticles();
+    const saved = articles.find(a => a.title === title);
+    activeKey = saved ? saved.key : activeKey;
+    renderSidebar();
+    renderDisplay();
+  } catch(err){
+    errorEl.textContent = 'Could not save: ' + (err.message || 'unknown error');
+    errorEl.style.display = 'block';
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save';
+  }
+}
+
+function lore_confirmDelete(key){
+  const found = articles.find(a => a.key === key);
+  if(!found) return;
+  if(!confirm(`Delete "${found.title}"? This can't be undone.`)) return;
+  lore_deleteEntry(key);
+}
+
+async function lore_deleteEntry(key){
+  try{
+    await loreDeleteEntry(key);
+    activeKey = null;
+    await loadAllArticles();
+    renderSidebar();
+    renderDisplay();
+  } catch(err){
+    alert('Could not delete this entry: ' + (err.message || 'unknown error'));
+  }
+}
+
 window.lore_selectItem = lore_selectItem;
 window.lore_toggleCat = lore_toggleCat;
 window.lore_search = lore_search;
 window.lore_goto = lore_goto;
 window.lore_toggleDark = lore_toggleDark;
+window.lore_openEditor = lore_openEditor;
+window.lore_closeEditor = lore_closeEditor;
+window.lore_uploadImageIntoBody = lore_uploadImageIntoBody;
+window.lore_saveEditor = lore_saveEditor;
+window.lore_confirmDelete = lore_confirmDelete;
 
 async function init(){
   document.getElementById('lore-sidebar-content').innerHTML = '<p class="lore-empty" style="padding:1rem;">Loading&hellip;</p>';
+
+  try{
+    editorUser = await loreGetEditorRole();
+  } catch(err){
+    editorUser = null;
+  }
+  renderAddButton();
+
   await loadAllArticles();
   renderSidebar();
   renderDisplay();
+
   let savedDark = false;
   try{ savedDark = localStorage.getItem('fa-lore-dark') === '1'; }catch(e){}
   if(savedDark){
