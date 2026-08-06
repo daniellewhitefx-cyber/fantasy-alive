@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spell Compendium &mdash; Fantasy Alive</title>
+<title>Spell Compendium - Fantasy Alive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -14,7 +14,6 @@
 }
 .spell-item{ display:none !important; }
 
-/* ---------- HERO ---------- */
 .spell-page-hero{
   display:grid;
   grid-template-columns: 1fr 1fr;
@@ -55,7 +54,6 @@
   width:100%; height:100%; object-fit:cover; display:block;
 }
 
-/* ---------- LAYOUT ---------- */
 .spell-page{
   display:grid;
   grid-template-columns: 280px 1fr;
@@ -69,7 +67,6 @@
   font-family: 'Cinzel', serif;
 }
 
-/* ---------- SIDEBAR ---------- */
 .spell-sidebar{
   border: 2px solid var(--gold-dark);
   border-radius: 4px;
@@ -107,7 +104,6 @@
   color: var(--cream);
 }
 
-/* ---------- DARK MODE TOGGLE ---------- */
 .spell-mode-toggle{
   display:flex;
   align-items:center;
@@ -141,7 +137,6 @@
 }
 .spell-toggle-switch.on::after{ left: 18px; }
 
-/* ---------- SEARCH ---------- */
 .spell-search{
   padding: 0.6rem;
   background: var(--ink);
@@ -208,7 +203,6 @@
   padding: 0.8rem;
 }
 
-/* ---------- MAIN PANE & TIGHTENED TABLE ---------- */
 .spell-article{
   background: transparent;
 }
@@ -282,7 +276,6 @@
   padding: 1.5rem;
 }
 
-/* ---------- DARK MODE ---------- */
 .spell-page.spell-dark{
   --spell-dbg: #1b1812;
   --spell-dpanel: #26221a;
@@ -330,7 +323,6 @@
 }
 .spell-page.spell-dark .spell-empty{ color: var(--spell-dtext-soft); }
 
-/* ---------- MOBILE MEDIA QUERIES ---------- */
 @media (max-width: 850px){
   .spell-page-hero{
     grid-template-columns: 1fr;
@@ -372,7 +364,6 @@
   }
 }
 
-/* Card view on small mobile screens */
 @media (max-width: 600px){
   .spell-table-wrap{
     box-shadow: 3px 3px 0 0 var(--gold);
@@ -455,8 +446,6 @@
 <script src="js/include.js"></script>
 <script>
 (function(){
-// The published Google Sheet this page reads live. Editing the sheet
-// updates this page on next load — nothing here needs to be redeployed.
 const SPELL_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1JEUuwBntPy8VxTATpzjb6juloHflbGBW4EgBXY7bSZE/export?format=csv';
 
 const ORDINAL_LEVEL_NAMES = {
@@ -473,8 +462,6 @@ let highlightedSpell = null;
 let allSpells = [];
 let loadError = null;
 
-// Minimal RFC4180-style CSV parser: handles quoted fields, commas and
-// newlines inside quotes, and "" as an escaped quote.
 function parseCSV(text){
   const rows = [];
   let row = [], field = '', inQuotes = false;
@@ -494,7 +481,6 @@ function parseCSV(text){
     } else if(c === '\n'){
       row.push(field); rows.push(row); row = []; field = '';
     } else if(c === '\r'){
-      // ignore, paired \n handles the line break
     } else {
       field += c;
     }
@@ -580,7 +566,7 @@ function orderedLevels(){
 function renderSidebar(){
   const target = document.getElementById('spell-sidebar-content');
   const searchInput = document.getElementById('spell-search-input');
-  if(searchInput && searchInput.value.trim()) return; // a search is active, leave results showing
+  if(searchInput && searchInput.value.trim()) return;
 
   if(loadError){
     target.innerHTML = '<p class="spell-empty" style="padding:1rem;">Couldn\'t load the spell list. Refresh to try again.</p>';

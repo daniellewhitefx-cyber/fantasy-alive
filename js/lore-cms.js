@@ -1,31 +1,8 @@
-// Data layer for the Lore page: loads entries from Supabase instead of
-// static files, parses the lightweight markup lore writers use into the
-// same HTML the reading engine (js/lore-engine.js) already expects, and
-// provides the Add/Edit/Delete operations for accounts with the
-// "lore_editor" role.
-//
-// Markup cheat sheet (what a lore writer actually types in the body box):
-//   Blank line              -> new paragraph
-//   ## Heading               -> section heading
-//   ### Smaller Heading      -> sub-heading
-//   > Quote text
-//   > -- Attribution         -> a quote block with attribution
-//   [[Other Article Title]]  -> link to another lore article by exact title
-//   [link text](https://...) -> a normal external link
-//   ![alt text](https://...) -> an image
-//   ![alt text](https://... "Caption shown under the image") -> image with caption
-//   ~ Authored by ...         -> small attribution line at the end
-//   | A | B |
-//   | --- | --- |
-//   | 1 | 2 |                 -> a table
-
 const LORE_SUPABASE_URL = 'https://xdchluuvicuuqyqsejnq.supabase.co';
 const LORE_SUPABASE_ANON_KEY = 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99';
 const loreSupabase = window.supabase.createClient(LORE_SUPABASE_URL, LORE_SUPABASE_ANON_KEY);
 
 const LORE_IMAGE_BUCKET = 'lore-images';
-
-// ---------- data loading ----------
 
 async function loreLoadEntries(){
   const { data, error } = await loreSupabase
@@ -55,7 +32,6 @@ async function loreCreateEntry({ title, category, body }){
   const baseSlug = loreSlugify(title);
   let slug = baseSlug;
   let attempt = 1;
-  // Slugs must be unique; if there's a collision, just add -2, -3, etc.
   while(true){
     const { data, error } = await loreSupabase.from('lore_entries').select('id').eq('slug', slug).maybeSingle();
     if(error) throw error;
@@ -93,8 +69,6 @@ async function loreUploadImage(file){
   return data.publicUrl;
 }
 
-// ---------- markup parsing ----------
-
 function loreEscapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -103,15 +77,12 @@ function loreIsSafeUrl(url){
   return !/^\s*(javascript|data|vbscript):/i.test(url || '');
 }
 
-// Applies inline transforms (links, internal links) to already-escaped text.
 function loreInline(escapedText){
   let out = escapedText;
-  // [[Article Title]] -> internal cross-link via the existing lore_goto()
   out = out.replace(/\[\[([^\]]+)\]\]/g, (m, title) => {
     const clean = title.trim();
     return `<a href="#" onclick="return lore_goto('${clean.replace(/'/g, "\\'")}')">${clean}</a>`;
   });
-  // [text](url) -> external link
   out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
     const cleanUrl = url.trim();
     if(!loreIsSafeUrl(cleanUrl)) return text;
@@ -161,8 +132,8 @@ function loreParseMarkup(source){
       const bodyLines = [];
       lines.forEach(l => {
         const content = l.replace(/^>\s?/, '');
-        const citeMatch = content.match(/^(--|—)\s*(.+)$/);
-        if(citeMatch) cite = citeMatch[2].trim();
+        const citeMatch = content.match(/^--\s*(.+)$/);
+        if(citeMatch) cite = citeMatch[1].trim();
         else bodyLines.push(content);
       });
       const body = loreInline(loreEscapeHtml(bodyLines.join(' ').trim()));

@@ -1,16 +1,3 @@
-// Google Apps Script Web App that receives event registrations from
-// register.html and writes them into "Fantasy Alive — Registrations".
-//
-// This file is not deployed by git/Vercel — it only runs inside Google's
-// Apps Script editor. It's kept here so the logic is version-controlled
-// and easy to find. See the setup steps given alongside this file for how
-// to paste it in and deploy it.
-//
-// For each event date, this creates (on first use) a "<date> - Roster"
-// tab listing everyone registered, and a "<date> - Kitchen" tab listing
-// only people who selected a meal, with blank checkbox cells for the
-// meals they're actually getting, meant to be printed and marked off.
-
 var SHEET_ID = '1QJQj1j4bTUrvIdQZvdTPhFN_ncGcXKvOmSPUvoULLk4';
 var MEAL_SLOT_COLUMNS = ['Saturday Breakfast', 'Saturday Lunch', 'Saturday Dinner', 'Sunday Breakfast'];
 
@@ -26,13 +13,6 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// Lets the site ask "has this player already registered this
-// character (or Cast) for this event?" so register.html and
-// characters.html can show a "You're Registered!" state instead of
-// letting someone sign up twice.
-//
-// Expected query params: ?action=check&event=<event label>
-//   &who=character|cast&character=<character name, or "Cast">&email=<player email>
 function doGet(e) {
   var params = e.parameter;
 
@@ -113,7 +93,7 @@ function appendToRoster(ss, body) {
 function appendToKitchen(ss, body) {
   var mealSlots = body.mealSlots || {};
   var hasMeal = MEAL_SLOT_COLUMNS.some(function (slot) { return !!mealSlots[slot]; });
-  if (!hasMeal) return; // nobody eating, don't clutter the kitchen sheet
+  if (!hasMeal) return;
 
   var sheetName = body.eventLabel + ' - Kitchen';
   var sheet = ss.getSheetByName(sheetName);
@@ -124,7 +104,7 @@ function appendToKitchen(ss, body) {
   }
   var row = [body.characterName || body.playerName || ''];
   MEAL_SLOT_COLUMNS.forEach(function (slot) {
-    row.push(mealSlots[slot] ? '☐' : ''); // ☐, ticked off by hand at the event
+    row.push(mealSlots[slot] ? '☐' : '');
   });
   sheet.appendRow(row);
 }

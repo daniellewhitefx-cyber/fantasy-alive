@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Friends &mdash; Fantasy Alive</title>
+<title>Friends - Fantasy Alive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -18,7 +18,6 @@
 
 <div data-include="partials/members-sidebar.html"></div>
 
-<!-- MAIN PANEL -->
 <div>
 
 <div class="char-switcher" id="char-switcher"></div>
@@ -67,14 +66,12 @@ const CHARACTERS = [
 ];
 let activeCharId = CHARACTERS[0].id;
 
-// Mock roster of who attended the last event
 const LAST_EVENT_ROSTER = [
   { id:'c5', label:'Character 5, Human [Player 5]' },
   { id:'c6', label:'Character 6, Dwarf [Player 6]' },
   { id:'c7', label:'Character 7, Orc [Player 7]' },
 ];
 
-// Mock full character directory, for the general search
 const ALL_CHARACTERS = [
   { id:'c5', label:'Character 5, Human [Player 5]' },
   { id:'c6', label:'Character 6, Dwarf [Player 6]' },
@@ -83,7 +80,6 @@ const ALL_CHARACTERS = [
   { id:'c9', label:'Character 9, Minotaur [Player 9]' },
 ];
 
-// Friends list, keyed per character
 const friendsByChar = {
   lucifer: [
     { id:'c2', label:'Character 2, Elf [Player 2]' },
