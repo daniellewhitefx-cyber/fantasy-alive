@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casting, Contributing &amp; Marshalls - Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.page-hero{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  align-items:center;
+  height: 320px;
+  overflow: hidden;
+}
+.page-hero-content{
+  padding: 2rem 3rem 2rem 5.5rem;
+  text-align: center;
+}
+.page-hero .logo-img{ width:100%; max-width: 440px; height:auto; display:block; margin: 0 auto; }
+.page-hero h1{
+  font-family: 'EB Garamond', serif;
+  font-weight: 500;
+  font-size: 2.4rem;
+  margin: 0.5rem 0 0;
+  color: var(--brown);
+  text-align: center;
+}
+
+.photo-slot{
+  border: 2px dashed var(--gold-dark);
+  border-radius: 6px;
+  background: var(--cream-deep);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:0.6rem;
+  color: var(--brown-dark);
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  font-size:0.8rem;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  text-align:center;
+  padding:1rem;
+}
+.photo-slot svg{ width:34px; height:34px; opacity:0.55; }
+.photo-slot.hero-slot{ height:100%; min-height:320px; border-radius:0; }
+.photo-slot.section-slot{ min-height:220px; }
+.photo-slot.card-slot{ min-height:120px; }
+
+.cm-intro{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 2rem 1rem;
+}
+.cm-intro p{
+  font-family:'EB Garamond', serif;
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: #2e2415;
+  margin: 0 0 1.1rem;
+  text-align:center;
+}
+
+.cm-jump{
+  display:flex;
+  justify-content:center;
+  gap: 0.8rem;
+  flex-wrap:wrap;
+  max-width: 900px;
+  margin: 0 auto 2.5rem;
+  padding: 0 2rem;
+}
+.cm-jump a{
+  background: var(--ink);
+  color: var(--gold);
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  font-size: 0.8rem;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  padding: 0.55rem 1.1rem;
+  border-radius: 4px;
+  border: 2px solid var(--gold);
+}
+.cm-jump a:hover{ background: var(--gold); color: var(--ink); }
+
+.cm-section{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  border-top: 3px solid var(--gold);
+}
+.cm-section:first-of-type{ border-top:none; }
+.cm-section h2{
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin: 0 0 1.4rem;
+  color: var(--brown-dark);
+  text-align:center;
+}
+.cm-section > p{
+  font-family:'EB Garamond', serif;
+  font-size: 1.06rem;
+  line-height: 1.65;
+  color: #2e2415;
+  max-width: 850px;
+  margin: 0 auto 1.2rem;
+}
+
+.cm-lead-block{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.2rem;
+  align-items:center;
+  margin-bottom: 1.5rem;
+}
+
+.cm-role-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.6rem;
+}
+.cm-role-grid.cm-two-col{ grid-template-columns: repeat(2, 1fr); }
+.cm-role-card{
+  background: var(--cream-deep);
+  border: 2px solid var(--gold-dark);
+  border-radius: 6px;
+  overflow:hidden;
+  box-shadow: 6px 6px 0 0 var(--gold);
+}
+.cm-role-card .photo-slot{ border:none; border-bottom: 2px solid var(--gold-dark); border-radius:0; }
+.cm-role-card-body{ padding: 1.1rem 1.3rem 1.4rem; }
+.cm-role-card h3{
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  color: var(--brown-dark);
+}
+.cm-role-card p{
+  font-family:'EB Garamond', serif;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: #2e2415;
+  margin: 0;
+}
+
+.cm-marshal-list{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.6rem;
+}
+.cm-marshal-item{
+  background: #fff;
+  border-left: 4px solid var(--gold);
+  padding: 1rem 1.3rem;
+  border-radius: 3px;
+}
+.cm-marshal-item h3{
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--brown-dark);
+}
+.cm-marshal-item p{
+  font-family:'EB Garamond', serif;
+  font-size: 0.96rem;
+  line-height: 1.5;
+  color: #2e2415;
+  margin: 0;
+}
+
+.cm-help-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.6rem;
+}
+.cm-help-card{
+  text-align:center;
+  padding: 1.4rem 1.2rem;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 6px;
+}
+.cm-help-card h3{
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  color: var(--gold);
+}
+.cm-help-card p{
+  font-family:'EB Garamond', serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cm-closing{
+  font-family:'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--brown-dark);
+  text-align:center;
+  max-width: 820px;
+  margin: 2rem auto 0;
+}
+
+@media (max-width: 900px){
+  .page-hero{ grid-template-columns: 1fr; height:auto; }
+  .page-hero-content{ padding: 1.5rem 1rem; }
+  .page-hero h1{ font-size: 1.9rem; }
+  .photo-slot.hero-slot{ height:180px; min-height:180px; }
+  .cm-lead-block{ grid-template-columns: 1fr; }
+  .cm-role-grid{ grid-template-columns: 1fr; }
+  .cm-role-grid.cm-two-col{ grid-template-columns: 1fr; }
+  .cm-marshal-list{ grid-template-columns: 1fr; }
+  .cm-help-grid{ grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<section class="page-hero">
+<div class="page-hero-content">
+<img src="https://i.imgur.com/YUATL72.png" alt="Fantasy Alive" class="logo-img">
+<h1>Casting, Contributing, and Marshal Roles</h1>
+</div>
+<div class="photo-slot hero-slot">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+Add a photo
+</div>
+</section>
+
+<div class="cm-intro">
+<p>Fantasy Alive appreciates the hard work and contributions that help to make our games fun, safe, and welcoming to our players, both new and familiar. People who help through contributions of costume and props, or through work done to help the game to function, are usually recognized with Ogre Chips, tokens that can be exchanged for experience or gold in-game.</p>
+<p>Although an exhaustive list of the ways that you can help Fantasy Alive to run smoothly would be impossible, the following are a few of the more common ways that people work to make a difference. If you have some skill, materials, or knowledge that you think would help the game to thrive and grow that doesn't seem to be listed below, feel free to reach out to the game's owners to see if that might be helpful in running the game.</p>
+</div>
+
+<nav class="cm-jump">
+<a href="#casting">Casting</a>
+<a href="#plot">Plot</a>
+<a href="#marshals">Marshals</a>
+<a href="#other-ways">Helping Out in Other Ways</a>
+</nav>
+
+<section class="cm-section" id="casting">
+<h2>Casting</h2>
+<div class="cm-lead-block">
+<div>
+<p>"Casting" is the catch-all term for playing non-player characters at Fantasy Alive. Cast members take on the role of monsters, villagers, merchants and others, not represented by a player character. In general, cast are asked to wear black clothing without any writing on it if possible, and will be provided costume pieces to wear over this from the costume and prop reserves that the game possesses. Some roles may also involve masks or makeup, but while combat is often a part of casting, people who cannot safely perform combat roles may still cast &ndash; although they may not be able to participate in every mod.</p>
+</div>
+<div class="photo-slot section-slot">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+Add a photo
+</div>
+</div>
+<p>It is advised that people who wish to spend time acting as a plot marshal spend some time casting before they do so. This helps them to be more familiar with how the game works behind the scenes, to understand the expectations that are a part of that role.</p>
+
+<div class="cm-role-grid">
+<div class="cm-role-card">
+<div class="photo-slot card-slot">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+Add a photo
+</div>
+<div class="cm-role-card-body">
+<h3>Cast Shift</h3>
+<p>Cast Shift is the lowest impact way of playing a cast role. This is an option for players who want to take a break from playing their characters, of who want to help out, in exchange for some ogre chips. Cast shift is available to most players during the course of their game, when they will temporarily set aside their player character and come to represent non-player characters for a while. In some instances, plot or owners will ask if anyone is willing to join cast for a 'mod' (self-contained adventure or part of an adventure), often when more numbers are needed.</p>
+<p style="margin-top:0.8rem;">Some ogre chips are awarded for this, usually proportionate to the amount of time spent casting. Cast shift is not mandatory at Fantasy Alive.</p>
+</div>
+</div>
+<div class="cm-role-card">
+<div class="photo-slot card-slot">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+Add a photo
+</div>
+<div class="cm-role-card-body">
+<h3>Event Cast</h3>
+<p>Event Cast are playing a cast role for an entire event. Event cast are encouraged (but not required) to stay for the majority of the event, and will take on a number of non-player character roles in that span. In addition to being awarded Ogre Chips, the event fee for those who are casting for the entire event is waived, although being on meal plan will still have a (discounted) cost. Casting for an event can be a good way to practice skills such as combat and spellcasting, and to otherwise familiarize oneself with parts of the game that they might not encounter as a player character.</p>
+</div>
+</div>
+<div class="cm-role-card">
+<div class="photo-slot card-slot">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+Add a photo
+</div>
+<div class="cm-role-card-body">
+<h3>"Permacast"</h3>
+<p>Permacast are players who are taking on a cast role for a protracted period, often an entire season. Permacast receive Ogre Chips and, like event cast, have their event fees waived and a discount applied if they wish to be on meal plan. Permacasting is a great way to practice LARP skills and to thoroughly learn the rules of play, and permacast who have shown that they are capable in roles that they have been assigned may be given roles that are more complex, or which are recurring characters for the span of their time on cast.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="cm-section" id="plot">
+<h2>Plot</h2>
+<div class="cm-lead-block">
+<div>
+<p>Technically a marshal role, Plot Marshals (or simply Plot) are those players in the game who have taken on the responsibility of creating characters, planning, and presenting stories for the game of Fantasy Alive. Plot is responsible for creating both individual events, and multi-event storylines, which players can investigate, explore, and interact with, using the rules in the rulebook. In addition to work done at events, the plot team will hold a 'plot meeting' between events, where they coordinate the plans for an event or storyline, and will also answer questions or address some between-game in-character concerns via email.</p>
+</div>
+<div class="photo-slot section-slot">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+Add a photo
+</div>
+</div>
+<p>At event, plot members will give description for scenes (particularly when an area like a cave or building cannot be directly represented). They will make on-the-spot calls for how the rules interact with their story (called a 'field call'), informed by their familiarity with the rules, although they may defer this responsibility to rules marshals. Although plot team members may generally be expected to be familiar with all active storylines, they may defer to the plot member who came up with or is leading that story, in order to ensure that the story is consistent. Plot members at events will also effectively act as cast members &ndash; taking on serious roles to ensure that they are played in accordance with the story and rules of the game.</p>
+<p>Usually, the role of plot lasts for a year (or 'season'), with some exceptions. In general, in addition to being expected to attend all or most of the events in a given season, plot marshals will have 7-10 hours of work, preparing characters, writing up notes for the event, and preparing any other materials that they may need for an event. Following an event, they will also be expected to briefly summarize those parts of the event that they directly contributed to, for posterity and continuity purposes. Plot members, like cast, have their event fee waived, and receive a larger bolus of OC per event, as a way of thanking them for their hard work.</p>
+<p>Applications for the plot team will usually take place at or around the end of a season, allowing for the plot team to be decided upon and to have a chance to meet before the first events of the next season.</p>
+
+<div class="cm-role-grid cm-two-col" style="grid-template-columns: 1fr; max-width:700px; margin-left:auto; margin-right:auto;">
+<div class="cm-role-card">
+<div class="photo-slot card-slot">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+Add a photo
+</div>
+<div class="cm-role-card-body">
+<h3>The Head of Plot</h3>
+<p>The Head of Plot takes on a role somewhere between 'artistic director' and 'project manager' for a season. They are expected to be familiar with all of the active storylines for a season, and to work in coordination with the owners of the game in order to maintain a consistency of theme and message from plot team to plot team. The Head of Plot is usually expected to have spent at least one year on the plot team, and while acting in this role is a big responsibility, it can be both fun and engaging to help to shape the world and the stories that occur within it.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="cm-section" id="marshals">
+<h2>Marshals</h2>
+<p>The following marshals act as officers of the game, and use their knowledge of the game to help to ensure it runs smoothly. If one of these roles is of interest to you, please inform the game owners for their consideration when next a role becomes available.</p>
+
+<div class="cm-marshal-list">
+<div class="cm-marshal-item">
+<h3>Rules Marshals</h3>
+<p>Rules Marshals ensure that the rules of the game are consistently followed. These players have generally played the game of Fantasy Alive for some time, and have volunteered to answer questions about the rules, or arbitrate rules disputes in the course of play. They also may answers questions following an event that are non-pressing (do not need immediate answers in the course of play).</p>
+</div>
+<div class="cm-marshal-item">
+<h3>Weapons Marshals</h3>
+<p>Weapons Marshals ensure that any boffer or latex weapons used in the course of play have been checked to ensure that they are safe to use. These marshals are familiar with the proper construction and safe use of these props, and will check them before they are used in play.</p>
+</div>
+<div class="cm-marshal-item">
+<h3>Armour Marshals</h3>
+<p>Armour Marshals can help to answer questions about armour, including helping to count the number of covered locations.</p>
+</div>
+<div class="cm-marshal-item">
+<h3>The Logistics Marshal</h3>
+<p>The Logistics Marshal is an officer of the game whose responsibility is principally to ensure that actions taken during downtime are recorded, that character sheets are up-to-date and provided, that tags and coins are provided, and that the logistics operations of the game are correct and recorded.</p>
+</div>
+<div class="cm-marshal-item">
+<h3>New Player Representatives</h3>
+<p>New Player Representatives are those players who take it upon themselves to help new players become familiar with the rules as they apply to them, and to answer questions from new players about the game, its rules, or similar. New Player Representatives are encouraged to attend Friday Nights to better provide information for players just starting out.</p>
+</div>
+<div class="cm-marshal-item">
+<h3>Player Relations Representatives</h3>
+<p>Player Relations Representatives are those players who volunteer to act as representatives for our players when issues may arise that lead to the players not directly wishing to reach out to the relevant marshals, or to ownership. They are there to ensure that people feel safe and heard.</p>
+</div>
+<div class="cm-marshal-item">
+<h3>Character History Marshals</h3>
+<p>Character History Marshals will answer emails regarding new and resubmitted character histories, helping to ensure that they are compliant with the rules and lore of the game, and that players who submit a character history are awarded appropriate experience points.</p>
+</div>
+<div class="cm-marshal-item">
+<h3>Lorekeepers</h3>
+<p>Lorekeepers are those players who contribute to ensuring that the body of lore available to players and plot alike is up to date and correct. This is principally a role between games, and involves the writing, editing, and updating of lore documents.</p>
+</div>
+</div>
+</section>
+
+<section class="cm-section" id="other-ways">
+<h2>Helping Out in Other Ways</h2>
+<p>Fantasy Alive appreciates all of the contributions to our game from our fantastic player base. Some other ways to help out include:</p>
+
+<div class="cm-help-grid">
+<div class="cm-help-card">
+<h3>Conventions &amp; Faires</h3>
+<p>Attending conventions or faires during the spring, summer, and fall helps us to get the word out about our game to new players.</p>
+</div>
+<div class="cm-help-card">
+<h3>Kitchen Help</h3>
+<p>Kitchen help helps to ensure that our meal plan is healthy, tasty, and timely.</p>
+</div>
+<div class="cm-help-card">
+<h3>Set Up &amp; Clean Up</h3>
+<p>Set Up and Clean Up helps us to look great, and ensure that our venue remains clean and orderly.</p>
+</div>
+</div>
+
+<p class="cm-closing">There are other roles that may become available on a pro tem basis. Please keep an ear out for calls for assistance &ndash; we're happy to work with our community to make our game functional, welcoming, and friendly.</p>
+</section>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+</body>
+</html>
