@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Character Creator - Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Character Creator</h1>
+<p class="page-subhead">Build a new character. You can have up to 2 characters on your account.</p>
+
+<div class="reg-already-registered" id="cc-cap-notice" style="display:none;">
+<h3>You already have 2 characters</h3>
+<p>Only 2 characters are allowed per player. Head back to your <a href="characters.html">Characters</a> page to view them.</p>
+</div>
+
+<div id="cc-form-wrap">
+
+<div class="reg-section">
+<div class="reg-section-label">Character Details</div>
+<div class="account-form-grid">
+<div>
+<label class="field-label" for="cc-name">Character Name</label>
+<input type="text" id="cc-name" placeholder="Your character's name">
+</div>
+<div>
+<label class="field-label" for="cc-race">Race</label>
+<select id="cc-race" onchange="cc_onRaceChange()">
+<option value="">Choose a race</option>
+<option>Human</option>
+<option>Elf</option>
+<option>Dwarf</option>
+<option>Gnome</option>
+<option>Curtainborn</option>
+<option>Orc</option>
+<option>D'Shunn</option>
+<option>Minotaur</option>
+<option>Malkin</option>
+<option>Goblin</option>
+<option>Lizardfolk</option>
+</select>
+</div>
+<div>
+<label class="field-label" for="cc-pronouns">Pronouns</label>
+<input type="text" id="cc-pronouns" placeholder="e.g. she/her, he/him, they/them">
+</div>
+<div>
+<label class="field-label" for="cc-birthday">Birthday</label>
+<input type="date" id="cc-birthday">
+</div>
+</div>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Choose Skills</div>
+<p class="page-subhead" id="cc-budget-line">Choose a race above to see your starting Skill Point budget.</p>
+
+<div id="cc-skills-loading" class="page-subhead">Loading the skill list from the spreadsheet&hellip;</div>
+<div id="cc-skills-error" class="reg-error-note" style="display:none;">Couldn't load the skill list. Refresh to try again.</div>
+
+<div id="cc-skills-area" style="display:none;">
+<div class="day-toggle" id="cc-cat-tabs"></div>
+<div class="skill-table-wrap-cc">
+<table class="data-table">
+<thead><tr><th>Skill</th><th>Cost</th><th>Prerequisite</th><th>Focus / Level</th><th></th></tr></thead>
+<tbody id="cc-browser-body"></tbody>
+</table>
+</div>
+
+<h3 style="margin:1.6rem 0 0.8rem;">Chosen Skills</h3>
+<table class="data-table">
+<thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th><th></th></tr></thead>
+<tbody id="cc-chosen-body"></tbody>
+</table>
+<p class="page-subhead" id="cc-chosen-empty" style="margin-top:0.8rem;">No skills chosen yet.</p>
+</div>
+</div>
+
+<button class="btn-gold" onclick="cc_submit()">Create Character</button>
+<p class="reg-success-note" id="cc-success" style="display:none;"></p>
+<p class="reg-error-note" id="cc-error" style="display:none;"></p>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script src="js/skills-data.js"></script>
+<script>
+(function(){
+let allSkills = [];
+let activeCategory = 'Combat Skill';
+let chosen = [];
+let browseState = {};
+
+function skillNameParts(title){
+  const m = title.match(/^(.*?)\s*[\[\(]([^\]\)]+)[\]\)]\s*$/);
+  if(m) return { base: m[1].trim(), placeholder: m[2].trim() };
+  return { base: title.trim(), placeholder: null };
+}
+
+function skillKey(s){ return s.category + '::' + s.title; }
+
+function isLeveledCost(costStr){ return /\+lvl|[x×*]\s*lvl|\/\s*pt\.?/i.test(costStr); }
+
+function currentRace(){ return document.getElementById('cc-race').value; }
+function startingSP(){ return currentRace() === 'Human' ? 15 : 10; }
+function spentSP(){ return chosen.reduce((sum, s) => sum + s.cost, 0); }
+
+function cc_onRaceChange(){
+  const race = currentRace();
+  const budgetLine = document.getElementById('cc-budget-line');
+  if(!race){
+    budgetLine.textContent = 'Choose a race above to see your starting Skill Point budget.';
+  } else {
+    budgetLine.textContent = `Starting Skill Points: ${spentSP()} / ${startingSP()} used (${race} characters start with ${startingSP()} SP).`;
+  }
+  renderBrowser();
+}
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function cc_selectCategory(cat){
+  activeCategory = cat;
+  renderTabs();
+  renderBrowser();
+}
+
+function rowState(idx){
+  const s = allSkills[idx];
+  const key = skillKey(s);
+  browseState[key] = browseState[key] || { level: 1, focus: '' };
+  return { s, key, state: browseState[key] };
+}
+
+function updateRowLive(idx){
+  const { s, state } = rowState(idx);
+  const parts = skillNameParts(s.title);
+  const remaining = startingSP() - spentSP();
+  const cost = skillsParseCost(s.cost, state.level);
+  const canAdd = currentRace() && cost !== null && cost <= remaining && !(parts.placeholder && !state.focus.trim());
+
+  const costEl = document.getElementById('cc-cost-' + idx);
+  if(costEl) costEl.textContent = cost === null ? s.cost : cost + ' SP';
+
+  const btn = document.getElementById('cc-add-' + idx);
+  if(btn) btn.disabled = !canAdd;
+}
+
+function cc_updateFocus(idx, val){
+  const { state } = rowState(idx);
+  state.focus = val;
+  updateRowLive(idx);
+}
+
+function cc_updateLevel(idx, val){
+  const { state } = rowState(idx);
+  state.level = Math.max(1, parseInt(val, 10) || 1);
+  updateRowLive(idx);
+}
+
+function cc_addSkill(idx){
+  const { s, key, state } = rowState(idx);
+  const parts = skillNameParts(s.title);
+  const cost = skillsParseCost(s.cost, state.level);
+  if(cost === null) return;
+  if(parts.placeholder && !state.focus.trim()) return;
+  if(spentSP() + cost > startingSP()) return;
+
+  chosen.push({
+    category: s.category,
+    title: parts.base,
+    focus: parts.placeholder ? state.focus.trim() : '',
+    level: isLeveledCost(s.cost) ? state.level : 1,
+    cost: cost
+  });
+
+  browseState[key] = { level: 1, focus: '' };
+
+  renderChosen();
+  renderBrowser();
+  cc_onRaceChange();
+}
+
+function cc_removeSkill(i){
+  chosen.splice(i, 1);
+  renderChosen();
+  renderBrowser();
+  cc_onRaceChange();
+}
+
+function renderTabs(){
+  const categories = skillsOrderedCategories(allSkills);
+  document.getElementById('cc-cat-tabs').innerHTML = categories.map(cat =>
+    `<button class="${cat === activeCategory ? 'active' : ''}" onclick="cc_selectCategory('${cat.replace(/'/g, "\\'")}')">${escapeHtml(cat)}</button>`
+  ).join('');
+}
+
+function renderBrowser(){
+  const race = currentRace();
+  const budget = startingSP();
+  const remaining = budget - spentSP();
+
+  const rows = allSkills
+    .map((s, idx) => ({ s, idx }))
+    .filter(({ s }) => s.category === activeCategory);
+
+  document.getElementById('cc-browser-body').innerHTML = rows.map(({ s, idx }) => {
+    const parts = skillNameParts(s.title);
+    const key = skillKey(s);
+    const state = browseState[key] || { level: 1, focus: '' };
+    const isLeveled = isLeveledCost(s.cost);
+    const cost = skillsParseCost(s.cost, state.level);
+
+    let focusCell = '&mdash;';
+    if(parts.placeholder && isLeveled){
+      focusCell = `<input type="text" placeholder="${escapeHtml(parts.placeholder)}" value="${escapeHtml(state.focus)}" oninput="cc_updateFocus(${idx}, this.value)" style="max-width:140px;display:inline-block;margin-right:0.5rem;">`
+        + `<input type="number" min="1" value="${state.level}" oninput="cc_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+    } else if(parts.placeholder){
+      focusCell = `<input type="text" placeholder="${escapeHtml(parts.placeholder)}" value="${escapeHtml(state.focus)}" oninput="cc_updateFocus(${idx}, this.value)" style="max-width:180px;">`;
+    } else if(isLeveled){
+      focusCell = `Level <input type="number" min="1" value="${state.level}" oninput="cc_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+    }
+
+    const canAdd = race && cost !== null && cost <= remaining && !(parts.placeholder && !state.focus.trim());
+    const costLabel = cost === null ? s.cost : cost + ' SP';
+
+    return `
+      <tr>
+        <td>${escapeHtml(parts.base)}</td>
+        <td id="cc-cost-${idx}">${escapeHtml(costLabel)}</td>
+        <td class="col-prereq">${escapeHtml(s.prereq)}</td>
+        <td>${focusCell}</td>
+        <td><button class="btn-outline" id="cc-add-${idx}" ${canAdd ? '' : 'disabled'} onclick="cc_addSkill(${idx})">+ Add</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderChosen(){
+  const body = document.getElementById('cc-chosen-body');
+  const empty = document.getElementById('cc-chosen-empty');
+  if(chosen.length === 0){
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  body.innerHTML = chosen.map((s, i) => `
+    <tr>
+      <td>${escapeHtml(s.title)}</td>
+      <td>${escapeHtml(s.category)}</td>
+      <td>${escapeHtml(s.focus)}</td>
+      <td>${s.level}</td>
+      <td>${s.cost}</td>
+      <td><button class="btn-outline" onclick="cc_removeSkill(${i})" title="Remove">&times;</button></td>
+    </tr>
+  `).join('');
+}
+
+async function cc_submit(){
+  const successEl = document.getElementById('cc-success');
+  const errorEl = document.getElementById('cc-error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  const name = document.getElementById('cc-name').value.trim();
+  const race = currentRace();
+  const pronouns = document.getElementById('cc-pronouns').value.trim();
+  const birthday = document.getElementById('cc-birthday').value || null;
+
+  if(!name){ errorEl.textContent = 'Character name cannot be empty.'; errorEl.style.display = 'block'; return; }
+  if(!race){ errorEl.textContent = 'Please choose a race.'; errorEl.style.display = 'block'; return; }
+  if(spentSP() > startingSP()){ errorEl.textContent = 'Chosen skills exceed your starting Skill Points.'; errorEl.style.display = 'block'; return; }
+
+  const p_skills = chosen.map(s => ({
+    category: s.category,
+    skill_name: s.title,
+    focus: s.focus || null,
+    level: s.level,
+    sp_cost: s.cost
+  }));
+
+  const { error } = await membersSupabase.rpc('character_create', {
+    p_name: name,
+    p_race: race,
+    p_pronouns: pronouns,
+    p_birthday: birthday,
+    p_skills
+  });
+
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  successEl.textContent = 'Character created! Taking you to your Characters page&hellip;';
+  successEl.style.display = 'block';
+  setTimeout(() => { window.location.href = 'characters.html'; }, 1200);
+}
+
+async function checkCap(){
+  const { count } = await membersSupabase
+    .from('characters')
+    .select('id', { count: 'exact', head: true });
+
+  if((count || 0) >= 2){
+    document.getElementById('cc-cap-notice').style.display = 'block';
+    document.getElementById('cc-form-wrap').style.display = 'none';
+  }
+}
+
+async function init(){
+  await checkCap();
+
+  try{
+    allSkills = await skillsLoadFromSheet();
+    document.getElementById('cc-skills-loading').style.display = 'none';
+    document.getElementById('cc-skills-area').style.display = 'block';
+    const categories = skillsOrderedCategories(allSkills);
+    if(categories.length) activeCategory = categories[0];
+    renderTabs();
+    renderBrowser();
+    renderChosen();
+  } catch(err){
+    document.getElementById('cc-skills-loading').style.display = 'none';
+    document.getElementById('cc-skills-error').style.display = 'block';
+  }
+}
+
+window.cc_onRaceChange = cc_onRaceChange;
+window.cc_selectCategory = cc_selectCategory;
+window.cc_updateFocus = cc_updateFocus;
+window.cc_updateLevel = cc_updateLevel;
+window.cc_addSkill = cc_addSkill;
+window.cc_removeSkill = cc_removeSkill;
+window.cc_submit = cc_submit;
+
+document.addEventListener('fa-members-ready', init);
+})();
+</script>
+
+</body>
+</html>

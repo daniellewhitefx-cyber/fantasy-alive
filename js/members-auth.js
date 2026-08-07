@@ -24,10 +24,26 @@ async function membersSignOut(){
   window.location.href = 'login.html';
 }
 
+async function needsCharacterCreation(){
+  const current = location.pathname.split('/').pop();
+  if(current === 'character-creator.html') return false;
+
+  const { count } = await membersSupabase
+    .from('characters')
+    .select('id', { count: 'exact', head: true });
+
+  return (count || 0) === 0;
+}
+
 async function initMembersPage(){
   const { data } = await membersSupabase.auth.getSession();
   if(!data.session){
     window.location.href = 'login.html';
+    return;
+  }
+
+  if(await needsCharacterCreation()){
+    window.location.href = 'character-creator.html';
     return;
   }
 

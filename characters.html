@@ -24,11 +24,14 @@
 
 <div class="char-header">
 <div class="char-tab" id="chars-char-tab-name">&nbsp;</div>
+<div id="chars-header-actions" style="display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap;">
 <div id="chars-register-status"><a href="register.html"><button class="btn-gold">Register for Next Event</button></a></div>
+<div id="chars-new-char-slot"></div>
+</div>
 </div>
 
 <div class="panel-shadow">
-<div class="char-panel" id="chars-char-panel"></div>
+<div class="char-panel" id="chars-char-panel">Loading&hellip;</div>
 </div>
 
 </div>
@@ -41,48 +44,8 @@
 <script src="js/registration-status.js"></script>
 <script>
 (function(){
-const CHARACTERS = [
-  {
-    id:'lucifer',
-    name:'Lucifer Ambrosias',
-    race:'Curtainborn',
-    charClass:'Yeoman',
-    lifePoints:4,
-    spiritualEnergy:14,
-    resurrections:2,
-    experience:'850/860 (10)',
-    xpSpRatio:'15:1',
-    skillPoints:'66/70 (4)',
-    skills:[
-      {name:'Spirit Sense', type:'Ability', focus:'', level:'', sp:0},
-      {name:'Theology', type:'Academic', focus:'', level:'', sp:4},
-      {name:'Clerical Investment', type:'Academic', focus:'Apenca', level:3, sp:18},
-      {name:'Read & Write', type:'Academic', focus:'', level:'', sp:6},
-      {name:'Spiritual Energy', type:'Academic', focus:'', level:8, sp:16},
-      {name:'Physician', type:'Trade', focus:'', level:2, sp:9},
-      {name:'Craftsman', type:'Trade', focus:'Glassblower', level:1, sp:3},
-      {name:'Dodge', type:'Combat', focus:'', level:1, sp:10},
-    ]
-  },
-  {
-    id:'char2',
-    name:'Character 2',
-    race:'Elf',
-    charClass:'Scholar',
-    lifePoints:3,
-    spiritualEnergy:0,
-    resurrections:0,
-    experience:'120/120 (0)',
-    xpSpRatio:'15:1',
-    skillPoints:'8/8 (0)',
-    skills:[
-      {name:'Read & Write', type:'Academic', focus:'', level:'', sp:6},
-      {name:'Dodge', type:'Combat', focus:'', level:1, sp:10},
-    ]
-  }
-];
-
-let activeCharId = CHARACTERS[0].id;
+let CHARACTERS = [];
+let activeCharId = null;
 
 function chars_selectChar(id){
   activeCharId = id;
@@ -109,39 +72,88 @@ async function updateRegisterStatus(character){
   }
 }
 
+function updateNewCharSlot(){
+  const slot = document.getElementById('chars-new-char-slot');
+  if(CHARACTERS.length < 2){
+    slot.innerHTML = `<a href="character-creator.html"><button class="btn-outline">+ Create New Character</button></a>`;
+  } else {
+    slot.innerHTML = '';
+  }
+}
+
 function render(){
   const c = CHARACTERS.find(ch => ch.id === activeCharId);
+  updateNewCharSlot();
 
   const switcher = document.getElementById('chars-char-switcher');
   switcher.innerHTML = CHARACTERS.map(ch =>
-    `<button class="${ch.id===activeCharId?'active':''}" onclick="chars_selectChar('${ch.id}')">${ch.name}</button>`
+    `<button class="${ch.id===activeCharId?'active':''}" onclick="chars_selectChar('${ch.id}')">${escapeHtml(ch.name)}</button>`
   ).join('');
+
+  if(!c){
+    document.getElementById('chars-char-tab-name').textContent = 'No characters yet';
+    document.getElementById('chars-char-panel').innerHTML = `
+      <p class="page-subhead">You don't have a character yet.
+      <a href="character-creator.html">Create one</a> to get started.</p>
+    `;
+    return;
+  }
 
   document.getElementById('chars-char-tab-name').textContent = c.name;
   updateRegisterStatus(c);
 
+  const spent = c.skills.reduce((sum, s) => sum + s.sp, 0);
+
   document.getElementById('chars-char-panel').innerHTML = `
     <div class="stat-panel">
-      <div class="stat-row"><span class="stat-label">Race:</span> ${c.race}</div>
-      <div class="stat-row"><span class="stat-label">Class:</span> ${c.charClass}</div>
-      <div class="stat-row"><span class="stat-label">Life Points:</span> ${c.lifePoints}</div>
-      <div class="stat-row"><span class="stat-label">Spiritual Energy:</span> ${c.spiritualEnergy}</div>
-      <div class="stat-row"><span class="stat-label">Resurrections:</span> ${c.resurrections}</div>
-      <div class="stat-row"><span class="stat-label">Experience:</span> ${c.experience}</div>
-      <div class="stat-row"><span class="stat-label">XP:SP Ratio:</span> ${c.xpSpRatio}</div>
-      <div class="stat-row"><span class="stat-label">Skill Points:</span> ${c.skillPoints}</div>
+      <div class="stat-row"><span class="stat-label">Race:</span> ${escapeHtml(c.race)}</div>
+      <div class="stat-row"><span class="stat-label">Pronouns:</span> ${c.pronouns ? escapeHtml(c.pronouns) : '&mdash;'}</div>
+      <div class="stat-row"><span class="stat-label">Birthday:</span> ${c.birthday ? escapeHtml(c.birthday) : '&mdash;'}</div>
+      <div class="stat-row"><span class="stat-label">Skill Points:</span> ${spent}/${c.startingSp} used</div>
     </div>
     <table class="data-table">
       <thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th></tr></thead>
       <tbody>
-        ${c.skills.map(s => `<tr><td>${s.name}</td><td>${s.type}</td><td>${s.focus}</td><td>${s.level}</td><td>${s.sp}</td></tr>`).join('')}
+        ${c.skills.length ? c.skills.map(s => `<tr><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.type)}</td><td>${escapeHtml(s.focus)}</td><td>${s.level}</td><td>${s.sp}</td></tr>`).join('')
+          : `<tr><td colspan="5">No skills chosen yet.</td></tr>`}
       </tbody>
     </table>
   `;
 }
 
+async function loadCharacters(){
+  const { data: chars, error } = await membersSupabase
+    .from('characters')
+    .select('id, name, race, pronouns, birthday, starting_sp, created_at')
+    .order('created_at', { ascending: true });
+
+  if(error || !chars){
+    document.getElementById('chars-char-panel').innerHTML = `<p class="reg-error-note">Couldn't load your characters. Refresh to try again.</p>`;
+    return;
+  }
+
+  const { data: skillRows } = await membersSupabase
+    .from('character_skills')
+    .select('character_id, category, skill_name, focus, level, sp_cost');
+
+  CHARACTERS = chars.map(ch => ({
+    id: ch.id,
+    name: ch.name,
+    race: ch.race,
+    pronouns: ch.pronouns,
+    birthday: ch.birthday,
+    startingSp: ch.starting_sp,
+    skills: (skillRows || [])
+      .filter(sk => sk.character_id === ch.id)
+      .map(sk => ({ name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, sp: sk.sp_cost }))
+  }));
+
+  activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
+  render();
+}
+
 window.chars_selectChar = chars_selectChar;
-render();
+document.addEventListener('fa-members-ready', loadCharacters);
 })();
 </script>
 
