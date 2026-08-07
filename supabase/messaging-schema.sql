@@ -126,6 +126,18 @@ begin
     values (v_sender, p_recipient_player_id, p_recipient_department_id, v_subject, v_thread_key, v_body)
     returning id into v_message_id;
 
+  if p_recipient_player_id is not null then
+    delete from message_folder_assignments
+      where thread_key = v_thread_key and player_id = p_recipient_player_id;
+  else
+    delete from message_folder_assignments
+      where thread_key = v_thread_key
+        and player_id != v_sender
+        and player_id in (
+          select dm.player_id from department_members dm where dm.department_id = p_recipient_department_id
+        );
+  end if;
+
   return v_message_id;
 end;
 $$;
