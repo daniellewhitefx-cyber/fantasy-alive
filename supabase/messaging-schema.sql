@@ -328,6 +328,7 @@ declare
   v_unread_messages integer;
   v_new_xp integer;
   v_new_oc integer;
+  v_new_bank integer;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
 
@@ -345,11 +346,28 @@ begin
     where player_id = v_player
       and (v_last_seen is null or created_at > v_last_seen);
 
+  select
+    (select count(*) from bank_transactions
+      where player_id = v_player
+        and created_by is distinct from v_player
+        and (v_last_seen is null or created_at > v_last_seen))
+    + (select count(*) from bank_bills
+      where to_player_id = v_player
+        and status = 'pending'
+        and (v_last_seen is null or created_at > v_last_seen))
+    + (select count(*) from bank_bills
+      where from_player_id = v_player
+        and status = 'declined'
+        and resolved_at is not null
+        and (v_last_seen is null or resolved_at > v_last_seen))
+  into v_new_bank;
+
   return jsonb_build_object(
     'unread_messages', v_unread_messages,
     'new_xp', v_new_xp,
     'new_oc', v_new_oc,
-    'total', v_unread_messages + v_new_xp + v_new_oc
+    'new_bank', v_new_bank,
+    'total', v_unread_messages + v_new_xp + v_new_oc + v_new_bank
   );
 end;
 $$;

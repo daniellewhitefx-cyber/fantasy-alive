@@ -21,7 +21,7 @@
 <div>
 
 <h1 class="page-title">Notifications</h1>
-<p class="page-subhead">New messages, and XP or OC you've earned since you last checked. <a href="messages.html">Full inbox</a> &middot; <a href="xp-oc-log.html">Full XP/OC history</a></p>
+<p class="page-subhead">New messages, XP or OC you've earned, and Bank activity since you last checked. <a href="messages.html">Full inbox</a> &middot; <a href="xp-oc-log.html">Full XP/OC history</a> &middot; <a href="bank.html">Bank</a></p>
 
 <div class="reg-section">
 <div id="notif-list"><p class="reg-empty-note">Loading&hellip;</p></div>
@@ -115,6 +115,57 @@ async function init(){
       type: 'oc',
       date: o.created_at,
       html: `<strong>${o.amount > 0 ? '+' : ''}${o.amount} OC</strong>${o.note ? ' - ' + escapeHtml(o.note) : ''}`
+    });
+  });
+
+  let bankTxQuery = membersSupabase
+    .from('bank_transactions')
+    .select('type, amount, note, counterparty_id, created_by, created_at')
+    .eq('player_id', me)
+    .order('created_at', { ascending: false });
+  if(lastSeen) bankTxQuery = bankTxQuery.gt('created_at', lastSeen);
+  const { data: bankTxRows } = await bankTxQuery;
+  (bankTxRows || []).forEach(t => {
+    if(!t.created_by || t.created_by === me) return;
+    const note = t.note ? ' - ' + escapeHtml(t.note) : '';
+    let html;
+    if(t.type === 'deposit') html = `<strong>+${t.amount} coin</strong> deposited by staff${note}`;
+    else if(t.type === 'withdrawal') html = `<strong>-${t.amount} coin</strong> withdrawal fulfilled by staff${note}`;
+    else if(t.type === 'transfer_in') html = `<strong>+${t.amount} coin</strong> from ${escapeHtml(profileMap[t.counterparty_id] || 'another player')}${note}`;
+    else if(t.type === 'bill_payment_in') html = `<strong>+${t.amount} coin</strong> - ${escapeHtml(profileMap[t.counterparty_id] || 'a player')} paid your bill${note}`;
+    else html = `<strong>${t.amount} coin</strong> bank update${note}`;
+    items.push({ type: 'bank', date: t.created_at, html });
+  });
+
+  let newBillsQuery = membersSupabase
+    .from('bank_bills')
+    .select('from_player_id, amount, note, status, created_at')
+    .eq('to_player_id', me)
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+  if(lastSeen) newBillsQuery = newBillsQuery.gt('created_at', lastSeen);
+  const { data: newBillRows } = await newBillsQuery;
+  (newBillRows || []).forEach(b => {
+    items.push({
+      type: 'bank',
+      date: b.created_at,
+      html: `<strong>New bill</strong> from ${escapeHtml(profileMap[b.from_player_id] || 'a player')} for ${b.amount} coin${b.note ? ' - ' + escapeHtml(b.note) : ''}`
+    });
+  });
+
+  let declinedBillsQuery = membersSupabase
+    .from('bank_bills')
+    .select('to_player_id, amount, note, resolved_at')
+    .eq('from_player_id', me)
+    .eq('status', 'declined')
+    .order('resolved_at', { ascending: false });
+  if(lastSeen) declinedBillsQuery = declinedBillsQuery.gt('resolved_at', lastSeen);
+  const { data: declinedBillRows } = await declinedBillsQuery;
+  (declinedBillRows || []).forEach(b => {
+    items.push({
+      type: 'bank',
+      date: b.resolved_at,
+      html: `${escapeHtml(profileMap[b.to_player_id] || 'A player')} declined your bill for ${b.amount} coin${b.note ? ' - ' + escapeHtml(b.note) : ''}`
     });
   });
 
