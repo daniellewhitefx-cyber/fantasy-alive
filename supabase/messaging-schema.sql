@@ -40,6 +40,12 @@ create table if not exists messages (
 
 alter table messages add column if not exists subject text not null default 'No subject';
 alter table messages add column if not exists thread_key text;
+alter table messages add column if not exists sender_character_id uuid references characters(id) on delete set null;
+alter table messages add column if not exists sender_department_id uuid references departments(id) on delete set null;
+
+alter table messages drop constraint if exists messages_sender_identity_check;
+alter table messages add constraint messages_sender_identity_check
+  check (not (sender_character_id is not null and sender_department_id is not null));
 
 update messages set thread_key = case
     when recipient_department_id is not null then 'dept:' || recipient_department_id::text || ':' || subject
@@ -83,12 +89,15 @@ create policy "Players see their own read receipts"
   using (player_id = auth.uid());
 
 drop function if exists message_send(uuid, uuid, text);
+drop function if exists message_send(uuid, uuid, text, text);
 
 create or replace function message_send(
   p_recipient_player_id uuid,
   p_recipient_department_id uuid,
   p_body text,
-  p_subject text default null
+  p_subject text default null,
+  p_sender_character_id uuid default null,
+  p_sender_department_id uuid default null
 )
 returns uuid language plpgsql security definer as $$
 declare
@@ -104,6 +113,22 @@ begin
 
   if (p_recipient_player_id is null) = (p_recipient_department_id is null) then
     raise exception 'Message needs exactly one recipient';
+  end if;
+
+  if p_sender_character_id is not null and p_sender_department_id is not null then
+    raise exception 'Choose only one sender identity';
+  end if;
+
+  if p_sender_character_id is not null then
+    if not exists (select 1 from characters where id = p_sender_character_id and player_id = v_sender) then
+      raise exception 'Character not found';
+    end if;
+  end if;
+
+  if p_sender_department_id is not null then
+    if not exists (select 1 from department_members where department_id = p_sender_department_id and player_id = v_sender) then
+      raise exception 'You are not a member of that department';
+    end if;
   end if;
 
   if p_recipient_player_id is not null then
@@ -122,8 +147,8 @@ begin
     v_thread_key := 'dept:' || p_recipient_department_id::text || ':' || v_subject;
   end if;
 
-  insert into messages (sender_id, recipient_player_id, recipient_department_id, subject, thread_key, body)
-    values (v_sender, p_recipient_player_id, p_recipient_department_id, v_subject, v_thread_key, v_body)
+  insert into messages (sender_id, recipient_player_id, recipient_department_id, subject, thread_key, body, sender_character_id, sender_department_id)
+    values (v_sender, p_recipient_player_id, p_recipient_department_id, v_subject, v_thread_key, v_body, p_sender_character_id, p_sender_department_id)
     returning id into v_message_id;
 
   if p_recipient_player_id is not null then
