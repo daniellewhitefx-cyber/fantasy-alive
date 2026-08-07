@@ -56,7 +56,8 @@ let conversations = [];
 let folders = [];
 let folderAssignments = {};
 let activeConversationKey = null;
-let activeFolderId = null;
+let activeView = 'inbox';
+let draggedKey = null;
 let composeTarget = null;
 
 function escapeHtml(str){
@@ -215,23 +216,28 @@ function buildConversations(){
 
   conversations = Object.values(byKey).map(c => {
     c.messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-    c.lastAt = c.messages[c.messages.length - 1].created_at;
-    c.lastBody = c.messages[c.messages.length - 1].body;
+    const last = c.messages[c.messages.length - 1];
+    c.lastAt = last.created_at;
+    c.lastBody = last.body;
     c.unreadCount = c.messages.filter(m => m.sender_id !== me && !m.readByMe).length;
     c.folderId = folderAssignments[c.key] || null;
     return c;
   }).sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt));
 }
 
+function conversationView(c){
+  return c.folderId || 'inbox';
+}
+
 function renderConversationList(){
   const target = document.getElementById('msg-conversation-list');
-  const visible = activeFolderId === null ? conversations : conversations.filter(c => c.folderId === activeFolderId);
+  const visible = conversations.filter(c => conversationView(c) === activeView);
   if(visible.length === 0){
     target.innerHTML = '<p class="reg-empty-note" style="padding:1rem;">No conversations here.</p>';
     return;
   }
   target.innerHTML = visible.map(c => `
-    <button class="msg-list-item ${c.unreadCount ? 'unread' : ''} ${c.key === activeConversationKey ? 'active' : ''}" data-key="${escapeHtml(c.key)}">
+    <button class="msg-list-item ${c.unreadCount ? 'unread' : ''} ${c.key === activeConversationKey ? 'active' : ''}" data-key="${escapeHtml(c.key)}" draggable="true">
       <div class="msg-list-item-top">
         <span class="msg-list-name">${c.unreadCount ? '<span class="msg-list-dot"></span>' : ''}${escapeHtml(c.label)}</span>
         <span class="msg-list-date">${fmtDateTime(c.lastAt)}</span>
@@ -242,27 +248,53 @@ function renderConversationList(){
   `).join('');
   target.querySelectorAll('.msg-list-item').forEach(btn => {
     btn.addEventListener('click', () => msg_openConversation(btn.dataset.key));
+    btn.addEventListener('dragstart', (e) => {
+      draggedKey = btn.dataset.key;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', btn.dataset.key);
+      btn.classList.add('dragging');
+    });
+    btn.addEventListener('dragend', () => { btn.classList.remove('dragging'); draggedKey = null; });
+  });
+}
+
+function setupFolderDropTarget(el, folderId){
+  el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); });
+  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+  el.addEventListener('drop', (e) => {
+    e.preventDefault();
+    el.classList.remove('drag-over');
+    const key = draggedKey || e.dataTransfer.getData('text/plain');
+    if(key) msg_assignFolder(key, folderId);
+    draggedKey = null;
   });
 }
 
 function renderFolderRail(){
   const rail = document.getElementById('msg-folder-rail');
+  const countBadge = (n) => n > 0 ? ` <span class="msg-folder-count">${n}</span>` : '';
+  const inboxUnread = conversations.filter(c => conversationView(c) === 'inbox').reduce((s, c) => s + c.unreadCount, 0);
+
   rail.innerHTML = `
-    <button class="msg-folder-item ${activeFolderId === null ? 'active' : ''}" data-folder="">All Messages</button>
-    ${folders.map(f => `
-      <div class="msg-folder-row">
-        <button class="msg-folder-item ${activeFolderId === f.id ? 'active' : ''}" data-folder="${escapeHtml(f.id)}">${escapeHtml(f.name)}</button>
-        <button class="msg-folder-action" data-rename="${escapeHtml(f.id)}" data-name="${escapeHtml(f.name)}" title="Rename folder">&#9998;</button>
-        <button class="msg-folder-action" data-delete="${escapeHtml(f.id)}" data-name="${escapeHtml(f.name)}" title="Delete folder">&times;</button>
-      </div>
-    `).join('')}
+    <button class="msg-folder-item ${activeView === 'inbox' ? 'active' : ''}" data-view="inbox">Inbox${countBadge(inboxUnread)}</button>
+    <div class="msg-folder-divider"></div>
+    ${folders.map(f => {
+      const count = conversations.filter(c => conversationView(c) === f.id).reduce((s, c) => s + c.unreadCount, 0);
+      return `
+        <div class="msg-folder-row" data-folder-drop="${escapeHtml(f.id)}">
+          <button class="msg-folder-item ${activeView === f.id ? 'active' : ''}" data-view="${escapeHtml(f.id)}">${escapeHtml(f.name)}${countBadge(count)}</button>
+          <button class="msg-folder-action" data-rename="${escapeHtml(f.id)}" data-name="${escapeHtml(f.name)}" title="Rename folder">&#9998;</button>
+          <button class="msg-folder-action" data-delete="${escapeHtml(f.id)}" data-name="${escapeHtml(f.name)}" title="Delete folder">&times;</button>
+        </div>
+      `;
+    }).join('')}
     <div class="msg-folder-new">
       <input type="text" id="msg-new-folder-name" placeholder="New folder name">
       <button class="btn-gold" id="msg-new-folder-btn">Add</button>
     </div>
   `;
-  rail.querySelectorAll('.msg-folder-item[data-folder]').forEach(btn => {
-    btn.addEventListener('click', () => msg_selectFolder(btn.dataset.folder || null));
+  rail.querySelectorAll('[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => msg_selectView(btn.dataset.view));
   });
   rail.querySelectorAll('[data-rename]').forEach(btn => {
     btn.addEventListener('click', () => msg_renameFolder(btn.dataset.rename, btn.dataset.name));
@@ -271,6 +303,11 @@ function renderFolderRail(){
     btn.addEventListener('click', () => msg_deleteFolder(btn.dataset.delete, btn.dataset.name));
   });
   document.getElementById('msg-new-folder-btn').addEventListener('click', msg_createFolder);
+
+  setupFolderDropTarget(rail.querySelector('[data-view="inbox"]'), null);
+  rail.querySelectorAll('[data-folder-drop]').forEach(row => {
+    setupFolderDropTarget(row, row.dataset.folderDrop);
+  });
 }
 
 function refreshThreadFolderSelect(){
@@ -284,8 +321,8 @@ function refreshThreadFolderSelect(){
   `;
 }
 
-function msg_selectFolder(folderId){
-  activeFolderId = folderId;
+function msg_selectView(view){
+  activeView = view;
   renderFolderRail();
   renderConversationList();
 }
@@ -320,12 +357,23 @@ async function msg_renameFolder(folderId, oldName){
 }
 
 async function msg_deleteFolder(folderId, name){
-  if(!confirm(`Delete the "${name}" folder? Conversations inside move back to All Messages.`)) return;
+  if(!confirm(`Delete the "${name}" folder? Conversations inside move back to Inbox.`)) return;
 
   const { error } = await membersSupabase.rpc('message_folder_delete', { p_folder_id: folderId });
   if(error){ alert(error.message); return; }
 
-  if(activeFolderId === folderId) activeFolderId = null;
+  if(activeView === folderId) activeView = 'inbox';
+  await loadFolders();
+  buildConversations();
+  renderFolderRail();
+  renderConversationList();
+  refreshThreadFolderSelect();
+}
+
+async function msg_assignFolder(threadKey, folderId){
+  const { error } = await membersSupabase.rpc('message_set_folder', { p_thread_key: threadKey, p_folder_id: folderId });
+  if(error){ alert(error.message); return; }
+
   await loadFolders();
   buildConversations();
   renderFolderRail();
@@ -334,16 +382,8 @@ async function msg_deleteFolder(folderId, name){
 }
 
 async function msg_moveConversation(folderId){
-  const convo = conversations.find(c => c.key === activeConversationKey);
-  if(!convo) return;
-
-  const { error } = await membersSupabase.rpc('message_set_folder', { p_thread_key: convo.key, p_folder_id: folderId || null });
-  if(error){ alert(error.message); return; }
-
-  await loadFolders();
-  buildConversations();
-  renderFolderRail();
-  renderConversationList();
+  if(!activeConversationKey) return;
+  await msg_assignFolder(activeConversationKey, folderId || null);
 }
 
 async function msg_openConversation(key){
@@ -384,6 +424,7 @@ async function msg_openConversation(key){
   if(unreadIds.length){
     await Promise.all(unreadIds.map(id => membersSupabase.rpc('message_mark_read', { p_message_id: id })));
     await loadMessages(key);
+    renderFolderRail();
   }
 }
 
@@ -452,8 +493,8 @@ async function init(){
   departments = depts || [];
 
   await loadFolders();
-  renderFolderRail();
   await loadMessages();
+  renderFolderRail();
 }
 
 window.msg_startCompose = msg_startCompose;
