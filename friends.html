@@ -60,11 +60,8 @@
 <script src="js/include.js"></script>
 <script src="js/members-auth.js"></script>
 <script>
-const CHARACTERS = [
-  { id:'lucifer', name:'Lucifer Ambrosias' },
-  { id:'char2', name:'Character 2' },
-];
-let activeCharId = CHARACTERS[0].id;
+let CHARACTERS = [];
+let activeCharId = null;
 
 const LAST_EVENT_ROSTER = [
   { id:'c5', label:'Character 5, Human [Player 5]' },
@@ -102,7 +99,7 @@ function addFriend(selectId){
   const source = selectId === 'last-event-select' ? LAST_EVENT_ROSTER : ALL_CHARACTERS;
   const entry = source.find(c => c.id === val);
   if(!entry) return;
-  const list = friendsByChar[activeCharId];
+  const list = friendsByChar[activeCharId] = friendsByChar[activeCharId] || [];
   if(!list.some(f => f.id === entry.id)){
     list.push(entry);
   }
@@ -110,10 +107,14 @@ function addFriend(selectId){
   render();
 }
 
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 function render(){
   const switcher = document.getElementById('char-switcher');
   switcher.innerHTML = CHARACTERS.map(ch =>
-    `<button class="${ch.id===activeCharId?'active':''}" onclick="selectChar('${ch.id}')">${ch.name}</button>`
+    `<button class="${ch.id===activeCharId?'active':''}" onclick="selectChar('${ch.id}')">${escapeHtml(ch.name)}</button>`
   ).join('');
 
   const lastEventSelect = document.getElementById('last-event-select');
@@ -131,7 +132,17 @@ function render(){
     : `<p class="page-subhead" style="margin:0;">No friends added yet for this character.</p>`;
 }
 
-render();
+async function loadCharacters(){
+  const { data } = await membersSupabase
+    .from('characters')
+    .select('id, name')
+    .order('created_at', { ascending: true });
+  CHARACTERS = data || [];
+  activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
+  render();
+}
+
+document.addEventListener('fa-members-ready', loadCharacters);
 </script>
 
 </body>

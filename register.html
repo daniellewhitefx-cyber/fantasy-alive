@@ -90,10 +90,7 @@ const ACCOUNT = {
   flexEventCredits: 0
 };
 
-const CHARACTERS = [
-  { id:'lucifer', name:'Lucifer Ambrosias' },
-  { id:'char2', name:'Character 2' }
-];
+let CHARACTERS = [];
 
 const EVENTS = window.FA_EVENTS;
 
@@ -521,11 +518,16 @@ window.reg_submit = reg_submit;
 
 selectedDays = new Set(state.event.days.map(d => d.id));
 
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', render);
-} else {
+async function loadCharacters(){
+  const { data } = await membersSupabase
+    .from('characters')
+    .select('id, name')
+    .order('created_at', { ascending: true });
+  CHARACTERS = data || [];
   render();
 }
+
+document.addEventListener('fa-members-ready', loadCharacters);
 })();
 </script>
 

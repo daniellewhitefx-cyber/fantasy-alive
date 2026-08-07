@@ -110,6 +110,7 @@ let allSkills = [];
 let activeCategory = 'Combat Skill';
 let chosen = [];
 let browseState = {};
+let existingCharCount = 0;
 
 function skillNameParts(title){
   const m = title.match(/^(.*?)\s*[\[\(]([^\]\)]+)[\]\)]\s*$/);
@@ -122,7 +123,10 @@ function skillKey(s){ return s.category + '::' + s.title; }
 function isLeveledCost(costStr){ return /\+lvl|[x×*]\s*lvl|\/\s*pt\.?/i.test(costStr); }
 
 function currentRace(){ return document.getElementById('cc-race').value; }
-function startingSP(){ return currentRace() === 'Human' ? 15 : 10; }
+function startingSP(){
+  if(existingCharCount === 0) return 30;
+  return currentRace() === 'Human' ? 15 : 10;
+}
 function spentSP(){ return chosen.reduce((sum, s) => sum + s.cost, 0); }
 
 function cc_onRaceChange(){
@@ -130,6 +134,8 @@ function cc_onRaceChange(){
   const budgetLine = document.getElementById('cc-budget-line');
   if(!race){
     budgetLine.textContent = 'Choose a race above to see your starting Skill Point budget.';
+  } else if(existingCharCount === 0){
+    budgetLine.textContent = `Starting Skill Points: ${spentSP()} / ${startingSP()} used (your first character starts with a flat 30 SP).`;
   } else {
     budgetLine.textContent = `Starting Skill Points: ${spentSP()} / ${startingSP()} used (${race} characters start with ${startingSP()} SP).`;
   }
@@ -321,7 +327,9 @@ async function checkCap(){
     .from('characters')
     .select('id', { count: 'exact', head: true });
 
-  if((count || 0) >= 2){
+  existingCharCount = count || 0;
+
+  if(existingCharCount >= 2){
     document.getElementById('cc-cap-notice').style.display = 'block';
     document.getElementById('cc-form-wrap').style.display = 'none';
   }

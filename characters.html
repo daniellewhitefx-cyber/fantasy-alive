@@ -34,6 +34,13 @@
 <div class="char-panel" id="chars-char-panel">Loading&hellip;</div>
 </div>
 
+<div class="reg-section" id="chars-remort-area"></div>
+
+<div class="reg-section" id="chars-staff-remort-section" style="display:none;">
+<div class="reg-section-label">Staff Tools &mdash; Pending Remort Requests</div>
+<div id="chars-staff-remort-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
 </div>
 </div>
 
@@ -46,6 +53,9 @@
 (function(){
 let CHARACTERS = [];
 let activeCharId = null;
+let remortByChar = {};
+let profileMap = {};
+let isRemortStaff = false;
 
 function chars_selectChar(id){
   activeCharId = id;
@@ -96,11 +106,13 @@ function render(){
       <p class="page-subhead">You don't have a character yet.
       <a href="character-creator.html">Create one</a> to get started.</p>
     `;
+    document.getElementById('chars-remort-area').innerHTML = '';
     return;
   }
 
   document.getElementById('chars-char-tab-name').textContent = c.name;
   updateRegisterStatus(c);
+  renderRemortArea(c);
 
   const spent = c.skills.reduce((sum, s) => sum + s.sp, 0);
 
@@ -121,10 +133,100 @@ function render(){
   `;
 }
 
+function renderRemortArea(c){
+  const el = document.getElementById('chars-remort-area');
+  const req = remortByChar[c.id];
+
+  if(!req || req.status === 'completed' || req.status === 'denied'){
+    el.innerHTML = `<button class="btn-outline" onclick="chars_requestRemort('${c.id}')">Request Remort</button>`
+      + (req && req.status === 'denied' ? ` <span class="page-subhead" style="display:inline;">Your last remort request for this character was denied. You can ask again.</span>` : '');
+  } else if(req.status === 'pending'){
+    el.innerHTML = `<p class="page-subhead" style="margin:0;">Remort requested &mdash; waiting on staff approval.</p>`;
+  } else if(req.status === 'approved'){
+    el.innerHTML = `<p class="page-subhead" style="margin:0;">Your remort was approved.
+      <a href="character-edit.html?id=${c.id}"><button class="btn-gold" style="margin-left:0.5rem;">Edit This Character</button></a></p>`;
+  }
+}
+
+async function chars_requestRemort(charId){
+  const { error } = await membersSupabase.rpc('character_request_remort', { p_character_id: charId });
+  if(error){ alert(error.message); return; }
+  await loadRemortStatus();
+  render();
+}
+
+async function loadRemortStatus(){
+  if(CHARACTERS.length === 0){ remortByChar = {}; return; }
+  const charIds = CHARACTERS.map(c => c.id);
+  const { data } = await membersSupabase
+    .from('character_remort_requests')
+    .select('id, character_id, status, requested_at')
+    .in('character_id', charIds)
+    .order('requested_at', { ascending: false });
+
+  remortByChar = {};
+  (data || []).forEach(r => { if(!remortByChar[r.character_id]) remortByChar[r.character_id] = r; });
+}
+
+async function loadProfiles(){
+  const { data } = await membersSupabase.from('profiles').select('id, display_name');
+  profileMap = {};
+  (data || []).forEach(p => { profileMap[p.id] = p.display_name; });
+}
+
+function nameFor(id){ return profileMap[id] || 'Unknown player'; }
+
+async function refreshStaffRemorts(){
+  if(!isRemortStaff) return;
+
+  const { data: requests } = await membersSupabase
+    .from('character_remort_requests')
+    .select('id, character_id, player_id, requested_at')
+    .eq('status', 'pending')
+    .order('requested_at', { ascending: true });
+
+  const target = document.getElementById('chars-staff-remort-list');
+  if(!requests || requests.length === 0){
+    target.innerHTML = '<p class="reg-empty-note">No pending remort requests.</p>';
+    return;
+  }
+
+  const charIds = [...new Set(requests.map(r => r.character_id))];
+  const { data: chars } = await membersSupabase.from('characters').select('id, name, race').in('id', charIds);
+  const charMap = {};
+  (chars || []).forEach(c => { charMap[c.id] = c; });
+
+  target.innerHTML = requests.map(r => {
+    const c = charMap[r.character_id] || { name: 'Unknown character', race: '' };
+    return `
+      <div class="bank-bill-card">
+        <div><strong>${escapeHtml(nameFor(r.player_id))}</strong> requests a remort for <strong>${escapeHtml(c.name)}</strong> (${escapeHtml(c.race)})</div>
+        <div class="bank-bill-actions">
+          <button class="btn-gold" onclick="chars_approveRemort('${r.id}')">Approve</button>
+          <button class="btn-outline" onclick="chars_denyRemort('${r.id}')">Deny</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function chars_approveRemort(reqId){
+  const { error } = await membersSupabase.rpc('character_approve_remort', { p_request_id: reqId });
+  if(error){ alert(error.message); return; }
+  await refreshStaffRemorts();
+}
+
+async function chars_denyRemort(reqId){
+  const { error } = await membersSupabase.rpc('character_deny_remort', { p_request_id: reqId });
+  if(error){ alert(error.message); return; }
+  await refreshStaffRemorts();
+}
+
 async function loadCharacters(){
   const { data: chars, error } = await membersSupabase
     .from('characters')
     .select('id, name, race, pronouns, birthday, starting_sp, created_at')
+    .eq('player_id', window.faCurrentUser.id)
     .order('created_at', { ascending: true });
 
   if(error || !chars){
@@ -134,7 +236,8 @@ async function loadCharacters(){
 
   const { data: skillRows } = await membersSupabase
     .from('character_skills')
-    .select('character_id, category, skill_name, focus, level, sp_cost');
+    .select('character_id, category, skill_name, focus, level, sp_cost')
+    .eq('player_id', window.faCurrentUser.id);
 
   CHARACTERS = chars.map(ch => ({
     id: ch.id,
@@ -148,12 +251,27 @@ async function loadCharacters(){
       .map(sk => ({ name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, sp: sk.sp_cost }))
   }));
 
+  await loadRemortStatus();
+
   activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
   render();
 }
 
 window.chars_selectChar = chars_selectChar;
-document.addEventListener('fa-members-ready', loadCharacters);
+window.chars_requestRemort = chars_requestRemort;
+window.chars_approveRemort = chars_approveRemort;
+window.chars_denyRemort = chars_denyRemort;
+
+document.addEventListener('fa-members-ready', async (e) => {
+  const user = e.detail.user;
+  isRemortStaff = !!(user.app_metadata && user.app_metadata.remort_staff);
+  if(isRemortStaff) document.getElementById('chars-staff-remort-section').style.display = 'block';
+  await loadCharacters();
+  if(isRemortStaff){
+    await loadProfiles();
+    await refreshStaffRemorts();
+  }
+});
 })();
 </script>
 

@@ -44,35 +44,17 @@
 <script src="js/members-auth.js"></script>
 <script>
 (function(){
-const CHARACTERS = [
-  {
-    id:'lucifer',
-    name:'Lucifer Ambrosias',
-    skills:[
-      {name:'Spirit Sense', type:'Ability', focus:'', level:'', teachable:false},
-      {name:'Theology', type:'Academic', focus:'', level:'', teachable:true},
-      {name:'Clerical Investment', type:'Academic', focus:'Apenca', level:3, teachable:false},
-      {name:'Read & Write', type:'Academic', focus:'', level:'', teachable:true},
-      {name:'Spiritual Energy', type:'Academic', focus:'', level:8, teachable:false},
-      {name:'Physician', type:'Trade', focus:'', level:2, teachable:false},
-      {name:'Craftsman', type:'Trade', focus:'Glassblower', level:1, teachable:false},
-      {name:'Dodge', type:'Combat', focus:'', level:1, teachable:false},
-    ]
-  },
-  {
-    id:'char2',
-    name:'Character 2',
-    skills:[
-      {name:'Read & Write', type:'Academic', focus:'', level:'', teachable:false},
-      {name:'Dodge', type:'Combat', focus:'', level:1, teachable:false},
-    ]
-  }
-];
+let CHARACTERS = [];
+let activeCharId = null;
+let dirty = new Set();
 
-let activeCharId = CHARACTERS[0].id;
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
 function teach_selectChar(id){
   activeCharId = id;
+  dirty = new Set();
   document.getElementById('teach-saved-note').classList.remove('show');
   render();
 }
@@ -80,9 +62,24 @@ function teach_selectChar(id){
 function teach_toggleTeach(index){
   const c = CHARACTERS.find(ch => ch.id === activeCharId);
   c.skills[index].teachable = !c.skills[index].teachable;
+  dirty.add(c.skills[index].id);
 }
 
-function teach_saveTeachable(){
+async function teach_saveTeachable(){
+  const c = CHARACTERS.find(ch => ch.id === activeCharId);
+  if(!c || dirty.size === 0){
+    const note = document.getElementById('teach-saved-note');
+    note.classList.add('show');
+    setTimeout(() => note.classList.remove('show'), 1800);
+    return;
+  }
+
+  const toSave = c.skills.filter(s => dirty.has(s.id));
+  await Promise.all(toSave.map(s =>
+    membersSupabase.rpc('character_set_skill_teachable', { p_skill_id: s.id, p_teachable: s.teachable })
+  ));
+  dirty = new Set();
+
   const note = document.getElementById('teach-saved-note');
   note.classList.add('show');
   setTimeout(() => note.classList.remove('show'), 1800);
@@ -91,25 +88,47 @@ function teach_saveTeachable(){
 function render(){
   const switcher = document.getElementById('teach-char-switcher');
   switcher.innerHTML = CHARACTERS.map(ch =>
-    `<button class="${ch.id===activeCharId?'active':''}" onclick="teach_selectChar('${ch.id}')">${ch.name}</button>`
+    `<button class="${ch.id===activeCharId?'active':''}" onclick="teach_selectChar('${ch.id}')">${escapeHtml(ch.name)}</button>`
   ).join('');
 
   const c = CHARACTERS.find(ch => ch.id === activeCharId);
-  document.getElementById('teach-skills-body').innerHTML = c.skills.map((s, i) => `
+  document.getElementById('teach-skills-body').innerHTML = !c ? '' : (c.skills.length ? c.skills.map((s, i) => `
     <tr>
-      <td>${s.name}</td>
-      <td>${s.type}</td>
-      <td>${s.focus}</td>
+      <td>${escapeHtml(s.name)}</td>
+      <td>${escapeHtml(s.type)}</td>
+      <td>${escapeHtml(s.focus)}</td>
       <td>${s.level}</td>
       <td class="teach-cell"><input type="checkbox" ${s.teachable?'checked':''} onchange="teach_toggleTeach(${i})"></td>
     </tr>
-  `).join('');
+  `).join('') : `<tr><td colspan="5">This character has no skills yet.</td></tr>`);
+}
+
+async function loadCharacters(){
+  const { data: chars } = await membersSupabase
+    .from('characters')
+    .select('id, name')
+    .order('created_at', { ascending: true });
+
+  const { data: skillRows } = await membersSupabase
+    .from('character_skills')
+    .select('id, character_id, category, skill_name, focus, level, teachable');
+
+  CHARACTERS = (chars || []).map(ch => ({
+    id: ch.id,
+    name: ch.name,
+    skills: (skillRows || [])
+      .filter(sk => sk.character_id === ch.id)
+      .map(sk => ({ id: sk.id, name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, teachable: sk.teachable }))
+  }));
+
+  activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
+  render();
 }
 
 window.teach_selectChar = teach_selectChar;
 window.teach_toggleTeach = teach_toggleTeach;
 window.teach_saveTeachable = teach_saveTeachable;
-render();
+document.addEventListener('fa-members-ready', loadCharacters);
 })();
 </script>
 
