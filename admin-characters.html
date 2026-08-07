@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Characters (Staff) - Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Manage Characters</h1>
+<p class="page-subhead">Staff tools. Changes here bypass the normal Skill Point budget - use with care.</p>
+
+<div class="reg-already-registered" id="ac-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to staff accounts.</p>
+</div>
+
+<div id="ac-wrap" style="display:none;">
+
+<div class="reg-section">
+<label class="field-label" for="ac-search">Search by character or player name</label>
+<input type="text" id="ac-search" placeholder="Start typing..." oninput="ac_search(this.value)">
+<div id="ac-results" style="margin-top:0.8rem;"></div>
+</div>
+
+<div id="ac-detail" style="display:none;">
+
+<div class="reg-section">
+<div class="reg-section-label">Character Details</div>
+<p class="page-subhead" id="ac-owner-line"></p>
+<div class="account-form-grid">
+<div>
+<label class="field-label" for="ac-name">Character Name</label>
+<input type="text" id="ac-name">
+</div>
+<div>
+<label class="field-label" for="ac-race">Race</label>
+<select id="ac-race">
+<option>Human</option>
+<option>Elf</option>
+<option>Dwarf</option>
+<option>Gnome</option>
+<option>Curtainborn</option>
+<option>Orc</option>
+<option>D'Shunn</option>
+<option>Minotaur</option>
+<option>Malkin</option>
+<option>Goblin</option>
+<option>Lizardfolk</option>
+</select>
+</div>
+<div>
+<label class="field-label" for="ac-pronouns">Pronouns</label>
+<input type="text" id="ac-pronouns">
+</div>
+<div>
+<label class="field-label" for="ac-birthday">Birthday</label>
+<input type="date" id="ac-birthday">
+</div>
+</div>
+<button class="btn-gold" style="margin-top:1rem;" onclick="ac_saveDetails()">Save Details</button>
+<p class="reg-success-note" id="ac-details-success" style="display:none;"></p>
+<p class="reg-error-note" id="ac-details-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Starting Skill Points</div>
+<input type="number" id="ac-starting-sp" min="0" style="max-width:140px;display:inline-block;">
+<button class="btn-gold" onclick="ac_saveStartingSp()">Save SP</button>
+<p class="reg-success-note" id="ac-sp-success" style="display:none;"></p>
+<p class="reg-error-note" id="ac-sp-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Current Skills</div>
+<table class="data-table">
+<thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th><th></th></tr></thead>
+<tbody id="ac-skills-body"></tbody>
+</table>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Add a Skill</div>
+<p class="page-subhead">Every skill is shown here regardless of prerequisite. SP Cost is editable before adding.</p>
+<div class="day-toggle" id="ac-cat-tabs"></div>
+<div class="skill-table-wrap-cc">
+<table class="data-table">
+<thead><tr><th>Skill</th><th>SP Cost</th><th>Prerequisite</th><th>Focus / Level</th><th></th></tr></thead>
+<tbody id="ac-browser-body"></tbody>
+</table>
+</div>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Experience Points (this character)</div>
+<div class="bank-balance-card">
+<div class="bank-balance-label">Current XP</div>
+<div class="bank-balance-amount" id="ac-xp-balance">&hellip;</div>
+</div>
+<div class="bank-form-grid">
+<div>
+<label class="field-label" for="ac-xp-amount">Amount (negative to deduct)</label>
+<input type="number" id="ac-xp-amount" step="1">
+</div>
+<div>
+<label class="field-label" for="ac-xp-note">Note</label>
+<input type="text" id="ac-xp-note" placeholder="What's this for?">
+</div>
+</div>
+<button class="btn-gold" onclick="ac_adjustXp()">Apply XP Change</button>
+<p class="reg-error-note" id="ac-xp-error" style="display:none;"></p>
+<div id="ac-xp-history" style="margin-top:1rem;"></div>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Ogre Chips (this player's whole account)</div>
+<p class="page-subhead">OC belongs to the player, not a single character.</p>
+<div class="bank-balance-card">
+<div class="bank-balance-label">Current OC</div>
+<div class="bank-balance-amount" id="ac-oc-balance">&hellip;</div>
+</div>
+<div class="bank-form-grid">
+<div>
+<label class="field-label" for="ac-oc-amount">Amount (negative to deduct)</label>
+<input type="number" id="ac-oc-amount" step="1">
+</div>
+<div>
+<label class="field-label" for="ac-oc-note">Note</label>
+<input type="text" id="ac-oc-note" placeholder="What's this for?">
+</div>
+</div>
+<button class="btn-gold" onclick="ac_adjustOc()">Apply OC Change</button>
+<p class="reg-error-note" id="ac-oc-error" style="display:none;"></p>
+<div id="ac-oc-history" style="margin-top:1rem;"></div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script src="js/skills-data.js"></script>
+<script>
+(function(){
+let allSkills = [];
+let activeCategory = 'Combat Skill';
+let browseState = {};
+let allCharacters = [];
+let profileMap = {};
+let selected = null;
+
+const SCHOOLS_OF_MAGIC = ['Armour','Body','Creation','Death','Detection','Divine','Elemental','Healing','Infliction','Magic','Mind','Summoning'];
+const DEITIES = ['Alejandero','Alwyn','Anajaream','Apenca','Arkady','Astrid','Atha','Balaxa','Bard','Beldon','Blythe','Brack','Callis','Clovis','Elieff','Fiona','Hemulis','Iccula','Jerroh','Kazzok','Kell','Marius','Sasha','Stasa','Strega'];
+const WRITTEN_LANGUAGES = ['Harodonian Common','High Elven','Dwarven Runes','Gnomish Script',"D'shunn Writings",'Lizardfolk Glyphs','Goblin Sigil','Orcsign','High and Low Minotaur','Giant Runes','Ancient Alexandrian','Imperial Lannean','Deep Writings','Arcane Script','Celestial Script','Infernal Script'];
+const ENERGY_TYPES = ['Magical Energy','Spiritual Energy'];
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function skillNameParts(title){
+  const m = title.match(/^(.*?)\s*[\[\(]([^\]\)]+)[\]\)]\s*$/);
+  if(m) return { base: m[1].trim(), placeholder: m[2].trim() };
+  return { base: title.trim(), placeholder: null };
+}
+
+function skillKey(s){ return s.category + '::' + s.title; }
+function isLeveledCost(costStr){ return /\+lvl|[x×*]\s*lvl|\/\s*pt\.?/i.test(costStr); }
+
+function focusOptionsFor(s){
+  const parts = skillNameParts(s.title);
+  if(!parts.placeholder) return null;
+  if(parts.placeholder.toLowerCase() === 'weapon type'){
+    return allSkills.filter(x => x.category === 'Weapon Skill').map(x => skillNameParts(x.title).base);
+  }
+  if(parts.base === 'Channel Spell') return ENERGY_TYPES;
+  if(parts.base === 'Clerical Investment') return DEITIES;
+  if(parts.base === 'Arcane Research') return SCHOOLS_OF_MAGIC;
+  if(parts.base === 'Read & Write') return WRITTEN_LANGUAGES;
+  return null;
+}
+
+function nameFor(playerId){ return profileMap[playerId] || 'Unknown player'; }
+
+function fmtDate(iso){
+  if(!iso) return '';
+  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function ac_search(query){
+  const q = query.trim().toLowerCase();
+  const results = document.getElementById('ac-results');
+  if(!q){ results.innerHTML = ''; return; }
+
+  const matches = allCharacters.filter(c =>
+    c.name.toLowerCase().includes(q) || nameFor(c.player_id).toLowerCase().includes(q)
+  ).slice(0, 25);
+
+  if(matches.length === 0){
+    results.innerHTML = '<p class="reg-empty-note">No characters found.</p>';
+    return;
+  }
+
+  results.innerHTML = matches.map(c => `
+    <div class="bank-bill-card">
+      <div><strong>${escapeHtml(c.name)}</strong> (${escapeHtml(c.race)}) - played by ${escapeHtml(nameFor(c.player_id))}</div>
+      <div class="bank-bill-actions">
+        <button class="btn-gold" onclick="ac_selectCharacter('${c.id}')">Manage</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function ac_selectCharacter(charId){
+  const { data: char } = await membersSupabase
+    .from('characters')
+    .select('id, name, race, pronouns, birthday, starting_sp, player_id')
+    .eq('id', charId)
+    .maybeSingle();
+
+  if(!char) return;
+  selected = char;
+
+  document.getElementById('ac-detail').style.display = 'block';
+  document.getElementById('ac-owner-line').textContent = `Played by ${nameFor(char.player_id)}`;
+  document.getElementById('ac-name').value = char.name;
+  document.getElementById('ac-race').value = char.race;
+  document.getElementById('ac-pronouns').value = char.pronouns || '';
+  document.getElementById('ac-birthday').value = char.birthday || '';
+  document.getElementById('ac-starting-sp').value = char.starting_sp;
+
+  await Promise.all([loadSkills(), loadXp(), loadOc()]);
+  renderTabs();
+  renderBrowser();
+}
+
+async function loadSkills(){
+  const { data } = await membersSupabase
+    .from('character_skills')
+    .select('id, category, skill_name, focus, level, sp_cost')
+    .eq('character_id', selected.id);
+
+  document.getElementById('ac-skills-body').innerHTML = (data && data.length) ? data.map(s => `
+    <tr>
+      <td>${escapeHtml(s.skill_name)}</td>
+      <td>${escapeHtml(s.category)}</td>
+      <td>${escapeHtml(s.focus || '')}</td>
+      <td>${s.level}</td>
+      <td>${s.sp_cost}</td>
+      <td><button class="btn-outline" onclick="ac_removeSkill('${s.id}')" title="Remove">&times;</button></td>
+    </tr>
+  `).join('') : `<tr><td colspan="6">No skills yet.</td></tr>`;
+}
+
+async function ac_removeSkill(skillId){
+  const { error } = await membersSupabase.rpc('character_staff_remove_skill', { p_skill_id: skillId });
+  if(error){ alert(error.message); return; }
+  await loadSkills();
+}
+
+async function loadXp(){
+  const { data: balance } = await membersSupabase.rpc('character_staff_xp_balance', { p_character_id: selected.id });
+  document.getElementById('ac-xp-balance').textContent = balance != null ? balance : '0';
+
+  const { data: history } = await membersSupabase
+    .from('xp_transactions')
+    .select('amount, note, created_at')
+    .eq('character_id', selected.id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  const target = document.getElementById('ac-xp-history');
+  target.innerHTML = (history && history.length) ? history.map(h => `
+    <div class="bank-bill-card">
+      <div><strong>${h.amount > 0 ? '+' : ''}${h.amount} XP</strong>${h.note ? ' - ' + escapeHtml(h.note) : ''} <span class="bank-request-date">(${fmtDate(h.created_at)})</span></div>
+    </div>
+  `).join('') : '<p class="reg-empty-note">No XP history yet.</p>';
+}
+
+async function ac_adjustXp(){
+  const errorEl = document.getElementById('ac-xp-error');
+  errorEl.style.display = 'none';
+
+  const amount = parseInt(document.getElementById('ac-xp-amount').value, 10);
+  const note = document.getElementById('ac-xp-note').value.trim();
+
+  if(!amount){ errorEl.textContent = 'Enter a non-zero amount.'; errorEl.style.display = 'block'; return; }
+
+  const { error } = await membersSupabase.rpc('character_staff_adjust_xp', {
+    p_character_id: selected.id, p_amount: amount, p_note: note || null
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  document.getElementById('ac-xp-amount').value = '';
+  document.getElementById('ac-xp-note').value = '';
+  await loadXp();
+}
+
+async function loadOc(){
+  const { data: balance } = await membersSupabase.rpc('character_staff_oc_balance', { p_player: selected.player_id });
+  document.getElementById('ac-oc-balance').textContent = balance != null ? balance : '0';
+
+  const { data: history } = await membersSupabase
+    .from('oc_transactions')
+    .select('amount, note, created_at')
+    .eq('player_id', selected.player_id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  const target = document.getElementById('ac-oc-history');
+  target.innerHTML = (history && history.length) ? history.map(h => `
+    <div class="bank-bill-card">
+      <div><strong>${h.amount > 0 ? '+' : ''}${h.amount} OC</strong>${h.note ? ' - ' + escapeHtml(h.note) : ''} <span class="bank-request-date">(${fmtDate(h.created_at)})</span></div>
+    </div>
+  `).join('') : '<p class="reg-empty-note">No OC history yet.</p>';
+}
+
+async function ac_adjustOc(){
+  const errorEl = document.getElementById('ac-oc-error');
+  errorEl.style.display = 'none';
+
+  const amount = parseInt(document.getElementById('ac-oc-amount').value, 10);
+  const note = document.getElementById('ac-oc-note').value.trim();
+
+  if(!amount){ errorEl.textContent = 'Enter a non-zero amount.'; errorEl.style.display = 'block'; return; }
+
+  const { error } = await membersSupabase.rpc('character_staff_adjust_oc', {
+    p_player_id: selected.player_id, p_amount: amount, p_note: note || null
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  document.getElementById('ac-oc-amount').value = '';
+  document.getElementById('ac-oc-note').value = '';
+  await loadOc();
+}
+
+async function ac_saveDetails(){
+  const successEl = document.getElementById('ac-details-success');
+  const errorEl = document.getElementById('ac-details-error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  const name = document.getElementById('ac-name').value.trim();
+  const race = document.getElementById('ac-race').value;
+  const pronouns = document.getElementById('ac-pronouns').value.trim();
+  const birthday = document.getElementById('ac-birthday').value || null;
+
+  const { error } = await membersSupabase.rpc('character_staff_update_details', {
+    p_character_id: selected.id, p_name: name, p_race: race, p_pronouns: pronouns, p_birthday: birthday
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  successEl.textContent = 'Saved.';
+  successEl.style.display = 'block';
+  selected.name = name;
+  selected.race = race;
+  const idx = allCharacters.findIndex(c => c.id === selected.id);
+  if(idx !== -1){ allCharacters[idx].name = name; allCharacters[idx].race = race; }
+}
+
+async function ac_saveStartingSp(){
+  const successEl = document.getElementById('ac-sp-success');
+  const errorEl = document.getElementById('ac-sp-error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  const newSp = parseInt(document.getElementById('ac-starting-sp').value, 10);
+
+  const { error } = await membersSupabase.rpc('character_staff_set_starting_sp', {
+    p_character_id: selected.id, p_new_sp: newSp
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  successEl.textContent = 'Saved.';
+  successEl.style.display = 'block';
+}
+
+function rowState(idx){
+  const s = allSkills[idx];
+  const key = skillKey(s);
+  browseState[key] = browseState[key] || { level: 1, focus: '', cost: null };
+  return { s, key, state: browseState[key] };
+}
+
+function ac_selectCategory(cat){
+  activeCategory = cat;
+  renderTabs();
+  renderBrowser();
+}
+
+function ac_updateFocus(idx, val){
+  const { state } = rowState(idx);
+  state.focus = val;
+}
+
+function ac_updateLevel(idx, val){
+  const { s, state } = rowState(idx);
+  state.level = Math.max(1, parseInt(val, 10) || 1);
+  if(state.cost === null){
+    const el = document.getElementById('ac-costinput-' + idx);
+    if(el) el.value = skillsParseCost(s.cost, state.level);
+  }
+}
+
+function ac_updateCost(idx, val){
+  const { state } = rowState(idx);
+  state.cost = parseInt(val, 10);
+  if(isNaN(state.cost)) state.cost = 0;
+}
+
+function focusFieldHtml(idx, s, state, isLeveled){
+  const parts = skillNameParts(s.title);
+  const options = focusOptionsFor(s);
+  const widthStyle = `style="max-width:${isLeveled ? 140 : 180}px;display:inline-block;${isLeveled ? 'margin-right:0.5rem;' : ''}"`;
+
+  if(options){
+    return `<select onchange="ac_updateFocus(${idx}, this.value)" ${widthStyle}>`
+      + `<option value="">Choose&hellip;</option>`
+      + options.map(o => `<option value="${escapeHtml(o)}" ${state.focus === o ? 'selected' : ''}>${escapeHtml(o)}</option>`).join('')
+      + `</select>`;
+  }
+  return `<input type="text" placeholder="${escapeHtml(parts.placeholder)}" value="${escapeHtml(state.focus)}" oninput="ac_updateFocus(${idx}, this.value)" ${widthStyle}>`;
+}
+
+function renderTabs(){
+  const categories = skillsOrderedCategories(allSkills);
+  document.getElementById('ac-cat-tabs').innerHTML = categories.map(cat =>
+    `<button class="${cat === activeCategory ? 'active' : ''}" onclick="ac_selectCategory('${cat.replace(/'/g, "\\'")}')">${escapeHtml(cat)}</button>`
+  ).join('');
+}
+
+function renderBrowser(){
+  const rows = allSkills
+    .map((s, idx) => ({ s, idx }))
+    .filter(({ s }) => s.category === activeCategory);
+
+  document.getElementById('ac-browser-body').innerHTML = rows.map(({ s, idx }) => {
+    const parts = skillNameParts(s.title);
+    const key = skillKey(s);
+    const state = browseState[key] || { level: 1, focus: '', cost: null };
+    const isLeveled = isLeveledCost(s.cost);
+    const defaultCost = skillsParseCost(s.cost, state.level);
+
+    let focusCell = '-';
+    if(parts.placeholder && isLeveled){
+      focusCell = focusFieldHtml(idx, s, state, true)
+        + `<input type="number" min="1" value="${state.level}" oninput="ac_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+    } else if(parts.placeholder){
+      focusCell = focusFieldHtml(idx, s, state, false);
+    } else if(isLeveled){
+      focusCell = `Level <input type="number" min="1" value="${state.level}" oninput="ac_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+    }
+
+    const costValue = state.cost !== null ? state.cost : (defaultCost === null ? 0 : defaultCost);
+
+    return `
+      <tr>
+        <td>${escapeHtml(parts.base)}</td>
+        <td><input type="number" min="0" id="ac-costinput-${idx}" value="${costValue}" oninput="ac_updateCost(${idx}, this.value)" style="max-width:80px;"></td>
+        <td class="col-prereq">${escapeHtml(s.prereq)}</td>
+        <td>${focusCell}</td>
+        <td><button class="btn-outline" onclick="ac_addSkill(${idx})">+ Add</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function ac_addSkill(idx){
+  const { s, key, state } = rowState(idx);
+  const parts = skillNameParts(s.title);
+  if(parts.placeholder && !state.focus.trim()){
+    alert('Choose a focus for this skill first.');
+    return;
+  }
+  const costInput = document.getElementById('ac-costinput-' + idx);
+  const cost = parseInt(costInput.value, 10) || 0;
+
+  const { error } = await membersSupabase.rpc('character_staff_add_skill', {
+    p_character_id: selected.id,
+    p_category: s.category,
+    p_skill_name: parts.base,
+    p_focus: parts.placeholder ? state.focus.trim() : null,
+    p_level: isLeveledCost(s.cost) ? state.level : 1,
+    p_sp_cost: cost
+  });
+  if(error){ alert(error.message); return; }
+
+  browseState[key] = { level: 1, focus: '', cost: null };
+  await loadSkills();
+  renderBrowser();
+}
+
+window.ac_search = ac_search;
+window.ac_selectCharacter = ac_selectCharacter;
+window.ac_removeSkill = ac_removeSkill;
+window.ac_saveDetails = ac_saveDetails;
+window.ac_saveStartingSp = ac_saveStartingSp;
+window.ac_selectCategory = ac_selectCategory;
+window.ac_updateFocus = ac_updateFocus;
+window.ac_updateLevel = ac_updateLevel;
+window.ac_updateCost = ac_updateCost;
+window.ac_addSkill = ac_addSkill;
+window.ac_adjustXp = ac_adjustXp;
+window.ac_adjustOc = ac_adjustOc;
+
+document.addEventListener('fa-members-ready', async (e) => {
+  const user = e.detail.user;
+  const isStaff = !!(user.app_metadata && user.app_metadata.character_staff);
+  if(!isStaff){
+    document.getElementById('ac-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('ac-wrap').style.display = 'block';
+
+  const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
+  profileMap = {};
+  (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
+
+  const { data: chars } = await membersSupabase
+    .from('characters')
+    .select('id, name, race, player_id')
+    .order('name', { ascending: true });
+  allCharacters = chars || [];
+
+  try{
+    allSkills = await skillsLoadFromSheet();
+  } catch(err){
+  }
+});
+})();
+</script>
+
+</body>
+</html>
