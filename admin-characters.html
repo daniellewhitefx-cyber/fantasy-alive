@@ -241,28 +241,32 @@ function ac_switchTab(tab){
   });
 }
 
-function ac_search(query){
-  const q = query.trim().toLowerCase();
+function renderCharacterList(list){
   const results = document.getElementById('ac-results');
-  if(!q){ results.innerHTML = ''; return; }
 
-  const matches = allCharacters.filter(c =>
-    c.name.toLowerCase().includes(q) || nameFor(c.player_id).toLowerCase().includes(q)
-  ).slice(0, 25);
-
-  if(matches.length === 0){
+  if(list.length === 0){
     results.innerHTML = '<p class="reg-empty-note">No characters found.</p>';
     return;
   }
 
-  results.innerHTML = matches.map(c => `
+  results.innerHTML = list.map(c => `
     <div class="bank-bill-card">
-      <div><strong>${escapeHtml(c.name)}</strong> (${escapeHtml(c.race)}) - played by ${escapeHtml(nameFor(c.player_id))}</div>
+      <div><strong>${escapeHtml(nameFor(c.player_id))}</strong> - <strong>${escapeHtml(c.name)}</strong> (${escapeHtml(c.race)})</div>
       <div class="bank-bill-actions">
         <button class="btn-gold" onclick="ac_selectCharacter('${c.id}')">Manage</button>
       </div>
     </div>
   `).join('');
+}
+
+function ac_search(query){
+  const q = query.trim().toLowerCase();
+  if(!q){ renderCharacterList(allCharacters); return; }
+
+  const matches = allCharacters.filter(c =>
+    c.name.toLowerCase().includes(q) || nameFor(c.player_id).toLowerCase().includes(q)
+  );
+  renderCharacterList(matches);
 }
 
 async function ac_selectCharacter(charId){
@@ -583,6 +587,7 @@ document.addEventListener('fa-members-ready', async (e) => {
     .select('id, name, race, player_id')
     .order('name', { ascending: true });
   allCharacters = chars || [];
+  renderCharacterList(allCharacters);
 
   try{
     allSkills = await skillsLoadFromSheet();
