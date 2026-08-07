@@ -31,7 +31,6 @@
 
 .photo-slot{
   border: 2px dashed var(--gold-dark);
-  border-radius: 6px;
   background: var(--cream-deep);
   display:flex;
   flex-direction:column;
@@ -57,7 +56,7 @@
   width:100%;
   object-fit: cover;
 }
-.oc-photo.section-slot{ height:280px; border-radius:6px; }
+.oc-photo.section-slot{ height:280px; }
 .oc-photo.card-slot{ height:130px; }
 .oc-earn-card .oc-photo{ border-bottom: 2px solid var(--gold-dark); }
 
@@ -125,9 +124,8 @@
 .oc-card{
   background: var(--cream-deep);
   border: 2px solid var(--gold-dark);
-  border-radius: 6px;
   padding: 1.4rem 1.5rem;
-  box-shadow: 6px 6px 0 0 var(--gold);
+  box-shadow: 10px 10px 0 0 var(--gold);
 }
 .oc-card p{
   font-family:'EB Garamond', serif;
@@ -141,7 +139,6 @@
   align-items:center;
   justify-content:center;
   width: 34px; height: 34px;
-  border-radius: 50%;
   background: var(--gold);
   color: var(--ink);
   font-family:'Cinzel', serif;
@@ -159,7 +156,6 @@
 .oc-earn-card{
   background: #fff;
   border: 2px solid var(--gold-dark);
-  border-radius: 6px;
   overflow:hidden;
   display:flex;
   flex-direction:column;
@@ -293,10 +289,7 @@
 </div>
 <div class="oc-earn-grid" style="grid-template-columns: 1fr; margin-top:1.6rem;">
 <div class="oc-earn-card" style="flex-direction:row; align-items:stretch;">
-<div class="photo-slot card-slot" style="width:220px; flex-shrink:0; border-bottom:none; border-right:2px solid var(--gold-dark);">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
-</div>
+<img src="images/earn-other-skills.jpg" alt="Quill pen and inkwell on an old writing desk" class="oc-photo card-slot" style="width:220px; height:auto; flex-shrink:0; border-bottom:none; border-right:2px solid var(--gold-dark);">
 <div class="oc-earn-body">
 <p>Using other skills (as applicable). Maybe you have a gift for art or the skills of a webmaster. The diverse community of Fantasy Alive contains multitudes, and having people willing to give up some of their time and expertise can help the game in ways too varied to simply list here.</p>
 </div>
