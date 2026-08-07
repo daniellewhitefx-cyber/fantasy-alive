@@ -35,6 +35,22 @@ async function needsCharacterCreation(){
   return (count || 0) === 0;
 }
 
+async function refreshNotifBadge(){
+  const badge = document.getElementById('member-notif-badge');
+  if(!badge) return;
+  try{
+    const { data } = await membersSupabase.rpc('notifications_summary');
+    const total = data && data.total ? data.total : 0;
+    if(total > 0){
+      badge.textContent = total;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(err){
+  }
+}
+
 async function initMembersPage(){
   const { data } = await membersSupabase.auth.getSession();
   if(!data.session){
@@ -57,6 +73,7 @@ async function initMembersPage(){
   window.faCurrentUser = user;
   document.body.classList.add('members-ready');
   document.dispatchEvent(new CustomEvent('fa-members-ready', { detail: { user } }));
+  refreshNotifBadge();
 }
 
 window.membersSignOut = membersSignOut;

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages - Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Messages</h1>
+<p class="page-subhead">Message another player directly, or reach a department like Plot or Logistics.</p>
+
+<div class="reg-section">
+<div class="reg-section-label">New Message</div>
+<div class="account-form-grid">
+<div>
+<label class="field-label" for="msg-compose-type">Send To</label>
+<select id="msg-compose-type" onchange="msg_composeTypeChange()">
+<option value="player">A Player</option>
+<option value="department">A Department</option>
+</select>
+</div>
+<div id="msg-compose-target-wrap">
+<label class="field-label" for="msg-compose-player-search">Player</label>
+<input type="text" id="msg-compose-player-search" placeholder="Search player or character name..." autocomplete="off" oninput="msg_searchComposeRecipient(this.value)">
+<div class="bank-recipient-results" id="msg-compose-player-results"></div>
+<p class="bank-selected-recipient" id="msg-compose-selected" style="display:none;"></p>
+</div>
+</div>
+<label class="field-label" for="msg-compose-body">Message</label>
+<textarea id="msg-compose-body" placeholder="Write your message..."></textarea>
+<button class="btn-gold" style="margin-top:1rem;" onclick="msg_send()">Send</button>
+<p class="reg-success-note" id="msg-compose-success" style="display:none;"></p>
+<p class="reg-error-note" id="msg-compose-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Conversations</div>
+<div id="msg-conversation-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+<div class="reg-section" id="msg-thread-wrap" style="display:none;">
+<div class="reg-section-label" id="msg-thread-title"></div>
+<div id="msg-thread-body"></div>
+<label class="field-label" for="msg-reply-body" style="margin-top:1rem;">Reply</label>
+<textarea id="msg-reply-body" placeholder="Write a reply..."></textarea>
+<button class="btn-gold" style="margin-top:1rem;" onclick="msg_reply()">Reply</button>
+<p class="reg-error-note" id="msg-reply-error" style="display:none;"></p>
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let profileMap = {};
+let departments = [];
+let allMessages = [];
+let conversations = [];
+let activeConversationKey = null;
+let composeTarget = null;
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDateTime(iso){
+  return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function nameFor(playerId){ return profileMap[playerId] || 'Unknown player'; }
+function deptName(id){ const d = departments.find(x => x.id === id); return d ? d.name : 'Unknown department'; }
+
+function msg_composeTypeChange(){
+  const type = document.getElementById('msg-compose-type').value;
+  const wrap = document.getElementById('msg-compose-target-wrap');
+  composeTarget = null;
+
+  if(type === 'player'){
+    wrap.innerHTML = `
+      <label class="field-label" for="msg-compose-player-search">Player</label>
+      <input type="text" id="msg-compose-player-search" placeholder="Search player or character name..." autocomplete="off" oninput="msg_searchComposeRecipient(this.value)">
+      <div class="bank-recipient-results" id="msg-compose-player-results"></div>
+      <p class="bank-selected-recipient" id="msg-compose-selected" style="display:none;"></p>
+    `;
+  } else {
+    wrap.innerHTML = `
+      <label class="field-label" for="msg-compose-department">Department</label>
+      <select id="msg-compose-department" onchange="msg_pickDepartment(this.value)">
+        <option value="">Choose a department</option>
+        ${departments.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('')}
+      </select>
+    `;
+  }
+}
+
+function msg_pickDepartment(id){
+  composeTarget = id ? { type: 'department', id } : null;
+}
+
+async function msg_searchComposeRecipient(query){
+  const results = document.getElementById('msg-compose-player-results');
+  const q = query.trim();
+  if(!q){ results.innerHTML = ''; return; }
+
+  const [{ data: profileMatches }, { data: charMatches }] = await Promise.all([
+    membersSupabase.from('profiles').select('id, display_name').ilike('display_name', `%${q}%`).neq('id', window.faCurrentUser.id).limit(8),
+    membersSupabase.from('character_names').select('id, name, player_id').ilike('name', `%${q}%`).neq('player_id', window.faCurrentUser.id).limit(8)
+  ]);
+
+  const byId = {};
+  (profileMatches || []).forEach(p => { byId[p.id] = p.display_name; });
+  const missingIds = [...new Set((charMatches || []).map(c => c.player_id))].filter(id => !byId[id]);
+  if(missingIds.length){
+    const { data: extraProfiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', missingIds);
+    (extraProfiles || []).forEach(p => { byId[p.id] = p.display_name; });
+  }
+
+  const entries = Object.entries(byId).slice(0, 8);
+  if(entries.length === 0){
+    results.innerHTML = '<div class="bank-recipient-empty">No matching players.</div>';
+    return;
+  }
+
+  results.innerHTML = entries.map(([id, name]) => `
+    <button class="bank-recipient-result" onclick="msg_pickPlayer('${id}', '${name.replace(/'/g, "\\'")}')">${escapeHtml(name)}</button>
+  `).join('');
+}
+
+function msg_pickPlayer(id, name){
+  composeTarget = { type: 'player', id };
+  document.getElementById('msg-compose-player-results').innerHTML = '';
+  document.getElementById('msg-compose-player-search').value = '';
+  const selectedEl = document.getElementById('msg-compose-selected');
+  selectedEl.style.display = 'block';
+  selectedEl.textContent = `Selected: ${name}`;
+}
+
+async function msg_send(){
+  const successEl = document.getElementById('msg-compose-success');
+  const errorEl = document.getElementById('msg-compose-error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  const body = document.getElementById('msg-compose-body').value.trim();
+  if(!body){ errorEl.textContent = 'Message cannot be empty.'; errorEl.style.display = 'block'; return; }
+  if(!composeTarget){ errorEl.textContent = 'Choose who to send this to.'; errorEl.style.display = 'block'; return; }
+
+  const { error } = await membersSupabase.rpc('message_send', {
+    p_recipient_player_id: composeTarget.type === 'player' ? composeTarget.id : null,
+    p_recipient_department_id: composeTarget.type === 'department' ? composeTarget.id : null,
+    p_body: body
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  document.getElementById('msg-compose-body').value = '';
+  successEl.textContent = 'Sent.';
+  successEl.style.display = 'block';
+  await loadMessages();
+}
+
+function buildConversations(){
+  const me = window.faCurrentUser.id;
+  const byKey = {};
+
+  allMessages.forEach(m => {
+    let key, label;
+    if(m.recipient_department_id){
+      key = 'dept:' + m.recipient_department_id;
+      label = deptName(m.recipient_department_id);
+    } else {
+      const other = m.sender_id === me ? m.recipient_player_id : m.sender_id;
+      key = 'player:' + other;
+      label = nameFor(other);
+    }
+    if(!byKey[key]) byKey[key] = { key, label, messages: [] };
+    byKey[key].messages.push(m);
+  });
+
+  conversations = Object.values(byKey).map(c => {
+    c.messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    c.lastAt = c.messages[c.messages.length - 1].created_at;
+    c.unreadCount = c.messages.filter(m => m.sender_id !== me && !m.readByMe).length;
+    return c;
+  }).sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt));
+}
+
+function renderConversationList(){
+  const target = document.getElementById('msg-conversation-list');
+  if(conversations.length === 0){
+    target.innerHTML = '<p class="reg-empty-note">No conversations yet.</p>';
+    return;
+  }
+  target.innerHTML = conversations.map(c => `
+    <div class="bank-bill-card">
+      <div><strong>${escapeHtml(c.label)}</strong>${c.unreadCount ? ` <span class="chars-registered-badge" style="padding:0.2rem 0.6rem; font-size:0.8rem;">${c.unreadCount} new</span>` : ''}
+      <span class="bank-request-date">(${fmtDateTime(c.lastAt)})</span></div>
+      <div class="bank-bill-actions">
+        <button class="btn-outline" onclick="msg_openConversation('${c.key}')">Open</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function msg_openConversation(key){
+  activeConversationKey = key;
+  const convo = conversations.find(c => c.key === key);
+  if(!convo) return;
+
+  document.getElementById('msg-thread-wrap').style.display = 'block';
+  document.getElementById('msg-thread-title').textContent = convo.label;
+
+  const me = window.faCurrentUser.id;
+  document.getElementById('msg-thread-body').innerHTML = convo.messages.map(m => `
+    <div class="bank-bill-card">
+      <div><strong>${escapeHtml(m.sender_id === me ? 'You' : nameFor(m.sender_id))}</strong>
+      <span class="bank-request-date">(${fmtDateTime(m.created_at)})</span></div>
+      <div>${escapeHtml(m.body)}</div>
+    </div>
+  `).join('');
+
+  const unreadIds = convo.messages.filter(m => m.sender_id !== me && !m.readByMe).map(m => m.id);
+  if(unreadIds.length){
+    await Promise.all(unreadIds.map(id => membersSupabase.rpc('message_mark_read', { p_message_id: id })));
+    await loadMessages(key);
+  }
+}
+
+async function msg_reply(){
+  const errorEl = document.getElementById('msg-reply-error');
+  errorEl.style.display = 'none';
+
+  const convo = conversations.find(c => c.key === activeConversationKey);
+  if(!convo) return;
+  const body = document.getElementById('msg-reply-body').value.trim();
+  if(!body){ errorEl.textContent = 'Reply cannot be empty.'; errorEl.style.display = 'block'; return; }
+
+  const isDept = convo.key.startsWith('dept:');
+  const targetId = convo.key.split(':')[1];
+
+  const { error } = await membersSupabase.rpc('message_send', {
+    p_recipient_player_id: isDept ? null : targetId,
+    p_recipient_department_id: isDept ? targetId : null,
+    p_body: body
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  document.getElementById('msg-reply-body').value = '';
+  await loadMessages(activeConversationKey);
+}
+
+async function loadMessages(reopenKey){
+  const me = window.faCurrentUser.id;
+
+  const { data: msgs } = await membersSupabase
+    .from('messages')
+    .select('id, sender_id, recipient_player_id, recipient_department_id, body, created_at')
+    .order('created_at', { ascending: true });
+
+  const { data: reads } = await membersSupabase
+    .from('message_reads')
+    .select('message_id')
+    .eq('player_id', me);
+  const readSet = new Set((reads || []).map(r => r.message_id));
+
+  allMessages = (msgs || []).map(m => ({ ...m, readByMe: readSet.has(m.id) }));
+
+  buildConversations();
+  renderConversationList();
+
+  if(reopenKey) await msg_openConversation(reopenKey);
+}
+
+async function init(){
+  const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
+  profileMap = {};
+  (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
+
+  const { data: depts } = await membersSupabase.from('departments').select('id, name').order('name');
+  departments = depts || [];
+
+  await loadMessages();
+}
+
+window.msg_composeTypeChange = msg_composeTypeChange;
+window.msg_pickDepartment = msg_pickDepartment;
+window.msg_searchComposeRecipient = msg_searchComposeRecipient;
+window.msg_pickPlayer = msg_pickPlayer;
+window.msg_send = msg_send;
+window.msg_openConversation = msg_openConversation;
+window.msg_reply = msg_reply;
+
+document.addEventListener('fa-members-ready', init);
+})();
+</script>
+
+</body>
+</html>

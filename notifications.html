@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications - Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Notifications</h1>
+<p class="page-subhead">New messages, and XP or OC you've earned since you last checked. <a href="messages.html">Full inbox</a> &middot; <a href="xp-oc-log.html">Full XP/OC history</a></p>
+
+<div class="reg-section">
+<div id="notif-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDateTime(iso){
+  return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+async function init(){
+  const me = window.faCurrentUser.id;
+
+  const { data: profile } = await membersSupabase.from('profiles').select('activity_last_seen_at').eq('id', me).maybeSingle();
+  const lastSeen = profile ? profile.activity_last_seen_at : null;
+
+  const { data: myChars } = await membersSupabase.from('characters').select('id, name').eq('player_id', me);
+  const charMap = {};
+  (myChars || []).forEach(c => { charMap[c.id] = c.name; });
+  const charIds = (myChars || []).map(c => c.id);
+
+  const items = [];
+
+  const { data: unreadMsgs } = await membersSupabase
+    .from('messages')
+    .select('id, sender_id, recipient_player_id, recipient_department_id, body, created_at')
+    .order('created_at', { ascending: false });
+  const { data: reads } = await membersSupabase.from('message_reads').select('message_id').eq('player_id', me);
+  const readSet = new Set((reads || []).map(r => r.message_id));
+
+  const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
+  const profileMap = {};
+  (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
+
+  const { data: depts } = await membersSupabase.from('departments').select('id, name');
+  const deptMap = {};
+  (depts || []).forEach(d => { deptMap[d.id] = d.name; });
+
+  (unreadMsgs || []).forEach(m => {
+    if(m.sender_id === me || readSet.has(m.id)) return;
+    const from = profileMap[m.sender_id] || 'Unknown player';
+    const via = m.recipient_department_id ? ` to ${escapeHtml(deptMap[m.recipient_department_id] || 'a department')}` : '';
+    items.push({
+      type: 'msg',
+      date: m.created_at,
+      html: `<strong>New message from ${escapeHtml(from)}</strong>${via}<br>${escapeHtml(m.body)}`
+    });
+  });
+
+  if(charIds.length){
+    let xpQuery = membersSupabase.from('xp_transactions').select('character_id, amount, note, created_at').in('character_id', charIds).order('created_at', { ascending: false });
+    if(lastSeen) xpQuery = xpQuery.gt('created_at', lastSeen);
+    const { data: xpRows } = await xpQuery;
+    (xpRows || []).forEach(x => {
+      items.push({
+        type: 'xp',
+        date: x.created_at,
+        html: `<strong>${x.amount > 0 ? '+' : ''}${x.amount} XP</strong> to ${escapeHtml(charMap[x.character_id] || 'a character')}${x.note ? ' - ' + escapeHtml(x.note) : ''}`
+      });
+    });
+  }
+
+  let ocQuery = membersSupabase.from('oc_transactions').select('amount, note, created_at').eq('player_id', me).order('created_at', { ascending: false });
+  if(lastSeen) ocQuery = ocQuery.gt('created_at', lastSeen);
+  const { data: ocRows } = await ocQuery;
+  (ocRows || []).forEach(o => {
+    items.push({
+      type: 'oc',
+      date: o.created_at,
+      html: `<strong>${o.amount > 0 ? '+' : ''}${o.amount} OC</strong>${o.note ? ' - ' + escapeHtml(o.note) : ''}`
+    });
+  });
+
+  items.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const target = document.getElementById('notif-list');
+  target.innerHTML = items.length ? items.map(i => `
+    <div class="bank-bill-card">
+      <div><span class="log-type ${i.type}">${i.type.toUpperCase()}</span> <span class="bank-request-date">${fmtDateTime(i.date)}</span></div>
+      <div style="margin-top:0.4rem;">${i.html}</div>
+    </div>
+  `).join('') : '<p class="reg-empty-note">Nothing new since your last visit.</p>';
+
+  await membersSupabase.rpc('notifications_mark_seen');
+  const badge = document.getElementById('member-notif-badge');
+  if(badge) badge.style.display = 'none';
+}
+
+document.addEventListener('fa-members-ready', init);
+})();
+</script>
+
+</body>
+</html>
