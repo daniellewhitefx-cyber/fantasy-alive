@@ -196,7 +196,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
   flex-wrap: wrap;
   margin-bottom: 1rem;
 }
-.row-inline .grow{ flex: 1; min-width: 220px; }
+.row-inline .grow{ flex: 0 1 480px; min-width: 220px; }
 
 .section-block{
   margin-bottom: 2rem;
@@ -302,7 +302,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 
 .oc-row{
   display:grid;
-  grid-template-columns: 140px 1fr auto;
+  grid-template-columns: 140px minmax(0, 480px) auto;
   gap: 0.8rem;
   align-items:end;
   margin-bottom: 1rem;
