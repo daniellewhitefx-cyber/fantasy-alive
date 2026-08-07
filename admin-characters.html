@@ -33,7 +33,10 @@
 <div class="reg-section">
 <label class="field-label" for="ac-search">Search by character or player name</label>
 <input type="text" id="ac-search" placeholder="Start typing..." oninput="ac_search(this.value)">
-<div id="ac-results" style="margin-top:0.8rem;"></div>
+<table class="data-table" style="margin-top:0.8rem;">
+<thead><tr><th>Player</th><th>Character</th><th>Race</th><th></th></tr></thead>
+<tbody id="ac-results"></tbody>
+</table>
 </div>
 
 <div id="ac-detail" style="display:none;">
@@ -245,17 +248,17 @@ function renderCharacterList(list){
   const results = document.getElementById('ac-results');
 
   if(list.length === 0){
-    results.innerHTML = '<p class="reg-empty-note">No characters found.</p>';
+    results.innerHTML = '<tr><td colspan="4">No characters found.</td></tr>';
     return;
   }
 
   results.innerHTML = list.map(c => `
-    <div class="bank-bill-card">
-      <div><strong>${escapeHtml(nameFor(c.player_id))}</strong> - <strong>${escapeHtml(c.name)}</strong> (${escapeHtml(c.race)})</div>
-      <div class="bank-bill-actions">
-        <button class="btn-gold" onclick="ac_selectCharacter('${c.id}')">Manage</button>
-      </div>
-    </div>
+    <tr>
+      <td>${escapeHtml(nameFor(c.player_id))}</td>
+      <td>${escapeHtml(c.name)}</td>
+      <td>${escapeHtml(c.race)}</td>
+      <td style="text-align:right;"><button class="btn-gold" onclick="ac_selectCharacter('${c.id}')">Manage</button></td>
+    </tr>
   `).join('');
 }
 
