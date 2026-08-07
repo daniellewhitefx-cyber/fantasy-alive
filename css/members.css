@@ -334,6 +334,21 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 }
 .msg-folder-item:hover{ background: var(--cream-deep); }
 .msg-folder-item.active{ background: var(--gold); font-weight:700; }
+.msg-folder-count{
+  font-size: 0.72rem;
+  font-weight:700;
+  color: var(--brown-dark);
+}
+.msg-folder-divider{
+  border-top: 1px solid var(--line);
+  margin: 0.4rem 0;
+}
+.msg-folder-row.drag-over,
+.msg-folder-item.drag-over{
+  background: var(--gold);
+  outline: 2px dashed var(--brown-dark);
+  outline-offset: -2px;
+}
 .msg-folder-action{
   background:none;
   border:none;
@@ -389,6 +404,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 }
 .msg-list-item:hover{ background: var(--cream-deep); }
 .msg-list-item.active{ background: var(--gold); }
+.msg-list-item.dragging{ opacity: 0.4; }
 .msg-list-item-top{
   display:flex;
   justify-content:space-between;
