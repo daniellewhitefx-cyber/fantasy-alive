@@ -51,6 +51,9 @@
 (function(){
 let profileMap = {};
 let departments = [];
+let myCharacters = [];
+let myDepartments = [];
+let charNameMap = {};
 let allMessages = [];
 let conversations = [];
 let folders = [];
@@ -70,6 +73,29 @@ function fmtDateTime(iso){
 
 function nameFor(playerId){ return profileMap[playerId] || 'Unknown player'; }
 function deptName(id){ const d = departments.find(x => x.id === id); return d ? d.name : 'Unknown department'; }
+function charNameFor(id){ return charNameMap[id] || 'Unknown character'; }
+
+function senderLabel(m, me){
+  let label;
+  if(m.sender_department_id) label = deptName(m.sender_department_id);
+  else if(m.sender_character_id) label = charNameFor(m.sender_character_id);
+  else label = nameFor(m.sender_id);
+  return m.sender_id === me ? `${label} (You)` : label;
+}
+
+function fromSelectorOptionsHtml(){
+  const me = window.faCurrentUser.id;
+  let html = `<option value="player">${escapeHtml(nameFor(me))} (You)</option>`;
+  html += myCharacters.map(c => `<option value="character:${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
+  html += myDepartments.map(d => `<option value="department:${escapeHtml(d.id)}">${escapeHtml(d.name)}</option>`).join('');
+  return html;
+}
+
+function parseFromValue(val){
+  if(val && val.startsWith('character:')) return { characterId: val.slice('character:'.length), departmentId: null };
+  if(val && val.startsWith('department:')) return { characterId: null, departmentId: val.slice('department:'.length) };
+  return { characterId: null, departmentId: null };
+}
 
 function msg_startCompose(){
   activeConversationKey = null;
@@ -78,6 +104,10 @@ function msg_startCompose(){
 
   document.getElementById('msg-reading-pane').innerHTML = `
     <div class="msg-thread-title">New Message</div>
+    <label class="field-label" for="msg-compose-from">From</label>
+    <select id="msg-compose-from" style="margin-bottom:1rem;">
+      ${fromSelectorOptionsHtml()}
+    </select>
     <label class="field-label" for="msg-compose-type">Send To</label>
     <select id="msg-compose-type" onchange="msg_composeTypeChange()" style="margin-bottom:1rem;">
       <option value="player">A Player</option>
@@ -178,11 +208,15 @@ async function msg_send(){
   if(!body){ errorEl.textContent = 'Message cannot be empty.'; errorEl.style.display = 'block'; return; }
   if(!composeTarget){ errorEl.textContent = 'Choose who to send this to.'; errorEl.style.display = 'block'; return; }
 
+  const from = parseFromValue(document.getElementById('msg-compose-from').value);
+
   const { data: newId, error } = await membersSupabase.rpc('message_send', {
     p_recipient_player_id: composeTarget.type === 'player' ? composeTarget.id : null,
     p_recipient_department_id: composeTarget.type === 'department' ? composeTarget.id : null,
     p_body: body,
-    p_subject: subject
+    p_subject: subject,
+    p_sender_character_id: from.characterId,
+    p_sender_department_id: from.departmentId
   });
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
 
@@ -408,11 +442,15 @@ async function msg_openConversation(key){
     <div id="msg-thread-body">
       ${convo.messages.map(m => `
         <div class="msg-bubble ${m.sender_id === me ? 'mine' : ''}">
-          <div class="msg-bubble-meta">${escapeHtml(m.sender_id === me ? 'You' : nameFor(m.sender_id))} &middot; ${fmtDateTime(m.created_at)}</div>
+          <div class="msg-bubble-meta">${escapeHtml(senderLabel(m, me))} &middot; ${fmtDateTime(m.created_at)}</div>
           <div>${escapeHtml(m.body)}</div>
         </div>
       `).join('')}
     </div>
+    <label class="field-label" for="msg-reply-from" style="margin-top:0.6rem;">From</label>
+    <select id="msg-reply-from">
+      ${fromSelectorOptionsHtml()}
+    </select>
     <label class="field-label" for="msg-reply-body" style="margin-top:0.6rem;">Reply</label>
     <textarea id="msg-reply-body" placeholder="Write a reply..."></textarea>
     <button class="btn-gold" style="margin-top:1rem;" onclick="msg_reply()">Reply</button>
@@ -438,11 +476,15 @@ async function msg_reply(){
   const body = document.getElementById('msg-reply-body').value.trim();
   if(!body){ errorEl.textContent = 'Reply cannot be empty.'; errorEl.style.display = 'block'; return; }
 
+  const from = parseFromValue(document.getElementById('msg-reply-from').value);
+
   const { error } = await membersSupabase.rpc('message_send', {
     p_recipient_player_id: convo.isDept ? null : convo.otherId,
     p_recipient_department_id: convo.isDept ? convo.deptId : null,
     p_body: body,
-    p_subject: convo.subject
+    p_subject: convo.subject,
+    p_sender_character_id: from.characterId,
+    p_sender_department_id: from.departmentId
   });
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
 
@@ -465,7 +507,7 @@ async function loadMessages(reopenKey){
 
   const { data: msgs } = await membersSupabase
     .from('messages')
-    .select('id, sender_id, recipient_player_id, recipient_department_id, subject, thread_key, body, created_at')
+    .select('id, sender_id, recipient_player_id, recipient_department_id, subject, thread_key, body, created_at, sender_character_id, sender_department_id')
     .order('created_at', { ascending: true });
 
   const { data: reads } = await membersSupabase
@@ -475,6 +517,13 @@ async function loadMessages(reopenKey){
   const readSet = new Set((reads || []).map(r => r.message_id));
 
   allMessages = (msgs || []).map(m => ({ ...m, readByMe: readSet.has(m.id) }));
+
+  const charIds = [...new Set(allMessages.map(m => m.sender_character_id).filter(Boolean))];
+  const missingCharIds = charIds.filter(id => !charNameMap[id]);
+  if(missingCharIds.length){
+    const { data: chars } = await membersSupabase.from('character_names').select('id, name').in('id', missingCharIds);
+    (chars || []).forEach(c => { charNameMap[c.id] = c.name; });
+  }
 
   buildConversations();
 
@@ -486,12 +535,20 @@ async function loadMessages(reopenKey){
 }
 
 async function init(){
+  const me = window.faCurrentUser.id;
+
   const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
 
   const { data: depts } = await membersSupabase.from('departments').select('id, name').order('name');
   departments = depts || [];
+
+  const { data: chars } = await membersSupabase.from('characters').select('id, name').eq('player_id', me);
+  myCharacters = chars || [];
+
+  const { data: myDeptRows } = await membersSupabase.from('department_members').select('department_id').eq('player_id', me);
+  myDepartments = (myDeptRows || []).map(r => ({ id: r.department_id, name: deptName(r.department_id) }));
 
   await loadFolders();
   await loadMessages();
