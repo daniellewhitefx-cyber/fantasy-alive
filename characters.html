@@ -37,7 +37,7 @@
 <div class="reg-section" id="chars-remort-area"></div>
 
 <div class="reg-section" id="chars-staff-remort-section" style="display:none;">
-<div class="reg-section-label">Staff Tools &mdash; Pending Remort Requests</div>
+<div class="reg-section-label">Staff Tools - Pending Remort Requests</div>
 <div id="chars-staff-remort-list"><p class="reg-empty-note">Loading&hellip;</p></div>
 </div>
 
@@ -119,8 +119,8 @@ function render(){
   document.getElementById('chars-char-panel').innerHTML = `
     <div class="stat-panel">
       <div class="stat-row"><span class="stat-label">Race:</span> ${escapeHtml(c.race)}</div>
-      <div class="stat-row"><span class="stat-label">Pronouns:</span> ${c.pronouns ? escapeHtml(c.pronouns) : '&mdash;'}</div>
-      <div class="stat-row"><span class="stat-label">Birthday:</span> ${c.birthday ? escapeHtml(c.birthday) : '&mdash;'}</div>
+      <div class="stat-row"><span class="stat-label">Pronouns:</span> ${c.pronouns ? escapeHtml(c.pronouns) : '-'}</div>
+      <div class="stat-row"><span class="stat-label">Birthday:</span> ${c.birthday ? escapeHtml(c.birthday) : '-'}</div>
       <div class="stat-row"><span class="stat-label">Skill Points:</span> ${spent}/${c.startingSp} used</div>
     </div>
     <table class="data-table">
@@ -141,7 +141,7 @@ function renderRemortArea(c){
     el.innerHTML = `<button class="btn-outline" onclick="chars_requestRemort('${c.id}')">Request Remort</button>`
       + (req && req.status === 'denied' ? ` <span class="page-subhead" style="display:inline;">Your last remort request for this character was denied. You can ask again.</span>` : '');
   } else if(req.status === 'pending'){
-    el.innerHTML = `<p class="page-subhead" style="margin:0;">Remort requested &mdash; waiting on staff approval.</p>`;
+    el.innerHTML = `<p class="page-subhead" style="margin:0;">Remort requested - waiting on staff approval.</p>`;
   } else if(req.status === 'approved'){
     el.innerHTML = `<p class="page-subhead" style="margin:0;">Your remort was approved.
       <a href="character-edit.html?id=${c.id}"><button class="btn-gold" style="margin-left:0.5rem;">Edit This Character</button></a></p>`;
