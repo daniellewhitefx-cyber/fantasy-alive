@@ -33,7 +33,7 @@
 <div class="reg-section">
 <label class="field-label" for="ac-search">Search by character or player name</label>
 <input type="text" id="ac-search" placeholder="Start typing..." oninput="ac_search(this.value)">
-<table class="data-table" style="margin-top:0.8rem;">
+<table class="data-table" id="ac-results-table" style="margin-top:0.8rem; max-width:640px;">
 <thead><tr><th>Player</th><th>Character</th><th>Race</th><th></th></tr></thead>
 <tbody id="ac-results"></tbody>
 </table>
@@ -246,6 +246,7 @@ function ac_switchTab(tab){
 
 function renderCharacterList(list){
   const results = document.getElementById('ac-results');
+  document.getElementById('ac-results-table').style.display = '';
 
   if(list.length === 0){
     results.innerHTML = '<tr><td colspan="4">No characters found.</td></tr>';
@@ -281,6 +282,8 @@ async function ac_selectCharacter(charId){
 
   if(!char) return;
   selected = char;
+
+  document.getElementById('ac-results-table').style.display = 'none';
 
   document.getElementById('ac-detail').style.display = 'block';
   ac_switchTab('details');
