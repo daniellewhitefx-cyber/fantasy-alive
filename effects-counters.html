@@ -8,6 +8,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <style>
+:root{
+  --ec-row-a: #ece1cd;
+  --ec-row-b: #f0d99a;
+}
+
 .page-hero{
   display:grid;
   grid-template-columns: 1fr 1fr;
@@ -30,7 +35,6 @@
 }
 .photo-slot{
   border: 2px dashed var(--gold-dark);
-  border-radius: 6px;
   background: var(--cream-deep);
   display:flex;
   flex-direction:column;
@@ -47,30 +51,145 @@
   padding:1rem;
 }
 .photo-slot svg{ width:34px; height:34px; opacity:0.55; }
-.photo-slot.hero-slot{ height:100%; min-height:320px; border-radius:0; }
-.coming-soon{
-  max-width: 700px;
+.photo-slot.hero-slot{ height:100%; min-height:320px; }
+
+.ec-page{
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 3.5rem 2rem 4.5rem;
-  text-align:center;
+  padding: 2.5rem 2rem 4rem;
 }
-.coming-soon h2{
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0 0 1rem;
-  color: var(--brown-dark);
-}
-.coming-soon p{
+.ec-lede{
   font-family:'EB Garamond', serif;
   font-size: 1.08rem;
   line-height: 1.6;
   color: #2e2415;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  text-align:center;
 }
-@media (max-width: 900px){
-  .page-hero{ grid-template-columns: 1fr; height:auto; }
+
+.ec-search{
+  max-width: 500px;
+  margin: 0 auto 2rem;
+  background: var(--ink);
+  padding: 0.7rem;
+  border: 3px solid var(--gold);
+}
+.ec-search input{
+  width:100%;
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid var(--gold);
+  background: #fff;
+  color: var(--brown);
+}
+
+.ec-count{
+  font-family:'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  text-align:center;
+  margin: 0 0 1rem;
+}
+
+.ec-table-wrap{
+  width: 100%;
+  box-shadow: 10px 10px 0 0 var(--gold);
+  overflow-x: auto;
+}
+.ec-table{
+  width:100%;
+  border-collapse: collapse;
+  border: 2px solid var(--gold);
+  background: var(--ec-row-a);
+}
+.ec-table th{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 3px solid var(--gold);
+  text-align: left;
+  color: var(--brown-dark);
+  white-space: nowrap;
+}
+.ec-table th:not(:last-child),
+.ec-table td:not(:last-child){
+  border-right: 1px dotted var(--gold-dark);
+}
+.ec-table td{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  padding: 0.55rem 0.6rem;
+  text-align: left;
+  line-height: 1.35;
+  color: var(--brown-dark);
+  vertical-align: top;
+}
+.ec-table td.col-name{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.ec-table td.col-category{
+  font-size: 0.85rem;
+  white-space: nowrap;
+  color: var(--gold-dark);
+  font-weight: 600;
+}
+
+.ec-table tbody tr:nth-child(odd){ background: var(--ec-row-b); }
+.ec-table tbody tr:nth-child(even){ background: var(--ec-row-a); }
+
+.ec-table mark{
+  background: var(--gold);
+  color: var(--ink);
+  padding: 0 1px;
+}
+
+.ec-empty{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  color: var(--brown-dark);
+  padding: 1.5rem;
+  text-align:center;
+}
+
+@media (max-width: 850px){
+  .page-hero{ grid-template-columns: 1fr; height: auto; }
   .page-hero-content{ padding: 1.5rem 1rem; }
   .page-hero h1{ font-size: 2.2rem; }
   .photo-slot.hero-slot{ height:180px; min-height:180px; }
+}
+
+@media (max-width: 600px){
+  .ec-table-wrap{ box-shadow: 5px 5px 0 0 var(--gold); }
+  .ec-table, .ec-table thead, .ec-table tbody, .ec-table th, .ec-table td, .ec-table tr{ display: block; }
+  .ec-table thead{ display: none; }
+  .ec-table tr{ margin-bottom: 0.8rem; border: 1px solid var(--gold-dark); padding: 0.6rem; }
+  .ec-table td{ padding: 0.25rem 0; border-right: none !important; }
+  .ec-table td.col-name{
+    font-size: 1rem;
+    border-bottom: 1px solid var(--gold-dark);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.4rem;
+    white-space: normal;
+  }
+  .ec-table td::before{
+    content: attr(data-label);
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--gold-dark);
+    display: block;
+    text-transform: uppercase;
+  }
+  .ec-table td.col-name::before{ display: none; }
 }
 </style>
 </head>
@@ -89,13 +208,169 @@ Add a photo
 </div>
 </section>
 
-<section class="coming-soon">
-<h2>Coming Soon</h2>
-<p>We're still writing this reference for in-game effects and counters. Check back soon, or reach out on Discord if you have questions in the meantime.</p>
-</section>
+<div class="ec-page">
+<p class="ec-lede">A quick reference for every status effect in play, what it does, how long it lasts, and how to counter or cure it. Search by name or by what it does.</p>
+
+<div class="ec-search">
+<input type="text" id="ec-search-input" placeholder="Search effects..." oninput="ec_search(this.value)">
+</div>
+
+<p class="ec-count" id="ec-count"></p>
+
+<div id="ec-results">
+<p class="ec-empty">Loading effects from the spreadsheet&hellip;</p>
+</div>
+</div>
 
 <div data-include="partials/footer.html"></div>
 
 <script src="js/include.js"></script>
+<script>
+(function(){
+const EFFECTS_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1_Wlq6LaeMhtzDlGEeYs_Tu1Zr13IRidfImhZ33tJRkg/export?format=csv';
+
+let allEffects = [];
+let loadError = null;
+
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i + 1] === '"'){ field += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        field += c;
+      }
+    } else if(c === '"'){
+      inQuotes = true;
+    } else if(c === ','){
+      row.push(field); field = '';
+    } else if(c === '\n'){
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if(c === '\r'){
+    } else {
+      field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+async function loadEffects(){
+  try{
+    const res = await fetch(EFFECTS_SHEET_CSV_URL, { cache: 'no-store' });
+    if(!res.ok) throw new Error('Sheet request failed (' + res.status + ')');
+    const csvText = await res.text();
+    const rows = parseCSV(csvText).filter(r => r.some(cell => (cell || '').trim() !== ''));
+    const header = (rows.shift() || []).map(h => h.trim().toLowerCase());
+    const col = name => header.indexOf(name);
+
+    const iName = col('status effect'), iCategory = col('category'), iDoes = col('what it does'),
+      iDuration = col('duration'), iCounters = col('counters / cures');
+
+    allEffects = rows.map(r => ({
+      name: (r[iName] || 'Untitled Effect').trim(),
+      category: (r[iCategory] || '').trim(),
+      does: (r[iDoes] || '').trim(),
+      duration: (r[iDuration] || '').trim(),
+      counters: (r[iCounters] || '').trim()
+    })).sort((a, b) => a.name.localeCompare(b.name));
+  } catch(err){
+    loadError = err;
+  }
+  renderResults('');
+}
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlight(text, query){
+  if(!query) return escapeHtml(text);
+  const lower = text.toLowerCase();
+  const lowerQuery = query.toLowerCase();
+  let out = '';
+  let i = 0;
+  let idx = lower.indexOf(lowerQuery);
+  while(idx !== -1){
+    out += escapeHtml(text.slice(i, idx));
+    out += '<mark>' + escapeHtml(text.slice(idx, idx + query.length)) + '</mark>';
+    i = idx + query.length;
+    idx = lower.indexOf(lowerQuery, i);
+  }
+  out += escapeHtml(text.slice(i));
+  return out;
+}
+
+function renderResults(rawQuery){
+  const query = rawQuery.trim();
+  const countEl = document.getElementById('ec-count');
+  const target = document.getElementById('ec-results');
+
+  if(loadError){
+    countEl.textContent = '';
+    target.innerHTML = '<p class="ec-empty">Couldn\'t load the effects list from the spreadsheet. Refresh to try again.</p>';
+    return;
+  }
+
+  const lowerQuery = query.toLowerCase();
+  const matches = query
+    ? allEffects.filter(e =>
+        e.name.toLowerCase().includes(lowerQuery) ||
+        e.does.toLowerCase().includes(lowerQuery) ||
+        e.category.toLowerCase().includes(lowerQuery) ||
+        e.counters.toLowerCase().includes(lowerQuery))
+    : allEffects;
+
+  countEl.textContent = matches.length + (matches.length === 1 ? ' Effect' : ' Effects');
+
+  if(matches.length === 0){
+    target.innerHTML = '<p class="ec-empty">No effects found matching &ldquo;' + escapeHtml(query) + '&rdquo;.</p>';
+    return;
+  }
+
+  const tableRows = matches.map(e => `
+    <tr>
+      <td class="col-name" data-label="Effect">${highlight(e.name, query)}</td>
+      <td class="col-category" data-label="Category">${highlight(e.category, query)}</td>
+      <td data-label="What It Does">${highlight(e.does, query)}</td>
+      <td data-label="Duration">${highlight(e.duration, query)}</td>
+      <td data-label="Counters / Cures">${highlight(e.counters, query)}</td>
+    </tr>
+  `).join('');
+
+  target.innerHTML = `
+    <div class="ec-table-wrap">
+      <table class="ec-table">
+        <thead>
+          <tr>
+            <th>Effect</th>
+            <th>Category</th>
+            <th>What It Does</th>
+            <th>Duration</th>
+            <th>Counters / Cures</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function ec_search(rawQuery){
+  renderResults(rawQuery);
+}
+
+window.ec_search = ec_search;
+
+loadEffects();
+})();
+</script>
+
 </body>
 </html>
