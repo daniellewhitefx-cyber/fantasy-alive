@@ -198,12 +198,21 @@ function lore_openEditor(key){
       <div class="lore-editor-help">
         Blank line = new paragraph &bull; <code>## Heading</code> &bull; <code>&gt; quote</code> then <code>&gt; -- who said it</code> &bull;
         <code>[[Other Article]]</code> to link another entry &bull; <code>[text](url)</code> for a link &bull;
-        <code>![alt](image url)</code> for an image &bull; <code>~ credit line</code>
+        <code>![alt](image url)</code> for an image &bull; <code>~ credit line</code><br>
+        Image layout: add <code>float-left</code>, <code>float-right</code>, or <code>small</code> after the image url (and after
+        the caption, if there is one) to make it smaller and sit beside the text instead of full-width, e.g.
+        <code>![alt](image url float-left)</code>
       </div>
       <textarea id="lore-edit-body" rows="14">${existing ? loreEscapeHtml(existing.body) : ''}</textarea>
 
       <div class="lore-editor-image-row">
         <input type="file" id="lore-edit-image-file" accept="image/*">
+        <select id="lore-edit-image-layout">
+          <option value="">Full width</option>
+          <option value="float-left">Float left (small)</option>
+          <option value="float-right">Float right (small)</option>
+          <option value="small">Small, centered</option>
+        </select>
         <button class="lore-editor-btn" onclick="lore_uploadImageIntoBody()">Upload Image</button>
         <span id="lore-edit-image-status"></span>
       </div>
@@ -236,8 +245,9 @@ async function lore_uploadImageIntoBody(){
   status.textContent = 'Uploading...';
   try{
     const url = await loreUploadImage(file);
+    const layout = document.getElementById('lore-edit-image-layout').value;
     const textarea = document.getElementById('lore-edit-body');
-    const markup = `![${file.name.replace(/\.[^.]+$/, '')}](${url})`;
+    const markup = `![${file.name.replace(/\.[^.]+$/, '')}](${url}${layout ? ' ' + layout : ''})`;
     const pos = textarea.selectionStart || textarea.value.length;
     textarea.value = textarea.value.slice(0, pos) + '\n\n' + markup + '\n\n' + textarea.value.slice(pos);
     status.textContent = 'Image added below - move the line if you want it elsewhere.';

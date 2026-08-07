@@ -92,13 +92,14 @@ function loreInline(escapedText){
 }
 
 function loreParseImageLine(line){
-  const m = line.match(/^!\[([^\]]*)\]\(([^)"]+)(?:\s+"([^"]*)")?\)\s*$/);
+  const m = line.match(/^!\[([^\]]*)\]\(([^)"\s]+)(?:\s+"([^"]*)")?(?:\s+(float-left|float-right|small))?\)\s*$/);
   if(!m) return null;
-  const [, alt, url, caption] = m;
+  const [, alt, url, caption, layout] = m;
   if(!loreIsSafeUrl(url.trim())) return null;
-  const imgTag = `<img src="${loreEscapeHtml(url.trim())}" alt="${loreEscapeHtml(alt)}">`;
+  const layoutClass = layout ? ` class="lore-img-${layout}"` : '';
+  const imgTag = `<img src="${loreEscapeHtml(url.trim())}" alt="${loreEscapeHtml(alt)}"${caption ? '' : layoutClass}>`;
   if(caption){
-    return `<figure>${imgTag}<figcaption>${loreEscapeHtml(caption)}</figcaption></figure>`;
+    return `<figure${layoutClass}>${imgTag}<figcaption>${loreEscapeHtml(caption)}</figcaption></figure>`;
   }
   return imgTag;
 }

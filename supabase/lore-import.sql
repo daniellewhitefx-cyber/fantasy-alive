@@ -42,9 +42,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 While many of Alejandro’s clergy preach love in all its forms, some choose to specialize in a particular aspect. For instance, some will focus on friendship and cultivate and support a close-knit group of friends. Others preach self-love and often form close ties with the church of Arkady. It is not uncommon to find a disciple dedicated to goodwill and community leading by example and taking charge of large groups of people in political and community building endeavours. When a group of Alejandero’s disciples gather, their meetings often appear more as a gathering of artists and dreamers than any form of organized religion, and how each group selects their leaders varies as widely as the forms of love they dedicate themselves to.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145156-421x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145156-421x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145151-507x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145151-507x1024.jpg float-left)
 
 The symbols of Alejandero include the heart, harp, and two people embracing. Occasionally a rose (likening to Arkady’s symbol) with a single drop of blood hanging from a thorn is used, often by those suffering painful moments of love, and are known to cease using it when ready to move on.
 
@@ -57,9 +57,9 @@ Son of the moon and sea, Alwyn the god of weather has many names: Storm Bringer,
 
 Their temples rarely interact formally with each other; they exist largely as gathering points for collecting tithes and meetings of the clergy, most of whom work independently. A temple will always be run by most powerful member in residence, who will handle all temple administration as well as the distribution of the sect’s funds. This policy has been known to cause great power struggles within the church. Alwyn’s faithful are respected on the battlefield for their ability to turn the tide of a battle as well as the force of a storm, the neighboring countryside often bearing the scars of these conflicts.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145200-364x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145200-364x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145207-498x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145207-498x1024.jpg float-left)
 
 The symbols of Alwyn include a bolt of lightning, the clouds, and a whirlwind.
 
@@ -72,9 +72,9 @@ Very little is known about Anajaream, perhaps because there is very little too k
 
 No real church of Anajaream exists, nor would any of his few dedicated followers be willing to submit to such a foundation or hierarchy. With no true acknowledgement of either good or evil, nomads and prophets believing in no power but luck and fate are the core of Anajaream’s flock.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145248-441x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145248-441x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145244-546x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145244-546x1024.jpg float-left)
 
 The symbols of Anajaream include rolling dice, playing cards, and the jester, and are often prominently displayed wherever wagers are taken.
 
@@ -87,9 +87,9 @@ Principle Holiday: April 1st – Fates Devotion – Gambling Spell incants are p
 
 Often called the Breath Giver, Life Mother, and Great Matron, Apenca created all life. She is the most widely and openly worshiped of all the gods. All races pay homage to her temples, which are known as safe havens everywhere. While her followers are predominantly female, no one is ever turned away. Believing all life is sacred, Apenca’s followers are true pacifists, knowing violence is naught but a disease. Temples of the Life Mother can be found in nearly every town; even small rural villages will have some form of chapel erected for the sick and weak to ask for the lady’s grace. The priestesses of Apenca will rarely if ever deny healing to those in need and are known on occasion to even aid the darker races that threaten to inhabit the lands. Their temples are invariably run by the highestranking female in attendance.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145251-431x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145251-431x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145257-517x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145257-517x1024.jpg float-left)
 
 Apenca’s symbols include babies and children of all kinds, as well as mother figures, often with breasts bared, possibly nursing 1 or more children.
 
@@ -102,7 +102,7 @@ Sometimes called the Lady of Wonders or Innocent Sister, Arkady is the embodimen
 
 Amongst her followers two distinct schools of thought exist. There are those who believe that they should display beauty in their own selves, spending days at a time preening and preparing themselves. These followers of Arkady are vain beyond measure and in a constant search of methods to improve their appearance. The remainder of Arkady’s faithful, often painters, artists, or curators, search instead for examples of their lady’s beauty elsewhere, preserving and displaying it whenever possible.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145310-434x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145310-434x1024.jpg float-left)
 
 No formal shrines to Arkady exist, her clerics often working alone or in small bands and gathering wherever beauty can be found in abundance. Violence and bloodshed are abhorrent to the messengers of Arkady, who often use their renowned charm to disarm such situations.
 
@@ -115,9 +115,9 @@ Principle Holiday: October 15th – Harvest Song Devotion – Primping Spell inc
 
 Son of Brack and Balaxa, Astrid lived much of his early life in the realms of man, where he became the notorious ruler of an underground organization of thieves. Most thieves whisper his name to this day when attempting a particularly difficult or impressive act. Followers of Astrid truly believe that they perform a valuable service to society by teaching people to better defend their possessions.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145314-378x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145314-378x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145320-690x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145320-690x1024.jpg float-left)
 
 Temples of Astrid often serve as fences and safe houses for the local rogue population. Because of this fact their headquarters are often well hidden and guarded from local authorities. Typically, the most respected of their members is agreed upon as the ruler of their organization or guild. While it is said there is honour amongst thieves, displeasing the local guild master can have swift and often lethal repercussions.
 
@@ -130,9 +130,9 @@ Principle Holiday: July 10th – Hand’s Day Devotion – Making traps or locks
 
 The Great Mother or Earth Mother, as the lady Atha is sometimes called, is one of the first of Elieff’s children. Her domain encompasses the very earth itself and every plant that springs forth from it. Every farming community will invariably contain one or more shrines to the goddess Atha, as the workers of the land pay homage and beg for a bountiful year. The teachings of Atha are greatly respected, all life’s existence dependant on her in one fashion or another.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145329-435x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145329-435x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145327-697x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145327-697x1024.jpg float-left)
 
 The followers of Atha revere the land upon which they walk, tending the soil and forests. While generally passive, they have been known to strike with intense ferocity to protect their lady Atha and are said to be able to bring the very rock to life in their defense. This, in addition to their healing skills, makes them valuable members of any society. Temples of Atha communicate constantly and work together to ensure success of their goals, each temple run by the most skilled of their order in residence.
 
@@ -145,9 +145,9 @@ Principle Holiday: June 12th – Mother’s Blessing Devotion – Tending a gard
 
 The daughter of Fiona and Beldon, the goddess Balaxa grew bitter as her father left Fiona to return to Atha’s embrace. Jealous of the relationship between Beldon and her brother Alwyn, her rage grew. With the malice of a woman scorned Balaxa blew across the earth and sea, freezing all she passed with her icy stare. Known as the Ice Queen or the Lost Daughter, Balaxa, goddess of winter, turns her rage upon the sea and earth each year.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145344-426x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145344-426x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145353-1024x918.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145353-1024x918.jpg float-left)
 
 The followers of Balaxa tend to be fiercely passionate individuals, prone to rage, jealousy and bitter grudges. Currying the goddess favour, they beseech calm winters for warmers and sailors while directing Balaxa’s wrath on their enemies. Temples are found mainly in the northernmost regions in the land, where winter’s bite is deepest. Ruled by the cleric in the greatest graces of the goddess, their bitter nature makes upheavals within the church common and devastating events.
 
@@ -172,9 +172,9 @@ Principle Holiday: October 6 – Dreamers Wake Devotion – Telling stories Spel
 
 One of Elieff’s children, the High God Beldon rules the seas. Bound to Atha, the earth, he controls water in every form. Portside villages are assured to contain at least one temple paying homage to Beldon, called the Sea Father or Prince of Tides. Flowing as his mood suits him, Beldon is neither definitively good nor evil. His followers learning to control water’s powers of life as well as its powers of destruction. It is said in times of great evil Beldon’s waters flood the lands, washing them clean of taint.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145447-428x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145447-428x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145443-702x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145443-702x1024.jpg float-left)
 
 Frequently hired on by merchants and sea captains, the followers of Beldon often spend more time traveling than attending temples. They do however have several shrines in order to gather tithes from the populace in return for Beldon’s favour. Run by the most advanced of the Sea King’s disciples, these temples serve as a gathering point for traveling templar, to refresh themselves before their next journey.
 
@@ -188,9 +188,9 @@ Principle Holiday: March 3rd – Festival of Sails Devotion – Fishing Spell in
 > “The progeny of Stasa and Anajaream, Blythe took quickly after his mother’s influence, though his methods differed greatly. Unlike his mother Blythe cared nothing for the thrill of the chase but preferred to wait and watch his work slowly overcome his victims. So, it was then that Blythe sow the seeds of sickness, disease, and poison across the land; carefully baited traps, to catch the unaware, and bring them to their grave.”
 > -- Mortalis 13:3
 
-Known to the world as the Carrion Hand or Life Bane, Blythe controls the realm of sickness and disease. While no open church of Blythe can be found, his followers do exist, secretly meeting in the darkened shadows where few others will tread. No formal hierarchy controls his temples. Followers struggle for power, often leaving the bodies of the unaware poisoned in their wake.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145450-395x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145450-395x1024.jpg)
+Known to the world as the Carrion Hand or Life Bane, Blythe controls the realm of sickness and disease. While no open church of Blythe can be found, his followers do exist, secretly meeting in the darkened shadows where few others will tread. No formal hierarchy controls his temples. Followers struggle for power, often leaving the bodies of the unaware poisoned in their wake.
 
 The symbols of Blythe include the rat, the vulture, and the fly.
 
@@ -201,9 +201,9 @@ Principle Holiday: August 8th – The Mushroom Feast Devotion – Tending poison
 
 The only of the lesser gods to have divine Children of his own, Brack is the steadfast god of law and order. His temples often intertwine with the quarters of guards, soldiers and watchmen everywhere. Followers of Brack follow a strict hierarchy of status within the church, each rank controlling those of the ranks beneath them. Unwavering in their belief in law and order, the followers of Brack bring punishment swiftly to those who fail to adhere.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145808-397x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145808-397x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145815-910x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145815-910x1024.jpg float-left)
 
 The symbols of Brack are the gavel, the scale and an arrow.
 
@@ -327,9 +327,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 High God and one of Elieff’s children, Callis, often called Lord of Light, the Sun’s Grace or the Flame Bringer, shines down upon the lands, casting his light to warm us. Acknowledged by all, the god Callis is particularly revered by the Dwarves, who believe the Callis’ very own fire burns within their forges, lending divine direction to their works.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145907-416x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145907-416x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145911-674x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145911-674x1024.jpg float-left)
 
 Temples to Callis appear across the landscape, generally attended by small groups of followers, unified by their beliefs. Not given to control, these shrines often work as a gathering of equals as opposed to having any true leadership. Often found as protectors, the followers can be quick to anger, their tempers burning even hotter than the flame they adore.
 
@@ -433,9 +433,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 “The mistake was realized too late, for through the weakened curtain all manner of horrors appeared. Clovis left the side of Fiona and bore his new duty, to heal the damage he’d done and guard this realm from the terror he unleashed from beyond.” Foundations 3:6
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150218-413x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150218-413x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150210-663x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150210-663x1024.jpg float-left)
 
 The great god Clovis goes by many names: The Night Father, Curtain Breaker, Candle Bearer, and Great Protector. Sworn to protect the realm from the demonic creations beyond the void, his followers are often warriors and knights. A strict hierarchy of command is kept within his temples, which keep a careful vigil over the land, crusading against any creature that breaches the curtain.
 
@@ -639,9 +639,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 > “And thus the babe was brought to bear, its blood tied to the Curtain. Their lineage touched by celestial or infernal origin will influence their path, but not determine it.”
 > -- – High Apencan Priestess Ellisandra
 
-Lovers trysts, pacts for power, distant blood reawakened, or even more strange and arcane dealings created the Curtainborn; children seen as half-mortal and half-divine. Many have a [[Celestials and Infernals]] parent, though few are lucky (or unlucky) enough to ever meet them, and this connection to the divine grants them incredible power at the cost of their mortal bodies. Curtainborn take to divine casting with incredible ease, but their physical bodies are fragile and don’t respond well to physical labour or even conventional doctoring. Occasionally outcast for their differences, a Curtainborn is just as likely to be welcomed with open arms by churches or communities dedicated to the gods. Born into nearly every society across Ariel, Curtainborn tend to adopt the culture of their youth, their only unifying characteristic is their connection to the divine.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/314925713_10160895588673313_3271945757968404297_n-480x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/314925713_10160895588673313_3271945757968404297_n-480x1024.jpg)
+Lovers trysts, pacts for power, distant blood reawakened, or even more strange and arcane dealings created the Curtainborn; children seen as half-mortal and half-divine. Many have a [[Celestials and Infernals]] parent, though few are lucky (or unlucky) enough to ever meet them, and this connection to the divine grants them incredible power at the cost of their mortal bodies. Curtainborn take to divine casting with incredible ease, but their physical bodies are fragile and don’t respond well to physical labour or even conventional doctoring. Occasionally outcast for their differences, a Curtainborn is just as likely to be welcomed with open arms by churches or communities dedicated to the gods. Born into nearly every society across Ariel, Curtainborn tend to adopt the culture of their youth, their only unifying characteristic is their connection to the divine.
 
 The divine nature of the Curtainborn is physically visible. They appear at first glance to be the same race as their mortal parentage, but their divine nature manifests as purple, blue, or orange blood, occasionally dependent on the nature of the divine parent but just as often random. This colours the eye sockets and the veins around the eyes in the colour of their divine blood, sometimes also visible elsewhere on the face or across the body.
 
@@ -713,9 +713,9 @@ Beyond the visual difference a Curtainborn’s divine blood makes them naturally
 
 When it comes to personality the individuals are as varied as their parent race, but many Curtainborn are united in their existential questions: what am I, why was I created, am I part of some divine plan? While many races may ponder such philosophical musings, the relatively recent appearance of Curtainborn and their inherent divine nature lends weight to their questions. Are Curtainborn the result of a freak accident? A build-up of magical energy? An intentional divine creation with purpose? Though no concrete answers have yet been forthcoming, there is no shortage of theories.
 
-Many Curtainborn spend a great deal of energy attempting to understand their divine nature and divine lineage; Whether they are descended from celestials or infernals, from this god or that, and whether that actually dictates their morality, personality, or destiny. There are a great many questions of nature versus nurture, divine interventional or infernal meddling, and whether a being created from a specific divinity actually has the free will to move away from that influence. There are many difficult questions with no answers, and a Curtainborn is just as likely to agonize over them as they are to ignore them and devote themselves to more tangible pursuits.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/376554845_689155536500908_23396938736237597_n-1.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/376554845_689155536500908_23396938736237597_n-1.jpg)
+Many Curtainborn spend a great deal of energy attempting to understand their divine nature and divine lineage; Whether they are descended from celestials or infernals, from this god or that, and whether that actually dictates their morality, personality, or destiny. There are a great many questions of nature versus nurture, divine interventional or infernal meddling, and whether a being created from a specific divinity actually has the free will to move away from that influence. There are many difficult questions with no answers, and a Curtainborn is just as likely to agonize over them as they are to ignore them and devote themselves to more tangible pursuits.
 
 Existential questions aside, Curtainborn are a uniquely liminal race and often face ostracization because of it. This leads many Curtainborn to seek a sense of belonging, whether that is in their home culture, in their church, or with a new found family, and many curtainborn who have never met another of their kind will often travel to meet others like them, even if they shortly return home again.
 
@@ -733,9 +733,9 @@ While their divine connection creates this sense of connection, in a way it also
 
 A curtainborn is born when there is divine influence in a bloodline. This can happen from direct trysts with an [[Celestials and Infernals]], pacts made by parents or distant ancestors, or other powerful divine influences. While having a divine “parent” is possible, Gods do not tarry directly, and a celestial or infernal “parent” is a much more surreal and magical experience than that of a regular mortal. Infernals and Celestials, often though not necessarily associated with a deity, are the influence that causes mortals to give birth to Curtainborn. Regardless of how it comes about, the birth of a Curtainborn is rare, and more often than not highly unexpected. A Curtainborn is very unlikely to ever have direct contact with the outsider that originated them, and unless their parent had direct dealings with an outsider and disclosed that to their child, the Curtainborn is unlikely to even know what their divine parentage is.
 
-Curtainborn are still quite young as a race (The earliest appearing only in 1976 A.T.), so children born to Curtainborn parents are still relatively few. Curtainborn parents may pass on their divine blood, or the child could be of the mortal race their parent resembles, regardless of the race of their spouse. Two Curtainborn together possess the highest chance of a Curtainborn child, though by sheer numbers alone a Curtainborn is still most likely to be born to non-Curtainborn parents.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/MG_0781arg-746x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/MG_0781arg-746x1024.jpg)
+Curtainborn are still quite young as a race (The earliest appearing only in 1976 A.T.), so children born to Curtainborn parents are still relatively few. Curtainborn parents may pass on their divine blood, or the child could be of the mortal race their parent resembles, regardless of the race of their spouse. Two Curtainborn together possess the highest chance of a Curtainborn child, though by sheer numbers alone a Curtainborn is still most likely to be born to non-Curtainborn parents.
 
 Though some races are more accepting than others, there is no hiding that a Curtainborn child is completely different from their siblings. Some families happily embrace the child and the oddities that come with it. Other families outright reject a Curtainborn child and abandon them to churches and orphanages. Most commonly however a Curtainborn’s family will seek out a church to aid them in raising a divine child. How much of a role a Curtainborn’s family plays in their life is very individual: some families may stay in constant contact even if a Curtainborn is raised solely by a church, others are raised wholey by their family with minimal church involvement, and of course some families are completely absent. If the lineage of a Curtainborn is known that can also have a large influence on how the child is treated, for good or ill. Reactions vary greatly, but the only rare scenario is a family not seeking divine guidance unless they are already a highly devout family themselves.
 
@@ -962,9 +962,9 @@ Authored by: Jared Hindle Fantasy Alive Lore Team 2021 Copyright © Endless Adve
 
 ## Description
 
-In temperament, Dwarves are much like the stone of their mountain homes. They are unflinchingly stubborn, outwardly stoic and exceptionally patient. They venerate age and are loath to trust in anything that is not designed to last. This meticulous perfectionism makes them peerless craftsmen, who take fierce pride in their work. However, this same pride also leads to them being quickly offended, for there is no more valuable possession to a Dwarf than their honour. As such, Dwarves tend to be unquestionably loyal and take oaths with the utmost seriousness. The only thing that Dwarves disdain more than “finger-waving” arcane magic are those who would give their word and then break it.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/88286594_10158432778608313_4930890594911256576_nwadfsedg-838x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/88286594_10158432778608313_4930890594911256576_nwadfsedg-838x1024.jpg)
+In temperament, Dwarves are much like the stone of their mountain homes. They are unflinchingly stubborn, outwardly stoic and exceptionally patient. They venerate age and are loath to trust in anything that is not designed to last. This meticulous perfectionism makes them peerless craftsmen, who take fierce pride in their work. However, this same pride also leads to them being quickly offended, for there is no more valuable possession to a Dwarf than their honour. As such, Dwarves tend to be unquestionably loyal and take oaths with the utmost seriousness. The only thing that Dwarves disdain more than “finger-waving” arcane magic are those who would give their word and then break it.
 
 Dwarven society is highly structured and rooted firmly in age-old tradition. Each Dwarf holds a particular place within their house, and each house holds a particular place within the clan. At present there are seventeen Dwarven clans who hold territory across the continent, most of whose populaces reside within a single, fortified hold.
 
@@ -1110,9 +1110,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 Father of the gods, ruler of time, Elieff seldom takes an interest in the affairs of man. Constant and inevitable, time slowly keeps moving onward. The dedicated followers of Elieff are few. Masters of the tide of time, they often ignore the current events of society and politics, caring instead only for the progress of their understanding. Most of Elieff’s clergy are advanced in years; often one only grows concerned with time when one is running out of it. The temples of Elieff, what few there are, tend to be quiet bastions of learning and study. His clerics are ranked in the order of their years, not necessarily in the breadth of their training, for time is a greater teacher of wisdom than any book.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150235-416x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150235-416x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150233-625x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150233-625x1024.jpg float-left)
 
 The symbols of Elieff include a melting candle, an hourglass, and a sundial.
 
@@ -1124,9 +1124,9 @@ Principle Holiday: February 29th – Times Paradox Devotion – Watching an hour
 > Elves take to magic like a fish takes to water; as easy as breathing.
 > -Elvish Proverb
 
-Elves are renowned for their pointy ears and haughty demeanors. Dedicating large portions of their lives to perfecting their skills and abilities, this drive for perfection permeates all aspects of Elven culture. Meticulous and elegant in their aesthetic, Elves adorn their flowing creations with intricate designs, and in turn often have a formal and superfluous style of speech.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/09/283677212_10160544136943313_6131006689792927429_n-683x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/09/283677212_10160544136943313_6131006689792927429_n-683x1024.jpg)
+Elves are renowned for their pointy ears and haughty demeanors. Dedicating large portions of their lives to perfecting their skills and abilities, this drive for perfection permeates all aspects of Elven culture. Meticulous and elegant in their aesthetic, Elves adorn their flowing creations with intricate designs, and in turn often have a formal and superfluous style of speech.
 
 Typically living in heavily wooded areas, Elven nations take shape in city-states, though scatterings of nomadic kinships or small communities in other kingdoms are not unheard of.
 
@@ -1172,9 +1172,9 @@ Maximum Age: Upon reaching the age indicated in “Max. Age” the character is 
 
 Elves’ most distinctive trait is their pointed ears, though their differences go beyond that single physical trait. Though not unheard of for an Elf to be incredibly strong, the majority of Elves who chose physical combat tend towards mastery of technique and skill, preferring precision to power. Elves tend to interact with the world around them with a delicate touch, rarely exerting more force than is necessary.
 
-When it comes to their ears they can vary considerably in length. Some show only a slight hint of a point, while some Elves may possess ears that are nearly 10 inches in length when fully-grown. The length of the ear has no actual meaning, and Elves’ ears often resemble one of their parents, though there is no shortage of old wives tales about what different ear shapes mean.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/330398884_148335418101015_5027799069582996127_naef.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/330398884_148335418101015_5027799069582996127_naef.jpg)
+When it comes to their ears they can vary considerably in length. Some show only a slight hint of a point, while some Elves may possess ears that are nearly 10 inches in length when fully-grown. The length of the ear has no actual meaning, and Elves’ ears often resemble one of their parents, though there is no shortage of old wives tales about what different ear shapes mean.
 
 Elves are naturally attuned to the flow of arcane magic, and find that controlling it comes easily to those who try. Even those Elves who never learn such skills still seem to possess a small store of magical energy within their spirits, but most will learn at least the very basics. Though magically gifted, the Elven spirit is relatively weak. Their spirits are generally less able to endure the strain of a resurrection and will more readily pass on down [[Jerroh]]‘s river. The Elves embrace this trait and believe that, as the first and most beloved children of [[Apenca]], her love for them is so great that it is very difficult for her to let them return to the world when she could keep them near her. While their bodies and spirits may be weaker than many other races, their minds are undisputedly stronger. It is quite difficult to alter an Elf’s thoughts or break them emotionally, through either mundane or magical means. Many interrogators have learned the hard way, reduced to seething frustration while the Elf they question remains calm and composed.
 
@@ -1184,9 +1184,9 @@ Tempering their lessened ability to return from a premature death, Elves natural
 
 Though Elven fashions do vary slightly between city-states, in general there is a preference for loose, light-weight clothing that does not restrict movement. Though leggings or pants are not uncommon, they are viewed in some city-states as the attire of commoners. As such, those of importance (or delusions there-of) are more likely to be seen wearing robes, gowns or long tunics.
 
-Regardless of status, most Elves take a good deal of time with their appearance and make a great show of their attire. Embroidery is very popular, and natural and astrological patterns are often embroidered or printed on clothing. The finest garments are often adorned with embroidery in precious metals and gemstones. Jewelry is also an important part of Elven fashion and few Elves in the city-states are seen in public unadorned, with the most popular pieces of Elven jewelry being ear-cuffs. When it comes to colour, Elven fashions tend to reflect the current season, and heraldic clothing is usually reserved for guards or dignitaries at exceptionally formal events.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/MG_0673-1-683x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/MG_0673-1-683x1024.jpg)
+Regardless of status, most Elves take a good deal of time with their appearance and make a great show of their attire. Embroidery is very popular, and natural and astrological patterns are often embroidered or printed on clothing. The finest garments are often adorned with embroidery in precious metals and gemstones. Jewelry is also an important part of Elven fashion and few Elves in the city-states are seen in public unadorned, with the most popular pieces of Elven jewelry being ear-cuffs. When it comes to colour, Elven fashions tend to reflect the current season, and heraldic clothing is usually reserved for guards or dignitaries at exceptionally formal events.
 
 Elves tend to be fastidious in their grooming as well, with well kempt hair considered very important. An unkempt beard or hair might lead to a comparison to a [[Dwarves (blurb)]], an insult many Elves would not be quick to live down.
 
@@ -1214,9 +1214,9 @@ Elwyndyreis situated on the north-western coast of the continent, and maintains 
 
 Elves value many things, magic and art, grace and beauty, but what Elven society praises among all else is refinement; the honing of a skill to perfection. Elves tend to specialize in something, or a small set of related things, and pursue success doggedly. Their social and political circles within the cities are highly competitive, fueling this drive for perfection throughout an Elf’s life. Older Elves, and those outside the cities, tend to be more relaxed in this respect, but the difference is unlikely to be obvious to most other races. Younger Elves who do not have many achievements to fall back on are more likely to accept failure poorly, and even older and successful Elves are loath to admit personal failings.
 
-Elves have incredibly high expectations not just for themselves, but for others. While some find this obsession with perfection grating, once one gets past that surface standoffishness Elves have a lot of more personable qualities as well. Their drive for perfection makes them dedicated and passionate as well as often highly skilled and useful allies. In contrast to this drive, their love of beauty and nature does allow them to stop and appreciate many of the wonderful things life has to offer.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/315471959_10160895591708313_683861046759655511_n-591x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/315471959_10160895591708313_683861046759655511_n-591x1024.jpg)
+Elves have incredibly high expectations not just for themselves, but for others. While some find this obsession with perfection grating, once one gets past that surface standoffishness Elves have a lot of more personable qualities as well. Their drive for perfection makes them dedicated and passionate as well as often highly skilled and useful allies. In contrast to this drive, their love of beauty and nature does allow them to stop and appreciate many of the wonderful things life has to offer.
 
 While they might be inwardly driven, many Elves prefer to be outwardly reserved. Expressing too many emotions can be seen as uncouth, or even weakness, in a competitive and intrigue loving society. While an Elf possesses the same emotional range as any other race, they are much more likely to try and remain calm, and express frustration and anger through veiled insults or intentional breaches of etiquette. Frustratingly to some, expressions of favour or love can be just as subtle, with an Elf expecting a recipient of flowers to understand their in depth meaning and the language expressed therein.
 
@@ -1471,9 +1471,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 High God and one of Elieff’s children, Fiona’s story has never been a happy one. Jealous of the love and eternal companionship between her siblings Atha and Beldon, the earth and the sea, she has circled them, lonely and bitter. Fiona, the Sky Queen or Night Beacon, as she is sometimes called, has always been the object of attention from each of her brothers Callis and Clovis, yet the Jealous Sister could not tear her gaze from Beldon, her true desire.
 
-Akin to diviners, followers of Fiona make it their business to know ever secret and every shadow. Like their lady the moon, the all-seeing eye, they sit silently and watch the earth. Often hired as spies or seekers, formal temples of Fiona do not exist, however it is said that all clerics of the Sky Queen form a secret underground society, holding clandestine meetings to share their knowledge. It is rumoured that somewhere lies a great library where all the collected secrets of the lands are kept. Even the greatest of kings dares not offend the believers of Fiona.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150248-395x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150248-395x1024.jpg)
+Akin to diviners, followers of Fiona make it their business to know ever secret and every shadow. Like their lady the moon, the all-seeing eye, they sit silently and watch the earth. Often hired as spies or seekers, formal temples of Fiona do not exist, however it is said that all clerics of the Sky Queen form a secret underground society, holding clandestine meetings to share their knowledge. It is rumoured that somewhere lies a great library where all the collected secrets of the lands are kept. Even the greatest of kings dares not offend the believers of Fiona.
 
 The symbols of Fiona include the moon in its various forms and an all-seeing eye.
 
@@ -1484,9 +1484,9 @@ Principle Holiday: Blue Moon – Second Rising Devotion – Appraising or divini
 
 ## Description
 
-It’s often said that it’s easier to stop the passage of time than the racing mind of a gnome. Though something of a hyperbole, gnomish intellect is renowned in the worlds of alchemy and herbalism alike for their natural affinity for the complex sciences. Their metabolism allows them to process toxins far better than other races. However, this comes at cost to their muscle density. Though they are not limited in physical stature, they are simply incapable of ever achieving exceptional levels of strength.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/387415701_1513241032791108_3450025380261822860_n-768x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/387415701_1513241032791108_3450025380261822860_n-768x1024.jpg)
+It’s often said that it’s easier to stop the passage of time than the racing mind of a gnome. Though something of a hyperbole, gnomish intellect is renowned in the worlds of alchemy and herbalism alike for their natural affinity for the complex sciences. Their metabolism allows them to process toxins far better than other races. However, this comes at cost to their muscle density. Though they are not limited in physical stature, they are simply incapable of ever achieving exceptional levels of strength.
 
 Gnomes are easily recognizable by their heads of intensely vibrant hair in shades of green, pink, yellow, orange, or blue. A gnome’s eyebrows and any facial hair also grow in the same bright colours. Some gnomes have been known to freckles that match their hair as well.
 
@@ -1594,9 +1594,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 ## Description
 
-Goblins, identifiable by their green skin and pointed ears, are typically seen by other races as buffoonish. However, though it tends to manifest in unconventional ways, goblins are possessed of an interesting cunning and industrious nature. To those unfamiliar with their ways, their ideas can seem silly sometimes to the point of becoming dangerous. While this may be true on the surface, they are often no less effective. Goblins are often happy to play into this image letting people think them foolish and continue to underestimate them.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2024/02/293174177_10160635785613313_3378162465800825307_n-683x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2024/02/293174177_10160635785613313_3378162465800825307_n-683x1024.jpg)
+Goblins, identifiable by their green skin and pointed ears, are typically seen by other races as buffoonish. However, though it tends to manifest in unconventional ways, goblins are possessed of an interesting cunning and industrious nature. To those unfamiliar with their ways, their ideas can seem silly sometimes to the point of becoming dangerous. While this may be true on the surface, they are often no less effective. Goblins are often happy to play into this image letting people think them foolish and continue to underestimate them.
 
 Goblins are a spiritually resilient race. Their spirits hold up to resurrections better than any other of the peoples in Ariel. They are also naturally agile, born with the ability to get out of the way of threats. These factors may have played a heavy role in the development of their penchant for risk taking. That said, they are not physically gifted people and when faced with the perils of combat, many lean on their natural talent for throwing weapons or sussing out an enemy’s weak spot from behind.
 
@@ -1699,9 +1699,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 The son of Brack and a mortal woman, Hemulis was raised with his fate and duty laid before him. Born at the dawn of the Age of Legends, Hemulis spent the first part of his life in the realm of man. A soldier, he believed in honour, steel, and little else. Hemulis traveled the earth, mastering one heroic quest after another. The greatest of his exploits are recorded in the oft- read 24 Deeds of Hemulis.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150335-426x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150335-426x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150330-800x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150330-800x1024.jpg float-left)
 
 The patron of soldiers and warriors everywhere, Hemulis is worshiped openly in nearly every city large enough to support a militia. The temples of Hemulis follow a strict hierarchy of leadership, with each templar controlling those of lesser rank. Ranks are awarded based on experience and deeds of valour. Disobedience is dealt with quickly and efficiently.
 
@@ -1803,9 +1803,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 ## Ruling House of Hoggsport
 
-House Name: Haro House Leader: Francis Alexander Haro House Colours:Argent and cyan House Heraldry:Double-headed gryphon with crown House Motto:Aequitas per attritionem (Fairness Through Attrition)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2024/02/image.png float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2024/02/image.png)
+House Name: Haro House Leader: Francis Alexander Haro House Colours:Argent and cyan House Heraldry:Double-headed gryphon with crown House Motto:Aequitas per attritionem (Fairness Through Attrition)
 
 ## The City
 
@@ -1942,9 +1942,9 @@ Near Lands to the Lakes Region
 
 It is whispered that there is a fine line between pleasure and pain. For the sadistic followers of the Maiden of Pain, this line does not exist. Daughter of Kell and Balaxa, Iccula lives for the torment of other souls and nothing else. Seldom killing their victims, followers of the Screaming Crone prefer to keep their prey, human or otherwise, alive for days, weeks and even years, extending their torture and relishing the screams.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/11-1-381x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/11-1-381x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/11-2-433x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/11-2-433x1024.jpg float-left)
 
 Surprisingly some temples of Iccula exist openly, particularly in lands where slavery is widespread. Occasionally used as interrogators, the tools of the Pain Maid are said to be capable of breaking any spirit.
 
@@ -1960,9 +1960,9 @@ Principle Holiday: January 13th – The Loving Lash Devotion – Torturing, inte
 
 Jerroh and Stasa are the twin children of Atha and Beldon. Known as the Death Guide or Spirit Escort, Jerroh has a following in nearly every civilized establishment. Despite being the god of death, Jerroh is seldom feared, gently taking only those whose time has come. The followers of Jerroh often take residence as the caretakers of graveyards and catacombs, assisting the spirits of the dead find their way across the void and protecting the land from the spirits that have gone astray.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150402-406x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150402-406x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150407-591x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150407-591x1024.jpg float-left)
 
 The symbols of Jerroh are a tombstone, coffin, and mysterious cloaked figure.
 
@@ -1974,9 +1974,9 @@ Principle Holiday: January 1st – Year’s End Devotion – Maintaining a grave
 > “… And with a scream that echoed across time itself he fell upon his knees. Rage filled him and evil and terror burst forth from him. For his grief he vowed to ravish the lands and minds of those upon it. Reaching to the sky’s starry curtain he brought forth every imaginable terror.”
 > -- The Book of Elves 12:3
 
-Perhaps one of the most feared of all the deities, Kazzok, god of nightmares and terror, is known by many names: Evil’s Gift, Screambringer, and Elf Slayer. Son of Fiona and Anajaream, it is said that Kazzok turned to the terrors beyond the curtain when his love was slain. Followers of Kazzok are often sadists and madmen, gaining pleasure from exposing the world to the worst of the void’s terrors. Temples of Kazzok are rare, as worship of the Screambringer is illegal in nearly all lands. When followers of Kazzok gather it is often whoever can inspire the most fear and power who wrests control of the group.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150410-381x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150410-381x1024.jpg)
+Perhaps one of the most feared of all the deities, Kazzok, god of nightmares and terror, is known by many names: Evil’s Gift, Screambringer, and Elf Slayer. Son of Fiona and Anajaream, it is said that Kazzok turned to the terrors beyond the curtain when his love was slain. Followers of Kazzok are often sadists and madmen, gaining pleasure from exposing the world to the worst of the void’s terrors. Temples of Kazzok are rare, as worship of the Screambringer is illegal in nearly all lands. When followers of Kazzok gather it is often whoever can inspire the most fear and power who wrests control of the group.
 
 The symbols of Kazzok are a face locked in a scream, a hand reaching up through the ground, and all manner of demonic creatures.
 
@@ -1988,9 +1988,9 @@ Principle Holiday: October 31st – Terror’s Breach Devotion – Creating frig
 > “With immortal cunning the darkness gathers. Cloaking the world in uncertainty, it conceals both friend and foe, growing thicker, until all that is known are the far-off whispers of men afeared.”
 > -- Unknown Author
 
-Little is known about the god Kell, son of Fiona and Clovis. Mystery seems to pool about the Prince of Night much like the darkness he represents. Known as the Eyeblighter and the Bringer of Darkness, Kell is said to be behind every clandestine meeting and secret society. While it is assumed that followers of Kell must exist, there has never been any evidence of their existence.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150413-362x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150413-362x1024.jpg)
+Little is known about the god Kell, son of Fiona and Clovis. Mystery seems to pool about the Prince of Night much like the darkness he represents. Known as the Eyeblighter and the Bringer of Darkness, Kell is said to be behind every clandestine meeting and secret society. While it is assumed that followers of Kell must exist, there has never been any evidence of their existence.
 
 The symbols of Kell include obsidian, jet, a lantern, and torch.
 
@@ -2015,13 +2015,13 @@ The geographical climate of Harodom is a direct reflection of the previous three
 
 The Geography of the Kingdom
 
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-2.jpeg float-right)
+
 Ruling Monarchs of the Kingdom of Harodom: Francis Anthony and Drusilla Haro House Colours: Cyan Blue and Grey Heraldry: Two Headed Eagle with a Crown House Motto: Fairness through Attrition
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-2.jpeg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-3.jpeg float-right)
 
 Any member of House Haro that abdicated the throne in favour of their heir retains the House Heraldry, but the cyan changes to a red to mark their honourable actions. Any in service to the monarch that has performed this action will also wear these colours of their liege.
-
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-3.jpeg)
 
 Crown Land
 
@@ -2039,11 +2039,11 @@ Cities in the Duchy of Gelrich Gelrich Windhaven Lorton Adder Point Guall [[Yori
 
 Ruling House of the Duchy of Gelrich
 
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image.jpeg float-right)
+
 House Name: Hayden
 
 House Leader: Duke Gregory Hayden House Colours: Orange and Gold House Heraldry: Black Rook and Black Fish in opposing quadrants
-
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image.jpeg)
 
 House Motto: Strong Deeds, Gentle Words.
 
@@ -2107,9 +2107,9 @@ THE BOOK OF LAW
 
 ## MILITARY
 
-The Harodom military is complex in its structure and organization. There are three portions to an army that are mustered when the Kingdom goes to war: the Monarch’s standing military, a noble’s own personal retinue, and then their levied forces from amongst the peasantry.
+![Lore illustration](https://lh6.googleusercontent.com/Yn9PA0Htq7ohG8r3gnOMqUu4GWGphaRPJduSz_byUjpLS1eshN5SUn1AvS1yzX3W9rdWl22BHRvsadYNw8pnTTCCO-GoLudhnv-EF5U8usQIDXbj76qj4-5XRKZVPrLiJkb3cob3ez85p4awCBYhHOw float-right)
 
-![Lore illustration](https://lh6.googleusercontent.com/Yn9PA0Htq7ohG8r3gnOMqUu4GWGphaRPJduSz_byUjpLS1eshN5SUn1AvS1yzX3W9rdWl22BHRvsadYNw8pnTTCCO-GoLudhnv-EF5U8usQIDXbj76qj4-5XRKZVPrLiJkb3cob3ez85p4awCBYhHOw)
+The Harodom military is complex in its structure and organization. There are three portions to an army that are mustered when the Kingdom goes to war: the Monarch’s standing military, a noble’s own personal retinue, and then their levied forces from amongst the peasantry.
 
 The standing army of the kingdom wears green and grey as their colours, with a full compass rose; with arrowheads at the end of each direction, signifying their reach throughout the kingdom. Their command structure is separate from other armies within the kingdom; they are under control of not only the ruling Monarch but also the Royal Court in [[Hoggsport]]. Their initial creation was in 1914 A.T. when outside pressures proved local armies of nobility took too long to muster and sovereign borders were deemed at too great a risk. The Crown Regiments, as it is commonly referred to, now stands as the primary force when war is declared with a foreign nation; their motto “Crown and Glory!”. The Crown Regiments’ forces are levied through each noble within the kingdom providing soldiers from their fiefdoms once every five years. A multitude of other avenues, including displaced people, city dwellers, and tournament combatants, wish to serve often as a stepping stone to elevate themselves above their station through guaranteed pay, experience, and valour.
 
@@ -2203,9 +2203,9 @@ The Merchant houses rose to prominence during a time of incredible prosperity un
 
 Coinage in the Kingdom Coins within Harodom were once denoted as Copper, Silver, and Gold. In recent years the Haro monarchs changed the currency, no longer carrying the Eye of Fiona on it, and a new minting process was instituted and created the new mintage. All Sovereigns within the kingdom are silver in colour, with a stamp issued on either side. One side of the coin is stamped with the letters FA, reflecting the beginning of King Francis Anthony Haro’s reign in 2012 A.T. In celebration of King’s Day in 2018 A.T. the FA meaning was refined to  ‘Fairness through Attrition’, the motto of House Haro; honouring the Queen Mother and the new Queen of Harodom, Drusilla Haro, and to acknowledge House Haro’s noble legacy. The other side has stamped the worth of the coin in number equal to its value. All values are measured in copper, though the old style of referring to values in silver and gold still holds true in spite of the visual similarities. The standard conversion rates apply at 10:1 in increasing values.
 
-Harodom Coinage Denominations 1 = 1 copper 5 = 5 copper 10 = 10 copper / 1 silver 50 = 50 copper / 5 silver 100 = 100 copper / 10 silver / 1 gold 500 = 500 copper / 50 silver / 5 gold 20g = 2000 copper / 200 silver / 20 gold
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_152546awrtg-1024x877.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_152546awrtg-1024x877.jpg)
+Harodom Coinage Denominations 1 = 1 copper 5 = 5 copper 10 = 10 copper / 1 silver 50 = 50 copper / 5 silver 100 = 100 copper / 10 silver / 1 gold 500 = 500 copper / 50 silver / 5 gold 20g = 2000 copper / 200 silver / 20 gold
 
 ## RELATIONSHIPS WITH NEIGHBOURING NATIONS
 
@@ -2293,9 +2293,9 @@ But then seeker… many things are said.$body49$),
 
 ## Description
 
-While no one statement easily describes the enigmatic Lizardfolk tribes, they come in essentially, one of three flavours; isolationist, reluctant participant, or outgoing adventurer. The Lizardfolk live within wet and swampy lands all over the world and are often ignored or left alone by most other cultures because of their reclusive nature and inhabitation of undesired land. This ‘let live and leave me alone’ attitude has led most Lizardfolk tribes to be more level-headed than other races, and this has afforded them unusual freedoms to spread across the continent relatively unhindered by borders or traditional land claims.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/293129113_10160635778653313adsfg_7310317720704203584_n-683x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/293129113_10160635778653313adsfg_7310317720704203584_n-683x1024.jpg)
+While no one statement easily describes the enigmatic Lizardfolk tribes, they come in essentially, one of three flavours; isolationist, reluctant participant, or outgoing adventurer. The Lizardfolk live within wet and swampy lands all over the world and are often ignored or left alone by most other cultures because of their reclusive nature and inhabitation of undesired land. This ‘let live and leave me alone’ attitude has led most Lizardfolk tribes to be more level-headed than other races, and this has afforded them unusual freedoms to spread across the continent relatively unhindered by borders or traditional land claims.
 
 Lizardfolk populations are hard for outsiders to estimate; some clans migrate constantly across their territories, while others do set up more permanent settlements in order to conduct trade or business with other nearby populations. Lizardfolk are famously closed-lipped about their numbers to outsiders, although it is assumed that individual settlements have their own head-count. The migrants are typically those who refuse to interact with members outside their species, whereas those that choose to live in their village swamps, are resigned to dealing with others. Many are good-natured about it, although mixed interactions with representatives of other species has led to some cultural distrust in deals and bargains struck with outsiders. Those few that leave their nomadic groups or settlements are ready for a time of excitement and danger, but many find their way back to either a migratory or village living situation, depending on where they are in their lifecycle.
 
@@ -2566,9 +2566,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 ## Description
 
-Though the Malkin themselves do not often take kindly to the comparison, physically they resemble a race of bipedal cats, fur-covered humanoids with pointed ears and a long, non-prehensile tail. Perhaps their most defining characteristic though is their innate resistance to spells, which cannot be controlled but can become stronger in some Malkin with time and effort.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2024/02/IMG_2263COPY-835x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2024/02/IMG_2263COPY-835x1024.jpg)
+Though the Malkin themselves do not often take kindly to the comparison, physically they resemble a race of bipedal cats, fur-covered humanoids with pointed ears and a long, non-prehensile tail. Perhaps their most defining characteristic though is their innate resistance to spells, which cannot be controlled but can become stronger in some Malkin with time and effort.
 
 Many of the adult Malkin on the continent today were not born here, but were instead bred by the arcaners of [[Magedom]] as servants and soldiers in that far-away land. Under the leadership of Alith-Handar, a large number of these so-called Kargath managed to escape during the Great Uprising of 2014 A.T. and eventually made their way to the continent where they have sought to create a new home and cultural identity for themselves. Perhaps unsurprisingly, nearly all such Malkin possess an extreme distrust of mages and a fear of being confined.
 
@@ -2659,9 +2659,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 One of the lesser gods, Marius’s interests sit deeply within the affairs of man. Patron of travel and trade, Marius’s name is revered by merchants everywhere. Often traveling with merchant caravans, followers of Marius ensure protection and fair trade of goods. Nearly every city large enough to support a permanent market square contains a temple to Marius, the location often doubling as a customhouse, trade centre, and coin exchange.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150418-389x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150418-389x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150422-1024x528.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150422-1024x528.jpg float-left)
 
 Followers of Marius are renowned for their knowledge or rare wares and their values. Selling wards and protections to those with a desire to protect their valuables from thieves, the coin talkers are known to occasionally act as bankers and moneylenders to supplement their income.
 
@@ -2746,9 +2746,9 @@ A merchant house from Michian, they specialize in magical items and components. 
 
 ## Overview
 
-Though minotaurs appear as humanoid bulls, with coarse fur and pair of bovine horns, mentioning this to one will elicit a range of responses ranging from offence to homicidal anger. Capable warriors and tireless labourers, minotaurs often find it difficult to focus on more fine-detailed work, especially if it requires nuance or delicacy; minotaurs often like large sweeping projects that produce swift and visible results. Though their temperament may vary somewhat between groups or individuals, minotaurs are not generally known for their great patience and the stereotypical minotaur can be quick to react with aggression if provoked.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/289597773_10160598036208313_6581674483942525317_naerdh-850x1024.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/289597773_10160598036208313_6581674483942525317_naerdh-850x1024.jpg)
+Though minotaurs appear as humanoid bulls, with coarse fur and pair of bovine horns, mentioning this to one will elicit a range of responses ranging from offence to homicidal anger. Capable warriors and tireless labourers, minotaurs often find it difficult to focus on more fine-detailed work, especially if it requires nuance or delicacy; minotaurs often like large sweeping projects that produce swift and visible results. Though their temperament may vary somewhat between groups or individuals, minotaurs are not generally known for their great patience and the stereotypical minotaur can be quick to react with aggression if provoked.
 
 Minotaur are organized into “kindred”, large groupings that form along ideological identities. Although a kindred group may run in family lines, there is no guarantee that it will do so, and the major minotaur nations on Ariel consist of multiple kindred groups working in concert. There are nine major Minotaur kindred groups on the continent, along with numerous minor kindred septs. Though none of the major kindred groups claim territory with the established borders of separate nations, some minor kindred septs have been known to live on such lands as migratory bands and lone minotaurs can often be found throughout their wilderness and settlements.
 
@@ -2996,9 +2996,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 ## Overview
 
-Recognizable by their green skin and large tusks, Orcs are renowned for a gift at manifesting a berserk rage that pushes their already substantial physiques to exceptional levels in combat. This has fed into the long held belief by outsiders that they are little more than hot tempered and violent savages. Orcs are just as varied as any other people however, and those who harbour such beliefs are sometimes surprised when their ignorance is exposed by orc sages or scholars, many of whom can recall centuries of their clan or nation’s oral history.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/11113280_10153332041978313_8583504954909898069_n.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/11113280_10153332041978313_8583504954909898069_n.jpg)
+Recognizable by their green skin and large tusks, Orcs are renowned for a gift at manifesting a berserk rage that pushes their already substantial physiques to exceptional levels in combat. This has fed into the long held belief by outsiders that they are little more than hot tempered and violent savages. Orcs are just as varied as any other people however, and those who harbour such beliefs are sometimes surprised when their ignorance is exposed by orc sages or scholars, many of whom can recall centuries of their clan or nation’s oral history.
 
 Orcs are one of the most physically robust peoples in Ariel. Even the average specimen can withstand grievous wounds and have been known to easily become resistant to toxins. They favour direct solutions and treat setbacks in their pursuits as opportunities to either prove their worth or learn from their failures. Orcs are skilled explorers and tacticians, able to see the ‘big picture’ in their journeys. Conversely, orcs struggle with the written word; reading, writing, and magery are frustrating, and this leads to some orcs deeming them as overly complicated and unnecessary.
 
@@ -3221,9 +3221,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 Known as the Mage Maid or Unlocker of Secrets, the lady Sasha opened her arms and sent magic forth into the world. Often confused for mages, the followers of Sasha worship magic in its rawest of forms. While they often consort with arcane casters, the followers of Sasha are disdainful of the way their counterparts obtain their power, believing that spell casting is a privilege granted by the goddess, and not to be torn from its resting places through research and study.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150434-403x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150434-403x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150449-1024x770.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150449-1024x770.jpg float-left)
 
 Often found serving the courts of the nobility and wealthier merchants, Sasha’s followers are prized for their abilities of enchantment. When not in private employ, divine mages often spend their time exploring the corners of the earth, seeking out the areas where magical energies are the strongest.
 
@@ -3304,9 +3304,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 Once known as the Twisted Twin and believed to relish in the agony of early mortal death. Stasa has ascended to the deity of Endings. Stasa pushes forward a plan to end all things that spans thousands of years, and even the other deities fear that she will succeed.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150454-365x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150454-365x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150501-1024x1015.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150501-1024x1015.jpg float-left)
 
 Opposed by most, Stasa stands alone and strong. Her domain resides in what is left behind from those that pass before they are ready. Their grief, anger, and fear provide her with ever expanding power. Recent investigations have shown that undead, and other necromantic magics further empower the deity of the end of all things.
 
@@ -3321,9 +3321,9 @@ Principle Holiday: Friday the 13th – Stasa’s Harvest Devotion – Taxidermy/
 
 ## Ruling House of Stelton
 
-House Name: Bellantino House Leader: Lady Aurora Bellantino House Colours: Blue and Gold. House Heraldry: White Unicorn Head. House Motto: Sheathe the Sword of Jealousy.
+![Lore illustration](https://lh4.googleusercontent.com/U84LURXasyf2rhZBMCLgT2AsSehW8Cao0--PkStgrYQP8jhTh4i355hLqYFwL-iG6pXapNNPYMUOqqRludWoZoWcMG2jOxvtUijFcoCtkf836zcLwDMPYaTPapPZHggrp7aQAp2oLSNmlGKpWC1dh2I float-right)
 
-![Lore illustration](https://lh4.googleusercontent.com/U84LURXasyf2rhZBMCLgT2AsSehW8Cao0--PkStgrYQP8jhTh4i355hLqYFwL-iG6pXapNNPYMUOqqRludWoZoWcMG2jOxvtUijFcoCtkf836zcLwDMPYaTPapPZHggrp7aQAp2oLSNmlGKpWC1dh2I)
+House Name: Bellantino House Leader: Lady Aurora Bellantino House Colours: Blue and Gold. House Heraldry: White Unicorn Head. House Motto: Sheathe the Sword of Jealousy.
 
 ## The City
 
@@ -3352,9 +3352,9 @@ In anticipation of conflict, a great sea-gate was designed to guard the harbour,
 
 Known as the Great Wyrm, Dragon Empress, and God-Killer, Strega is a the only goddess to not fall within the family tree of Elieff. She rose to power and attained deity status through her own actions and followers. This power was wrested from the other gods during her ascension which has led to bad blood between her and the other gods which often spills down to their followers.
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150518-493x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150518-493x1024.jpg float-left)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150521-639x1024.jpg)
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150521-639x1024.jpg float-left)
 
 Known as the Great Wyrm, Dragon Empress, and God-Killer, Strega is a the only goddess to not fall within the family tree of Elieff. She rose to power and attained deity status through her own actions and followers. This power was wrested from the other gods during her ascension which has led to bad blood between her and the other gods which often spills down to their followers. S
 
@@ -3584,9 +3584,9 @@ The Mortal Gods, also sometimes called Patrons, are [[Astrid]], [[Brack]], [[Hem
 
 ## The Church of All Gods
 
-The Church of All Gods in the Herodom town of Yorik famously acknowledges all of the gods and their place in the pantheon. While those gods whos worship is illegal are still present, their status as banned is represented by black banners where their legal counterparts are white. This church also recognizes gods, or godlike beings, who cannot truly be worshiped, at least not by most people.
+![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/IMG_5190-1024x768.jpg float-right)
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/IMG_5190-1024x768.jpg)
+The Church of All Gods in the Herodom town of Yorik famously acknowledges all of the gods and their place in the pantheon. While those gods whos worship is illegal are still present, their status as banned is represented by black banners where their legal counterparts are white. This church also recognizes gods, or godlike beings, who cannot truly be worshiped, at least not by most people.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150201-1024x700.jpg)
 
@@ -3638,71 +3638,71 @@ The Veil is what lies between all planes in existence, surrounding them and conn
 Authored by: Jared Hindle Fantasy Alive Lore Team 2021 Copyright © Endless Adventures Ontario$body78$),
 ('the-schools-of-magic', 'The Schools of Magic', 'Magic', $body79$![Lore illustration](https://lh3.googleusercontent.com/SG-nm6GYIVMrLxn_IF4HrOT-2zr2Z6NzR76SVlEkkvodgHWVuyPw3oH-UMkht2tvvURZRjUXnAxqXVFDNbHELz8ENG33FENMMSVC5K-qwWWa8YkgMzddk2uRLQURWT_0GLDeQizTTWw_q8gJmyzhOQ4)
 
+![Lore illustration](https://lh6.googleusercontent.com/vuGfeWE32UJV_retkkqxR48h2p3VUHv1l5AElYDHGSi0KEW1x88GuhEFgCjaDDE6UFPnr394TCXB-5v7yNPJmA--ZOglD0o84omz-XcK13mmvqMRGzaN1okL12DiAKFHw-s-526CRyeM0SPt5xOzMRY float-right)
+
 Armour
 
 Armour spells weave magic into protective barriers. Their form can range from potent single use shields to a lasting magical field that wraps the body mimicking physical armour.
 
-![Lore illustration](https://lh6.googleusercontent.com/vuGfeWE32UJV_retkkqxR48h2p3VUHv1l5AElYDHGSi0KEW1x88GuhEFgCjaDDE6UFPnr394TCXB-5v7yNPJmA--ZOglD0o84omz-XcK13mmvqMRGzaN1okL12DiAKFHw-s-526CRyeM0SPt5xOzMRY)
+![Lore illustration](https://lh4.googleusercontent.com/32zgOgdAsWckVImsUtwYlXDcUiFhZfhQSwxHNRuIQjEiELE7M68_ompWx43h2Zbo3rOGfiJgMIJz4r5AtS49nz5jBsHwQTubjtEZJIyFEbgo-zqFbewTvEQs7gLoBEoKguZanp4KIHugBUxddjLYOZo float-right)
 
 Body
 
 Body spells specialize in using magic to enhance or control the physical form of the target. These spells can restrain and hinder as well as provide otherwise impossible levels of strength and endurance.
 
-![Lore illustration](https://lh4.googleusercontent.com/32zgOgdAsWckVImsUtwYlXDcUiFhZfhQSwxHNRuIQjEiELE7M68_ompWx43h2Zbo3rOGfiJgMIJz4r5AtS49nz5jBsHwQTubjtEZJIyFEbgo-zqFbewTvEQs7gLoBEoKguZanp4KIHugBUxddjLYOZo)
+![Lore illustration](https://lh4.googleusercontent.com/TI2CpDj1oNFYuxTwO9Oh4QZV5eOaUq-S7oAOR-XOSaYHXqMZliuGZPYUMcRJflJNLeckrkdi4VdtKj90l3ROItPVLd4klBZJCPpWJEcqlRggVVe-NLUAZCHFCN-yBj_Gl5kl4uSSzYPjRFzLYcbE5qM float-right)
 
 Creation
 
 The school of Creation is dedicated to manifesting things into, and erasing things from existence or otherwise altering their physical state. These spells grant the caster the ability to shatter a weapon with a word and remake with another.
 
-![Lore illustration](https://lh4.googleusercontent.com/TI2CpDj1oNFYuxTwO9Oh4QZV5eOaUq-S7oAOR-XOSaYHXqMZliuGZPYUMcRJflJNLeckrkdi4VdtKj90l3ROItPVLd4klBZJCPpWJEcqlRggVVe-NLUAZCHFCN-yBj_Gl5kl4uSSzYPjRFzLYcbE5qM)
+![Lore illustration](https://lh4.googleusercontent.com/IRQHI8HU04Jhd_a2Hr8MlLqyS8p6SAwEeursKzqdMXOlosl6qJvUBoISVBukCSayK8ggFY5_SzICFf3WlwxyiZrYEh_uFhvcsv_ZOAUy_F14YIEds4w2YZTm20uyQOBNKM5VKdCcS29zLzseDphtubk float-right)
 
 Death
 
 Death magic is a school dedicated to manipulating spirits or the remains of the dead. Its spells allow the caster to twist spirits or raise corpses into undead servants as well as grant the power to take command or destroy these entities as well.
 
-![Lore illustration](https://lh4.googleusercontent.com/IRQHI8HU04Jhd_a2Hr8MlLqyS8p6SAwEeursKzqdMXOlosl6qJvUBoISVBukCSayK8ggFY5_SzICFf3WlwxyiZrYEh_uFhvcsv_ZOAUy_F14YIEds4w2YZTm20uyQOBNKM5VKdCcS29zLzseDphtubk)
+![Lore illustration](https://lh4.googleusercontent.com/39ir5Bj2r_GJk_nG_ufOIXJVZytqd7XphnfmVPyrRJ2cBwihgB_l2plRd016lDDKpAiJW_fxezM4dsv14CTQWmj6OiEdvuwIFC6Ms6VX2jJCuZpwWmro4C1dAx8tffqo_umuMxn65Ou2PM7YZb_X9Jg float-right)
 
 Detection
 
 The spells of the school of Detection are used to reach out magically to gather information. In its lower tiers, spells from this school allow the caster to detect all manner of beings or things in the immediate world around them. At its highest circles, Detection magic allows one to reach through time itself to find the information one seeks with spells like Fate and Legend.
 
-![Lore illustration](https://lh4.googleusercontent.com/39ir5Bj2r_GJk_nG_ufOIXJVZytqd7XphnfmVPyrRJ2cBwihgB_l2plRd016lDDKpAiJW_fxezM4dsv14CTQWmj6OiEdvuwIFC6Ms6VX2jJCuZpwWmro4C1dAx8tffqo_umuMxn65Ou2PM7YZb_X9Jg)
-
 Divine Divine spells are cast in service to and with the blessing of the Gods. It focuses on harnessing both Celestial and Infernal powers and turning it to the caster’s purpose.
+
+![Lore illustration](https://lh3.googleusercontent.com/_Pg1y-Ubrh5fuz9-MfssvPszN-z9CVUg20Yf-ncSUhzT38liW7AbsDUyCI_fQ7Fm8FKJN1BY25yktaV1Bi9J4oHOx64pyuq7z3_GhbyrgfX6o-OaFpiVQ8kGDzSQl6y8ZQPJCM6L661Wzjip1iDk4cE float-right)
 
 Elemental
 
 The Elemental school of magic focuses on bending the natural elements to the will of the caster enabling them to throw lighting, fire, and ice to assail their foes or send messages on the wind to far off recipients.
 
-![Lore illustration](https://lh3.googleusercontent.com/_Pg1y-Ubrh5fuz9-MfssvPszN-z9CVUg20Yf-ncSUhzT38liW7AbsDUyCI_fQ7Fm8FKJN1BY25yktaV1Bi9J4oHOx64pyuq7z3_GhbyrgfX6o-OaFpiVQ8kGDzSQl6y8ZQPJCM6L661Wzjip1iDk4cE)
+![Lore illustration](https://lh6.googleusercontent.com/T7qbz_lVrPTYbZJbaJ2kryV3AdbxeMtc8b_12m6bp4C75MRjcQMzDm-8hyhYjt6LAatb5y_zgt43xBtyFzQA9Uus7DiDx0gPDsu8VTs8QUPD57iJDnS1km3fVyArbwAMEcuqqQgTWBIknNtHwzzG4So float-right)
 
 Healing
 
 Healing spells harness magic for restorative purposes. Casting these spells allow one to heal grievous wounds, remove maladies, restore lost limbs and youth, and even prevent a person’s spirit from leaving their body after death, restoring them to life.
 
-![Lore illustration](https://lh6.googleusercontent.com/T7qbz_lVrPTYbZJbaJ2kryV3AdbxeMtc8b_12m6bp4C75MRjcQMzDm-8hyhYjt6LAatb5y_zgt43xBtyFzQA9Uus7DiDx0gPDsu8VTs8QUPD57iJDnS1km3fVyArbwAMEcuqqQgTWBIknNtHwzzG4So)
+![Lore illustration](https://lh4.googleusercontent.com/VZAAPjkBn2WEa3T1Rh0FgeDX9PsZUL3Srzt4l120kxTjWlnyUJZLNFqvAyQ3SUnixvatBUUZexffSfO9w0aXeAa7u_Re6XUyoHsT3YDEsRqzC1HE-EUx9F3b5t3GIr13RsoN9Ibkph23HmQiM5euJ2Y float-right)
 
 Infliction
 
 The Infliction school of magic is dedicated to causing illness and bestowing curses. These spells, except at their highest tiers, are rarely deadly instead focussing on tormenting the target through blindness, disease, or turning their flesh to stone.
 
-![Lore illustration](https://lh4.googleusercontent.com/VZAAPjkBn2WEa3T1Rh0FgeDX9PsZUL3Srzt4l120kxTjWlnyUJZLNFqvAyQ3SUnixvatBUUZexffSfO9w0aXeAa7u_Re6XUyoHsT3YDEsRqzC1HE-EUx9F3b5t3GIr13RsoN9Ibkph23HmQiM5euJ2Y)
+![Lore illustration](https://lh6.googleusercontent.com/pKbsxJQDRKkQZc2s4eGu7R9610Tb-3Z53KAC_qeVU7uztZuw6IkdSuTa3zqoXMBP5P2IUAW0lREMDyM9Rh955tpVGBNMl71H4XOkThvH0UiWwUqJ__bPn9u5x5v8gt2WFLJ01o3j1T1QC6vcD4AgMb0 float-right)
 
 Magic Spells categorized under the school of Magic focus on harnessing the arcane in raw and powerful forms to alter reality or form focused attacks. Casting the effects of these spells can range from creating light to blasts of energy, to teleportation.
 
-![Lore illustration](https://lh6.googleusercontent.com/pKbsxJQDRKkQZc2s4eGu7R9610Tb-3Z53KAC_qeVU7uztZuw6IkdSuTa3zqoXMBP5P2IUAW0lREMDyM9Rh955tpVGBNMl71H4XOkThvH0UiWwUqJ__bPn9u5x5v8gt2WFLJ01o3j1T1QC6vcD4AgMb0)
+![Lore illustration](https://lh6.googleusercontent.com/C3WubnnCYJrUNEEWdyBqQRN2jhTgXTHUBlxwWgCVxxBCXaoGjvsePxoXDn_0REfIEvtm4T9l68JM9Ytn5hjYUkRm7MKUm6w6RQ8g84HoAoH_Km34uhSh9jhgZv_gsau86fP30YN6piZIOdbLOqYwCnw float-right)
 
 Mind
 
 The school of Mind magic is concerned with spells that target a person’s thoughts and perception. Installing or removing fear, rage, charm, or stunning the mind are all within its domain. At its most powerful, this school is able to permanently alter the memory of those it targets.
 
-![Lore illustration](https://lh6.googleusercontent.com/C3WubnnCYJrUNEEWdyBqQRN2jhTgXTHUBlxwWgCVxxBCXaoGjvsePxoXDn_0REfIEvtm4T9l68JM9Ytn5hjYUkRm7MKUm6w6RQ8g84HoAoH_Km34uhSh9jhgZv_gsau86fP30YN6piZIOdbLOqYwCnw)
+![Lore illustration](https://lh4.googleusercontent.com/obAAA2JNZpUmv7vmCQqMwfE0nd7M7EfYePvIG7EK_24b2sFoWNJVxdfm1c6TDHoNV68kzip7LeUEjMHV7NlFR8evoq6IxXmmvz2Xsh5NieGdYu8OyNWeoi4D38bJpeKy18Rgvw1xWMKvT4KJN-2bihY float-right)
 
 Summoning
 
 The school of Summoning studies the permeability of The Curtain and uses magic to shunt beings from one side to the other. This school lacks the diversity of spells the other schools  enjoy but enables the caster to pull greater and more powerful entities though under their command.
-
-![Lore illustration](https://lh4.googleusercontent.com/obAAA2JNZpUmv7vmCQqMwfE0nd7M7EfYePvIG7EK_24b2sFoWNJVxdfm1c6TDHoNV68kzip7LeUEjMHV7NlFR8evoq6IxXmmvz2Xsh5NieGdYu8OyNWeoi4D38bJpeKy18Rgvw1xWMKvT4KJN-2bihY)
 
 Each school of magic has a variety of spells associated with it, and Arcane Researchers are capable of specializing in areas of research. Each school of magic also has an opposite school of magic whose magical energies are somewhat contradictory to each other. if a Researcher specializes in one area of research, they often find it harder to fully understand the opposite area of study. Below is a chart of the schools of magic and their opposite schools.
 
@@ -4100,9 +4100,9 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 A largely farming community with a central village, and a booming mine industry, Yorik, in the duchy of Gelrich, was once a hub for some of the most unusual occurrences and dangerous adventures in all of Harodom, and in much of the Lakes Region as a whole. The seat of the Barony of Yorik and the Duchy of Gelrich, the town is famous for its iron and silver mines, much of which was absorbed into the newly formed Barony of New Caladon in 2015. Yorik is right within the Green Walk of Harodom, a large temperate farmland that stretches across the southern end of the country, and has many fertile farms.
 
-Ruling House of Yorik House Name: Hayden House Representative: Lord Donovan Hayden House Colours: Orange and Gold House Heraldry: Black Rook and Black Fish in opposing quadrants House Motto: Strong Deeds, Gentle Words.
+![Lore illustration](https://lh6.googleusercontent.com/cGUXsAuUlORpL8fEUZBZnpqp1euKJ7uu6hFn5UWCUNhBR8LnIpwr1mjd9wAv-cDW01_EqkWYQ32t6okA6aQBsLvYUify3ef_h_EIX5RfWxu43hkIBDSezeTqAkWG-Ott_Mw3moaqO_M9rEYuadpEaEk float-right)
 
-![Lore illustration](https://lh6.googleusercontent.com/cGUXsAuUlORpL8fEUZBZnpqp1euKJ7uu6hFn5UWCUNhBR8LnIpwr1mjd9wAv-cDW01_EqkWYQ32t6okA6aQBsLvYUify3ef_h_EIX5RfWxu43hkIBDSezeTqAkWG-Ott_Mw3moaqO_M9rEYuadpEaEk)
+Ruling House of Yorik House Name: Hayden House Representative: Lord Donovan Hayden House Colours: Orange and Gold House Heraldry: Black Rook and Black Fish in opposing quadrants House Motto: Strong Deeds, Gentle Words.
 
 ## Founding
 
@@ -4172,4 +4172,9 @@ For a time, discussion of the Undercity whatever became forbidden, for fear that
 
 The Undercity was destroyed in a magical explosion that took out most all of its inhabitants, as well as a powerful demon threatening the ruin of the world. If there were relics or inhabitants who did survive, their fate is unknown.
 
-Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body89$);
+Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body89$)
+on conflict (slug) do update set
+  title = excluded.title,
+  category = excluded.category,
+  body = excluded.body,
+  updated_at = now();
