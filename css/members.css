@@ -280,6 +280,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 .log-type.xp{ background: var(--good); }
 .log-type.oc{ background: #7a4f9e; }
 .log-type.msg{ background: var(--gold-dark); }
+.log-type.bank{ background: var(--brown); }
 
 .notif-badge{
   display:inline-block;
