@@ -37,29 +37,46 @@
 <script src="js/members-auth.js"></script>
 <script>
 (function(){
-const LOG = [
-  { date:'2026-06-08', type:'XP', amount:45, character:'Lucifer Ambrosias', note:'Regular Weekend, Faire of the Bright Coast' },
-  { date:'2026-06-08', type:'OC', amount:50, character:'', note:'FA Supporter Event bonus' },
-  { date:'2026-04-12', type:'XP', amount:45, character:'Lucifer Ambrosias', note:'Regular Weekend, The Silent Guilds' },
-  { date:'2026-04-12', type:'OC', amount:12, character:'', note:'Kudos received from another player' },
-  { date:'2026-02-15', type:'XP', amount:45, character:'Lucifer Ambrosias', note:'Regular Weekend, Ruins of the Lakes Region' },
-  { date:'2026-02-15', type:'OC', amount:20, character:'', note:'Manual OC grant, Cast bonus' },
-  { date:'2026-06-08', type:'XP', amount:45, character:'Character 2', note:'First-Time FREE Weekend' },
-];
-
-function render(){
-  document.getElementById('log-log-body').innerHTML = LOG.map(l => `
-    <tr>
-      <td>${l.date}</td>
-      <td><span class="log-type ${l.type.toLowerCase()}">${l.type}</span></td>
-      <td>${l.amount}</td>
-      <td>${l.character || 'N/A'}</td>
-      <td>${l.note}</td>
-    </tr>
-  `).join('');
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-render();
+function fmtDate(iso){
+  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+async function init(){
+  const me = window.faCurrentUser.id;
+
+  const { data: myChars } = await membersSupabase.from('characters').select('id, name').eq('player_id', me);
+  const charMap = {};
+  (myChars || []).forEach(c => { charMap[c.id] = c.name; });
+  const charIds = (myChars || []).map(c => c.id);
+
+  const [xpResult, ocResult] = await Promise.all([
+    charIds.length
+      ? membersSupabase.from('xp_transactions').select('character_id, amount, note, created_at').in('character_id', charIds)
+      : Promise.resolve({ data: [] }),
+    membersSupabase.from('oc_transactions').select('amount, note, created_at').eq('player_id', me)
+  ]);
+
+  const log = [
+    ...(xpResult.data || []).map(x => ({ date: x.created_at, type: 'XP', amount: x.amount, character: charMap[x.character_id] || '', note: x.note || '' })),
+    ...(ocResult.data || []).map(o => ({ date: o.created_at, type: 'OC', amount: o.amount, character: '', note: o.note || '' }))
+  ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  document.getElementById('log-log-body').innerHTML = log.length ? log.map(l => `
+    <tr>
+      <td>${fmtDate(l.date)}</td>
+      <td><span class="log-type ${l.type.toLowerCase()}">${l.type}</span></td>
+      <td>${l.amount}</td>
+      <td>${l.character ? escapeHtml(l.character) : 'N/A'}</td>
+      <td>${escapeHtml(l.note)}</td>
+    </tr>
+  `).join('') : `<tr><td colspan="5">No XP or OC entries yet.</td></tr>`;
+}
+
+document.addEventListener('fa-members-ready', init);
 })();
 </script>
 

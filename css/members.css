@@ -279,6 +279,18 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 }
 .log-type.xp{ background: var(--good); }
 .log-type.oc{ background: #7a4f9e; }
+.log-type.msg{ background: var(--gold-dark); }
+
+.notif-badge{
+  display:inline-block;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 10px;
+}
 
 .data-table td.teach-cell{ text-align:center; }
 .data-table input[type="checkbox"]{
