@@ -157,6 +157,7 @@ async function refreshRegisteredCount(){
     const res = await fetch(REGISTRATION_ENDPOINT + '?action=count&event=' + encodeURIComponent(state.event.label), { cache: 'no-store' });
     if(!res.ok) throw new Error('count failed');
     const data = await res.json();
+    if(typeof data.count !== 'number') throw new Error('count not available yet');
     el.textContent = `${data.count} player${data.count === 1 ? '' : 's'} registered so far.`;
   } catch(err){
     el.textContent = '';
