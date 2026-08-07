@@ -201,24 +201,34 @@ async function bank_searchRecipients(picker, query){
   const q = query.trim();
   if(!q){ results.innerHTML = ''; return; }
 
-  let queryBuilder = membersSupabase
-    .from('profiles')
-    .select('id, display_name')
-    .ilike('display_name', `%${q}%`);
+  const excludeSelf = picker !== 'deposit' && window.faCurrentUser;
 
-  if(picker !== 'deposit' && window.faCurrentUser){
-    queryBuilder = queryBuilder.neq('id', window.faCurrentUser.id);
+  let profileQuery = membersSupabase.from('profiles').select('id, display_name').ilike('display_name', `%${q}%`);
+  let charQuery = membersSupabase.from('character_names').select('id, name, player_id').ilike('name', `%${q}%`);
+  if(excludeSelf){
+    profileQuery = profileQuery.neq('id', window.faCurrentUser.id);
+    charQuery = charQuery.neq('player_id', window.faCurrentUser.id);
   }
 
-  const { data, error } = await queryBuilder.limit(8);
+  const [{ data: profileMatches }, { data: charMatches }] = await Promise.all([profileQuery.limit(8), charQuery.limit(8)]);
 
-  if(error || !data || data.length === 0){
+  const byId = {};
+  (profileMatches || []).forEach(p => { byId[p.id] = p.display_name; });
+
+  const missingIds = [...new Set((charMatches || []).map(c => c.player_id))].filter(id => !byId[id]);
+  if(missingIds.length){
+    const { data: extraProfiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', missingIds);
+    (extraProfiles || []).forEach(p => { byId[p.id] = p.display_name; });
+  }
+
+  const entries = Object.entries(byId).slice(0, 8);
+  if(entries.length === 0){
     results.innerHTML = '<div class="bank-recipient-empty">No matching players.</div>';
     return;
   }
 
-  results.innerHTML = data.map(p => `
-    <button class="bank-recipient-result" onclick="bank_pickRecipient('${picker}', '${p.id}', '${p.display_name.replace(/'/g, "\\'")}')">${escapeHtml(p.display_name)}</button>
+  results.innerHTML = entries.map(([id, name]) => `
+    <button class="bank-recipient-result" onclick="bank_pickRecipient('${picker}', '${id}', '${name.replace(/'/g, "\\'")}')">${escapeHtml(name)}</button>
   `).join('');
 }
 
