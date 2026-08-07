@@ -77,7 +77,9 @@
 </div>
 
 <div class="reg-section">
-<div class="reg-section-label">Starting Skill Points</div>
+<div class="reg-section-label">Current SP</div>
+<p class="page-subhead" id="ac-sp-stat">&hellip;</p>
+<label class="field-label" for="ac-starting-sp">Total SP Budget</label>
 <input type="number" id="ac-starting-sp" min="0" style="max-width:140px;display:inline-block;">
 <button class="btn-gold" onclick="ac_saveStartingSp()">Save SP</button>
 <p class="reg-success-note" id="ac-sp-success" style="display:none;"></p>
@@ -259,6 +261,9 @@ async function loadSkills(){
     .select('id, category, skill_name, focus, level, sp_cost')
     .eq('character_id', selected.id);
 
+  const spent = (data || []).reduce((sum, s) => sum + s.sp_cost, 0);
+  document.getElementById('ac-sp-stat').textContent = `${spent} / ${selected.starting_sp} SP used`;
+
   document.getElementById('ac-skills-body').innerHTML = (data && data.length) ? data.map(s => `
     <tr>
       <td>${escapeHtml(s.skill_name)}</td>
@@ -389,6 +394,9 @@ async function ac_saveStartingSp(){
     p_character_id: selected.id, p_new_sp: newSp
   });
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  selected.starting_sp = newSp;
+  await loadSkills();
 
   successEl.textContent = 'Saved.';
   successEl.style.display = 'block';
