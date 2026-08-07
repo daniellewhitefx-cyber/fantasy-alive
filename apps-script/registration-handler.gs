@@ -117,10 +117,10 @@ function appendToKitchen(ss, body) {
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) {
     sheet = ss.insertSheet(sheetName);
-    sheet.appendRow(['Name'].concat(MEAL_SLOT_COLUMNS).concat(['Allergies']));
+    sheet.appendRow(['Name', 'Player Name'].concat(MEAL_SLOT_COLUMNS).concat(['Allergies']));
     sheet.setFrozenRows(1);
   }
-  var row = [body.characterName || body.playerName || ''];
+  var row = [body.characterName || body.playerName || '', body.playerName || ''];
   MEAL_SLOT_COLUMNS.forEach(function (slot) {
     row.push(mealSlots[slot] ? '☐' : '');
   });

@@ -38,9 +38,19 @@
 
 <div id="ac-detail" style="display:none;">
 
+<p class="page-subhead" id="ac-owner-line"></p>
+
+<div class="bank-tabs" role="tablist">
+<button class="bank-tab active" data-tab="details" onclick="ac_switchTab('details')">Details</button>
+<button class="bank-tab" data-tab="skills" onclick="ac_switchTab('skills')">Skills</button>
+<button class="bank-tab" data-tab="xp" onclick="ac_switchTab('xp')">XP</button>
+<button class="bank-tab" data-tab="oc" onclick="ac_switchTab('oc')">OC</button>
+</div>
+
+<div class="bank-tab-panel" data-panel="details">
+
 <div class="reg-section">
 <div class="reg-section-label">Character Details</div>
-<p class="page-subhead" id="ac-owner-line"></p>
 <div class="account-form-grid">
 <div>
 <label class="field-label" for="ac-name">Character Name</label>
@@ -86,6 +96,10 @@
 <p class="reg-error-note" id="ac-sp-error" style="display:none;"></p>
 </div>
 
+</div>
+
+<div class="bank-tab-panel" data-panel="skills" style="display:none;">
+
 <div class="reg-section">
 <div class="reg-section-label">Current Skills</div>
 <table class="data-table">
@@ -105,6 +119,10 @@
 </table>
 </div>
 </div>
+
+</div>
+
+<div class="bank-tab-panel" data-panel="xp" style="display:none;">
 
 <div class="reg-section">
 <div class="reg-section-label">Experience Points (this character)</div>
@@ -127,6 +145,10 @@
 <div id="ac-xp-history" style="margin-top:1rem;"></div>
 </div>
 
+</div>
+
+<div class="bank-tab-panel" data-panel="oc" style="display:none;">
+
 <div class="reg-section">
 <div class="reg-section-label">Ogre Chips (this player's whole account)</div>
 <p class="page-subhead">OC belongs to the player, not a single character.</p>
@@ -147,6 +169,8 @@
 <button class="btn-gold" onclick="ac_adjustOc()">Apply OC Change</button>
 <p class="reg-error-note" id="ac-oc-error" style="display:none;"></p>
 <div id="ac-oc-history" style="margin-top:1rem;"></div>
+</div>
+
 </div>
 
 </div>
@@ -208,6 +232,15 @@ function fmtDate(iso){
   return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+function ac_switchTab(tab){
+  document.querySelectorAll('#ac-detail .bank-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  document.querySelectorAll('#ac-detail .bank-tab-panel').forEach(panel => {
+    panel.style.display = panel.dataset.panel === tab ? 'block' : 'none';
+  });
+}
+
 function ac_search(query){
   const q = query.trim().toLowerCase();
   const results = document.getElementById('ac-results');
@@ -243,6 +276,7 @@ async function ac_selectCharacter(charId){
   selected = char;
 
   document.getElementById('ac-detail').style.display = 'block';
+  ac_switchTab('details');
   document.getElementById('ac-owner-line').textContent = `Played by ${nameFor(char.player_id)}`;
   document.getElementById('ac-name').value = char.name;
   document.getElementById('ac-race').value = char.race;
@@ -518,6 +552,7 @@ async function ac_addSkill(idx){
 }
 
 window.ac_search = ac_search;
+window.ac_switchTab = ac_switchTab;
 window.ac_selectCharacter = ac_selectCharacter;
 window.ac_removeSkill = ac_removeSkill;
 window.ac_saveDetails = ac_saveDetails;
