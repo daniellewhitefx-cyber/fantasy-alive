@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Character - Fantasy Alive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Edit Character</h1>
+<p class="page-subhead">You're reworking this character as part of an approved remort. Race can't be changed here &mdash; changing race means starting a different character. Make your changes, then confirm when you're happy.</p>
+
+<div class="reg-already-registered" id="ce-blocked-notice" style="display:none;">
+<h3>This character isn't open for editing</h3>
+<p id="ce-blocked-reason"></p>
+<p><a href="characters.html">Back to your Characters</a></p>
+</div>
+
+<div id="ce-form-wrap" style="display:none;">
+
+<div class="reg-section">
+<div class="reg-section-label">Character Details</div>
+<div class="account-form-grid">
+<div>
+<label class="field-label" for="ce-name">Character Name</label>
+<input type="text" id="ce-name">
+</div>
+<div>
+<label class="field-label">Race</label>
+<input type="text" id="ce-race-display" disabled>
+</div>
+<div>
+<label class="field-label" for="ce-pronouns">Pronouns</label>
+<input type="text" id="ce-pronouns" placeholder="e.g. she/her, he/him, they/them">
+</div>
+<div>
+<label class="field-label" for="ce-birthday">Birthday</label>
+<input type="date" id="ce-birthday">
+</div>
+</div>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Choose Skills</div>
+<p class="page-subhead" id="ce-budget-line"></p>
+
+<div id="ce-skills-loading" class="page-subhead">Loading the skill list from the spreadsheet&hellip;</div>
+<div id="ce-skills-error" class="reg-error-note" style="display:none;">Couldn't load the skill list. Refresh to try again.</div>
+
+<div id="ce-skills-area" style="display:none;">
+<div class="day-toggle" id="ce-cat-tabs"></div>
+<div class="skill-table-wrap-cc">
+<table class="data-table">
+<thead><tr><th>Skill</th><th>Cost</th><th>Prerequisite</th><th>Focus / Level</th><th></th></tr></thead>
+<tbody id="ce-browser-body"></tbody>
+</table>
+</div>
+
+<h3 style="margin:1.6rem 0 0.8rem;">Chosen Skills</h3>
+<table class="data-table">
+<thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th><th></th></tr></thead>
+<tbody id="ce-chosen-body"></tbody>
+</table>
+<p class="page-subhead" id="ce-chosen-empty" style="margin-top:0.8rem;">No skills chosen yet.</p>
+</div>
+</div>
+
+<button class="btn-outline" onclick="ce_save()">Save Changes</button>
+<button class="btn-gold" onclick="ce_confirm()">Confirm & Finish Remort</button>
+<p class="reg-success-note" id="ce-success" style="display:none;"></p>
+<p class="reg-error-note" id="ce-error" style="display:none;"></p>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/members-auth.js"></script>
+<script src="js/skills-data.js"></script>
+<script>
+(function(){
+let allSkills = [];
+let activeCategory = 'Combat Skill';
+let chosen = [];
+let browseState = {};
+let character = null;
+let charId = null;
+
+function skillNameParts(title){
+  const m = title.match(/^(.*?)\s*[\[\(]([^\]\)]+)[\]\)]\s*$/);
+  if(m) return { base: m[1].trim(), placeholder: m[2].trim() };
+  return { base: title.trim(), placeholder: null };
+}
+
+function skillKey(s){ return s.category + '::' + s.title; }
+
+function isLeveledCost(costStr){ return /\+lvl|[x×*]\s*lvl|\/\s*pt\.?/i.test(costStr); }
+
+function startingSP(){ return character ? character.starting_sp : 0; }
+function spentSP(){ return chosen.reduce((sum, s) => sum + s.cost, 0); }
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateBudgetLine(){
+  document.getElementById('ce-budget-line').textContent =
+    `Skill Points: ${spentSP()} / ${startingSP()} used. Remorting doesn't change this character's SP budget, just how it's spent.`;
+}
+
+function ce_selectCategory(cat){
+  activeCategory = cat;
+  renderTabs();
+  renderBrowser();
+}
+
+function rowState(idx){
+  const s = allSkills[idx];
+  const key = skillKey(s);
+  browseState[key] = browseState[key] || { level: 1, focus: '' };
+  return { s, key, state: browseState[key] };
+}
+
+function updateRowLive(idx){
+  const { s, state } = rowState(idx);
+  const parts = skillNameParts(s.title);
+  const remaining = startingSP() - spentSP();
+  const cost = skillsParseCost(s.cost, state.level);
+  const canAdd = cost !== null && cost <= remaining && !(parts.placeholder && !state.focus.trim());
+
+  const costEl = document.getElementById('ce-cost-' + idx);
+  if(costEl) costEl.textContent = cost === null ? s.cost : cost + ' SP';
+
+  const btn = document.getElementById('ce-add-' + idx);
+  if(btn) btn.disabled = !canAdd;
+}
+
+function ce_updateFocus(idx, val){
+  const { state } = rowState(idx);
+  state.focus = val;
+  updateRowLive(idx);
+}
+
+function ce_updateLevel(idx, val){
+  const { state } = rowState(idx);
+  state.level = Math.max(1, parseInt(val, 10) || 1);
+  updateRowLive(idx);
+}
+
+function ce_addSkill(idx){
+  const { s, key, state } = rowState(idx);
+  const parts = skillNameParts(s.title);
+  const cost = skillsParseCost(s.cost, state.level);
+  if(cost === null) return;
+  if(parts.placeholder && !state.focus.trim()) return;
+  if(spentSP() + cost > startingSP()) return;
+
+  chosen.push({
+    category: s.category,
+    title: parts.base,
+    focus: parts.placeholder ? state.focus.trim() : '',
+    level: isLeveledCost(s.cost) ? state.level : 1,
+    cost: cost
+  });
+
+  browseState[key] = { level: 1, focus: '' };
+
+  renderChosen();
+  renderBrowser();
+  updateBudgetLine();
+}
+
+function ce_removeSkill(i){
+  chosen.splice(i, 1);
+  renderChosen();
+  renderBrowser();
+  updateBudgetLine();
+}
+
+function renderTabs(){
+  const categories = skillsOrderedCategories(allSkills);
+  document.getElementById('ce-cat-tabs').innerHTML = categories.map(cat =>
+    `<button class="${cat === activeCategory ? 'active' : ''}" onclick="ce_selectCategory('${cat.replace(/'/g, "\\'")}')">${escapeHtml(cat)}</button>`
+  ).join('');
+}
+
+function renderBrowser(){
+  const remaining = startingSP() - spentSP();
+
+  const rows = allSkills
+    .map((s, idx) => ({ s, idx }))
+    .filter(({ s }) => s.category === activeCategory);
+
+  document.getElementById('ce-browser-body').innerHTML = rows.map(({ s, idx }) => {
+    const parts = skillNameParts(s.title);
+    const key = skillKey(s);
+    const state = browseState[key] || { level: 1, focus: '' };
+    const isLeveled = isLeveledCost(s.cost);
+    const cost = skillsParseCost(s.cost, state.level);
+
+    let focusCell = '&mdash;';
+    if(parts.placeholder && isLeveled){
+      focusCell = `<input type="text" placeholder="${escapeHtml(parts.placeholder)}" value="${escapeHtml(state.focus)}" oninput="ce_updateFocus(${idx}, this.value)" style="max-width:140px;display:inline-block;margin-right:0.5rem;">`
+        + `<input type="number" min="1" value="${state.level}" oninput="ce_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+    } else if(parts.placeholder){
+      focusCell = `<input type="text" placeholder="${escapeHtml(parts.placeholder)}" value="${escapeHtml(state.focus)}" oninput="ce_updateFocus(${idx}, this.value)" style="max-width:180px;">`;
+    } else if(isLeveled){
+      focusCell = `Level <input type="number" min="1" value="${state.level}" oninput="ce_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+    }
+
+    const canAdd = cost !== null && cost <= remaining && !(parts.placeholder && !state.focus.trim());
+    const costLabel = cost === null ? s.cost : cost + ' SP';
+
+    return `
+      <tr>
+        <td>${escapeHtml(parts.base)}</td>
+        <td id="ce-cost-${idx}">${escapeHtml(costLabel)}</td>
+        <td class="col-prereq">${escapeHtml(s.prereq)}</td>
+        <td>${focusCell}</td>
+        <td><button class="btn-outline" id="ce-add-${idx}" ${canAdd ? '' : 'disabled'} onclick="ce_addSkill(${idx})">+ Add</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderChosen(){
+  const body = document.getElementById('ce-chosen-body');
+  const empty = document.getElementById('ce-chosen-empty');
+  if(chosen.length === 0){
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  body.innerHTML = chosen.map((s, i) => `
+    <tr>
+      <td>${escapeHtml(s.title)}</td>
+      <td>${escapeHtml(s.category)}</td>
+      <td>${escapeHtml(s.focus)}</td>
+      <td>${s.level}</td>
+      <td>${s.cost}</td>
+      <td><button class="btn-outline" onclick="ce_removeSkill(${i})" title="Remove">&times;</button></td>
+    </tr>
+  `).join('');
+}
+
+async function ce_save(){
+  const successEl = document.getElementById('ce-success');
+  const errorEl = document.getElementById('ce-error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  const name = document.getElementById('ce-name').value.trim();
+  const pronouns = document.getElementById('ce-pronouns').value.trim();
+  const birthday = document.getElementById('ce-birthday').value || null;
+
+  if(!name){ errorEl.textContent = 'Character name cannot be empty.'; errorEl.style.display = 'block'; return; }
+  if(spentSP() > startingSP()){ errorEl.textContent = 'Chosen skills exceed this character\'s Skill Points.'; errorEl.style.display = 'block'; return; }
+
+  const p_skills = chosen.map(s => ({
+    category: s.category,
+    skill_name: s.title,
+    focus: s.focus || null,
+    level: s.level,
+    sp_cost: s.cost
+  }));
+
+  const { error } = await membersSupabase.rpc('character_update_remort', {
+    p_character_id: charId,
+    p_name: name,
+    p_pronouns: pronouns,
+    p_birthday: birthday,
+    p_skills
+  });
+
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  successEl.textContent = 'Changes saved. Keep editing, or confirm when you\'re happy.';
+  successEl.style.display = 'block';
+}
+
+async function ce_confirm(){
+  const successEl = document.getElementById('ce-success');
+  const errorEl = document.getElementById('ce-error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  await ce_save();
+  if(errorEl.style.display === 'block') return;
+
+  const { error } = await membersSupabase.rpc('character_confirm_remort', { p_character_id: charId });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  successEl.textContent = 'Remort complete! Taking you back to your Characters page&hellip;';
+  successEl.style.display = 'block';
+  setTimeout(() => { window.location.href = 'characters.html'; }, 1200);
+}
+
+async function init(){
+  const params = new URLSearchParams(window.location.search);
+  charId = params.get('id');
+  const blocked = (reason) => {
+    document.getElementById('ce-blocked-reason').textContent = reason;
+    document.getElementById('ce-blocked-notice').style.display = 'block';
+  };
+
+  if(!charId){ blocked('No character was specified.'); return; }
+
+  const { data: char } = await membersSupabase
+    .from('characters')
+    .select('id, name, race, pronouns, birthday, starting_sp')
+    .eq('id', charId)
+    .maybeSingle();
+
+  if(!char){ blocked('This character could not be found.'); return; }
+
+  const { data: remort } = await membersSupabase
+    .from('character_remort_requests')
+    .select('status')
+    .eq('character_id', charId)
+    .eq('status', 'approved')
+    .maybeSingle();
+
+  if(!remort){ blocked('This character does not have an approved remort in progress. Request a remort from your Characters page first.'); return; }
+
+  character = char;
+  document.getElementById('ce-form-wrap').style.display = 'block';
+  document.getElementById('ce-name').value = char.name;
+  document.getElementById('ce-race-display').value = char.race;
+  document.getElementById('ce-pronouns').value = char.pronouns || '';
+  document.getElementById('ce-birthday').value = char.birthday || '';
+  updateBudgetLine();
+
+  const { data: skillRows } = await membersSupabase
+    .from('character_skills')
+    .select('category, skill_name, focus, level, sp_cost')
+    .eq('character_id', charId);
+
+  chosen = (skillRows || []).map(sk => ({
+    category: sk.category,
+    title: sk.skill_name,
+    focus: sk.focus || '',
+    level: sk.level,
+    cost: sk.sp_cost
+  }));
+  updateBudgetLine();
+
+  try{
+    allSkills = await skillsLoadFromSheet();
+    document.getElementById('ce-skills-loading').style.display = 'none';
+    document.getElementById('ce-skills-area').style.display = 'block';
+    const categories = skillsOrderedCategories(allSkills);
+    if(categories.length) activeCategory = categories[0];
+    renderTabs();
+    renderBrowser();
+    renderChosen();
+  } catch(err){
+    document.getElementById('ce-skills-loading').style.display = 'none';
+    document.getElementById('ce-skills-error').style.display = 'block';
+  }
+}
+
+window.ce_selectCategory = ce_selectCategory;
+window.ce_updateFocus = ce_updateFocus;
+window.ce_updateLevel = ce_updateLevel;
+window.ce_addSkill = ce_addSkill;
+window.ce_removeSkill = ce_removeSkill;
+window.ce_save = ce_save;
+window.ce_confirm = ce_confirm;
+
+document.addEventListener('fa-members-ready', init);
+})();
+</script>
+
+</body>
+</html>

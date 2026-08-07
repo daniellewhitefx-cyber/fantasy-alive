@@ -105,6 +105,8 @@ body.members-ready .dashboard{ visibility:visible; }
 .data-table tbody tr:nth-child(odd){ background: var(--row-b); }
 .data-table tbody tr:nth-child(even){ background: var(--row-a); }
 
+.skill-table-wrap-cc{ width:100%; overflow-x:auto; }
+
 .card-grid{
   display:grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -129,7 +131,7 @@ body.members-ready .dashboard{ visibility:visible; }
   display:block;
   margin-bottom: 0.4rem;
 }
-select, input[type="text"], input[type="number"], input[type="password"], textarea{
+select, input[type="text"], input[type="number"], input[type="password"], input[type="date"], textarea{
   font-family: 'EB Garamond', serif;
   font-size: 1rem;
   padding: 0.6rem 0.8rem;
