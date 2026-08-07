@@ -425,6 +425,7 @@ async function msg_openConversation(key){
     await Promise.all(unreadIds.map(id => membersSupabase.rpc('message_mark_read', { p_message_id: id })));
     await loadMessages(key);
     renderFolderRail();
+    if(typeof refreshMessagesBadge === 'function') refreshMessagesBadge();
   }
 }
 

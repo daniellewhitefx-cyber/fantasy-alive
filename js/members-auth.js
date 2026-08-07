@@ -51,6 +51,22 @@ async function refreshNotifBadge(){
   }
 }
 
+async function refreshMessagesBadge(){
+  const badge = document.getElementById('member-messages-badge');
+  if(!badge) return;
+  try{
+    const { data } = await membersSupabase.rpc('message_unread_count');
+    const count = data || 0;
+    if(count > 0){
+      badge.textContent = count;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(err){
+  }
+}
+
 async function initMembersPage(){
   const { data } = await membersSupabase.auth.getSession();
   if(!data.session){
@@ -74,6 +90,7 @@ async function initMembersPage(){
   document.body.classList.add('members-ready');
   document.dispatchEvent(new CustomEvent('fa-members-ready', { detail: { user } }));
   refreshNotifBadge();
+  refreshMessagesBadge();
 }
 
 window.membersSignOut = membersSignOut;
