@@ -16,10 +16,13 @@ function doPost(e) {
 function doGet(e) {
   var params = e.parameter;
 
-  if (params.action !== 'check') {
-    return jsonOutput({ error: 'Unknown action' });
-  }
+  if (params.action === 'check') return handleCheck(params);
+  if (params.action === 'count') return handleCount(params);
 
+  return jsonOutput({ error: 'Unknown action' });
+}
+
+function handleCheck(params) {
   var ss = SpreadsheetApp.openById(SHEET_ID);
   var sheet = ss.getSheetByName(params.event + ' - Roster');
   if (!sheet) {
@@ -56,6 +59,19 @@ function doGet(e) {
   return jsonOutput({ registered: false });
 }
 
+// How many players have registered for a given event date so far.
+// Expected query params: ?action=count&event=<event label>
+function handleCount(params) {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName(params.event + ' - Roster');
+  if (!sheet) {
+    return jsonOutput({ count: 0 });
+  }
+
+  var lastRow = sheet.getLastRow();
+  return jsonOutput({ count: Math.max(0, lastRow - 1) });
+}
+
 function jsonOutput(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
@@ -70,7 +86,8 @@ function appendToRoster(ss, body) {
     sheet.appendRow([
       'Timestamp', 'Player Email', 'Player Name', 'Character / Cast',
       'Pass', 'Price', 'Combat Status', 'Days Attending',
-      'Meal Plan', 'Meal Price', 'Single Meal Choice', 'Total'
+      'Meal Plan', 'Meal Price', 'Single Meal Choice', 'Total',
+      'Disability Notes'
     ]);
     sheet.setFrozenRows(1);
   }
@@ -86,7 +103,8 @@ function appendToRoster(ss, body) {
     body.mealName || 'None',
     body.mealPrice || 0,
     body.singleMealChoice || '',
-    body.total || 0
+    body.total || 0,
+    body.disabilityNotes || ''
   ]);
 }
 
@@ -99,12 +117,13 @@ function appendToKitchen(ss, body) {
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) {
     sheet = ss.insertSheet(sheetName);
-    sheet.appendRow(['Name'].concat(MEAL_SLOT_COLUMNS));
+    sheet.appendRow(['Name'].concat(MEAL_SLOT_COLUMNS).concat(['Allergies']));
     sheet.setFrozenRows(1);
   }
   var row = [body.characterName || body.playerName || ''];
   MEAL_SLOT_COLUMNS.forEach(function (slot) {
     row.push(mealSlots[slot] ? '☐' : '');
   });
+  row.push(body.allergyNotes || '');
   sheet.appendRow(row);
 }

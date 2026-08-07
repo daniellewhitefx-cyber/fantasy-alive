@@ -26,6 +26,7 @@
 <div class="reg-section">
 <div class="reg-section-label">Event Date</div>
 <select class="reg-date-select" id="reg-date-select" onchange="reg_selectEvent(this.value)"></select>
+<p class="page-subhead" id="reg-registered-count" style="margin-top:0.6rem;"></p>
 </div>
 
 <div class="reg-section">
@@ -145,7 +146,21 @@ function reg_selectEvent(value){
   selectedDays = new Set(state.event.days.map(d => d.id));
   existingRegistration = null;
   render();
+  refreshRegisteredCount();
   if(state.who) checkExistingRegistration();
+}
+
+async function refreshRegisteredCount(){
+  const el = document.getElementById('reg-registered-count');
+  if(!REGISTRATION_ENDPOINT || !el) return;
+  try{
+    const res = await fetch(REGISTRATION_ENDPOINT + '?action=count&event=' + encodeURIComponent(state.event.label), { cache: 'no-store' });
+    if(!res.ok) throw new Error('count failed');
+    const data = await res.json();
+    el.textContent = `${data.count} player${data.count === 1 ? '' : 's'} registered so far.`;
+  } catch(err){
+    el.textContent = '';
+  }
 }
 
 function reg_selectWho(mode, characterId){
@@ -456,6 +471,17 @@ async function reg_submit(){
 
   currentUser = await faGetCurrentUser();
 
+  let allergyNotes = '', disabilityNotes = '';
+  if(currentUser){
+    const { data: notes } = await membersSupabase
+      .from('member_private_notes')
+      .select('allergy_notes, disability_notes')
+      .eq('id', currentUser.id)
+      .maybeSingle();
+    allergyNotes = (notes && notes.allergy_notes) || '';
+    disabilityNotes = (notes && notes.disability_notes) || '';
+  }
+
   const payload = {
     eventValue: state.event.value,
     eventLabel: state.event.label,
@@ -474,7 +500,9 @@ async function reg_submit(){
     mealPrice: bundled ? 0 : (mealObj ? mealObj.price : 0),
     singleMealChoice: (mealObj && mealObj.id === 'single') ? (singleMealChoice || '') : '',
     mealSlots: mealSlotsFor(passObj, mealObj),
-    total: parseInt(sumEl.textContent.replace('$',''), 10) || 0
+    total: parseInt(sumEl.textContent.replace('$',''), 10) || 0,
+    allergyNotes: allergyNotes,
+    disabilityNotes: disabilityNotes
   };
 
   submitting = true;
@@ -525,6 +553,7 @@ async function loadCharacters(){
     .order('created_at', { ascending: true });
   CHARACTERS = data || [];
   render();
+  refreshRegisteredCount();
 }
 
 document.addEventListener('fa-members-ready', loadCharacters);

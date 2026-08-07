@@ -201,12 +201,16 @@ async function bank_searchRecipients(picker, query){
   const q = query.trim();
   if(!q){ results.innerHTML = ''; return; }
 
-  const { data, error } = await membersSupabase
+  let queryBuilder = membersSupabase
     .from('profiles')
     .select('id, display_name')
-    .ilike('display_name', `%${q}%`)
-    .neq('id', window.faCurrentUser ? window.faCurrentUser.id : '')
-    .limit(8);
+    .ilike('display_name', `%${q}%`);
+
+  if(picker !== 'deposit' && window.faCurrentUser){
+    queryBuilder = queryBuilder.neq('id', window.faCurrentUser.id);
+  }
+
+  const { data, error } = await queryBuilder.limit(8);
 
   if(error || !data || data.length === 0){
     results.innerHTML = '<div class="bank-recipient-empty">No matching players.</div>';
