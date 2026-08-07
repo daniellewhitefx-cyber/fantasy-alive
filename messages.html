@@ -23,42 +23,19 @@
 <h1 class="page-title">Messages</h1>
 <p class="page-subhead">Message another player directly, or reach a department like Plot or Logistics.</p>
 
-<div class="reg-section">
-<div class="reg-section-label">New Message</div>
-<div class="account-form-grid">
-<div>
-<label class="field-label" for="msg-compose-type">Send To</label>
-<select id="msg-compose-type" onchange="msg_composeTypeChange()">
-<option value="player">A Player</option>
-<option value="department">A Department</option>
-</select>
+<div class="msg-layout">
+
+<div class="msg-list-pane">
+<div class="msg-list-pane-header">
+<button class="btn-gold" style="width:100%;" onclick="msg_startCompose()">+ New Message</button>
 </div>
-<div id="msg-compose-target-wrap">
-<label class="field-label" for="msg-compose-player-search">Player</label>
-<input type="text" id="msg-compose-player-search" placeholder="Search player or character name..." autocomplete="off" oninput="msg_searchComposeRecipient(this.value)">
-<div class="bank-recipient-results" id="msg-compose-player-results"></div>
-<p class="bank-selected-recipient" id="msg-compose-selected" style="display:none;"></p>
-</div>
-</div>
-<label class="field-label" for="msg-compose-body">Message</label>
-<textarea id="msg-compose-body" placeholder="Write your message..."></textarea>
-<button class="btn-gold" style="margin-top:1rem;" onclick="msg_send()">Send</button>
-<p class="reg-success-note" id="msg-compose-success" style="display:none;"></p>
-<p class="reg-error-note" id="msg-compose-error" style="display:none;"></p>
+<div class="msg-list-items" id="msg-conversation-list"><p class="reg-empty-note" style="padding:1rem;">Loading&hellip;</p></div>
 </div>
 
-<div class="reg-section">
-<div class="reg-section-label">Conversations</div>
-<div id="msg-conversation-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+<div class="msg-reading-pane" id="msg-reading-pane">
+<p class="msg-reading-empty">Select a conversation, or start a new message.</p>
 </div>
 
-<div class="reg-section" id="msg-thread-wrap" style="display:none;">
-<div class="reg-section-label" id="msg-thread-title"></div>
-<div id="msg-thread-body"></div>
-<label class="field-label" for="msg-reply-body" style="margin-top:1rem;">Reply</label>
-<textarea id="msg-reply-body" placeholder="Write a reply..."></textarea>
-<button class="btn-gold" style="margin-top:1rem;" onclick="msg_reply()">Reply</button>
-<p class="reg-error-note" id="msg-reply-error" style="display:none;"></p>
 </div>
 
 </div>
@@ -87,6 +64,32 @@ function fmtDateTime(iso){
 
 function nameFor(playerId){ return profileMap[playerId] || 'Unknown player'; }
 function deptName(id){ const d = departments.find(x => x.id === id); return d ? d.name : 'Unknown department'; }
+
+function msg_startCompose(){
+  activeConversationKey = null;
+  composeTarget = null;
+  renderConversationList();
+
+  document.getElementById('msg-reading-pane').innerHTML = `
+    <div class="msg-thread-title">New Message</div>
+    <label class="field-label" for="msg-compose-type">Send To</label>
+    <select id="msg-compose-type" onchange="msg_composeTypeChange()" style="margin-bottom:1rem;">
+      <option value="player">A Player</option>
+      <option value="department">A Department</option>
+    </select>
+    <div id="msg-compose-target-wrap">
+      <label class="field-label" for="msg-compose-player-search">Player</label>
+      <input type="text" id="msg-compose-player-search" placeholder="Search player or character name..." autocomplete="off" oninput="msg_searchComposeRecipient(this.value)">
+      <div class="bank-recipient-results" id="msg-compose-player-results"></div>
+      <p class="bank-selected-recipient" id="msg-compose-selected" style="display:none;"></p>
+    </div>
+    <label class="field-label" for="msg-compose-body" style="margin-top:1rem;">Message</label>
+    <textarea id="msg-compose-body" placeholder="Write your message..."></textarea>
+    <button class="btn-gold" style="margin-top:1rem;" onclick="msg_send()">Send</button>
+    <p class="reg-success-note" id="msg-compose-success" style="display:none;"></p>
+    <p class="reg-error-note" id="msg-compose-error" style="display:none;"></p>
+  `;
+}
 
 function msg_composeTypeChange(){
   const type = document.getElementById('msg-compose-type').value;
@@ -170,10 +173,11 @@ async function msg_send(){
   });
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
 
-  document.getElementById('msg-compose-body').value = '';
   successEl.textContent = 'Sent.';
   successEl.style.display = 'block';
-  await loadMessages();
+
+  const key = composeTarget.type === 'department' ? 'dept:' + composeTarget.id : 'player:' + composeTarget.id;
+  await loadMessages(key);
 }
 
 function buildConversations(){
@@ -197,6 +201,7 @@ function buildConversations(){
   conversations = Object.values(byKey).map(c => {
     c.messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     c.lastAt = c.messages[c.messages.length - 1].created_at;
+    c.lastBody = c.messages[c.messages.length - 1].body;
     c.unreadCount = c.messages.filter(m => m.sender_id !== me && !m.readByMe).length;
     return c;
   }).sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt));
@@ -205,17 +210,17 @@ function buildConversations(){
 function renderConversationList(){
   const target = document.getElementById('msg-conversation-list');
   if(conversations.length === 0){
-    target.innerHTML = '<p class="reg-empty-note">No conversations yet.</p>';
+    target.innerHTML = '<p class="reg-empty-note" style="padding:1rem;">No conversations yet.</p>';
     return;
   }
   target.innerHTML = conversations.map(c => `
-    <div class="bank-bill-card">
-      <div><strong>${escapeHtml(c.label)}</strong>${c.unreadCount ? ` <span class="chars-registered-badge" style="padding:0.2rem 0.6rem; font-size:0.8rem;">${c.unreadCount} new</span>` : ''}
-      <span class="bank-request-date">(${fmtDateTime(c.lastAt)})</span></div>
-      <div class="bank-bill-actions">
-        <button class="btn-outline" onclick="msg_openConversation('${c.key}')">Open</button>
+    <button class="msg-list-item ${c.unreadCount ? 'unread' : ''} ${c.key === activeConversationKey ? 'active' : ''}" onclick="msg_openConversation('${c.key}')">
+      <div class="msg-list-item-top">
+        <span class="msg-list-name">${c.unreadCount ? '<span class="msg-list-dot"></span>' : ''}${escapeHtml(c.label)}</span>
+        <span class="msg-list-date">${fmtDateTime(c.lastAt)}</span>
       </div>
-    </div>
+      <div class="msg-list-snippet">${escapeHtml(c.lastBody)}</div>
+    </button>
   `).join('');
 }
 
@@ -224,17 +229,24 @@ async function msg_openConversation(key){
   const convo = conversations.find(c => c.key === key);
   if(!convo) return;
 
-  document.getElementById('msg-thread-wrap').style.display = 'block';
-  document.getElementById('msg-thread-title').textContent = convo.label;
+  renderConversationList();
 
   const me = window.faCurrentUser.id;
-  document.getElementById('msg-thread-body').innerHTML = convo.messages.map(m => `
-    <div class="bank-bill-card">
-      <div><strong>${escapeHtml(m.sender_id === me ? 'You' : nameFor(m.sender_id))}</strong>
-      <span class="bank-request-date">(${fmtDateTime(m.created_at)})</span></div>
-      <div>${escapeHtml(m.body)}</div>
+  document.getElementById('msg-reading-pane').innerHTML = `
+    <div class="msg-thread-title">${escapeHtml(convo.label)}</div>
+    <div id="msg-thread-body">
+      ${convo.messages.map(m => `
+        <div class="msg-bubble ${m.sender_id === me ? 'mine' : ''}">
+          <div class="msg-bubble-meta">${escapeHtml(m.sender_id === me ? 'You' : nameFor(m.sender_id))} &middot; ${fmtDateTime(m.created_at)}</div>
+          <div>${escapeHtml(m.body)}</div>
+        </div>
+      `).join('')}
     </div>
-  `).join('');
+    <label class="field-label" for="msg-reply-body" style="margin-top:0.6rem;">Reply</label>
+    <textarea id="msg-reply-body" placeholder="Write a reply..."></textarea>
+    <button class="btn-gold" style="margin-top:1rem;" onclick="msg_reply()">Reply</button>
+    <p class="reg-error-note" id="msg-reply-error" style="display:none;"></p>
+  `;
 
   const unreadIds = convo.messages.filter(m => m.sender_id !== me && !m.readByMe).map(m => m.id);
   if(unreadIds.length){
@@ -253,7 +265,7 @@ async function msg_reply(){
   if(!body){ errorEl.textContent = 'Reply cannot be empty.'; errorEl.style.display = 'block'; return; }
 
   const isDept = convo.key.startsWith('dept:');
-  const targetId = convo.key.split(':')[1];
+  const targetId = convo.key.slice(convo.key.indexOf(':') + 1);
 
   const { error } = await membersSupabase.rpc('message_send', {
     p_recipient_player_id: isDept ? null : targetId,
@@ -262,7 +274,6 @@ async function msg_reply(){
   });
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
 
-  document.getElementById('msg-reply-body').value = '';
   await loadMessages(activeConversationKey);
 }
 
@@ -283,9 +294,12 @@ async function loadMessages(reopenKey){
   allMessages = (msgs || []).map(m => ({ ...m, readByMe: readSet.has(m.id) }));
 
   buildConversations();
-  renderConversationList();
 
-  if(reopenKey) await msg_openConversation(reopenKey);
+  if(reopenKey && conversations.some(c => c.key === reopenKey)){
+    await msg_openConversation(reopenKey);
+  } else {
+    renderConversationList();
+  }
 }
 
 async function init(){
@@ -299,6 +313,7 @@ async function init(){
   await loadMessages();
 }
 
+window.msg_startCompose = msg_startCompose;
 window.msg_composeTypeChange = msg_composeTypeChange;
 window.msg_pickDepartment = msg_pickDepartment;
 window.msg_searchComposeRecipient = msg_searchComposeRecipient;

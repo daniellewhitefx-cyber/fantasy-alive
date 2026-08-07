@@ -292,6 +292,129 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
   border-radius: 10px;
 }
 
+.msg-layout{
+  display:flex;
+  gap: 1.2rem;
+  align-items:flex-start;
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+  overflow:hidden;
+  background: #fff;
+}
+.msg-list-pane{
+  width: 320px;
+  flex-shrink:0;
+  border-right: 2px solid var(--gold);
+  max-height: 640px;
+  display:flex;
+  flex-direction:column;
+}
+.msg-list-pane-header{
+  padding: 0.8rem;
+  border-bottom: 2px solid var(--gold);
+}
+.msg-list-items{
+  overflow-y:auto;
+}
+.msg-list-item{
+  display:block;
+  width:100%;
+  text-align:left;
+  background: #fff;
+  border:none;
+  border-bottom: 1px solid var(--line);
+  padding: 0.7rem 0.9rem;
+  cursor:pointer;
+  font-family: 'EB Garamond', serif;
+}
+.msg-list-item:hover{ background: var(--cream-deep); }
+.msg-list-item.active{ background: var(--gold); }
+.msg-list-item-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap: 0.5rem;
+}
+.msg-list-name{
+  font-family:'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--brown-dark);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.msg-list-item.unread .msg-list-name{ font-weight: 800; color: var(--ink); }
+.msg-list-date{
+  font-size: 0.72rem;
+  color: var(--brown-dark);
+  flex-shrink:0;
+}
+.msg-list-snippet{
+  font-size: 0.85rem;
+  color: var(--brown-dark);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  margin-top: 0.15rem;
+}
+.msg-list-item.unread .msg-list-snippet{ color: var(--ink); }
+.msg-list-dot{
+  display:inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold-dark);
+  margin-right: 0.4rem;
+  flex-shrink:0;
+}
+
+.msg-reading-pane{
+  flex:1;
+  min-width:0;
+  padding: 1rem 1.4rem 1.4rem;
+  max-height: 640px;
+  overflow-y:auto;
+}
+.msg-reading-empty{
+  font-family:'EB Garamond', serif;
+  font-style: italic;
+  color: var(--brown-dark);
+  padding: 2rem 0;
+  text-align:center;
+}
+.msg-thread-title{
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  font-size: 1.15rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 2px solid var(--gold);
+}
+.msg-bubble{
+  margin-bottom: 0.8rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  border-left: 4px solid var(--line);
+  background: var(--cream-deep);
+  font-family: 'EB Garamond', serif;
+}
+.msg-bubble.mine{
+  border-left-color: var(--gold);
+}
+.msg-bubble-meta{
+  font-family:'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight:700;
+  color: var(--brown-dark);
+  margin-bottom: 0.25rem;
+}
+
+@media (max-width: 900px){
+  .msg-layout{ flex-direction:column; }
+  .msg-list-pane{ width:100%; border-right:none; border-bottom: 2px solid var(--gold); max-height:280px; }
+  .msg-reading-pane{ max-height:none; }
+}
+
 .data-table td.teach-cell{ text-align:center; }
 .data-table input[type="checkbox"]{
   width: 20px; height:20px;
