@@ -25,6 +25,8 @@
 
 <div class="msg-layout">
 
+<div class="msg-folder-rail" id="msg-folder-rail"></div>
+
 <div class="msg-list-pane">
 <div class="msg-list-pane-header">
 <button class="btn-gold" style="width:100%;" onclick="msg_startCompose()">+ New Message</button>
@@ -51,7 +53,10 @@ let profileMap = {};
 let departments = [];
 let allMessages = [];
 let conversations = [];
+let folders = [];
+let folderAssignments = {};
 let activeConversationKey = null;
+let activeFolderId = null;
 let composeTarget = null;
 
 function escapeHtml(str){
@@ -83,6 +88,8 @@ function msg_startCompose(){
       <div class="bank-recipient-results" id="msg-compose-player-results"></div>
       <p class="bank-selected-recipient" id="msg-compose-selected" style="display:none;"></p>
     </div>
+    <label class="field-label" for="msg-compose-subject" style="margin-top:1rem;">Subject</label>
+    <input type="text" id="msg-compose-subject" placeholder="What's this about?" maxlength="120">
     <label class="field-label" for="msg-compose-body" style="margin-top:1rem;">Message</label>
     <textarea id="msg-compose-body" placeholder="Write your message..."></textarea>
     <button class="btn-gold" style="margin-top:1rem;" onclick="msg_send()">Send</button>
@@ -143,8 +150,11 @@ async function msg_searchComposeRecipient(query){
   }
 
   results.innerHTML = entries.map(([id, name]) => `
-    <button class="bank-recipient-result" onclick="msg_pickPlayer('${id}', '${name.replace(/'/g, "\\'")}')">${escapeHtml(name)}</button>
+    <button class="bank-recipient-result" data-id="${escapeHtml(id)}" data-name="${escapeHtml(name)}">${escapeHtml(name)}</button>
   `).join('');
+  results.querySelectorAll('.bank-recipient-result').forEach(btn => {
+    btn.addEventListener('click', () => msg_pickPlayer(btn.dataset.id, btn.dataset.name));
+  });
 }
 
 function msg_pickPlayer(id, name){
@@ -163,21 +173,24 @@ async function msg_send(){
   errorEl.style.display = 'none';
 
   const body = document.getElementById('msg-compose-body').value.trim();
+  const subject = document.getElementById('msg-compose-subject').value.trim();
   if(!body){ errorEl.textContent = 'Message cannot be empty.'; errorEl.style.display = 'block'; return; }
   if(!composeTarget){ errorEl.textContent = 'Choose who to send this to.'; errorEl.style.display = 'block'; return; }
 
-  const { error } = await membersSupabase.rpc('message_send', {
+  const { data: newId, error } = await membersSupabase.rpc('message_send', {
     p_recipient_player_id: composeTarget.type === 'player' ? composeTarget.id : null,
     p_recipient_department_id: composeTarget.type === 'department' ? composeTarget.id : null,
-    p_body: body
+    p_body: body,
+    p_subject: subject
   });
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
 
   successEl.textContent = 'Sent.';
   successEl.style.display = 'block';
 
-  const key = composeTarget.type === 'department' ? 'dept:' + composeTarget.id : 'player:' + composeTarget.id;
-  await loadMessages(key);
+  await loadMessages();
+  const sent = allMessages.find(m => m.id === newId);
+  if(sent) await msg_openConversation(sent.thread_key);
 }
 
 function buildConversations(){
@@ -185,16 +198,18 @@ function buildConversations(){
   const byKey = {};
 
   allMessages.forEach(m => {
-    let key, label;
+    const key = m.thread_key;
+    let label, isDept, otherId, deptId;
     if(m.recipient_department_id){
-      key = 'dept:' + m.recipient_department_id;
-      label = deptName(m.recipient_department_id);
+      isDept = true;
+      deptId = m.recipient_department_id;
+      label = deptName(deptId);
     } else {
-      const other = m.sender_id === me ? m.recipient_player_id : m.sender_id;
-      key = 'player:' + other;
-      label = nameFor(other);
+      isDept = false;
+      otherId = m.sender_id === me ? m.recipient_player_id : m.sender_id;
+      label = nameFor(otherId);
     }
-    if(!byKey[key]) byKey[key] = { key, label, messages: [] };
+    if(!byKey[key]) byKey[key] = { key, label, subject: m.subject, isDept, otherId, deptId, messages: [] };
     byKey[key].messages.push(m);
   });
 
@@ -203,25 +218,132 @@ function buildConversations(){
     c.lastAt = c.messages[c.messages.length - 1].created_at;
     c.lastBody = c.messages[c.messages.length - 1].body;
     c.unreadCount = c.messages.filter(m => m.sender_id !== me && !m.readByMe).length;
+    c.folderId = folderAssignments[c.key] || null;
     return c;
   }).sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt));
 }
 
 function renderConversationList(){
   const target = document.getElementById('msg-conversation-list');
-  if(conversations.length === 0){
-    target.innerHTML = '<p class="reg-empty-note" style="padding:1rem;">No conversations yet.</p>';
+  const visible = activeFolderId === null ? conversations : conversations.filter(c => c.folderId === activeFolderId);
+  if(visible.length === 0){
+    target.innerHTML = '<p class="reg-empty-note" style="padding:1rem;">No conversations here.</p>';
     return;
   }
-  target.innerHTML = conversations.map(c => `
-    <button class="msg-list-item ${c.unreadCount ? 'unread' : ''} ${c.key === activeConversationKey ? 'active' : ''}" onclick="msg_openConversation('${c.key}')">
+  target.innerHTML = visible.map(c => `
+    <button class="msg-list-item ${c.unreadCount ? 'unread' : ''} ${c.key === activeConversationKey ? 'active' : ''}" data-key="${escapeHtml(c.key)}">
       <div class="msg-list-item-top">
         <span class="msg-list-name">${c.unreadCount ? '<span class="msg-list-dot"></span>' : ''}${escapeHtml(c.label)}</span>
         <span class="msg-list-date">${fmtDateTime(c.lastAt)}</span>
       </div>
+      <div class="msg-list-subject">${escapeHtml(c.subject)}</div>
       <div class="msg-list-snippet">${escapeHtml(c.lastBody)}</div>
     </button>
   `).join('');
+  target.querySelectorAll('.msg-list-item').forEach(btn => {
+    btn.addEventListener('click', () => msg_openConversation(btn.dataset.key));
+  });
+}
+
+function renderFolderRail(){
+  const rail = document.getElementById('msg-folder-rail');
+  rail.innerHTML = `
+    <button class="msg-folder-item ${activeFolderId === null ? 'active' : ''}" data-folder="">All Messages</button>
+    ${folders.map(f => `
+      <div class="msg-folder-row">
+        <button class="msg-folder-item ${activeFolderId === f.id ? 'active' : ''}" data-folder="${escapeHtml(f.id)}">${escapeHtml(f.name)}</button>
+        <button class="msg-folder-action" data-rename="${escapeHtml(f.id)}" data-name="${escapeHtml(f.name)}" title="Rename folder">&#9998;</button>
+        <button class="msg-folder-action" data-delete="${escapeHtml(f.id)}" data-name="${escapeHtml(f.name)}" title="Delete folder">&times;</button>
+      </div>
+    `).join('')}
+    <div class="msg-folder-new">
+      <input type="text" id="msg-new-folder-name" placeholder="New folder name">
+      <button class="btn-gold" id="msg-new-folder-btn">Add</button>
+    </div>
+  `;
+  rail.querySelectorAll('.msg-folder-item[data-folder]').forEach(btn => {
+    btn.addEventListener('click', () => msg_selectFolder(btn.dataset.folder || null));
+  });
+  rail.querySelectorAll('[data-rename]').forEach(btn => {
+    btn.addEventListener('click', () => msg_renameFolder(btn.dataset.rename, btn.dataset.name));
+  });
+  rail.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.addEventListener('click', () => msg_deleteFolder(btn.dataset.delete, btn.dataset.name));
+  });
+  document.getElementById('msg-new-folder-btn').addEventListener('click', msg_createFolder);
+}
+
+function refreshThreadFolderSelect(){
+  const select = document.getElementById('msg-thread-folder-select');
+  if(!select || !activeConversationKey) return;
+  const convo = conversations.find(c => c.key === activeConversationKey);
+  if(!convo) return;
+  select.innerHTML = `
+    <option value="">No folder</option>
+    ${folders.map(f => `<option value="${escapeHtml(f.id)}" ${convo.folderId === f.id ? 'selected' : ''}>${escapeHtml(f.name)}</option>`).join('')}
+  `;
+}
+
+function msg_selectFolder(folderId){
+  activeFolderId = folderId;
+  renderFolderRail();
+  renderConversationList();
+}
+
+async function msg_createFolder(){
+  const input = document.getElementById('msg-new-folder-name');
+  const name = input.value.trim();
+  if(!name) return;
+
+  const { error } = await membersSupabase.rpc('message_folder_create', { p_name: name });
+  if(error){ alert(error.message); return; }
+
+  await loadFolders();
+  buildConversations();
+  renderFolderRail();
+  renderConversationList();
+  refreshThreadFolderSelect();
+}
+
+async function msg_renameFolder(folderId, oldName){
+  const name = prompt('Rename folder', oldName);
+  if(name === null) return;
+  const trimmed = name.trim();
+  if(!trimmed) return;
+
+  const { error } = await membersSupabase.rpc('message_folder_rename', { p_folder_id: folderId, p_name: trimmed });
+  if(error){ alert(error.message); return; }
+
+  await loadFolders();
+  renderFolderRail();
+  refreshThreadFolderSelect();
+}
+
+async function msg_deleteFolder(folderId, name){
+  if(!confirm(`Delete the "${name}" folder? Conversations inside move back to All Messages.`)) return;
+
+  const { error } = await membersSupabase.rpc('message_folder_delete', { p_folder_id: folderId });
+  if(error){ alert(error.message); return; }
+
+  if(activeFolderId === folderId) activeFolderId = null;
+  await loadFolders();
+  buildConversations();
+  renderFolderRail();
+  renderConversationList();
+  refreshThreadFolderSelect();
+}
+
+async function msg_moveConversation(folderId){
+  const convo = conversations.find(c => c.key === activeConversationKey);
+  if(!convo) return;
+
+  const { error } = await membersSupabase.rpc('message_set_folder', { p_thread_key: convo.key, p_folder_id: folderId || null });
+  if(error){ alert(error.message); return; }
+
+  await loadFolders();
+  buildConversations();
+  renderFolderRail();
+  renderConversationList();
 }
 
 async function msg_openConversation(key){
@@ -233,7 +355,16 @@ async function msg_openConversation(key){
 
   const me = window.faCurrentUser.id;
   document.getElementById('msg-reading-pane').innerHTML = `
-    <div class="msg-thread-title">${escapeHtml(convo.label)}</div>
+    <div class="msg-thread-header">
+      <div>
+        <div class="msg-thread-title">${escapeHtml(convo.subject)}</div>
+        <div class="msg-thread-subhead">${escapeHtml(convo.label)}</div>
+      </div>
+      <select id="msg-thread-folder-select">
+        <option value="">No folder</option>
+        ${folders.map(f => `<option value="${escapeHtml(f.id)}" ${convo.folderId === f.id ? 'selected' : ''}>${escapeHtml(f.name)}</option>`).join('')}
+      </select>
+    </div>
     <div id="msg-thread-body">
       ${convo.messages.map(m => `
         <div class="msg-bubble ${m.sender_id === me ? 'mine' : ''}">
@@ -247,6 +378,7 @@ async function msg_openConversation(key){
     <button class="btn-gold" style="margin-top:1rem;" onclick="msg_reply()">Reply</button>
     <p class="reg-error-note" id="msg-reply-error" style="display:none;"></p>
   `;
+  document.getElementById('msg-thread-folder-select').addEventListener('change', (e) => msg_moveConversation(e.target.value));
 
   const unreadIds = convo.messages.filter(m => m.sender_id !== me && !m.readByMe).map(m => m.id);
   if(unreadIds.length){
@@ -264,17 +396,26 @@ async function msg_reply(){
   const body = document.getElementById('msg-reply-body').value.trim();
   if(!body){ errorEl.textContent = 'Reply cannot be empty.'; errorEl.style.display = 'block'; return; }
 
-  const isDept = convo.key.startsWith('dept:');
-  const targetId = convo.key.slice(convo.key.indexOf(':') + 1);
-
   const { error } = await membersSupabase.rpc('message_send', {
-    p_recipient_player_id: isDept ? null : targetId,
-    p_recipient_department_id: isDept ? targetId : null,
-    p_body: body
+    p_recipient_player_id: convo.isDept ? null : convo.otherId,
+    p_recipient_department_id: convo.isDept ? convo.deptId : null,
+    p_body: body,
+    p_subject: convo.subject
   });
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
 
   await loadMessages(activeConversationKey);
+}
+
+async function loadFolders(){
+  const me = window.faCurrentUser.id;
+
+  const { data: fldrs } = await membersSupabase.from('message_folders').select('id, name').order('name');
+  folders = fldrs || [];
+
+  const { data: assigns } = await membersSupabase.from('message_folder_assignments').select('thread_key, folder_id').eq('player_id', me);
+  folderAssignments = {};
+  (assigns || []).forEach(a => { folderAssignments[a.thread_key] = a.folder_id; });
 }
 
 async function loadMessages(reopenKey){
@@ -282,7 +423,7 @@ async function loadMessages(reopenKey){
 
   const { data: msgs } = await membersSupabase
     .from('messages')
-    .select('id, sender_id, recipient_player_id, recipient_department_id, body, created_at')
+    .select('id, sender_id, recipient_player_id, recipient_department_id, subject, thread_key, body, created_at')
     .order('created_at', { ascending: true });
 
   const { data: reads } = await membersSupabase
@@ -310,6 +451,8 @@ async function init(){
   const { data: depts } = await membersSupabase.from('departments').select('id, name').order('name');
   departments = depts || [];
 
+  await loadFolders();
+  renderFolderRail();
   await loadMessages();
 }
 
@@ -319,7 +462,6 @@ window.msg_pickDepartment = msg_pickDepartment;
 window.msg_searchComposeRecipient = msg_searchComposeRecipient;
 window.msg_pickPlayer = msg_pickPlayer;
 window.msg_send = msg_send;
-window.msg_openConversation = msg_openConversation;
 window.msg_reply = msg_reply;
 
 document.addEventListener('fa-members-ready', init);

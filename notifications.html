@@ -59,7 +59,7 @@ async function init(){
 
   const { data: unreadMsgs } = await membersSupabase
     .from('messages')
-    .select('id, sender_id, recipient_player_id, recipient_department_id, body, created_at')
+    .select('id, sender_id, recipient_player_id, recipient_department_id, subject, body, created_at')
     .order('created_at', { ascending: false });
   const { data: reads } = await membersSupabase.from('message_reads').select('message_id').eq('player_id', me);
   const readSet = new Set((reads || []).map(r => r.message_id));
@@ -79,7 +79,7 @@ async function init(){
     items.push({
       type: 'msg',
       date: m.created_at,
-      html: `<strong>New message from ${escapeHtml(from)}</strong>${via}<br>${escapeHtml(m.body)}`
+      html: `<strong>New message from ${escapeHtml(from)}</strong>${via}<br><em>${escapeHtml(m.subject || 'No subject')}</em><br>${escapeHtml(m.body)}`
     });
   });
 

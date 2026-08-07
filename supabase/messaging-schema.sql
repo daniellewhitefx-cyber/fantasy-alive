@@ -38,9 +38,21 @@ create table if not exists messages (
   )
 );
 
+alter table messages add column if not exists subject text not null default 'No subject';
+alter table messages add column if not exists thread_key text;
+
+update messages set thread_key = case
+    when recipient_department_id is not null then 'dept:' || recipient_department_id::text || ':' || subject
+    else 'dm:' || least(sender_id, recipient_player_id)::text || ':' || greatest(sender_id, recipient_player_id)::text || ':' || subject
+  end
+  where thread_key is null;
+
+alter table messages alter column thread_key set not null;
+
 create index if not exists messages_recipient_player_idx on messages(recipient_player_id, created_at desc);
 create index if not exists messages_recipient_department_idx on messages(recipient_department_id, created_at desc);
 create index if not exists messages_sender_idx on messages(sender_id, created_at desc);
+create index if not exists messages_thread_key_idx on messages(thread_key, created_at);
 
 alter table messages enable row level security;
 
@@ -70,19 +82,25 @@ create policy "Players see their own read receipts"
   on message_reads for select
   using (player_id = auth.uid());
 
+drop function if exists message_send(uuid, uuid, text);
+
 create or replace function message_send(
   p_recipient_player_id uuid,
   p_recipient_department_id uuid,
-  p_body text
+  p_body text,
+  p_subject text default null
 )
 returns uuid language plpgsql security definer as $$
 declare
   v_sender uuid := auth.uid();
   v_body text := trim(coalesce(p_body, ''));
+  v_subject text := nullif(trim(coalesce(p_subject, '')), '');
+  v_thread_key text;
   v_message_id uuid;
 begin
   if v_sender is null then raise exception 'Not signed in'; end if;
   if v_body = '' then raise exception 'Message cannot be empty'; end if;
+  if v_subject is null then v_subject := 'No subject'; end if;
 
   if (p_recipient_player_id is null) = (p_recipient_department_id is null) then
     raise exception 'Message needs exactly one recipient';
@@ -92,14 +110,20 @@ begin
     if not exists (select 1 from auth.users where id = p_recipient_player_id) then
       raise exception 'Recipient not found';
     end if;
+    if v_sender < p_recipient_player_id then
+      v_thread_key := 'dm:' || v_sender::text || ':' || p_recipient_player_id::text || ':' || v_subject;
+    else
+      v_thread_key := 'dm:' || p_recipient_player_id::text || ':' || v_sender::text || ':' || v_subject;
+    end if;
   else
     if not exists (select 1 from departments where id = p_recipient_department_id) then
       raise exception 'Department not found';
     end if;
+    v_thread_key := 'dept:' || p_recipient_department_id::text || ':' || v_subject;
   end if;
 
-  insert into messages (sender_id, recipient_player_id, recipient_department_id, body)
-    values (v_sender, p_recipient_player_id, p_recipient_department_id, v_body)
+  insert into messages (sender_id, recipient_player_id, recipient_department_id, subject, thread_key, body)
+    values (v_sender, p_recipient_player_id, p_recipient_department_id, v_subject, v_thread_key, v_body)
     returning id into v_message_id;
 
   return v_message_id;
@@ -152,6 +176,103 @@ returns integer language sql stable security definer as $$
     );
 $$;
 
+create table if not exists message_folders (
+  id uuid primary key default gen_random_uuid(),
+  player_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  created_at timestamptz not null default now(),
+  unique (player_id, name)
+);
+
+alter table message_folders enable row level security;
+drop policy if exists "Players see their own folders" on message_folders;
+create policy "Players see their own folders"
+  on message_folders for select
+  using (player_id = auth.uid());
+
+create table if not exists message_folder_assignments (
+  player_id uuid not null references auth.users(id) on delete cascade,
+  thread_key text not null,
+  folder_id uuid not null references message_folders(id) on delete cascade,
+  primary key (player_id, thread_key)
+);
+
+alter table message_folder_assignments enable row level security;
+drop policy if exists "Players see their own folder assignments" on message_folder_assignments;
+create policy "Players see their own folder assignments"
+  on message_folder_assignments for select
+  using (player_id = auth.uid());
+
+create or replace function message_folder_create(p_name text)
+returns uuid language plpgsql security definer as $$
+declare
+  v_player uuid := auth.uid();
+  v_name text := trim(coalesce(p_name, ''));
+  v_id uuid;
+begin
+  if v_player is null then raise exception 'Not signed in'; end if;
+  if v_name = '' then raise exception 'Folder name cannot be empty'; end if;
+
+  insert into message_folders (player_id, name)
+    values (v_player, v_name)
+    on conflict (player_id, name) do update set name = excluded.name
+    returning id into v_id;
+
+  return v_id;
+end;
+$$;
+
+create or replace function message_folder_rename(p_folder_id uuid, p_name text)
+returns void language plpgsql security definer as $$
+declare
+  v_player uuid := auth.uid();
+  v_name text := trim(coalesce(p_name, ''));
+begin
+  if v_player is null then raise exception 'Not signed in'; end if;
+  if v_name = '' then raise exception 'Folder name cannot be empty'; end if;
+
+  update message_folders set name = v_name
+    where id = p_folder_id and player_id = v_player;
+
+  if not found then raise exception 'Folder not found'; end if;
+end;
+$$;
+
+create or replace function message_folder_delete(p_folder_id uuid)
+returns void language plpgsql security definer as $$
+declare
+  v_player uuid := auth.uid();
+begin
+  if v_player is null then raise exception 'Not signed in'; end if;
+
+  delete from message_folders where id = p_folder_id and player_id = v_player;
+
+  if not found then raise exception 'Folder not found'; end if;
+end;
+$$;
+
+create or replace function message_set_folder(p_thread_key text, p_folder_id uuid)
+returns void language plpgsql security definer as $$
+declare
+  v_player uuid := auth.uid();
+begin
+  if v_player is null then raise exception 'Not signed in'; end if;
+
+  if p_folder_id is null then
+    delete from message_folder_assignments where player_id = v_player and thread_key = p_thread_key;
+    return;
+  end if;
+
+  if not exists (select 1 from message_folders where id = p_folder_id and player_id = v_player) then
+    raise exception 'Folder not found';
+  end if;
+
+  insert into message_folder_assignments (player_id, thread_key, folder_id)
+    values (v_player, p_thread_key, p_folder_id)
+    on conflict (player_id, thread_key) do update set folder_id = excluded.folder_id;
+end;
+$$;
+
 alter table profiles add column if not exists activity_last_seen_at timestamptz;
 
 create or replace function notifications_mark_seen()
@@ -200,3 +321,5 @@ grant select on departments to authenticated;
 grant select on department_members to authenticated;
 grant select on messages to authenticated;
 grant select on message_reads to authenticated;
+grant select on message_folders to authenticated;
+grant select on message_folder_assignments to authenticated;
