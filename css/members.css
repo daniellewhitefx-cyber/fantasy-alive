@@ -138,8 +138,9 @@ select, input[type="text"], input[type="number"], input[type="password"], textar
   background: #fff;
   color: var(--brown);
   width:100%;
+  max-width: 480px;
 }
-textarea{ resize: vertical; min-height: 90px; }
+textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 .btn-gold{
   background: var(--gold);
   color: var(--ink);
@@ -384,6 +385,7 @@ textarea{ resize: vertical; min-height: 90px; }
 }
 select.reg-date-select{
   width:100%;
+  max-width: 420px;
   font-family: 'Cinzel', serif;
   font-weight: 600;
   font-size: 1.1rem;
