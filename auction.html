@@ -43,8 +43,8 @@
   <input type="text" id="auction-new-name" placeholder="e.g. Hand-forged Dagger">
 </div>
 <div>
-  <label class="field-label" for="auction-new-image">Image URL (optional)</label>
-  <input type="text" id="auction-new-image" placeholder="https://...">
+  <label class="field-label" for="auction-new-image">Image (optional)</label>
+  <input type="file" id="auction-new-image" accept="image/*">
 </div>
 </div>
 <label class="field-label" for="auction-new-description">Description (optional)</label>
@@ -59,7 +59,7 @@
   <input type="number" id="auction-new-increment" min="1" step="1" value="5">
 </div>
 </div>
-<button class="btn-gold" style="margin-top:1rem;" onclick="auction_createItem()">Create Item</button>
+<button class="btn-gold" style="margin-top:1rem;" id="auction-new-save-btn" onclick="auction_createItem()">Create Item</button>
 <p class="reg-error-note" id="auction-new-error" style="display:none;"></p>
 </div>
 
@@ -309,33 +309,56 @@ async function handleAuctionPaymentReturn(){
   await loadMyWins();
 }
 
+async function auctionUploadImage(file){
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const path = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+  const { error } = await membersSupabase.storage.from('auction-images').upload(path, file);
+  if(error) throw error;
+  const { data } = membersSupabase.storage.from('auction-images').getPublicUrl(path);
+  return data.publicUrl;
+}
+
 async function auction_createItem(){
   const errorEl = document.getElementById('auction-new-error');
+  const saveBtn = document.getElementById('auction-new-save-btn');
   errorEl.style.display = 'none';
 
   const name = document.getElementById('auction-new-name').value.trim();
   const description = document.getElementById('auction-new-description').value.trim();
-  const imageUrl = document.getElementById('auction-new-image').value.trim();
+  const imageFile = document.getElementById('auction-new-image').files[0];
   const starting = parseFloat(document.getElementById('auction-new-starting').value);
   const increment = parseFloat(document.getElementById('auction-new-increment').value);
 
-  const { error } = await membersSupabase.rpc('auction_create_item', {
-    p_name: name,
-    p_description: description,
-    p_image_url: imageUrl,
-    p_starting_bid: starting,
-    p_min_increment: increment
-  });
-  if(error){
-    errorEl.textContent = error.message;
-    errorEl.style.display = 'block';
-    return;
-  }
+  saveBtn.disabled = true;
+  try{
+    let imageUrl = '';
+    if(imageFile){
+      imageUrl = await auctionUploadImage(imageFile);
+    }
 
-  document.getElementById('auction-new-name').value = '';
-  document.getElementById('auction-new-description').value = '';
-  document.getElementById('auction-new-image').value = '';
-  await loadStaffItems();
+    const { error } = await membersSupabase.rpc('auction_create_item', {
+      p_name: name,
+      p_description: description,
+      p_image_url: imageUrl,
+      p_starting_bid: starting,
+      p_min_increment: increment
+    });
+    if(error){
+      errorEl.textContent = error.message;
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('auction-new-name').value = '';
+    document.getElementById('auction-new-description').value = '';
+    document.getElementById('auction-new-image').value = '';
+    await loadStaffItems();
+  } catch(err){
+    errorEl.textContent = err.message || 'Image upload failed.';
+    errorEl.style.display = 'block';
+  } finally {
+    saveBtn.disabled = false;
+  }
 }
 
 async function loadStaffItems(){

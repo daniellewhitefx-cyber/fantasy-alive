@@ -43,36 +43,6 @@
 <div id="home-announce-list"><p class="reg-empty-note">Loading&hellip;</p></div>
 </div>
 
-<div class="bank-staff-section" id="home-feed-staff-section" style="display:none;">
-<div class="reg-section-label">Manage Site Feed</div>
-<p class="page-subhead">These show as a carousel on the public homepage, for conventions, special offers, and other announcements.</p>
-<div class="bank-form-grid">
-<div>
-<label class="field-label" for="home-feed-title">Title</label>
-<input type="text" id="home-feed-title" placeholder="e.g. See us at ConVenture!">
-</div>
-<div>
-<label class="field-label" for="home-feed-badge">Badge (optional)</label>
-<input type="text" id="home-feed-badge" placeholder="e.g. Convention">
-</div>
-</div>
-<label class="field-label" for="home-feed-description" style="margin-top:0.7rem;">Description (optional)</label>
-<textarea id="home-feed-description" placeholder="What's this about?"></textarea>
-<div class="bank-form-grid" style="margin-top:0.7rem;">
-<div>
-<label class="field-label" for="home-feed-image">Image URL (optional)</label>
-<input type="text" id="home-feed-image" placeholder="https://...">
-</div>
-<div>
-<label class="field-label" for="home-feed-link">Link URL (optional)</label>
-<input type="text" id="home-feed-link" placeholder="https://...">
-</div>
-</div>
-<button class="btn-gold" style="margin-top:1rem;" onclick="home_addFeedItem()">Add to Feed</button>
-<p class="reg-error-note" id="home-feed-error" style="display:none;"></p>
-<div id="home-feed-list" style="margin-top:1.2rem;"></div>
-</div>
-
 </div>
 </div>
 
@@ -259,77 +229,10 @@ async function home_postAnnouncement(){
 
 window.home_postAnnouncement = home_postAnnouncement;
 
-async function loadFeedItems(){
-  const list = document.getElementById('home-feed-list');
-  const { data: rows } = await membersSupabase
-    .from('home_feed_items')
-    .select('id, title, badge, created_at')
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: false });
-
-  if(!rows || rows.length === 0){
-    list.innerHTML = '<p class="reg-empty-note">No feed items yet.</p>';
-    return;
-  }
-
-  list.innerHTML = rows.map(item => `
-    <div class="bank-bill-card" data-id="${escapeHtml(item.id)}">
-      <strong>${escapeHtml(item.title)}</strong>
-      ${item.badge ? ` <span class="reg-empty-note" style="display:inline;">(${escapeHtml(item.badge)})</span>` : ''}
-      <button class="btn-outline" style="float:right;" data-delete-feed="${escapeHtml(item.id)}">Delete</button>
-    </div>
-  `).join('');
-
-  list.querySelectorAll('[data-delete-feed]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      if(!confirm('Remove this from the site feed?')) return;
-      const { error } = await membersSupabase.rpc('home_feed_delete', { p_id: btn.dataset.deleteFeed });
-      if(error){ alert(error.message); return; }
-      await loadFeedItems();
-    });
-  });
-}
-
-async function home_addFeedItem(){
-  const errorEl = document.getElementById('home-feed-error');
-  errorEl.style.display = 'none';
-
-  const title = document.getElementById('home-feed-title').value.trim();
-  const badge = document.getElementById('home-feed-badge').value.trim();
-  const description = document.getElementById('home-feed-description').value.trim();
-  const imageUrl = document.getElementById('home-feed-image').value.trim();
-  const linkUrl = document.getElementById('home-feed-link').value.trim();
-
-  const { error } = await membersSupabase.rpc('home_feed_create', {
-    p_title: title, p_description: description, p_image_url: imageUrl,
-    p_link_url: linkUrl, p_badge: badge, p_sort_order: 0
-  });
-  if(error){
-    errorEl.textContent = error.message;
-    errorEl.style.display = 'block';
-    return;
-  }
-
-  document.getElementById('home-feed-title').value = '';
-  document.getElementById('home-feed-badge').value = '';
-  document.getElementById('home-feed-description').value = '';
-  document.getElementById('home-feed-image').value = '';
-  document.getElementById('home-feed-link').value = '';
-  await loadFeedItems();
-}
-
-window.home_addFeedItem = home_addFeedItem;
-
 document.addEventListener('fa-members-ready', async (e) => {
   const user = e.detail.user;
   isAnnounceStaff = !!(user.app_metadata && (user.app_metadata.announcements_staff || user.app_metadata.site_admin));
   document.getElementById('home-announce-staff-section').style.display = isAnnounceStaff ? 'block' : 'none';
-
-  const isSiteAdmin = !!(user.app_metadata && user.app_metadata.site_admin);
-  if(isSiteAdmin){
-    document.getElementById('home-feed-staff-section').style.display = 'block';
-    await loadFeedItems();
-  }
 
   const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
   profileMap = {};
