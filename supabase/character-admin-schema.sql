@@ -15,17 +15,21 @@ create policy "Players see their own character skills"
     or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
   );
 
+drop function if exists character_staff_update_details(uuid, text, text, text, date);
+
 create or replace function character_staff_update_details(
   p_character_id uuid,
   p_name text,
   p_race text,
   p_pronouns text,
-  p_birthday date
+  p_birthday date,
+  p_social_class text
 )
 returns void language plpgsql security definer as $$
 declare
   v_name text := trim(coalesce(p_name, ''));
   v_race text := trim(coalesce(p_race, ''));
+  v_social_class text := trim(coalesce(p_social_class, ''));
 begin
   if not coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) then
     raise exception 'Staff only';
@@ -41,11 +45,15 @@ begin
     raise exception 'Unknown race: %', v_race;
   end if;
 
+  if v_social_class = '' then raise exception 'Social class cannot be empty'; end if;
+  if length(v_social_class) > 40 then raise exception 'Social class is too long'; end if;
+
   update characters set
     name = v_name,
     race = v_race,
     pronouns = nullif(trim(coalesce(p_pronouns, '')), ''),
-    birthday = p_birthday
+    birthday = p_birthday,
+    social_class = v_social_class
     where id = p_character_id;
 
   if not found then raise exception 'Character not found'; end if;
