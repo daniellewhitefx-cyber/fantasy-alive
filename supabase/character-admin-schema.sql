@@ -5,6 +5,7 @@ create policy "Players see their own characters"
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
     or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    or fa_is_site_admin()
   );
 
 drop policy if exists "Players see their own character skills" on character_skills;
@@ -13,6 +14,7 @@ create policy "Players see their own character skills"
   using (
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    or fa_is_site_admin()
   );
 
 drop function if exists character_staff_update_details(uuid, text, text, text, date);
@@ -31,7 +33,7 @@ declare
   v_race text := trim(coalesce(p_race, ''));
   v_social_class text := trim(coalesce(p_social_class, ''));
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
 
@@ -63,7 +65,7 @@ $$;
 create or replace function character_staff_set_starting_sp(p_character_id uuid, p_new_sp integer)
 returns void language plpgsql security definer as $$
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   if p_new_sp is null or p_new_sp < 0 then raise exception 'Starting SP must be zero or more'; end if;
@@ -86,7 +88,7 @@ declare
   v_owner uuid;
   v_skill_id uuid;
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   if coalesce(trim(p_skill_name), '') = '' then raise exception 'Skill name cannot be empty'; end if;
@@ -113,7 +115,7 @@ $$;
 create or replace function character_staff_remove_skill(p_skill_id uuid)
 returns void language plpgsql security definer as $$
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
 
@@ -142,6 +144,7 @@ create policy "Players and staff see XP transactions"
   using (
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    or fa_is_site_admin()
   );
 
 create table if not exists oc_transactions (
@@ -163,6 +166,7 @@ create policy "Players and staff see OC transactions"
   using (
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    or fa_is_site_admin()
   );
 
 create or replace function xp_balance(p_character uuid)
@@ -185,7 +189,7 @@ $$;
 create or replace function character_staff_xp_balance(p_character_id uuid)
 returns integer language plpgsql stable security definer as $$
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   return xp_balance(p_character_id);
@@ -198,7 +202,7 @@ declare
   v_owner uuid;
   v_staff uuid := auth.uid();
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   if p_amount is null or p_amount = 0 then raise exception 'Amount cannot be zero'; end if;
@@ -226,7 +230,7 @@ $$;
 create or replace function character_staff_oc_balance(p_player uuid)
 returns integer language plpgsql stable security definer as $$
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   return oc_balance(p_player);
@@ -238,7 +242,7 @@ returns void language plpgsql security definer as $$
 declare
   v_staff uuid := auth.uid();
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   if p_amount is null or p_amount = 0 then raise exception 'Amount cannot be zero'; end if;

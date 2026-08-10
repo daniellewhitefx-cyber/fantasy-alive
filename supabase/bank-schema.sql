@@ -63,6 +63,7 @@ create policy "Players see their own transactions"
   using (
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean is true
+    or fa_is_site_admin()
   );
 
 create or replace function bank_balance(p_player uuid)
@@ -88,7 +89,7 @@ $$;
 create or replace function bank_staff_player_balance(p_player uuid)
 returns numeric language plpgsql stable security definer as $$
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   return bank_balance(p_player);
@@ -216,6 +217,7 @@ create policy "Players see their own withdrawal requests, staff sees all"
   using (
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean is true
+    or fa_is_site_admin()
   );
 
 drop policy if exists "Players create their own withdrawal requests" on bank_withdrawal_requests;
@@ -254,7 +256,7 @@ declare
   v_req bank_withdrawal_requests;
   v_staff uuid := auth.uid();
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
 
@@ -279,7 +281,7 @@ returns void language plpgsql security definer as $$
 declare
   v_staff uuid := auth.uid();
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   if p_amount is null or p_amount <= 0 then raise exception 'Amount must be positive'; end if;

@@ -25,7 +25,7 @@ create policy "Auction items are publicly readable"
 drop policy if exists "Auction staff see everything including drafts" on auction_items;
 create policy "Auction staff see everything including drafts"
   on auction_items for select
-  using ((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean is true);
+  using ((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean is true or fa_is_site_admin());
 
 create table if not exists auction_bids (
   id uuid primary key default gen_random_uuid(),
@@ -57,7 +57,7 @@ declare
   v_name text := trim(coalesce(p_name, ''));
   v_id uuid;
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   if v_name = '' then raise exception 'Item name cannot be empty'; end if;
@@ -75,7 +75,7 @@ $$;
 create or replace function auction_go_live(p_item_id uuid)
 returns void language plpgsql security definer as $$
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
 
@@ -95,7 +95,7 @@ returns void language plpgsql security definer as $$
 declare
   v_top auction_bids;
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
 
@@ -152,7 +152,7 @@ $$;
 create or replace function auction_staff_mark_paid(p_item_id uuid)
 returns void language plpgsql security definer as $$
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
 

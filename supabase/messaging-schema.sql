@@ -4,7 +4,7 @@ create table if not exists departments (
   created_at timestamptz not null default now()
 );
 
-insert into departments (name) values ('Plot'), ('Logistics')
+insert into departments (name) values ('Plot'), ('Logistics'), ('Lore')
   on conflict (name) do nothing;
 
 create table if not exists department_members (

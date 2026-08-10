@@ -398,7 +398,7 @@ window.auction_createItem = auction_createItem;
 
 document.addEventListener('fa-members-ready', async (e) => {
   const user = e.detail.user;
-  isStaff = !!(user.app_metadata && user.app_metadata.auction_staff);
+  isStaff = !!(user.app_metadata && (user.app_metadata.auction_staff || user.app_metadata.site_admin));
   document.getElementById('auction-staff-section').style.display = isStaff ? 'block' : 'none';
 
   const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');

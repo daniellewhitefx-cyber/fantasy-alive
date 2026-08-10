@@ -328,9 +328,9 @@ window.chars_denyRemort = chars_denyRemort;
 
 document.addEventListener('fa-members-ready', async (e) => {
   const user = e.detail.user;
-  isRemortStaff = !!(user.app_metadata && user.app_metadata.remort_staff);
+  isRemortStaff = !!(user.app_metadata && (user.app_metadata.remort_staff || user.app_metadata.site_admin));
   if(isRemortStaff) document.getElementById('chars-staff-remort-section').style.display = 'block';
-  if(user.app_metadata && user.app_metadata.character_staff) document.getElementById('chars-staff-admin-link').style.display = 'block';
+  if(user.app_metadata && (user.app_metadata.character_staff || user.app_metadata.site_admin)) document.getElementById('chars-staff-admin-link').style.display = 'block';
   await loadCharacters();
   if(isRemortStaff){
     await loadProfiles();

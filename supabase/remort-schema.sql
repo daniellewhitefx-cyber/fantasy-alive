@@ -4,6 +4,7 @@ create policy "Players see their own characters"
   using (
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
+    or fa_is_site_admin()
   );
 
 create table if not exists character_remort_requests (
@@ -27,6 +28,7 @@ create policy "Players and staff see remort requests"
   using (
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
+    or fa_is_site_admin()
   );
 
 create or replace function character_request_remort(p_character_id uuid)
@@ -61,7 +63,7 @@ returns void language plpgsql security definer as $$
 declare
   v_staff uuid := auth.uid();
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
 
@@ -78,7 +80,7 @@ returns void language plpgsql security definer as $$
 declare
   v_staff uuid := auth.uid();
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
 
