@@ -10,6 +10,7 @@ body.members-ready .dashboard{ visibility:visible; }
   padding: 2rem 2.5rem 3rem;
   align-items:start;
 }
+.dashboard > div{ min-width:0; }
 .account-tab{
   display:inline-block;
   background: var(--ink);
@@ -157,6 +158,12 @@ body.members-ready .dashboard{ visibility:visible; }
 .data-table tbody tr:nth-child(even){ background: var(--row-a); }
 
 .skill-table-wrap-cc{ width:100%; overflow-x:auto; }
+.table-scroll{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+@media (max-width:600px){
+  .table-scroll .data-table,
+  .table-scroll table.data-table{ min-width:560px; }
+}
 
 .card-grid{
   display:grid;
@@ -262,6 +269,9 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 @media (max-width: 900px){
   .dashboard{ grid-template-columns: 1fr; }
   .side-nav{ grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 600px){
+  .dashboard{ padding: 1.2rem 0.6rem 2rem; }
 }
 @media (max-width: 480px){
   .side-nav{ grid-template-columns: repeat(3, 1fr); }

@@ -171,6 +171,7 @@ function render(){
       <div class="stat-row"><span class="stat-label">Experience</span><span class="stat-value">${experience}</span></div>
       <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${ratio}</span></div>
     </div>
+    <div class="table-scroll">
     <table class="data-table">
       <thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th></tr></thead>
       <tbody>
@@ -178,6 +179,7 @@ function render(){
           : `<tr><td colspan="5">No skills chosen yet.</td></tr>`}
       </tbody>
     </table>
+    </div>
   `;
 }
 
