@@ -68,41 +68,113 @@ function fmtDateTime(iso){
 
 function nameFor(id){ return profileMap[id] || 'Unknown player'; }
 
-async function loadCurrentAuctionItem(){
-  const wrap = document.getElementById('home-auction-wrap');
+let currentAuctionItem = null;
+let currentAuctionBids = [];
+let myLastAuctionBidAt = null;
 
+function auctionMinNextBid(item, bids){
+  const highest = bids.length ? Math.max(...bids.map(b => Number(b.amount))) : null;
+  return (highest !== null ? highest : Number(item.starting_bid) - Number(item.min_increment)) + Number(item.min_increment);
+}
+
+function auctionCooldownRemainingMs(){
+  if(!myLastAuctionBidAt) return 0;
+  const readyAt = new Date(myLastAuctionBidAt).getTime() + (60 * 60 * 1000);
+  return Math.max(0, readyAt - Date.now());
+}
+
+async function loadCurrentAuctionItem(){
   const { data: items } = await membersSupabase
     .from('auction_items')
-    .select('id, name, description, image_url, starting_bid')
+    .select('id, name, description, image_url, starting_bid, min_increment')
     .eq('status', 'live')
     .limit(1);
-  const item = (items && items[0]) || null;
+  currentAuctionItem = (items && items[0]) || null;
 
-  if(!item){
+  if(currentAuctionItem){
+    const { data: bids } = await membersSupabase
+      .from('auction_bids')
+      .select('player_id, amount')
+      .eq('item_id', currentAuctionItem.id)
+      .order('amount', { ascending: false });
+    currentAuctionBids = bids || [];
+
+    const me = window.faCurrentUser.id;
+    const { data: myBids } = await membersSupabase
+      .from('auction_bids')
+      .select('created_at')
+      .eq('player_id', me)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    myLastAuctionBidAt = (myBids && myBids[0]) ? myBids[0].created_at : null;
+  } else {
+    currentAuctionBids = [];
+  }
+
+  renderCurrentAuctionItem();
+}
+
+function renderCurrentAuctionItem(){
+  const wrap = document.getElementById('home-auction-wrap');
+  if(!currentAuctionItem){
     wrap.innerHTML = '<p class="reg-empty-note">No auction is currently live.</p>';
     return;
   }
 
-  const { data: bids } = await membersSupabase
-    .from('auction_bids')
-    .select('player_id, amount')
-    .eq('item_id', item.id)
-    .order('amount', { ascending: false })
-    .limit(1);
-  const highest = bids && bids[0];
+  const item = currentAuctionItem;
+  const highest = currentAuctionBids.length ? currentAuctionBids[0] : null;
+  const nextMin = auctionMinNextBid(item, currentAuctionBids);
+  const cooldownMs = auctionCooldownRemainingMs();
 
   wrap.innerHTML = `
-    <div class="bank-balance-card">
-      ${item.image_url ? `<img src="${escapeHtml(item.image_url)}" alt="" style="max-width:100%;border-radius:6px;margin-bottom:1rem;">` : ''}
-      <div style="font-family:'Cinzel', serif; font-size:1.3rem; color:#fff; margin-bottom:0.4rem;">${escapeHtml(item.name)}</div>
-      ${item.description ? `<p style="color:var(--cream); margin-bottom:0.9rem;">${escapeHtml(item.description)}</p>` : ''}
-      <div class="bank-balance-label">${highest ? 'Current Highest Bid' : 'Starting Bid'}</div>
-      <div class="bank-balance-amount">${fmtMoney(highest ? highest.amount : item.starting_bid)}</div>
-      ${highest ? `<p style="color:var(--cream);">Leading: ${escapeHtml(nameFor(highest.player_id))}</p>` : ''}
+    <div class="auction-item-card">
+      ${item.image_url ? `<img class="auction-item-image" src="${escapeHtml(item.image_url)}" alt="">` : ''}
+      <div class="auction-item-info">
+        <div class="auction-item-name">${escapeHtml(item.name)}</div>
+        ${item.description ? `<p class="auction-item-desc">${escapeHtml(item.description)}</p>` : ''}
+        <div class="auction-item-label">${highest ? 'Current Highest Bid' : 'Starting Bid'}</div>
+        <div class="auction-item-amount">${fmtMoney(highest ? highest.amount : item.starting_bid)}</div>
+        ${highest ? `<p class="auction-item-leading">Leading: ${escapeHtml(nameFor(highest.player_id))}</p>` : ''}
+      </div>
     </div>
-    <a class="btn-gold" href="auction.html" style="display:inline-block; text-decoration:none;">Go to Auction</a>
+    <div class="bank-form-grid">
+      <div>
+        <label class="field-label" for="home-auction-bid-amount">Amount (minimum ${fmtMoney(nextMin)})</label>
+        <input type="number" id="home-auction-bid-amount" min="${nextMin}" step="1" value="${nextMin}" ${cooldownMs > 0 ? 'disabled' : ''}>
+      </div>
+      <div style="display:flex; align-items:flex-end;">
+        <button class="btn-gold" style="width:100%;" onclick="home_placeAuctionBid()" ${cooldownMs > 0 ? 'disabled' : ''}>Place Bid</button>
+      </div>
+    </div>
+    ${cooldownMs > 0 ? `<p class="reg-empty-note">You can bid again at ${new Date(Date.now() + cooldownMs).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}.</p>` : ''}
+    <p class="reg-error-note" id="home-auction-bid-error" style="display:none;"></p>
+    <a class="btn-outline" href="auction.html" style="display:inline-block; text-decoration:none; margin-top:0.6rem;">Full Bid History</a>
   `;
 }
+
+async function home_placeAuctionBid(){
+  const input = document.getElementById('home-auction-bid-amount');
+  const errorEl = document.getElementById('home-auction-bid-error');
+  errorEl.style.display = 'none';
+
+  const amount = parseFloat(input.value);
+  if(!amount || amount <= 0){
+    errorEl.textContent = 'Enter a valid bid amount.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const { error } = await membersSupabase.rpc('auction_place_bid', { p_item_id: currentAuctionItem.id, p_amount: amount });
+  if(error){
+    errorEl.textContent = error.message;
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  await loadCurrentAuctionItem();
+}
+
+window.home_placeAuctionBid = home_placeAuctionBid;
 
 async function loadAnnouncements(){
   const list = document.getElementById('home-announce-list');
