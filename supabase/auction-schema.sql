@@ -14,6 +14,8 @@ create table if not exists auction_items (
   payment_status text not null default 'unpaid' check (payment_status in ('unpaid', 'paid_online', 'paid_at_event'))
 );
 
+alter table auction_items add column if not exists ends_at timestamptz;
+
 create unique index if not exists auction_items_one_live on auction_items ((true)) where status = 'live';
 
 alter table auction_items enable row level security;
@@ -49,7 +51,8 @@ create or replace function auction_create_item(
   p_description text,
   p_image_url text,
   p_starting_bid numeric,
-  p_min_increment numeric
+  p_min_increment numeric,
+  p_ends_at timestamptz default null
 )
 returns uuid language plpgsql security definer as $$
 declare
@@ -63,9 +66,10 @@ begin
   if v_name = '' then raise exception 'Item name cannot be empty'; end if;
   if p_starting_bid is null or p_starting_bid < 0 then raise exception 'Starting bid must be zero or more'; end if;
   if p_min_increment is null or p_min_increment <= 0 then raise exception 'Minimum increment must be positive'; end if;
+  if p_ends_at is not null and p_ends_at <= now() then raise exception 'End time must be in the future'; end if;
 
-  insert into auction_items (name, description, image_url, starting_bid, min_increment, created_by)
-    values (v_name, nullif(trim(coalesce(p_description, '')), ''), nullif(trim(coalesce(p_image_url, '')), ''), p_starting_bid, p_min_increment, v_staff)
+  insert into auction_items (name, description, image_url, starting_bid, min_increment, created_by, ends_at)
+    values (v_name, nullif(trim(coalesce(p_description, '')), ''), nullif(trim(coalesce(p_image_url, '')), ''), p_starting_bid, p_min_increment, v_staff, p_ends_at)
     returning id into v_id;
 
   return v_id;
@@ -94,13 +98,15 @@ create or replace function auction_close(p_item_id uuid)
 returns void language plpgsql security definer as $$
 declare
   v_top auction_bids;
+  v_item auction_items;
+  v_is_staff boolean := coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) or fa_is_site_admin();
 begin
-  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) or fa_is_site_admin()) then
-    raise exception 'Staff only';
-  end if;
+  select * into v_item from auction_items where id = p_item_id;
+  if not found then raise exception 'Item not found'; end if;
+  if v_item.status != 'live' then raise exception 'Item is not live'; end if;
 
-  if not exists (select 1 from auction_items where id = p_item_id and status = 'live') then
-    raise exception 'Item is not live';
+  if not v_is_staff and (v_item.ends_at is null or now() < v_item.ends_at) then
+    raise exception 'Staff only';
   end if;
 
   select * into v_top from auction_bids
@@ -132,6 +138,7 @@ begin
   select * into v_item from auction_items where id = p_item_id for update;
   if not found then raise exception 'Item not found'; end if;
   if v_item.status != 'live' then raise exception 'This item is not open for bidding'; end if;
+  if v_item.ends_at is not null and now() >= v_item.ends_at then raise exception 'This auction has ended'; end if;
 
   select max(amount) into v_highest from auction_bids where item_id = p_item_id;
   v_min_next := coalesce(v_highest, v_item.starting_bid - v_item.min_increment) + v_item.min_increment;

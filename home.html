@@ -69,6 +69,7 @@ function fmtDateTime(iso){
 function nameFor(id){ return profileMap[id] || 'Unknown player'; }
 
 let currentAuctionItem = null;
+let currentAuctionItemClosed = false;
 let currentAuctionBids = [];
 let myLastAuctionBidAt = null;
 
@@ -84,12 +85,31 @@ function auctionCooldownRemainingMs(){
 }
 
 async function loadCurrentAuctionItem(){
-  const { data: items } = await membersSupabase
+  const { data: liveItems } = await membersSupabase
     .from('auction_items')
-    .select('id, name, description, image_url, starting_bid, min_increment')
+    .select('id, name, description, image_url, starting_bid, min_increment, ends_at')
     .eq('status', 'live')
     .limit(1);
-  currentAuctionItem = (items && items[0]) || null;
+  let item = (liveItems && liveItems[0]) || null;
+
+  if(item && item.ends_at && new Date(item.ends_at) <= new Date()){
+    await membersSupabase.rpc('auction_close', { p_item_id: item.id });
+    item = null;
+  }
+
+  currentAuctionItemClosed = false;
+  if(!item){
+    const { data: closedItems } = await membersSupabase
+      .from('auction_items')
+      .select('id, name, description, image_url, winner_player_id, winning_bid_amount, closed_at')
+      .eq('status', 'closed')
+      .order('closed_at', { ascending: false })
+      .limit(1);
+    item = (closedItems && closedItems[0]) || null;
+    currentAuctionItemClosed = true;
+  }
+
+  currentAuctionItem = item;
 
   if(currentAuctionItem){
     const { data: bids } = await membersSupabase
@@ -122,6 +142,26 @@ function renderCurrentAuctionItem(){
   }
 
   const item = currentAuctionItem;
+
+  if(currentAuctionItemClosed){
+    wrap.innerHTML = `
+      <div class="auction-item-card">
+        ${item.image_url ? `<img class="auction-item-image" src="${escapeHtml(item.image_url)}" alt="">` : ''}
+        <div class="auction-item-info">
+          <div class="auction-item-label">Auction Ended</div>
+          <div class="auction-item-name">${escapeHtml(item.name)}</div>
+          ${item.description ? `<p class="auction-item-desc">${escapeHtml(item.description)}</p>` : ''}
+          ${item.winner_player_id ? `
+            <div class="auction-item-label">Winner</div>
+            <div class="auction-item-amount">${escapeHtml(nameFor(item.winner_player_id))} - ${fmtMoney(item.winning_bid_amount)}</div>
+          ` : `<p class="auction-item-desc">No bids were placed on this item.</p>`}
+        </div>
+      </div>
+      <a class="btn-outline" href="auction.html" style="display:inline-block; text-decoration:none; margin-top:0.6rem;">Full Bid History</a>
+    `;
+    return;
+  }
+
   const highest = currentAuctionBids.length ? currentAuctionBids[0] : null;
   const nextMin = auctionMinNextBid(item, currentAuctionBids);
   const cooldownMs = auctionCooldownRemainingMs();
@@ -135,6 +175,7 @@ function renderCurrentAuctionItem(){
         <div class="auction-item-label">${highest ? 'Current Highest Bid' : 'Starting Bid'}</div>
         <div class="auction-item-amount">${fmtMoney(highest ? highest.amount : item.starting_bid)}</div>
         ${highest ? `<p class="auction-item-leading">Leading: ${escapeHtml(nameFor(highest.player_id))}</p>` : ''}
+        ${item.ends_at ? `<p class="auction-item-leading">Ends: ${fmtDateTime(item.ends_at)}</p>` : ''}
       </div>
     </div>
     <div class="bank-form-grid">
