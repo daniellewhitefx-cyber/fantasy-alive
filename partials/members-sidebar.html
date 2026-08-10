@@ -2,7 +2,12 @@
 <nav class="side-nav">
 
 <a href="home.html" data-page="home.html" class="side-nav-item">
-<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-icon"><svg viewBox="0 0 24 24">
+<rect x="16" y="1" width="4" height="7" rx="1" fill="currentColor"/>
+<defs><mask id="icon-home-mask"><rect x="4" y="10" width="16" height="12" rx="2" fill="#fff"/><rect x="9.5" y="15" width="5" height="7" rx="0.6" fill="#000"/></mask></defs>
+<rect x="4" y="10" width="16" height="12" rx="2" fill="currentColor" mask="url(#icon-home-mask)"/>
+<path d="M1 11.5L12 3L23 11.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg></span>
 <span class="side-nav-label">Home</span>
 </a>
 
