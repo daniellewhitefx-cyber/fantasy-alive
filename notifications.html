@@ -24,7 +24,13 @@
 <p class="page-subhead">New messages, XP or OC you've earned, and Bank activity since you last checked. <a href="messages.html">Full inbox</a> &middot; <a href="xp-oc-log.html">Full XP/OC history</a> &middot; <a href="bank.html">Bank</a></p>
 
 <div class="reg-section">
-<div id="notif-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+<div class="reg-section-label">New Notifications</div>
+<div id="notif-new-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Previous Notifications</div>
+<div id="notif-previous-list"><p class="reg-empty-note">Loading&hellip;</p></div>
 </div>
 
 </div>
@@ -55,12 +61,15 @@ async function init(){
   (myChars || []).forEach(c => { charMap[c.id] = c.name; });
   const charIds = (myChars || []).map(c => c.id);
 
-  const items = [];
+  const newItems = [];
+  const previousItems = [];
+  const isNew = (date) => !lastSeen || new Date(date) > new Date(lastSeen);
 
-  const { data: unreadMsgs } = await membersSupabase
+  const { data: allMsgs } = await membersSupabase
     .from('messages')
     .select('id, sender_id, recipient_player_id, recipient_department_id, subject, body, created_at, sender_character_id, sender_department_id')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(50);
   const { data: reads } = await membersSupabase.from('message_reads').select('message_id').eq('player_id', me);
   const readSet = new Set((reads || []).map(r => r.message_id));
 
@@ -72,59 +81,57 @@ async function init(){
   const deptMap = {};
   (depts || []).forEach(d => { deptMap[d.id] = d.name; });
 
-  const senderCharIds = [...new Set((unreadMsgs || []).map(m => m.sender_character_id).filter(Boolean))];
+  const senderCharIds = [...new Set((allMsgs || []).map(m => m.sender_character_id).filter(Boolean))];
   const senderCharMap = {};
   if(senderCharIds.length){
     const { data: senderChars } = await membersSupabase.from('character_names').select('id, name').in('id', senderCharIds);
     (senderChars || []).forEach(c => { senderCharMap[c.id] = c.name; });
   }
 
-  (unreadMsgs || []).forEach(m => {
-    if(m.sender_id === me || readSet.has(m.id)) return;
+  (allMsgs || []).forEach(m => {
+    if(m.sender_id === me) return;
     const from = m.sender_department_id
       ? (deptMap[m.sender_department_id] || 'a department')
       : m.sender_character_id
         ? (senderCharMap[m.sender_character_id] || 'a character')
         : (profileMap[m.sender_id] || 'Unknown player');
     const via = m.recipient_department_id ? ` to ${escapeHtml(deptMap[m.recipient_department_id] || 'a department')}` : '';
-    items.push({
+    const entry = {
       type: 'msg',
       date: m.created_at,
-      html: `<strong>New message from ${escapeHtml(from)}</strong>${via}<br><em>${escapeHtml(m.subject || 'No subject')}</em><br>${escapeHtml(m.body)}`
-    });
+      html: `<strong>Message from ${escapeHtml(from)}</strong>${via}<br><em>${escapeHtml(m.subject || 'No subject')}</em><br>${escapeHtml(m.body)}`
+    };
+    (readSet.has(m.id) ? previousItems : newItems).push(entry);
   });
 
   if(charIds.length){
-    let xpQuery = membersSupabase.from('xp_transactions').select('character_id, amount, note, created_at').in('character_id', charIds).order('created_at', { ascending: false });
-    if(lastSeen) xpQuery = xpQuery.gt('created_at', lastSeen);
-    const { data: xpRows } = await xpQuery;
+    const { data: xpRows } = await membersSupabase.from('xp_transactions').select('character_id, amount, note, created_at').in('character_id', charIds).order('created_at', { ascending: false }).limit(50);
     (xpRows || []).forEach(x => {
-      items.push({
+      const entry = {
         type: 'xp',
         date: x.created_at,
         html: `<strong>${x.amount > 0 ? '+' : ''}${x.amount} XP</strong> to ${escapeHtml(charMap[x.character_id] || 'a character')}${x.note ? ' - ' + escapeHtml(x.note) : ''}`
-      });
+      };
+      (isNew(x.created_at) ? newItems : previousItems).push(entry);
     });
   }
 
-  let ocQuery = membersSupabase.from('oc_transactions').select('amount, note, created_at').eq('player_id', me).order('created_at', { ascending: false });
-  if(lastSeen) ocQuery = ocQuery.gt('created_at', lastSeen);
-  const { data: ocRows } = await ocQuery;
+  const { data: ocRows } = await membersSupabase.from('oc_transactions').select('amount, note, created_at').eq('player_id', me).order('created_at', { ascending: false }).limit(50);
   (ocRows || []).forEach(o => {
-    items.push({
+    const entry = {
       type: 'oc',
       date: o.created_at,
       html: `<strong>${o.amount > 0 ? '+' : ''}${o.amount} OC</strong>${o.note ? ' - ' + escapeHtml(o.note) : ''}`
-    });
+    };
+    (isNew(o.created_at) ? newItems : previousItems).push(entry);
   });
 
-  let bankTxQuery = membersSupabase
+  const { data: bankTxRows } = await membersSupabase
     .from('bank_transactions')
     .select('type, amount, note, counterparty_id, created_by, created_at')
     .eq('player_id', me)
-    .order('created_at', { ascending: false });
-  if(lastSeen) bankTxQuery = bankTxQuery.gt('created_at', lastSeen);
-  const { data: bankTxRows } = await bankTxQuery;
+    .order('created_at', { ascending: false })
+    .limit(50);
   (bankTxRows || []).forEach(t => {
     if(!t.created_by || t.created_by === me) return;
     const note = t.note ? ' - ' + escapeHtml(t.note) : '';
@@ -134,50 +141,57 @@ async function init(){
     else if(t.type === 'transfer_in') html = `<strong>+${t.amount} coin</strong> from ${escapeHtml(profileMap[t.counterparty_id] || 'another player')}${note}`;
     else if(t.type === 'bill_payment_in') html = `<strong>+${t.amount} coin</strong> - ${escapeHtml(profileMap[t.counterparty_id] || 'a player')} paid your bill${note}`;
     else html = `<strong>${t.amount} coin</strong> bank update${note}`;
-    items.push({ type: 'bank', date: t.created_at, html });
+    (isNew(t.created_at) ? newItems : previousItems).push({ type: 'bank', date: t.created_at, html });
   });
 
-  let newBillsQuery = membersSupabase
+  const { data: newBillRows } = await membersSupabase
     .from('bank_bills')
     .select('from_player_id, amount, note, status, created_at')
     .eq('to_player_id', me)
     .eq('status', 'pending')
-    .order('created_at', { ascending: false });
-  if(lastSeen) newBillsQuery = newBillsQuery.gt('created_at', lastSeen);
-  const { data: newBillRows } = await newBillsQuery;
+    .order('created_at', { ascending: false })
+    .limit(50);
   (newBillRows || []).forEach(b => {
-    items.push({
+    const entry = {
       type: 'bank',
       date: b.created_at,
       html: `<strong>New bill</strong> from ${escapeHtml(profileMap[b.from_player_id] || 'a player')} for ${b.amount} coin${b.note ? ' - ' + escapeHtml(b.note) : ''}`
-    });
+    };
+    (isNew(b.created_at) ? newItems : previousItems).push(entry);
   });
 
-  let declinedBillsQuery = membersSupabase
+  const { data: declinedBillRows } = await membersSupabase
     .from('bank_bills')
     .select('to_player_id, amount, note, resolved_at')
     .eq('from_player_id', me)
     .eq('status', 'declined')
-    .order('resolved_at', { ascending: false });
-  if(lastSeen) declinedBillsQuery = declinedBillsQuery.gt('resolved_at', lastSeen);
-  const { data: declinedBillRows } = await declinedBillsQuery;
+    .order('resolved_at', { ascending: false })
+    .limit(50);
   (declinedBillRows || []).forEach(b => {
-    items.push({
+    const entry = {
       type: 'bank',
       date: b.resolved_at,
       html: `${escapeHtml(profileMap[b.to_player_id] || 'A player')} declined your bill for ${b.amount} coin${b.note ? ' - ' + escapeHtml(b.note) : ''}`
-    });
+    };
+    (isNew(b.resolved_at) ? newItems : previousItems).push(entry);
   });
 
-  items.sort((a, b) => new Date(b.date) - new Date(a.date));
+  newItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+  previousItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const previousTop10 = previousItems.slice(0, 10);
 
-  const target = document.getElementById('notif-list');
-  target.innerHTML = items.length ? items.map(i => `
-    <div class="bank-bill-card">
-      <div><span class="log-type ${i.type}">${i.type.toUpperCase()}</span> <span class="bank-request-date">${fmtDateTime(i.date)}</span></div>
-      <div style="margin-top:0.4rem;">${i.html}</div>
-    </div>
-  `).join('') : '<p class="reg-empty-note">Nothing new since your last visit.</p>';
+  const renderList = (targetId, list, emptyMessage) => {
+    const target = document.getElementById(targetId);
+    target.innerHTML = list.length ? list.map(i => `
+      <div class="bank-bill-card">
+        <div><span class="log-type ${i.type}">${i.type.toUpperCase()}</span> <span class="bank-request-date">${fmtDateTime(i.date)}</span></div>
+        <div style="margin-top:0.4rem;">${i.html}</div>
+      </div>
+    `).join('') : `<p class="reg-empty-note">${emptyMessage}</p>`;
+  };
+
+  renderList('notif-new-list', newItems, 'Nothing new since your last visit.');
+  renderList('notif-previous-list', previousTop10, 'No previous notifications yet.');
 
   await membersSupabase.rpc('notifications_mark_seen');
   const badge = document.getElementById('member-notif-badge');
