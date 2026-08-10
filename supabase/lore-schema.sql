@@ -21,17 +21,17 @@ create policy "Lore entries are publicly readable"
 drop policy if exists "Only lore editors can insert" on lore_entries;
 create policy "Only lore editors can insert"
   on lore_entries for insert
-  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor');
+  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor' or fa_is_site_admin());
 
 drop policy if exists "Only lore editors can update" on lore_entries;
 create policy "Only lore editors can update"
   on lore_entries for update
-  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor');
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor' or fa_is_site_admin());
 
 drop policy if exists "Only lore editors can delete" on lore_entries;
 create policy "Only lore editors can delete"
   on lore_entries for delete
-  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor');
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor' or fa_is_site_admin());
 
 
 insert into storage.buckets (id, name, public)
@@ -46,12 +46,12 @@ create policy "Public read for lore images"
 drop policy if exists "Lore editors can upload images" on storage.objects;
 create policy "Lore editors can upload images"
   on storage.objects for insert
-  with check (bucket_id = 'lore-images' and (auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor');
+  with check (bucket_id = 'lore-images' and ((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor' or fa_is_site_admin()));
 
 drop policy if exists "Lore editors can delete images" on storage.objects;
 create policy "Lore editors can delete images"
   on storage.objects for delete
-  using (bucket_id = 'lore-images' and (auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor');
+  using (bucket_id = 'lore-images' and ((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor' or fa_is_site_admin()));
 
 
 insert into lore_entries (slug, title, category, body) values

@@ -22,7 +22,7 @@ declare
   v_body text := trim(coalesce(p_body, ''));
   v_id uuid;
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'announcements_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'announcements_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
   if v_title = '' then raise exception 'Title cannot be empty'; end if;
@@ -38,7 +38,7 @@ $$;
 create or replace function announcement_delete(p_id uuid)
 returns void language plpgsql security definer as $$
 begin
-  if not coalesce((auth.jwt() -> 'app_metadata' ->> 'announcements_staff')::boolean, false) then
+  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'announcements_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
   end if;
 

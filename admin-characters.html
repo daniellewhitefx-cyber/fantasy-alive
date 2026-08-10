@@ -585,7 +585,7 @@ window.ac_adjustOc = ac_adjustOc;
 
 document.addEventListener('fa-members-ready', async (e) => {
   const user = e.detail.user;
-  const isStaff = !!(user.app_metadata && user.app_metadata.character_staff);
+  const isStaff = !!(user.app_metadata && (user.app_metadata.character_staff || user.app_metadata.site_admin));
   if(!isStaff){
     document.getElementById('ac-blocked-notice').style.display = 'block';
     return;

@@ -17,8 +17,8 @@ async function loreGetEditorRole(){
   const { data } = await loreSupabase.auth.getSession();
   const session = data && data.session;
   if(!session) return null;
-  const role = session.user.app_metadata && session.user.app_metadata.role;
-  return { user: session.user, isEditor: role === 'lore_editor' };
+  const meta = session.user.app_metadata || {};
+  return { user: session.user, isEditor: meta.role === 'lore_editor' || !!meta.site_admin };
 }
 
 function loreSlugify(title){

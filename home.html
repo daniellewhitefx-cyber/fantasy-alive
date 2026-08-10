@@ -159,7 +159,7 @@ window.home_postAnnouncement = home_postAnnouncement;
 
 document.addEventListener('fa-members-ready', async (e) => {
   const user = e.detail.user;
-  isAnnounceStaff = !!(user.app_metadata && user.app_metadata.announcements_staff);
+  isAnnounceStaff = !!(user.app_metadata && (user.app_metadata.announcements_staff || user.app_metadata.site_admin));
   document.getElementById('home-announce-staff-section').style.display = isAnnounceStaff ? 'block' : 'none';
 
   const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
