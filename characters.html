@@ -62,6 +62,43 @@ let xpByChar = {};
 let profileMap = {};
 let isRemortStaff = false;
 
+const RACE_STATS = {
+  'Curtainborn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 5, baseMe: 0 },
+  'D\'Shunn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Dwarf': { baseLp: 6, maxLp: 15, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Elf': { baseLp: 4, maxLp: 10, baseResurrections: 1, baseSe: 0, baseMe: 5 },
+  'Gnome': { baseLp: 4, maxLp: 8, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Goblin': { baseLp: 4, maxLp: 8, baseResurrections: 3, baseSe: 0, baseMe: 0 },
+  'Human': { baseLp: 5, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Lizardfolk': { baseLp: 6, maxLp: 15, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Malkin': { baseLp: 6, maxLp: 12, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Minotaur': { baseLp: 8, maxLp: 20, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Orc': { baseLp: 7, maxLp: 15, baseResurrections: 2, baseSe: 0, baseMe: 0 }
+};
+const MAX_RESURRECTIONS = 5;
+
+function skillLevelTotal(skills, name){
+  return skills
+    .filter(s => s.name.trim().toLowerCase() === name.toLowerCase())
+    .reduce((sum, s) => sum + (s.level || 0), 0);
+}
+
+function hasSkill(skills, name){
+  return skills.some(s => s.name.trim().toLowerCase() === name.toLowerCase());
+}
+
+function deriveStats(c){
+  const race = RACE_STATS[c.race] || { baseLp: 5, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 };
+  const skills = c.skills || [];
+
+  const lp = Math.min(race.baseLp + skillLevelTotal(skills, 'Physical Endurance'), race.maxLp);
+  const resurrectionsLeft = Math.min(race.baseResurrections + skillLevelTotal(skills, 'Spiritual Endurance'), MAX_RESURRECTIONS);
+  const se = race.baseSe + skillLevelTotal(skills, 'Spiritual Energy') + (hasSkill(skills, 'Theology') ? 1 : 0);
+  const me = race.baseMe + skillLevelTotal(skills, 'Magical Energy') + (hasSkill(skills, 'Magery') ? 1 : 0);
+
+  return { lp, se, me, resurrectionsLeft };
+}
+
 function chars_selectChar(id){
   activeCharId = id;
   render();
@@ -120,6 +157,7 @@ function render(){
   const spent = c.skills.reduce((sum, s) => sum + s.sp, 0);
   const experience = xpByChar[c.id] || 0;
   const ratio = spent > 0 ? (experience / spent).toFixed(1) + ':1' : '-';
+  const stats = deriveStats(c);
 
   document.getElementById('chars-char-panel').innerHTML = `
     <div class="stat-panel">
@@ -127,9 +165,9 @@ function render(){
       <div class="stat-row"><span class="stat-label">Social Class</span><span class="stat-value">${c.socialClass ? escapeHtml(c.socialClass) : '-'}</span></div>
       <div class="stat-row"><span class="stat-label">Birthday</span><span class="stat-value">${c.birthday ? escapeHtml(c.birthday) : '-'}</span></div>
       <div class="stat-row"><span class="stat-label">Skill Points</span><span class="stat-value">${spent}/${c.startingSp}</span></div>
-      <div class="stat-row"><span class="stat-label">LP</span><span class="stat-value">${c.lp}</span></div>
-      <div class="stat-row"><span class="stat-label">SE/ME</span><span class="stat-value">${c.se}/${c.me}</span></div>
-      <div class="stat-row"><span class="stat-label">Resurrections Left</span><span class="stat-value">${c.resurrectionsLeft}</span></div>
+      <div class="stat-row"><span class="stat-label">LP</span><span class="stat-value">${stats.lp}</span></div>
+      <div class="stat-row"><span class="stat-label">SE/ME</span><span class="stat-value">${stats.se}/${stats.me}</span></div>
+      <div class="stat-row"><span class="stat-label">Resurrections Left</span><span class="stat-value">${stats.resurrectionsLeft}</span></div>
       <div class="stat-row"><span class="stat-label">Experience</span><span class="stat-value">${experience}</span></div>
       <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${ratio}</span></div>
     </div>
@@ -235,7 +273,7 @@ async function chars_denyRemort(reqId){
 async function loadCharacters(){
   const { data: chars, error } = await membersSupabase
     .from('characters')
-    .select('id, name, race, pronouns, birthday, starting_sp, social_class, lp, se, me, resurrections_left, created_at')
+    .select('id, name, race, pronouns, birthday, starting_sp, social_class, created_at')
     .eq('player_id', window.faCurrentUser.id)
     .order('created_at', { ascending: true });
 
@@ -257,10 +295,6 @@ async function loadCharacters(){
     birthday: ch.birthday,
     startingSp: ch.starting_sp,
     socialClass: ch.social_class,
-    lp: ch.lp,
-    se: ch.se,
-    me: ch.me,
-    resurrectionsLeft: ch.resurrections_left,
     skills: (skillRows || [])
       .filter(sk => sk.character_id === ch.id)
       .map(sk => ({ name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, sp: sk.sp_cost }))

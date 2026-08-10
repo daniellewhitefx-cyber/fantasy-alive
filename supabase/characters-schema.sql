@@ -9,11 +9,16 @@ create table if not exists characters (
   created_at timestamptz not null default now()
 );
 
-alter table characters add column if not exists social_class text;
-alter table characters add column if not exists lp integer not null default 4;
-alter table characters add column if not exists se integer not null default 0;
-alter table characters add column if not exists me integer not null default 0;
-alter table characters add column if not exists resurrections_left integer not null default 2;
+-- LP, SE, ME, and Resurrections Left are derived from race + skills
+-- (see characters.html's RACE_STATS table and deriveStats()) rather than
+-- stored, so the columns added for them in an earlier pass are removed here.
+alter table characters drop column if exists lp;
+alter table characters drop column if exists se;
+alter table characters drop column if exists me;
+alter table characters drop column if exists resurrections_left;
+
+alter table characters add column if not exists social_class text not null default 'Yeoman';
+update characters set social_class = 'Yeoman' where social_class is null or trim(social_class) = '';
 
 create index if not exists characters_player_idx on characters(player_id, created_at);
 

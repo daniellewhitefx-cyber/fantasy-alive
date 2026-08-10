@@ -83,6 +83,10 @@
 <label class="field-label" for="ac-birthday">Birthday</label>
 <input type="date" id="ac-birthday">
 </div>
+<div>
+<label class="field-label" for="ac-social-class">Social Class</label>
+<input type="text" id="ac-social-class">
+</div>
 </div>
 <button class="btn-gold" style="margin-top:1rem;" onclick="ac_saveDetails()">Save Details</button>
 <p class="reg-success-note" id="ac-details-success" style="display:none;"></p>
@@ -276,7 +280,7 @@ function ac_search(query){
 async function ac_selectCharacter(charId){
   const { data: char } = await membersSupabase
     .from('characters')
-    .select('id, name, race, pronouns, birthday, starting_sp, player_id')
+    .select('id, name, race, pronouns, birthday, starting_sp, social_class, player_id')
     .eq('id', charId)
     .maybeSingle();
 
@@ -292,6 +296,7 @@ async function ac_selectCharacter(charId){
   document.getElementById('ac-race').value = char.race;
   document.getElementById('ac-pronouns').value = char.pronouns || '';
   document.getElementById('ac-birthday').value = char.birthday || '';
+  document.getElementById('ac-social-class').value = char.social_class || '';
   document.getElementById('ac-starting-sp').value = char.starting_sp;
 
   await Promise.all([loadSkills(), loadXp(), loadOc()]);
@@ -412,9 +417,10 @@ async function ac_saveDetails(){
   const race = document.getElementById('ac-race').value;
   const pronouns = document.getElementById('ac-pronouns').value.trim();
   const birthday = document.getElementById('ac-birthday').value || null;
+  const socialClass = document.getElementById('ac-social-class').value.trim();
 
   const { error } = await membersSupabase.rpc('character_staff_update_details', {
-    p_character_id: selected.id, p_name: name, p_race: race, p_pronouns: pronouns, p_birthday: birthday
+    p_character_id: selected.id, p_name: name, p_race: race, p_pronouns: pronouns, p_birthday: birthday, p_social_class: socialClass
   });
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
 
@@ -422,6 +428,7 @@ async function ac_saveDetails(){
   successEl.style.display = 'block';
   selected.name = name;
   selected.race = race;
+  selected.social_class = socialClass;
   const idx = allCharacters.findIndex(c => c.id === selected.id);
   if(idx !== -1){ allCharacters[idx].name = name; allCharacters[idx].race = race; }
 }
