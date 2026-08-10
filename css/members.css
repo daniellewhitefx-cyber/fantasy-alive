@@ -280,11 +280,11 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 .char-header{
   display:flex;
   align-items:center;
-  justify-content:flex-end;
   gap: 1rem;
   margin-bottom: 0.8rem;
   flex-wrap: wrap;
 }
+.char-header .char-switcher{ margin-bottom: 0; }
 .char-panel{
   display:grid;
   grid-template-columns: 280px 1fr;
@@ -946,24 +946,24 @@ select.reg-date-select{
   color: var(--cream);
   border: 2px solid var(--gold);
   border-radius: 6px;
-  padding: 1.6rem 1.8rem;
-  margin-bottom: 2rem;
+  padding: 0.9rem 1.2rem;
+  margin-bottom: 1.2rem;
 }
 .bank-balance-label{
   font-family: 'Cinzel', serif;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.25rem;
 }
 .bank-balance-amount{
   font-family: 'Cinzel', serif;
-  font-size: 2.4rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: var(--gold);
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.4rem;
 }
 .auction-item-card{
   display:flex;
