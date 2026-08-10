@@ -132,7 +132,7 @@ const state = {
   flexEvent: ACCOUNT.flexEventCredits,
   who: null,
   character: null,
-  event: EVENTS[0]
+  event: EVENTS[0] || null
 };
 
 const PAYMENT_METHODS = [
@@ -153,8 +153,8 @@ let existingRegistration = null;
 let checkingRegistration = false;
 
 function reg_selectEvent(value){
-  state.event = EVENTS.find(e => e.value === value) || EVENTS[0];
-  selectedDays = new Set(state.event.days.map(d => d.id));
+  state.event = EVENTS.find(e => e.value === value) || EVENTS[0] || null;
+  selectedDays = state.event ? new Set(state.event.days.map(d => d.id)) : new Set();
   existingRegistration = null;
   render();
   refreshRegisteredCount();
@@ -163,7 +163,7 @@ function reg_selectEvent(value){
 
 async function refreshRegisteredCount(){
   const el = document.getElementById('reg-registered-count');
-  if(!REGISTRATION_ENDPOINT || !el) return;
+  if(!REGISTRATION_ENDPOINT || !el || !state.event) return;
   try{
     const res = await fetch(REGISTRATION_ENDPOINT + '?action=count&event=' + encodeURIComponent(state.event.label), { cache: 'no-store' });
     if(!res.ok) throw new Error('count failed');
@@ -255,6 +255,15 @@ function escapeHtml(str){
 
 function render(){
   const dateSelect = document.getElementById('reg-date-select');
+
+  if(!EVENTS.length){
+    dateSelect.style.display = 'none';
+    document.getElementById('reg-who-section').style.display = 'none';
+    document.getElementById('reg-rest-of-form').style.display = 'none';
+    document.getElementById('reg-registered-count').textContent = 'No upcoming events are scheduled right now. Check back soon.';
+    return;
+  }
+
   if(!dateSelect.options.length){
     dateSelect.innerHTML = EVENTS.map(e => `<option value="${e.value}">${escapeHtml(e.label)}</option>`).join('');
     dateSelect.value = state.event.value;
@@ -677,7 +686,7 @@ window.reg_setSingleMealChoice = reg_setSingleMealChoice;
 window.reg_useFlex = reg_useFlex;
 window.reg_submit = reg_submit;
 
-selectedDays = new Set(state.event.days.map(d => d.id));
+selectedDays = state.event ? new Set(state.event.days.map(d => d.id)) : new Set();
 
 async function loadCharacters(){
   const { data } = await membersSupabase
