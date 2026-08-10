@@ -9,6 +9,12 @@ create table if not exists characters (
   created_at timestamptz not null default now()
 );
 
+alter table characters add column if not exists social_class text;
+alter table characters add column if not exists lp integer not null default 4;
+alter table characters add column if not exists se integer not null default 0;
+alter table characters add column if not exists me integer not null default 0;
+alter table characters add column if not exists resurrections_left integer not null default 2;
+
 create index if not exists characters_player_idx on characters(player_id, created_at);
 
 alter table characters enable row level security;
