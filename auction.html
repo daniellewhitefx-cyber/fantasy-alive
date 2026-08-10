@@ -59,6 +59,9 @@
   <input type="number" id="auction-new-increment" min="1" step="1" value="5">
 </div>
 </div>
+<label class="field-label" for="auction-new-ends-at" style="margin-top:0.9rem;">Ends At (optional)</label>
+<input type="datetime-local" id="auction-new-ends-at">
+<p class="reg-empty-note" style="margin-top:0.3rem;">Leave blank to close it manually instead of on a timer.</p>
 <button class="btn-gold" style="margin-top:1rem;" id="auction-new-save-btn" onclick="auction_createItem()">Create Item</button>
 <p class="reg-error-note" id="auction-new-error" style="display:none;"></p>
 </div>
@@ -83,6 +86,7 @@
 let profileMap = {};
 let isStaff = false;
 let currentItem = null;
+let currentItemClosed = false;
 let currentBids = [];
 let myLastBidAt = null;
 let allItemsForStaff = [];
@@ -105,12 +109,31 @@ function minNextBid(item, bids){
 }
 
 async function loadCurrentItem(){
-  const { data: items } = await membersSupabase
+  const { data: liveItems } = await membersSupabase
     .from('auction_items')
-    .select('id, name, description, image_url, starting_bid, min_increment, status')
+    .select('id, name, description, image_url, starting_bid, min_increment, status, ends_at')
     .eq('status', 'live')
     .limit(1);
-  currentItem = (items && items[0]) || null;
+  let item = (liveItems && liveItems[0]) || null;
+
+  if(item && item.ends_at && new Date(item.ends_at) <= new Date()){
+    await membersSupabase.rpc('auction_close', { p_item_id: item.id });
+    item = null;
+  }
+
+  currentItemClosed = false;
+  if(!item){
+    const { data: closedItems } = await membersSupabase
+      .from('auction_items')
+      .select('id, name, description, image_url, winner_player_id, winning_bid_amount, closed_at')
+      .eq('status', 'closed')
+      .order('closed_at', { ascending: false })
+      .limit(1);
+    item = (closedItems && closedItems[0]) || null;
+    currentItemClosed = true;
+  }
+
+  currentItem = item;
 
   if(currentItem){
     const { data: bids } = await membersSupabase
@@ -148,6 +171,36 @@ function renderCurrentItem(){
     return;
   }
 
+  if(currentItemClosed){
+    wrap.innerHTML = `
+      <div class="auction-item-card">
+        ${currentItem.image_url ? `<img class="auction-item-image" src="${escapeHtml(currentItem.image_url)}" alt="">` : ''}
+        <div class="auction-item-info">
+          <div class="auction-item-label">Auction Ended</div>
+          <div class="auction-item-name">${escapeHtml(currentItem.name)}</div>
+          ${currentItem.description ? `<p class="auction-item-desc">${escapeHtml(currentItem.description)}</p>` : ''}
+          ${currentItem.winner_player_id ? `
+            <div class="auction-item-label">Winner</div>
+            <div class="auction-item-amount">${escapeHtml(nameFor(currentItem.winner_player_id))} - ${fmtMoney(currentItem.winning_bid_amount)}</div>
+          ` : `<p class="auction-item-desc">No bids were placed on this item.</p>`}
+        </div>
+      </div>
+
+      <div class="reg-section">
+        <div class="reg-section-label">Bid History</div>
+        ${currentBids.length === 0
+          ? '<p class="reg-empty-note">No bids were placed.</p>'
+          : currentBids.map(b => `
+            <div class="bank-bill-card">
+              <strong>${escapeHtml(nameFor(b.player_id))}</strong> bid ${fmtMoney(b.amount)}
+              <span class="bank-request-date" style="float:right;">${fmtDateTime(b.created_at)}</span>
+            </div>
+          `).join('')}
+      </div>
+    `;
+    return;
+  }
+
   const highest = currentBids.length ? currentBids[0] : null;
   const nextMin = minNextBid(currentItem, currentBids);
   const cooldownMs = cooldownRemainingMs();
@@ -162,6 +215,7 @@ function renderCurrentItem(){
         <div class="auction-item-label">${highest ? 'Current Highest Bid' : 'Starting Bid'}</div>
         <div class="auction-item-amount">${fmtMoney(highest ? highest.amount : currentItem.starting_bid)}</div>
         ${highest ? `<p class="auction-item-leading">Leading: ${escapeHtml(nameFor(highest.player_id))}</p>` : ''}
+        ${currentItem.ends_at ? `<p class="auction-item-leading">Ends: ${fmtDateTime(currentItem.ends_at)}</p>` : ''}
       </div>
     </div>
 
@@ -328,6 +382,8 @@ async function auction_createItem(){
   const imageFile = document.getElementById('auction-new-image').files[0];
   const starting = parseFloat(document.getElementById('auction-new-starting').value);
   const increment = parseFloat(document.getElementById('auction-new-increment').value);
+  const endsAtInput = document.getElementById('auction-new-ends-at').value;
+  const endsAt = endsAtInput ? new Date(endsAtInput).toISOString() : null;
 
   saveBtn.disabled = true;
   try{
@@ -341,7 +397,8 @@ async function auction_createItem(){
       p_description: description,
       p_image_url: imageUrl,
       p_starting_bid: starting,
-      p_min_increment: increment
+      p_min_increment: increment,
+      p_ends_at: endsAt
     });
     if(error){
       errorEl.textContent = error.message;
@@ -352,6 +409,7 @@ async function auction_createItem(){
     document.getElementById('auction-new-name').value = '';
     document.getElementById('auction-new-description').value = '';
     document.getElementById('auction-new-image').value = '';
+    document.getElementById('auction-new-ends-at').value = '';
     await loadStaffItems();
   } catch(err){
     errorEl.textContent = err.message || 'Image upload failed.';
