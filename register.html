@@ -21,7 +21,7 @@
 <div>
 
 <h1 class="page-title">Register for an Event</h1>
-<p class="page-subhead">Pick a date, choose your pass, and everything else fills itself in based on your account. Payment isn't collected online yet - you'll settle up at the event.</p>
+<p class="page-subhead">Pick a date, choose your pass, and everything else fills itself in based on your account. Choose to pay online or settle up at the event.</p>
 
 <div class="reg-section">
 <div class="reg-section-label">Event Date</div>
@@ -60,6 +60,11 @@
 <div class="reg-section" id="reg-meal-section">
 <div class="reg-section-label">Meal Plan</div>
 <div id="reg-meal-content"></div>
+</div>
+
+<div class="reg-section" id="reg-payment-section">
+<div class="reg-section-label">Payment Method</div>
+<div class="reg-pass-grid" id="reg-payment-grid"></div>
 </div>
 
 <div class="reg-summary" id="reg-summary-wrap">
@@ -130,8 +135,14 @@ const state = {
   event: EVENTS[0]
 };
 
+const PAYMENT_METHODS = [
+  { id:'online', name:'Pay Online', flavor:'Pay now with a card. You\'ll get a payment link before the event.' },
+  { id:'event', name:'Pay at Event', flavor:'Settle up in person when you arrive.' }
+];
+
 let selectedPass = null;
 let selectedCombat = null;
+let selectedPayment = null;
 let selectedMeal = null;
 let singleMealChoice = null;
 let selectedDays = new Set();
@@ -171,6 +182,7 @@ function reg_selectWho(mode, characterId){
   selectedPass = null;
   selectedMeal = null;
   selectedCombat = null;
+  selectedPayment = null;
   existingRegistration = null;
   render();
   checkExistingRegistration();
@@ -205,6 +217,11 @@ function reg_selectPass(id){
 
 function reg_selectCombat(id){
   selectedCombat = id;
+  render();
+}
+
+function reg_selectPayment(id){
+  selectedPayment = id;
   render();
 }
 
@@ -421,7 +438,25 @@ function render(){
   const havePass = !!selectedPass;
 
   total.textContent = '$'+sum;
-  payBtn.disabled = !havePass || singleMealIncomplete || combatIncomplete || daysIncomplete || submitting;
+
+  const paymentSection = document.getElementById('reg-payment-section');
+  const paymentNeeded = sum > 0;
+  if(paymentNeeded){
+    paymentSection.style.display = 'block';
+    document.getElementById('reg-payment-grid').innerHTML = PAYMENT_METHODS.map(pm => `
+      <div class="reg-pass-card ${selectedPayment===pm.id?'selected':''}" onclick="reg_selectPayment('${pm.id}')">
+        <div class="pname">${escapeHtml(pm.name)}</div>
+        <p class="pgrants">${escapeHtml(pm.flavor)}</p>
+      </div>
+    `).join('');
+  } else {
+    paymentSection.style.display = 'none';
+    selectedPayment = null;
+  }
+
+  const paymentIncomplete = paymentNeeded && !selectedPayment;
+
+  payBtn.disabled = !havePass || singleMealIncomplete || combatIncomplete || daysIncomplete || paymentIncomplete || submitting;
 
   if(!havePass){
     payBtn.textContent = 'Select a pass to continue';
@@ -431,10 +466,16 @@ function render(){
     payBtn.textContent = 'Choose at least one day to continue';
   } else if(singleMealIncomplete){
     payBtn.textContent = 'Choose a meal to continue';
+  } else if(paymentIncomplete){
+    payBtn.textContent = 'Choose a payment method to continue';
   } else if(submitting){
     payBtn.textContent = 'Submitting...';
+  } else if(sum === 0){
+    payBtn.textContent = 'Confirm Free Registration';
+  } else if(selectedPayment === 'online'){
+    payBtn.textContent = `Complete Registration - Pay Online ($${sum})`;
   } else {
-    payBtn.textContent = sum === 0 ? 'Confirm Free Registration' : `Complete Registration ($${sum} due at event)`;
+    payBtn.textContent = `Complete Registration ($${sum} due at event)`;
   }
 }
 
@@ -502,6 +543,7 @@ async function reg_submit(){
     singleMealChoice: (mealObj && mealObj.id === 'single') ? (singleMealChoice || '') : '',
     mealSlots: mealSlotsFor(passObj, mealObj),
     total: parseInt(sumEl.textContent.replace('$',''), 10) || 0,
+    paymentMethod: selectedPayment === 'online' ? 'Online' : (selectedPayment === 'event' ? 'At Event' : ''),
     allergyNotes: allergyNotes,
     disabilityNotes: disabilityNotes
   };
@@ -521,10 +563,16 @@ async function reg_submit(){
     document.getElementById('reg-rest-of-form').querySelectorAll('.reg-section, #reg-summary-wrap').forEach(el => el.style.display = 'none');
     const success = document.getElementById('reg-success');
     success.style.display = 'block';
+    let paymentLine = 'This is a free entry - see you there!';
+    if(payload.total > 0){
+      paymentLine = payload.paymentMethod === 'Online'
+        ? `We'll follow up with a payment link for $${payload.total} - online payment isn't fully wired up yet.`
+        : `$${payload.total} will be due at the event.`;
+    }
     success.innerHTML = `
       <h3>You're registered!</h3>
       <p>${escapeHtml(payload.characterName)} is signed up for <strong>${escapeHtml(payload.eventLabel)}</strong>.
-      ${payload.total > 0 ? `$${payload.total} will be due at the event.` : 'This is a free entry - see you there!'}</p>
+      ${paymentLine}</p>
     `;
   } catch(err){
     errorNote.textContent = "Something went wrong submitting your registration. Please try again.";
@@ -539,6 +587,7 @@ window.reg_selectEvent = reg_selectEvent;
 window.reg_selectWho = reg_selectWho;
 window.reg_selectPass = reg_selectPass;
 window.reg_selectCombat = reg_selectCombat;
+window.reg_selectPayment = reg_selectPayment;
 window.reg_toggleDay = reg_toggleDay;
 window.reg_selectMeal = reg_selectMeal;
 window.reg_setSingleMealChoice = reg_setSingleMealChoice;
