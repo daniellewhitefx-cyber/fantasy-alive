@@ -48,29 +48,120 @@
 }
 .photo-slot svg{ width:34px; height:34px; opacity:0.55; }
 .photo-slot.hero-slot{ height:100%; min-height:320px; border-radius:0; }
-.coming-soon{
-  max-width: 700px;
+.site-section{
+  max-width: 900px;
   margin: 0 auto;
-  padding: 3.5rem 2rem 4.5rem;
-  text-align:center;
+  padding: 3rem 2rem;
 }
-.coming-soon h2{
+.site-section h2{
+  font-family: 'Cinzel', serif;
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 1rem;
   color: var(--brown-dark);
+  text-align:center;
 }
-.coming-soon p{
+.site-section p{
   font-family:'EB Garamond', serif;
   font-size: 1.08rem;
   line-height: 1.6;
   color: #2e2415;
+}
+.address-block{
+  border: 3px solid var(--gold);
+  box-shadow: 10px 10px 0 0 var(--gold);
+  background: var(--row-a);
+  padding: 1.6rem 1.8rem;
+  margin: 1.5rem 0 2.5rem;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items:center;
+}
+.address-block-text{ text-align:center; }
+.address-block-text .addr-label{
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 0.4rem;
+}
+.address-block-text .addr-lines{
+  font-family:'EB Garamond', serif;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--brown);
+  margin: 0 0 1rem;
+}
+.address-block-map{
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  overflow: hidden;
+  height: 220px;
+}
+.address-block-map iframe{ width:100%; height:100%; border:0; display:block; }
+.maps-link{
+  display:inline-flex;
+  align-items:center;
+  gap: 0.5rem;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.65rem 1.3rem;
+  background: var(--gold);
+  color: var(--ink);
+  border-radius: 4px;
+  text-decoration:none;
+}
+.maps-link:hover{ background: var(--gold-dark); }
+.maps-link svg{ width:18px; height:18px; }
+.amenities-intro{ text-align:center; max-width: 720px; margin: 0 auto 2rem; }
+.amenities-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin: 0 0 2rem;
+}
+.amenity-item{
+  display:flex;
+  align-items:center;
+  gap: 0.8rem;
+  border: 2px solid var(--gold-dark);
+  border-radius: 6px;
+  background: var(--row-b);
+  padding: 0.8rem 1rem;
+}
+.amenity-item svg{
+  width: 22px;
+  height: 22px;
+  flex-shrink:0;
+  color: var(--gold-dark);
+}
+.amenity-item span{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.02rem;
+  color: var(--brown);
+}
+.site-closing{
+  text-align:center;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--brown-dark);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem 0 0;
 }
 @media (max-width: 900px){
   .page-hero{ grid-template-columns: 1fr; height:auto; }
   .page-hero-content{ padding: 1.5rem 1rem; }
   .page-hero h1{ font-size: 2rem; }
   .photo-slot.hero-slot{ height:180px; min-height:180px; }
+  .address-block{ grid-template-columns: 1fr; }
+  .amenities-grid{ grid-template-columns: 1fr; }
+  .site-section{ padding: 2rem 1.2rem; }
 }
 </style>
 </head>
@@ -89,9 +180,43 @@ Add a photo
 </div>
 </section>
 
-<section class="coming-soon">
-<h2>Coming Soon</h2>
-<p>We're still writing this page about our site location and amenities. Check back soon, or reach out on Discord if you have questions in the meantime.</p>
+<section class="site-section">
+
+<p>Adventurers, having fought evil-doers and ne'er-do-wells, often congregate in places of comfort to raise a mug, seek respite, and tell the tale across the table. Weekend events for the 2026 Season will be hosted at 212 Concession Rd 14, Walpole, Ontario.</p>
+
+<div class="address-block">
+<div class="address-block-text">
+<div class="addr-label">Event Site</div>
+<p class="addr-lines">212 Concession Rd 14<br>Walpole, ON<br>N0A 1H0</p>
+<a class="maps-link" href="https://www.google.com/maps/search/?api=1&amp;query=212+Concession+Rd+14%2C+Walpole%2C+ON+N0A+1H0" target="_blank" rel="noopener">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="currentColor" stroke="none"/></svg>
+Open in Google Maps
+</a>
+</div>
+<div class="address-block-map">
+<iframe src="https://www.google.com/maps?q=212+Concession+Rd+14,+Walpole,+ON+N0A+1H0&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Map to the Fantasy Alive event site"></iframe>
+</div>
+</div>
+
+<h2>Site Amenities</h2>
+<p class="amenities-intro">This site has several amenities intended to make your LARP adventure more convenient and comfortable.</p>
+
+<div class="amenities-grid">
+<div class="amenity-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>On-site parking</span></div>
+<div class="amenity-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Hot and cold running water</span></div>
+<div class="amenity-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>An indoor bathroom</span></div>
+<div class="amenity-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Outhouse facilities</span></div>
+<div class="amenity-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Showers</span></div>
+<div class="amenity-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>A wood-burning stove inside the large 'tavern' building</span></div>
+<div class="amenity-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>A fire pit outside</span></div>
+<div class="amenity-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Outdoor picnic table seating</span></div>
+<div class="amenity-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Cabins for indoor sleeping (limited availability, contact Logistics to request a space)</span></div>
+</div>
+
+<p>We also provide a healthy and nutritious meal plan for events. Please purchase it accordingly if you're interested. Your characters may be roughing it, but you can take the time to enjoy your adventure with the help of our site amenities.</p>
+
+<p class="site-closing">Don't be afraid to live twice, and to live both times in a clean and comfortable environment.</p>
+
 </section>
 
 <div data-include="partials/footer.html"></div>
