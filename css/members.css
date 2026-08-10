@@ -27,18 +27,18 @@ body.members-ready .dashboard{ visibility:visible; }
 .side-nav{
   display:grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 .side-nav-item{
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap: 0.3rem;
-  padding: 0.7rem 0.3rem;
+  gap: 0.2rem;
+  padding: 0.45rem 0.25rem;
   background: var(--row-b);
   border: 2px solid var(--gold-dark);
-  border-radius: 8px;
+  border-radius: 0;
   text-align:center;
   text-decoration:none;
 }
@@ -48,16 +48,16 @@ body.members-ready .dashboard{ visibility:visible; }
 .side-nav-item.active .side-nav-icon{ color: var(--gold); }
 .side-nav-icon{
   position:relative;
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   color: var(--brown-dark);
 }
 .side-nav-icon svg{ width:100%; height:100%; display:block; }
 .side-nav-label{
   font-family: 'Cinzel', serif;
   font-weight: 600;
-  font-size: 0.66rem;
-  line-height: 1.15;
+  font-size: 0.6rem;
+  line-height: 1.1;
   color: var(--brown-dark);
 }
 .side-nav-badge{
@@ -71,7 +71,7 @@ body.members-ready .dashboard{ visibility:visible; }
   font-size: 0.62rem;
   min-width: 15px;
   height: 15px;
-  border-radius: 8px;
+  border-radius: 0;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -81,14 +81,14 @@ body.members-ready .dashboard{ visibility:visible; }
 .side-nav-logout{
   display:block;
   text-align:center;
-  margin-top: 0.7rem;
-  padding: 0.6rem 1rem;
+  margin-top: 0.5rem;
+  padding: 0.45rem 1rem;
   font-family: 'Cinzel', serif;
   font-weight: 600;
   font-size: 0.85rem;
   color: var(--brown-dark);
   border: 2px solid var(--gold-dark);
-  border-radius: 4px;
+  border-radius: 0;
   text-decoration:none;
 }
 .side-nav-logout:hover{ background: var(--gold); }
