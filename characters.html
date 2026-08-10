@@ -20,14 +20,14 @@
 
 <div>
 
-<div class="char-switcher" id="chars-char-switcher"></div>
-
 <div class="char-header">
 <div id="chars-header-actions" style="display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap;">
 <div id="chars-register-status"><a href="register.html"><button class="btn-gold">Register for Next Event</button></a></div>
 <div id="chars-new-char-slot"></div>
 </div>
 </div>
+
+<div class="char-switcher" id="chars-char-switcher"></div>
 
 <div class="panel-shadow">
 <div class="char-panel" id="chars-char-panel">Loading&hellip;</div>
@@ -99,6 +99,14 @@ function deriveStats(c){
   return { lp, se, me, resurrectionsLeft };
 }
 
+function xpPerSp(currentSp){
+  if(currentSp <= 40) return 10;
+  if(currentSp <= 80) return 15;
+  if(currentSp <= 150) return 20;
+  if(currentSp <= 200) return 25;
+  return 30;
+}
+
 function chars_selectChar(id){
   activeCharId = id;
   render();
@@ -156,7 +164,7 @@ function render(){
 
   const spent = c.skills.reduce((sum, s) => sum + s.sp, 0);
   const experience = xpByChar[c.id] || 0;
-  const ratio = spent > 0 ? (experience / spent).toFixed(1) + ':1' : '-';
+  const ratio = xpPerSp(c.startingSp) + ':1';
   const stats = deriveStats(c);
 
   document.getElementById('chars-char-panel').innerHTML = `
