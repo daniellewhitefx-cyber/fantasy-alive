@@ -23,7 +23,6 @@
 <div class="char-switcher" id="chars-char-switcher"></div>
 
 <div class="char-header">
-<div class="char-tab" id="chars-char-tab-name">&nbsp;</div>
 <div id="chars-header-actions" style="display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap;">
 <div id="chars-register-status"><a href="register.html"><button class="btn-gold">Register for Next Event</button></a></div>
 <div id="chars-new-char-slot"></div>
@@ -107,7 +106,6 @@ function render(){
   ).join('');
 
   if(!c){
-    document.getElementById('chars-char-tab-name').textContent = 'No characters yet';
     document.getElementById('chars-char-panel').innerHTML = `
       <p class="page-subhead">You don't have a character yet.
       <a href="character-creator.html">Create one</a> to get started.</p>
@@ -116,7 +114,6 @@ function render(){
     return;
   }
 
-  document.getElementById('chars-char-tab-name').textContent = c.name;
   updateRegisterStatus(c);
   renderRemortArea(c);
 
