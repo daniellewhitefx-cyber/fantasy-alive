@@ -293,12 +293,34 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 .stat-panel{
   background: var(--ink);
   color: var(--cream);
-  padding: 1.6rem 1.6rem;
+  padding: 1.6rem 1.4rem;
   font-family: 'EB Garamond', serif;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
+  display:flex;
+  flex-direction:column;
+  gap: 0.6rem;
 }
-.stat-panel .stat-row{ margin-bottom: 1.1rem; }
-.stat-panel .stat-label{ font-family:'Cinzel', serif; font-weight:600; }
+.stat-panel .stat-row{
+  display:flex;
+  flex-direction:column;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--gold-dark);
+  border-radius: 5px;
+  background: rgba(232,166,34,0.08);
+}
+.stat-panel .stat-label{
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.15rem;
+}
+.stat-panel .stat-value{
+  font-size: 1.05rem;
+  color: var(--cream);
+}
 @media (max-width: 900px){ .char-panel{ grid-template-columns: 1fr; } }
 
 .kudos-target{

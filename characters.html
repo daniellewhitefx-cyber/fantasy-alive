@@ -34,7 +34,7 @@
 <div class="char-panel" id="chars-char-panel">Loading&hellip;</div>
 </div>
 
-<div class="reg-section" id="chars-remort-area"></div>
+<div class="reg-section" id="chars-remort-area" style="margin-top:2.4rem;"></div>
 
 <div class="reg-section" id="chars-staff-remort-section" style="display:none;">
 <div class="reg-section-label">Staff Tools - Pending Remort Requests</div>
@@ -59,6 +59,7 @@
 let CHARACTERS = [];
 let activeCharId = null;
 let remortByChar = {};
+let xpByChar = {};
 let profileMap = {};
 let isRemortStaff = false;
 
@@ -120,13 +121,20 @@ function render(){
   renderRemortArea(c);
 
   const spent = c.skills.reduce((sum, s) => sum + s.sp, 0);
+  const experience = xpByChar[c.id] || 0;
+  const ratio = spent > 0 ? (experience / spent).toFixed(1) + ':1' : '-';
 
   document.getElementById('chars-char-panel').innerHTML = `
     <div class="stat-panel">
-      <div class="stat-row"><span class="stat-label">Race:</span> ${escapeHtml(c.race)}</div>
-      <div class="stat-row"><span class="stat-label">Pronouns:</span> ${c.pronouns ? escapeHtml(c.pronouns) : '-'}</div>
-      <div class="stat-row"><span class="stat-label">Birthday:</span> ${c.birthday ? escapeHtml(c.birthday) : '-'}</div>
-      <div class="stat-row"><span class="stat-label">Skill Points:</span> ${spent}/${c.startingSp} used</div>
+      <div class="stat-row"><span class="stat-label">Race</span><span class="stat-value">${escapeHtml(c.race)}</span></div>
+      <div class="stat-row"><span class="stat-label">Social Class</span><span class="stat-value">${c.socialClass ? escapeHtml(c.socialClass) : '-'}</span></div>
+      <div class="stat-row"><span class="stat-label">Birthday</span><span class="stat-value">${c.birthday ? escapeHtml(c.birthday) : '-'}</span></div>
+      <div class="stat-row"><span class="stat-label">Skill Points</span><span class="stat-value">${spent}/${c.startingSp}</span></div>
+      <div class="stat-row"><span class="stat-label">LP</span><span class="stat-value">${c.lp}</span></div>
+      <div class="stat-row"><span class="stat-label">SE/ME</span><span class="stat-value">${c.se}/${c.me}</span></div>
+      <div class="stat-row"><span class="stat-label">Resurrections Left</span><span class="stat-value">${c.resurrectionsLeft}</span></div>
+      <div class="stat-row"><span class="stat-label">Experience</span><span class="stat-value">${experience}</span></div>
+      <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${ratio}</span></div>
     </div>
     <table class="data-table">
       <thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th></tr></thead>
@@ -230,7 +238,7 @@ async function chars_denyRemort(reqId){
 async function loadCharacters(){
   const { data: chars, error } = await membersSupabase
     .from('characters')
-    .select('id, name, race, pronouns, birthday, starting_sp, created_at')
+    .select('id, name, race, pronouns, birthday, starting_sp, social_class, lp, se, me, resurrections_left, created_at')
     .eq('player_id', window.faCurrentUser.id)
     .order('created_at', { ascending: true });
 
@@ -251,9 +259,19 @@ async function loadCharacters(){
     pronouns: ch.pronouns,
     birthday: ch.birthday,
     startingSp: ch.starting_sp,
+    socialClass: ch.social_class,
+    lp: ch.lp,
+    se: ch.se,
+    me: ch.me,
+    resurrectionsLeft: ch.resurrections_left,
     skills: (skillRows || [])
       .filter(sk => sk.character_id === ch.id)
       .map(sk => ({ name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, sp: sk.sp_cost }))
+  }));
+
+  await Promise.all(CHARACTERS.map(async ch => {
+    const { data: xp } = await membersSupabase.rpc('xp_my_character_balance', { p_character_id: ch.id });
+    xpByChar[ch.id] = xp || 0;
   }));
 
   await loadRemortStatus();
