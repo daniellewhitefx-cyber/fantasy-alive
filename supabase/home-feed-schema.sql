@@ -52,6 +52,36 @@ begin
 end;
 $$;
 
+create or replace function home_feed_update(
+  p_id uuid,
+  p_title text,
+  p_description text,
+  p_image_url text,
+  p_link_url text,
+  p_badge text,
+  p_sort_order integer
+)
+returns void language plpgsql security definer as $$
+declare
+  v_title text := trim(coalesce(p_title, ''));
+begin
+  if not fa_is_site_admin() then raise exception 'Staff only'; end if;
+  if v_title = '' then raise exception 'Title cannot be empty'; end if;
+  if length(v_title) > 80 then raise exception 'Title is too long'; end if;
+
+  update home_feed_items set
+    title = v_title,
+    description = nullif(trim(coalesce(p_description, '')), ''),
+    image_url = nullif(trim(coalesce(p_image_url, '')), ''),
+    link_url = nullif(trim(coalesce(p_link_url, '')), ''),
+    badge = nullif(trim(coalesce(p_badge, '')), ''),
+    sort_order = coalesce(p_sort_order, 0)
+    where id = p_id;
+
+  if not found then raise exception 'Feed item not found'; end if;
+end;
+$$;
+
 create or replace function home_feed_delete(p_id uuid)
 returns void language plpgsql security definer as $$
 begin
