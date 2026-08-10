@@ -23,13 +23,13 @@
 <h1 class="page-title">Register for an Event</h1>
 <p class="page-subhead">Pick a date, choose your pass, and everything else fills itself in based on your account. Choose to pay online or settle up at the event.</p>
 
-<div class="reg-section">
+<div class="reg-section" id="reg-date-section">
 <div class="reg-section-label">Event Date</div>
 <select class="reg-date-select" id="reg-date-select" onchange="reg_selectEvent(this.value)"></select>
 <p class="page-subhead" id="reg-registered-count" style="margin-top:0.6rem;"></p>
 </div>
 
-<div class="reg-section">
+<div class="reg-section" id="reg-who-section">
 <div class="reg-section-label">Who's this registration for?</div>
 <div class="reg-pass-grid" id="reg-who-grid"></div>
 <p class="reg-who-hint" id="reg-who-hint" style="display:none;"></p>
@@ -495,21 +495,14 @@ function mealSlotsFor(passObj, mealObj){
   return slots;
 }
 
-async function reg_submit(){
+const PENDING_REGISTRATION_KEY = 'fa_pending_registration';
+
+async function buildRegistrationPayload(){
   const passObj = PASSES.find(p => p.id === selectedPass);
   const mealObj = MEALS.find(m => m.id === selectedMeal);
   const bundled = passObj && passObj.bundlesMeal;
   const character = CHARACTERS.find(c => c.id === state.character);
-
   const sumEl = document.getElementById('reg-summary-total');
-  const errorNote = document.getElementById('reg-error-note');
-  errorNote.style.display = 'none';
-
-  if(!REGISTRATION_ENDPOINT){
-    errorNote.textContent = "Registration isn't connected to the spreadsheet yet - this part still needs a one-time setup step.";
-    errorNote.style.display = 'block';
-    return;
-  }
 
   currentUser = await faGetCurrentUser();
 
@@ -524,7 +517,7 @@ async function reg_submit(){
     disabilityNotes = (notes && notes.disability_notes) || '';
   }
 
-  const payload = {
+  return {
     eventValue: state.event.value,
     eventLabel: state.event.label,
     playerEmail: currentUser ? currentUser.email : '',
@@ -543,43 +536,133 @@ async function reg_submit(){
     singleMealChoice: (mealObj && mealObj.id === 'single') ? (singleMealChoice || '') : '',
     mealSlots: mealSlotsFor(passObj, mealObj),
     total: parseInt(sumEl.textContent.replace('$',''), 10) || 0,
-    paymentMethod: selectedPayment === 'online' ? 'Online' : (selectedPayment === 'event' ? 'At Event' : ''),
+    paymentMethod: selectedPayment === 'online' ? 'Online (paid)' : (selectedPayment === 'event' ? 'At Event' : ''),
     allergyNotes: allergyNotes,
     disabilityNotes: disabilityNotes
   };
+}
+
+function showRegistrationSuccess(payload){
+  submitted = true;
+  const dateSection = document.getElementById('reg-date-section');
+  const whoSection = document.getElementById('reg-who-section');
+  if(dateSection) dateSection.style.display = 'none';
+  if(whoSection) whoSection.style.display = 'none';
+
+  const restForm = document.getElementById('reg-rest-of-form');
+  if(restForm){
+    restForm.style.display = 'block';
+    restForm.querySelectorAll('.reg-section, #reg-summary-wrap, #reg-already-registered, #reg-checking-note').forEach(el => el.style.display = 'none');
+  }
+  const success = document.getElementById('reg-success');
+  success.style.display = 'block';
+
+  let paymentLine = 'This is a free entry - see you there!';
+  if(payload.total > 0){
+    paymentLine = payload.paymentMethod === 'Online (paid)'
+      ? `Your payment of $${payload.total} went through - you're all set.`
+      : `$${payload.total} will be due at the event.`;
+  }
+  success.innerHTML = `
+    <h3>You're registered!</h3>
+    <p>${escapeHtml(payload.characterName)} is signed up for <strong>${escapeHtml(payload.eventLabel)}</strong>.
+    ${paymentLine}</p>
+  `;
+}
+
+async function submitRegistrationToSheet(payload){
+  const errorNote = document.getElementById('reg-error-note');
+
+  if(!REGISTRATION_ENDPOINT){
+    errorNote.textContent = "Registration isn't connected to the spreadsheet yet - this part still needs a one-time setup step.";
+    errorNote.style.display = 'block';
+    return false;
+  }
+
+  const res = await fetch(REGISTRATION_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  });
+  if(!res.ok) throw new Error('Request failed (' + res.status + ')');
+  return true;
+}
+
+async function reg_submit(){
+  const errorNote = document.getElementById('reg-error-note');
+  errorNote.style.display = 'none';
+
+  if(!REGISTRATION_ENDPOINT){
+    errorNote.textContent = "Registration isn't connected to the spreadsheet yet - this part still needs a one-time setup step.";
+    errorNote.style.display = 'block';
+    return;
+  }
+
+  const payload = await buildRegistrationPayload();
 
   submitting = true;
   render();
 
   try{
-    const res = await fetch(REGISTRATION_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
-    if(!res.ok) throw new Error('Request failed (' + res.status + ')');
-
-    submitted = true;
-    document.getElementById('reg-rest-of-form').querySelectorAll('.reg-section, #reg-summary-wrap').forEach(el => el.style.display = 'none');
-    const success = document.getElementById('reg-success');
-    success.style.display = 'block';
-    let paymentLine = 'This is a free entry - see you there!';
-    if(payload.total > 0){
-      paymentLine = payload.paymentMethod === 'Online'
-        ? `We'll follow up with a payment link for $${payload.total} - online payment isn't fully wired up yet.`
-        : `$${payload.total} will be due at the event.`;
+    if(selectedPayment === 'online' && payload.total > 0){
+      localStorage.setItem(PENDING_REGISTRATION_KEY, JSON.stringify(payload));
+      const base = location.origin + location.pathname;
+      const { data, error } = await membersSupabase.functions.invoke('create-checkout-session', {
+        body: {
+          amount: payload.total,
+          description: `${payload.eventLabel} - ${payload.passName}`,
+          successUrl: base + '?paid=1&session_id={CHECKOUT_SESSION_ID}',
+          cancelUrl: base + '?cancelled=1'
+        }
+      });
+      if(error || !data || !data.url){
+        throw new Error((data && data.error) || 'Could not start checkout');
+      }
+      window.location.href = data.url;
+      return;
     }
-    success.innerHTML = `
-      <h3>You're registered!</h3>
-      <p>${escapeHtml(payload.characterName)} is signed up for <strong>${escapeHtml(payload.eventLabel)}</strong>.
-      ${paymentLine}</p>
-    `;
+
+    await submitRegistrationToSheet(payload);
+    showRegistrationSuccess(payload);
   } catch(err){
+    localStorage.removeItem(PENDING_REGISTRATION_KEY);
     errorNote.textContent = "Something went wrong submitting your registration. Please try again.";
     errorNote.style.display = 'block';
   } finally {
     submitting = false;
     render();
+  }
+}
+
+async function handlePaymentReturn(){
+  const params = new URLSearchParams(location.search);
+
+  if(params.get('cancelled') === '1'){
+    localStorage.removeItem(PENDING_REGISTRATION_KEY);
+    history.replaceState({}, '', location.pathname);
+    alert('Payment was cancelled. You can try again or choose Pay at Event.');
+    return;
+  }
+
+  const sessionId = params.get('session_id');
+  if(params.get('paid') !== '1' || !sessionId) return;
+
+  history.replaceState({}, '', location.pathname);
+  const pendingRaw = localStorage.getItem(PENDING_REGISTRATION_KEY);
+  if(!pendingRaw) return;
+  const payload = JSON.parse(pendingRaw);
+
+  try{
+    const { data, error } = await membersSupabase.functions.invoke('verify-checkout-session', { body: { sessionId } });
+    if(error || !data || !data.paid){
+      throw new Error('Payment could not be confirmed');
+    }
+    localStorage.removeItem(PENDING_REGISTRATION_KEY);
+    await submitRegistrationToSheet(payload);
+    showRegistrationSuccess(payload);
+  } catch(err){
+    localStorage.removeItem(PENDING_REGISTRATION_KEY);
+    alert("We couldn't confirm your payment went through. Please contact us before trying to register again.");
   }
 }
 
@@ -606,7 +689,10 @@ async function loadCharacters(){
   refreshRegisteredCount();
 }
 
-document.addEventListener('fa-members-ready', loadCharacters);
+document.addEventListener('fa-members-ready', async () => {
+  await loadCharacters();
+  await handlePaymentReturn();
+});
 })();
 </script>
 
