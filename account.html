@@ -21,24 +21,24 @@
 <div>
 
 <h1 class="page-title">Account Info</h1>
-<p class="page-subhead">Manage your name, pronouns, password, and any notes you'd like to keep on file.</p>
 
 <div class="reg-section">
-  <div class="reg-section-label">Preferred Name</div>
-  <label class="field-label" for="account-display-name">Display Name</label>
-  <input type="text" id="account-display-name" placeholder="Your name">
-  <button class="btn-gold" style="margin-top:1rem;" onclick="account_saveDisplayName()">Save Name</button>
-  <p class="reg-success-note" id="account-name-success" style="display:none;"></p>
-  <p class="reg-error-note" id="account-name-error" style="display:none;"></p>
-</div>
-
-<div class="reg-section">
-  <div class="reg-section-label">Pronouns</div>
-  <label class="field-label" for="account-pronouns">Pronouns</label>
-  <input type="text" id="account-pronouns" placeholder="e.g. she/her, he/him, they/them">
-  <button class="btn-gold" style="margin-top:1rem;" onclick="account_savePronouns()">Save Pronouns</button>
-  <p class="reg-success-note" id="account-pronouns-success" style="display:none;"></p>
-  <p class="reg-error-note" id="account-pronouns-error" style="display:none;"></p>
+  <div class="account-form-grid">
+    <div>
+      <label class="field-label" for="account-display-name">Display Name</label>
+      <input type="text" id="account-display-name" placeholder="Your name">
+      <button class="btn-gold" style="margin-top:1rem;" onclick="account_saveDisplayName()">Save Name</button>
+      <p class="reg-success-note" id="account-name-success" style="display:none;"></p>
+      <p class="reg-error-note" id="account-name-error" style="display:none;"></p>
+    </div>
+    <div>
+      <label class="field-label" for="account-pronouns">Your Pronouns</label>
+      <input type="text" id="account-pronouns" placeholder="e.g. she/her, he/him, they/them">
+      <button class="btn-gold" style="margin-top:1rem;" onclick="account_savePronouns()">Save Pronouns</button>
+      <p class="reg-success-note" id="account-pronouns-success" style="display:none;"></p>
+      <p class="reg-error-note" id="account-pronouns-error" style="display:none;"></p>
+    </div>
+  </div>
 </div>
 
 <div class="reg-section">
@@ -59,23 +59,26 @@
 </div>
 
 <div class="reg-section">
-  <div class="reg-section-label">Allergy / Food Notes</div>
-  <p class="page-subhead" style="margin-bottom:0.8rem;">Only visible to you here. Please also let kitchen staff know in person if this affects your meal plan.</p>
-  <label class="field-label" for="account-allergy-notes">Notes</label>
-  <textarea id="account-allergy-notes" placeholder="e.g. peanut allergy, vegetarian"></textarea>
-  <button class="btn-gold" style="margin-top:1rem;" onclick="account_saveAllergyNotes()">Save Allergy / Food Notes</button>
-  <p class="reg-success-note" id="account-allergy-success" style="display:none;"></p>
-  <p class="reg-error-note" id="account-allergy-error" style="display:none;"></p>
-</div>
-
-<div class="reg-section">
-  <div class="reg-section-label">Disability Notes</div>
-  <p class="page-subhead" style="margin-bottom:0.8rem;">Only visible to you here. Please also let staff know in person if you'd like any accommodations.</p>
-  <label class="field-label" for="account-disability-notes">Notes</label>
-  <textarea id="account-disability-notes" placeholder="Anything you'd like to note"></textarea>
-  <button class="btn-gold" style="margin-top:1rem;" onclick="account_saveDisabilityNotes()">Save Disability Notes</button>
-  <p class="reg-success-note" id="account-disability-success" style="display:none;"></p>
-  <p class="reg-error-note" id="account-disability-error" style="display:none;"></p>
+  <div class="account-form-grid">
+    <div>
+      <div class="reg-section-label">Allergies &amp; Dietary Restrictions</div>
+      <p class="page-subhead" style="margin-bottom:0.8rem;">Visible to kitchen staff when you submit your registration.</p>
+      <label class="field-label" for="account-allergy-notes">Notes</label>
+      <textarea id="account-allergy-notes" placeholder="e.g. peanut allergy, vegetarian"></textarea>
+      <button class="btn-gold" style="margin-top:1rem;" onclick="account_saveAllergyNotes()">Save Allergies &amp; Dietary Restrictions</button>
+      <p class="reg-success-note" id="account-allergy-success" style="display:none;"></p>
+      <p class="reg-error-note" id="account-allergy-error" style="display:none;"></p>
+    </div>
+    <div>
+      <div class="reg-section-label">Disability Notes</div>
+      <p class="page-subhead" style="margin-bottom:0.8rem;">Visible to logistics when you submit your registration. This helps with planning our events.</p>
+      <label class="field-label" for="account-disability-notes">Notes</label>
+      <textarea id="account-disability-notes" placeholder="Anything you'd like to note"></textarea>
+      <button class="btn-gold" style="margin-top:1rem;" onclick="account_saveDisabilityNotes()">Save Disability Notes</button>
+      <p class="reg-success-note" id="account-disability-success" style="display:none;"></p>
+      <p class="reg-error-note" id="account-disability-error" style="display:none;"></p>
+    </div>
+  </div>
 </div>
 
 </div>
@@ -185,7 +188,7 @@ async function account_saveAllergyNotes(){
   const { error } = await membersSupabase.rpc('account_set_allergy_notes', { p_notes: notes });
   if(error){ showError(errorEl, error.message); return; }
 
-  showSuccess(successEl, 'Allergy / food notes saved.');
+  showSuccess(successEl, 'Allergies & dietary restrictions saved.');
 }
 
 async function account_saveDisabilityNotes(){
