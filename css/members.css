@@ -1119,7 +1119,8 @@ select.reg-date-select{
 
 .bank-staff-section{
   border-top: 3px solid var(--gold);
-  padding-top: 1.6rem;
+  padding-top: 0.9rem;
+  margin-top: -1.2rem;
 }
 .bank-staff-block{
   margin-bottom: 2rem;
