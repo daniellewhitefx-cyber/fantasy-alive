@@ -153,14 +153,16 @@ function renderCurrentItem(){
   const cooldownMs = cooldownRemainingMs();
 
   wrap.innerHTML = `
-    <div class="bank-balance-card">
-      ${currentItem.image_url ? `<img src="${escapeHtml(currentItem.image_url)}" alt="" style="max-width:100%;border-radius:6px;margin-bottom:1rem;">` : ''}
-      <div class="bank-balance-label">Current Item</div>
-      <div style="font-family:'Cinzel', serif; font-size:1.4rem; color:#fff; margin-bottom:0.4rem;">${escapeHtml(currentItem.name)}</div>
-      ${currentItem.description ? `<p style="color:var(--cream); margin-bottom:0.9rem;">${escapeHtml(currentItem.description)}</p>` : ''}
-      <div class="bank-balance-label">${highest ? 'Current Highest Bid' : 'Starting Bid'}</div>
-      <div class="bank-balance-amount">${fmtMoney(highest ? highest.amount : currentItem.starting_bid)}</div>
-      ${highest ? `<p style="color:var(--cream);">Leading: ${escapeHtml(nameFor(highest.player_id))}</p>` : ''}
+    <div class="auction-item-card">
+      ${currentItem.image_url ? `<img class="auction-item-image" src="${escapeHtml(currentItem.image_url)}" alt="">` : ''}
+      <div class="auction-item-info">
+        <div class="auction-item-label">Current Item</div>
+        <div class="auction-item-name">${escapeHtml(currentItem.name)}</div>
+        ${currentItem.description ? `<p class="auction-item-desc">${escapeHtml(currentItem.description)}</p>` : ''}
+        <div class="auction-item-label">${highest ? 'Current Highest Bid' : 'Starting Bid'}</div>
+        <div class="auction-item-amount">${fmtMoney(highest ? highest.amount : currentItem.starting_bid)}</div>
+        ${highest ? `<p class="auction-item-leading">Leading: ${escapeHtml(nameFor(highest.player_id))}</p>` : ''}
+      </div>
     </div>
 
     <div class="reg-section">

@@ -965,6 +965,64 @@ select.reg-date-select{
   color: var(--gold);
   margin-bottom: 0.9rem;
 }
+.auction-item-card{
+  display:flex;
+  gap: 1rem;
+  align-items:flex-start;
+  border: 2px solid var(--gold-dark);
+  border-radius: 6px;
+  background: var(--row-a);
+  padding: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+.auction-item-image{
+  width: 100%;
+  max-width: 150px;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.auction-item-info{ flex:1; min-width:0; }
+.auction-item-label{
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 0.15rem;
+}
+.auction-item-name{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--brown);
+  margin-bottom: 0.3rem;
+}
+.auction-item-desc{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.92rem;
+  color: var(--brown-dark);
+  margin: 0 0 0.5rem;
+}
+.auction-item-amount{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--brown);
+  margin: 0.1rem 0 0.3rem;
+}
+.auction-item-leading{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.9rem;
+  color: var(--brown-dark);
+  margin: 0;
+}
+@media (max-width: 480px){
+  .auction-item-card{ flex-direction:column; align-items:center; text-align:center; }
+}
+
 .bank-auto-toggle{
   display:flex;
   align-items:center;
