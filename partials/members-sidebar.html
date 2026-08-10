@@ -1,20 +1,113 @@
 <div class="account-tab" id="member-account-name">Loading&hellip;</div>
 <nav class="side-nav">
-<a href="home.html" data-page="home.html">Home</a>
-<a href="account.html" data-page="account.html">Account Info</a>
-<a href="notifications.html" data-page="notifications.html">Notifications <span id="member-notif-badge" class="notif-badge" style="display:none;"></span></a>
-<a href="messages.html" data-page="messages.html">Messages <span id="member-messages-badge" class="notif-badge" style="display:none;"></span></a>
-<a href="characters.html" data-page="characters.html">Characters</a>
-<a href="register.html" data-page="register.html">Register for Event</a>
-<a href="bank.html" data-page="bank.html">Bank</a>
-<a href="auction.html" data-page="auction.html">Auction</a>
-<a href="friends.html" data-page="friends.html">Friends</a>
-<a href="kudos.html" data-page="kudos.html">Kudos</a>
-<a href="oc-submission.html" data-page="oc-submission.html">OC Submission</a>
-<a href="xp-oc-log.html" data-page="xp-oc-log.html">XP/OC Log</a>
-<a href="teachable-skills.html" data-page="teachable-skills.html">Teachable Skills</a>
-<a href="#">Current Event</a>
-<a href="#">Past Events</a>
-<a href="#">Future Events</a>
-<a href="#" onclick="membersSignOut(); return false;">Log Out</a>
+
+<a href="home.html" data-page="home.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">Home</span>
+</a>
+
+<a href="account.html" data-page="account.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24">
+<defs><mask id="icon-gear-hole"><rect width="24" height="24" fill="#fff"/><circle cx="12" cy="12" r="3" fill="#000"/></mask></defs>
+<g fill="currentColor" mask="url(#icon-gear-hole)">
+<circle cx="12" cy="12" r="6.5"/>
+<rect x="10.5" y="0.5" width="3" height="5" rx="1"/>
+<rect x="10.5" y="0.5" width="3" height="5" rx="1" transform="rotate(45 12 12)"/>
+<rect x="10.5" y="0.5" width="3" height="5" rx="1" transform="rotate(90 12 12)"/>
+<rect x="10.5" y="0.5" width="3" height="5" rx="1" transform="rotate(135 12 12)"/>
+<rect x="10.5" y="0.5" width="3" height="5" rx="1" transform="rotate(180 12 12)"/>
+<rect x="10.5" y="0.5" width="3" height="5" rx="1" transform="rotate(225 12 12)"/>
+<rect x="10.5" y="0.5" width="3" height="5" rx="1" transform="rotate(270 12 12)"/>
+<rect x="10.5" y="0.5" width="3" height="5" rx="1" transform="rotate(315 12 12)"/>
+</g>
+</svg></span>
+<span class="side-nav-label">Account Info</span>
+</a>
+
+<a href="notifications.html" data-page="notifications.html" class="side-nav-item">
+<span class="side-nav-icon">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a1 1 0 0 1 1 1v.6c2.9.6 5 3.2 5 6.4v3.3l1.7 2.5a1 1 0 0 1-.83 1.6H5.13a1 1 0 0 1-.83-1.6L6 14.3V11c0-3.2 2.1-5.8 5-6.4V4a1 1 0 0 1 1-1Z"/><circle cx="12" cy="20.5" r="1.5"/></svg>
+<span id="member-notif-badge" class="side-nav-badge" style="display:none;"></span>
+</span>
+<span class="side-nav-label">Notifications</span>
+</a>
+
+<a href="messages.html" data-page="messages.html" class="side-nav-item">
+<span class="side-nav-icon">
+<svg viewBox="0 0 24 24">
+<defs><mask id="icon-envelope-mask"><rect x="2" y="4" width="20" height="16" rx="2" fill="#fff"/><path d="M3 6l9 7 9-7" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></mask></defs>
+<rect x="2" y="4" width="20" height="16" rx="2" fill="currentColor" mask="url(#icon-envelope-mask)"/>
+</svg>
+<span id="member-messages-badge" class="side-nav-badge" style="display:none;"></span>
+</span>
+<span class="side-nav-label">Messages</span>
+</a>
+
+<a href="characters.html" data-page="characters.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7.5" r="4"/><path d="M4 20.5c0-4.2 3.6-7 8-7s8 2.8 8 7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/></svg></span>
+<span class="side-nav-label">Characters</span>
+</a>
+
+<a href="register.html" data-page="register.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor">
+<path d="M6 2h8l5 5v6.5l-2 2V8h-4a1 1 0 0 1-1-1V4H6v16h5.5l-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/>
+<rect x="7.5" y="10" width="6" height="1.4" rx="0.7"/>
+<rect x="7.5" y="13" width="6" height="1.4" rx="0.7"/>
+<path d="M14.5 17.5l4.6-4.6a1.2 1.2 0 0 1 1.7 1.7l-4.6 4.6-2.2.6.5-2.3Z"/>
+</svg></span>
+<span class="side-nav-label">Register</span>
+</a>
+
+<a href="bank.html" data-page="bank.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">Bank</span>
+</a>
+
+<a href="auction.html" data-page="auction.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">Auction</span>
+</a>
+
+<a href="friends.html" data-page="friends.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">Friends</span>
+</a>
+
+<a href="kudos.html" data-page="kudos.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">Kudos</span>
+</a>
+
+<a href="oc-submission.html" data-page="oc-submission.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">OC Submission</span>
+</a>
+
+<a href="xp-oc-log.html" data-page="xp-oc-log.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">XP/OC Log</span>
+</a>
+
+<a href="teachable-skills.html" data-page="teachable-skills.html" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">Teachable Skills</span>
+</a>
+
+<a href="#" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">Current Event</span>
+</a>
+
+<a href="#" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">Past Events</span>
+</a>
+
+<a href="#" class="side-nav-item">
+<span class="side-nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+<span class="side-nav-label">Future Events</span>
+</a>
+
 </nav>
+
+<a href="#" class="side-nav-logout" onclick="membersSignOut(); return false;">Log Out</a>
