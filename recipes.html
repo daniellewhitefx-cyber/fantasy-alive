@@ -3,31 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skill List - Fantasy Alive</title>
+<title>Recipes - Fantasy Alive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <style>
 :root{
-  --skill-row-a: #ece1cd;
-  --skill-row-b: #f0d99a;
+  --recipe-row-a: #ece1cd;
+  --recipe-row-b: #f0d99a;
 }
 
-.skill-page-hero{
+.recipe-page-hero{
   display:grid;
   grid-template-columns: 1fr 1fr;
   align-items:center;
   height: 320px;
   overflow: hidden;
 }
-.skill-page-hero-content{
+.recipe-page-hero-content{
   padding: 2rem 3rem 2rem 5.5rem;
   text-align: center;
 }
-.skill-page-hero-content img{
+.recipe-page-hero-content img{
   width:100%; max-width: 440px; height:auto; display:block; margin: 0 auto;
 }
-.skill-page-hero-content h1{
+.recipe-page-hero-content h1{
   font-family: 'EB Garamond', serif;
   font-weight: 500;
   font-size: 3rem;
@@ -35,13 +35,13 @@
   color: var(--brown);
   text-align: center;
 }
-.skill-page-hero-image{
+.recipe-page-hero-image{
   position:relative;
   overflow:hidden;
   height: 100%;
   min-height: 320px;
 }
-.skill-page-hero-image::after{
+.recipe-page-hero-image::after{
   content:"";
   position:absolute;
   top:0; left:0;
@@ -49,11 +49,10 @@
   background: linear-gradient(to left, rgba(236,225,205,0) 0%, var(--cream) 100%);
   pointer-events: none;
 }
-.skill-page-hero-image img{
+.recipe-page-hero-image img{
   width:100%; height:100%; object-fit:cover; display:block;
 }
-
-.skill-page{
+.recipe-page{
   display:grid;
   grid-template-columns: 280px 1fr;
   gap: 1.5rem;
@@ -66,18 +65,18 @@
   font-family: 'Cinzel', serif;
 }
 
-.skill-sidebar{
+.recipe-sidebar{
   border: 2px solid var(--gold-dark);
   border-radius: 4px;
   overflow:hidden;
   position: sticky;
   top: 1.5rem;
 }
-.skill-category-list{
+.recipe-category-list{
   display: flex;
   flex-direction: column;
 }
-.skill-category-btn{
+.recipe-category-btn{
   display:block;
   width:100%;
   text-align:left;
@@ -93,22 +92,22 @@
   transition: background 0.15s ease, color 0.15s ease;
   white-space: nowrap;
 }
-.skill-category-btn:last-child{ border-bottom: none; }
-.skill-category-btn.active{
+.recipe-category-btn:last-child{ border-bottom: none; }
+.recipe-category-btn.active{
   background: var(--gold);
   color: var(--ink);
 }
-.skill-category-btn:not(.active):hover{
+.recipe-category-btn:not(.active):hover{
   background: var(--gold-dark);
   color: var(--cream);
 }
 
-.skill-search{
+.recipe-search{
   padding: 0.6rem;
   background: var(--ink);
   border-bottom: 3px solid var(--gold);
 }
-.skill-search input{
+.recipe-search input{
   width:100%;
   font-family: 'EB Garamond', serif;
   font-size: 0.9rem;
@@ -118,11 +117,11 @@
   background: #fff;
   color: var(--brown);
 }
-.skill-search-results{
+.recipe-search-results{
   display:flex;
   flex-direction: column;
 }
-.skill-search-result{
+.recipe-search-result{
   display:block;
   width:100%;
   text-align:left;
@@ -133,15 +132,15 @@
   padding: 0.55rem 0.8rem;
   cursor:pointer;
 }
-.skill-search-result:last-child{ border-bottom:none; }
-.skill-search-result:hover{ background: var(--gold); }
-.skill-search-result .ssr-title{
+.recipe-search-result:last-child{ border-bottom:none; }
+.recipe-search-result:hover{ background: var(--gold); }
+.recipe-search-result .rsr-title{
   font-family: 'Cinzel', serif;
   font-weight: 700;
   font-size: 0.85rem;
   margin-bottom: 0.1rem;
 }
-.skill-search-result .ssr-cat{
+.recipe-search-result .rsr-cat{
   font-family: 'Cinzel', serif;
   font-size: 0.65rem;
   font-weight: 700;
@@ -150,18 +149,18 @@
   color: var(--gold-dark);
   margin-bottom: 0.2rem;
 }
-.skill-search-result .ssr-excerpt{
+.recipe-search-result .rsr-excerpt{
   font-family: 'EB Garamond', serif;
   font-size: 0.82rem;
   line-height: 1.35;
   color: var(--brown-dark);
 }
-.skill-search-result mark{
+.recipe-search-result mark{
   background: var(--gold);
   color: var(--ink);
   padding: 0 1px;
 }
-.skill-search-empty{
+.recipe-search-empty{
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 0.85rem;
@@ -169,70 +168,69 @@
   padding: 0.8rem;
 }
 
-.skill-article{ background: transparent; }
-.skill-article h2{
+.recipe-article{ background: transparent; }
+.recipe-article h2{
   font-size: 1.6rem;
   font-weight: 700;
   margin: 0 0 0.8rem;
   color: var(--brown-dark);
 }
 
-.skill-table-wrap{
+.recipe-table-wrap{
   width: 100%;
   box-shadow: 6px 6px 0 0 var(--gold);
   overflow-x: auto;
 }
-.skill-table{
+.recipe-table{
   width:100%;
   border-collapse: collapse;
   border: 2px solid var(--gold);
-  background: var(--skill-row-a);
+  background: var(--recipe-row-a);
 }
-.skill-table th{
+.recipe-table th{
   font-family: 'Cinzel', serif;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   padding: 0.5rem 0.4rem;
   border-bottom: 3px solid var(--gold);
   text-align: center;
   color: var(--brown-dark);
   white-space: nowrap;
 }
-.skill-table th:not(:last-child),
-.skill-table td:not(:last-child){
+.recipe-table th:not(:last-child),
+.recipe-table td:not(:last-child){
   border-right: 1px dotted var(--gold-dark);
 }
-.skill-table td{
+.recipe-table td{
   font-family: 'EB Garamond', serif;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   padding: 0.45rem 0.5rem;
   text-align: center;
   line-height: 1.3;
   color: var(--brown-dark);
 }
-.skill-table td.col-name{
+.recipe-table td.col-name{
   font-family: 'Cinzel', serif;
   font-weight: 600;
   font-size: 0.85rem;
   text-align: left;
   white-space: nowrap;
 }
-.skill-table td.col-prereq{
-  text-align: left;
-}
-.skill-table td.col-desc{
+.recipe-table td.col-ingredients,
+.recipe-table td.col-effect,
+.recipe-table td.col-desc{
   text-align: left;
 }
 
-.skill-table tbody tr:nth-child(odd){ background: var(--skill-row-b); }
-.skill-table tbody tr:nth-child(even){ background: var(--skill-row-a); }
+.recipe-table tbody tr:nth-child(odd){ background: var(--recipe-row-b); }
+.recipe-table tbody tr:nth-child(even){ background: var(--recipe-row-a); }
 
-.skill-table tr.highlighted{
+.recipe-table tr.highlighted{
   background-color: var(--gold) !important;
   color: var(--ink) !important;
 }
 
-.skill-empty{
+.recipe-empty{
   font-family: 'EB Garamond', serif;
   font-style: italic;
   color: var(--brown-dark);
@@ -240,28 +238,28 @@
 }
 
 @media (max-width: 850px){
-  .skill-page-hero{ grid-template-columns: 1fr; height: auto; }
-  .skill-page-hero-content{ padding: 1.5rem 1rem; }
-  .skill-page-hero-content h1{ font-size: 2.2rem; }
-  .skill-page-hero-image{ height: 180px; min-height: 180px; }
-  .skill-page-hero-image::after{
+  .recipe-page-hero{ grid-template-columns: 1fr; height: auto; }
+  .recipe-page-hero-content{ padding: 1.5rem 1rem; }
+  .recipe-page-hero-content h1{ font-size: 2.2rem; }
+  .recipe-page-hero-image{ height: 180px; min-height: 180px; }
+  .recipe-page-hero-image::after{
     width: 100%; height: 50%;
     background: linear-gradient(to bottom, var(--cream) 0%, rgba(236,225,205,0) 100%);
   }
 
-  .skill-page{ grid-template-columns: 1fr; padding: 1rem; gap: 1rem; }
-  .skill-sidebar{ position: static; }
-  .skill-category-list{ flex-direction: row; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .skill-category-btn{ border-bottom: none; border-right: 1px solid var(--gold-dark); padding: 0.6rem 0.9rem; text-align: center; }
+  .recipe-page{ grid-template-columns: 1fr; padding: 1rem; gap: 1rem; }
+  .recipe-sidebar{ position: static; }
+  .recipe-category-list{ flex-direction: row; }
+  .recipe-category-btn{ border-bottom: none; border-right: 1px solid var(--gold-dark); padding: 0.6rem 0.9rem; text-align: center; flex: 1; }
 }
 
 @media (max-width: 600px){
-  .skill-table-wrap{ box-shadow: 3px 3px 0 0 var(--gold); }
-  .skill-table, .skill-table thead, .skill-table tbody, .skill-table th, .skill-table td, .skill-table tr{ display: block; }
-  .skill-table thead{ display: none; }
-  .skill-table tr{ margin-bottom: 0.8rem; border: 1px solid var(--gold-dark); padding: 0.6rem; }
-  .skill-table td{ text-align: left !important; padding: 0.25rem 0; border-right: none !important; }
-  .skill-table td.col-name{
+  .recipe-table-wrap{ box-shadow: 3px 3px 0 0 var(--gold); }
+  .recipe-table, .recipe-table thead, .recipe-table tbody, .recipe-table th, .recipe-table td, .recipe-table tr{ display: block; }
+  .recipe-table thead{ display: none; }
+  .recipe-table tr{ margin-bottom: 0.8rem; border: 1px solid var(--gold-dark); padding: 0.6rem; }
+  .recipe-table td{ text-align: left !important; padding: 0.25rem 0; border-right: none !important; }
+  .recipe-table td.col-name{
     font-size: 1rem;
     color: var(--brown-dark);
     border-bottom: 1px solid var(--gold-dark);
@@ -269,7 +267,7 @@
     margin-bottom: 0.4rem;
     white-space: normal;
   }
-  .skill-table td::before{
+  .recipe-table td::before{
     content: attr(data-label);
     font-family: 'Cinzel', serif;
     font-size: 0.75rem;
@@ -278,7 +276,7 @@
     display: block;
     text-transform: uppercase;
   }
-  .skill-table td.col-name::before{ display: none; }
+  .recipe-table td.col-name::before{ display: none; }
 }
 </style>
 </head>
@@ -286,25 +284,25 @@
 
 <div data-include="partials/header.html"></div>
 
-<section class="skill-page-hero">
-<div class="skill-page-hero-content">
+<section class="recipe-page-hero">
+<div class="recipe-page-hero-content">
 <img src="https://i.imgur.com/zcnx0lm.png" alt="Fantasy Alive">
-<h1>Skill List</h1>
+<h1>Recipes</h1>
 </div>
-<div class="skill-page-hero-image">
-<img src="https://i.imgur.com/zOtOU6q.png" alt="Fantasy Alive skill banner">
+<div class="recipe-page-hero-image">
+<img src="https://i.imgur.com/RLJCgxQ.jpeg" alt="Glowing bottles of alchemical and herbal mixtures on a windowsill">
 </div>
 </section>
 
-<div class="skill-page" id="skill-page">
-<nav class="skill-sidebar">
-<div class="skill-search">
-<input type="text" id="skill-search-input" placeholder="Search skill name..." oninput="skill_search(this.value)">
+<div class="recipe-page" id="recipe-page">
+<nav class="recipe-sidebar">
+<div class="recipe-search">
+<input type="text" id="recipe-search-input" placeholder="Search recipe name..." oninput="recipe_search(this.value)">
 </div>
-<div id="skill-sidebar-content"><p class="skill-empty" style="padding:1rem;">Loading skill categories&hellip;</p></div>
+<div id="recipe-sidebar-content"><p class="recipe-empty" style="padding:1rem;">Loading recipe sections&hellip;</p></div>
 </nav>
-<article class="skill-article" id="skill-display">
-<p class="skill-empty">Loading the skill list from the spreadsheet&hellip;</p>
+<article class="recipe-article" id="recipe-display">
+<p class="recipe-empty">Loading the recipe list from the spreadsheet&hellip;</p>
 </article>
 </div>
 
@@ -313,18 +311,22 @@
 <script src="js/include.js"></script>
 <script src="js/registration-status.js"></script>
 <script src="js/skills-data.js"></script>
+<script src="js/recipes-data.js"></script>
 <script>
 (function(){
-const CATEGORY_ORDER = SKILL_CATEGORY_ORDER;
+const CATEGORY_ORDER = RECIPE_CATEGORY_ORDER;
+const CATEGORY_LABELS = RECIPE_CATEGORY_LABELS;
 
-let activeCategory = 'Combat Skill';
-let highlightedSkill = null;
-let allSkills = [];
+let activeCategory = 'Alchemical';
+let highlightedRecipe = null;
+let allRecipes = [];
 let loadError = null;
 
-async function loadSkills(){
+function labelFor(cat){ return CATEGORY_LABELS[cat] || cat; }
+
+async function loadRecipes(){
   try{
-    allSkills = await skillsLoadFromSheet();
+    allRecipes = await recipesLoadFromSheet();
     const categories = orderedCategories();
     if(categories.length && !categories.includes(activeCategory)) activeCategory = categories[0];
   } catch(err){
@@ -334,63 +336,60 @@ async function loadSkills(){
   renderDisplay();
 }
 
-function skill_selectCategory(category, skillToHighlight){
-  if(skillToHighlight === undefined) skillToHighlight = null;
+function recipe_selectCategory(category, recipeToHighlight){
+  if(recipeToHighlight === undefined) recipeToHighlight = null;
   activeCategory = category;
-  highlightedSkill = skillToHighlight;
+  highlightedRecipe = recipeToHighlight;
   renderDisplay();
   renderSidebar();
 
-  if(highlightedSkill){
-    const targetRow = document.getElementById('skill-row-' + highlightedSkill.replace(/[^a-zA-Z0-9]/g, '-'));
+  if(highlightedRecipe){
+    const targetRow = document.getElementById('recipe-row-' + highlightedRecipe.replace(/[^a-zA-Z0-9]/g, '-'));
     if(targetRow) targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }
 
-function skill_selectSearchResult(category, skillTitle){
-  skill_selectCategory(category, skillTitle);
-  const searchInput = document.getElementById('skill-search-input');
+function recipe_selectSearchResult(category, recipeTitle){
+  recipe_selectCategory(category, recipeTitle);
+  const searchInput = document.getElementById('recipe-search-input');
   if(searchInput) searchInput.value = '';
 }
 
-function skillsByCategory(){
+function recipesByCategory(){
   const byCategory = {};
-  allSkills.forEach(s => {
-    if(!byCategory[s.category]) byCategory[s.category] = [];
-    byCategory[s.category].push(s);
+  allRecipes.forEach(r => {
+    if(!byCategory[r.category]) byCategory[r.category] = [];
+    byCategory[r.category].push(r);
   });
   return byCategory;
 }
 
 function orderedCategories(){
-  const byCategory = skillsByCategory();
-  const known = CATEGORY_ORDER.filter(c => byCategory[c]);
-  const unknown = Object.keys(byCategory).filter(c => !CATEGORY_ORDER.includes(c)).sort();
-  return [...known, ...unknown];
+  return recipesOrderedCategories(allRecipes);
 }
 
 function renderSidebar(){
-  const target = document.getElementById('skill-sidebar-content');
-  const searchInput = document.getElementById('skill-search-input');
+  const target = document.getElementById('recipe-sidebar-content');
+  const searchInput = document.getElementById('recipe-search-input');
   if(searchInput && searchInput.value.trim()) return;
 
   if(loadError){
-    target.innerHTML = '<p class="skill-empty" style="padding:1rem;">Couldn\'t load the skill list. Refresh to try again.</p>';
+    target.innerHTML = '<p class="recipe-empty" style="padding:1rem;">Couldn\'t load the recipe list. Refresh to try again.</p>';
     return;
   }
 
   const categories = orderedCategories();
   if(categories.length === 0){
-    target.innerHTML = '<p class="skill-empty" style="padding:1rem;">No skills found in the spreadsheet yet.</p>';
+    target.innerHTML = '<p class="recipe-empty" style="padding:1rem;">No recipes found in the spreadsheet yet.</p>';
     return;
   }
 
   target.innerHTML = `
-    <div class="skill-category-list">
+    <div class="recipe-category-list">
       ${categories.map(cat => `
-        <button class="skill-category-btn ${cat === activeCategory ? 'active' : ''}"
-          onclick="skill_selectCategory('${cat.replace(/'/g, "\\'")}')">
-          ${cat}
+        <button class="recipe-category-btn ${cat === activeCategory ? 'active' : ''}"
+          onclick="recipe_selectCategory('${cat.replace(/'/g, "\\'")}')">
+          ${escapeHtml(labelFor(cat))}
         </button>
       `).join('')}
     </div>
@@ -413,9 +412,9 @@ function makeExcerpt(text, query){
   return (start > 0 ? '&hellip;' : '') + before + '<mark>' + match + '</mark>' + after + (end < text.length ? '&hellip;' : '');
 }
 
-function skill_search(rawQuery){
+function recipe_search(rawQuery){
   const query = rawQuery.trim();
-  const target = document.getElementById('skill-sidebar-content');
+  const target = document.getElementById('recipe-sidebar-content');
 
   if(!query){
     renderSidebar();
@@ -423,64 +422,70 @@ function skill_search(rawQuery){
   }
 
   const lowerQuery = query.toLowerCase();
-  const results = allSkills.map(s => {
-    const bodyText = s.desc.replace(/\s+/g, ' ').trim();
-    const titleMatch = s.title.toLowerCase().includes(lowerQuery);
+  const results = allRecipes.map(r => {
+    const bodyText = (r.desc + ' ' + r.ingredients + ' ' + r.effect).replace(/\s+/g, ' ').trim();
+    const titleMatch = r.title.toLowerCase().includes(lowerQuery);
     const bodyMatch = bodyText.toLowerCase().includes(lowerQuery);
     if(!titleMatch && !bodyMatch) return null;
-    return { category: s.category, title: s.title, bodyText, rank: titleMatch ? 0 : 1 };
+    return { category: r.category, title: r.title, bodyText, rank: titleMatch ? 0 : 1 };
   }).filter(Boolean).sort((a, b) => a.rank - b.rank || a.title.localeCompare(b.title));
 
   if(results.length === 0){
-    target.innerHTML = '<p class="skill-search-empty">No skills found matching &ldquo;' + escapeHtml(query) + '&rdquo;.</p>';
+    target.innerHTML = '<p class="recipe-search-empty">No recipes found matching &ldquo;' + escapeHtml(query) + '&rdquo;.</p>';
     return;
   }
 
-  target.innerHTML = '<div class="skill-search-results">' + results.map(r => `
-    <button class="skill-search-result" onclick="skill_selectSearchResult('${r.category.replace(/'/g, "\\'")}', '${r.title.replace(/'/g, "\\'")}')">
-      <div class="ssr-cat">${escapeHtml(r.category)}</div>
-      <div class="ssr-title">${escapeHtml(r.title)}</div>
-      <div class="ssr-excerpt">${r.rank === 0 ? escapeHtml(r.bodyText.slice(0, 140)) + (r.bodyText.length > 140 ? '&hellip;' : '') : makeExcerpt(r.bodyText, query)}</div>
+  target.innerHTML = '<div class="recipe-search-results">' + results.map(r => `
+    <button class="recipe-search-result" onclick="recipe_selectSearchResult('${r.category.replace(/'/g, "\\'")}', '${r.title.replace(/'/g, "\\'")}')">
+      <div class="rsr-cat">${escapeHtml(labelFor(r.category))}</div>
+      <div class="rsr-title">${escapeHtml(r.title)}</div>
+      <div class="rsr-excerpt">${r.rank === 0 ? escapeHtml(r.bodyText.slice(0, 140)) + (r.bodyText.length > 140 ? '&hellip;' : '') : makeExcerpt(r.bodyText, query)}</div>
     </button>
   `).join('') + '</div>';
 }
 
 function renderDisplay(){
-  const display = document.getElementById('skill-display');
+  const display = document.getElementById('recipe-display');
 
   if(loadError){
-    display.innerHTML = '<p class="skill-empty">Couldn\'t load the skill list from the spreadsheet. Refresh to try again.</p>';
+    display.innerHTML = '<p class="recipe-empty">Couldn\'t load the recipe list from the spreadsheet. Refresh to try again.</p>';
     return;
   }
 
-  const skills = skillsByCategory()[activeCategory] || [];
-  if(skills.length === 0){
-    display.innerHTML = '<p class="skill-empty">Select a skill category or search for a skill name to begin.</p>';
+  const recipes = recipesByCategory()[activeCategory] || [];
+  if(recipes.length === 0){
+    display.innerHTML = '<p class="recipe-empty">Select a recipe section or search for a recipe name to begin.</p>';
     return;
   }
 
-  const tableRows = skills.map(s => {
-    const isHighlighted = s.title === highlightedSkill;
-    const rowId = 'skill-row-' + s.title.replace(/[^a-zA-Z0-9]/g, '-');
+  const tableRows = recipes.map(r => {
+    const isHighlighted = r.title === highlightedRecipe;
+    const rowId = 'recipe-row-' + r.title.replace(/[^a-zA-Z0-9]/g, '-');
     return `
       <tr id="${rowId}" class="${isHighlighted ? 'highlighted' : ''}">
-        <td class="col-name" data-label="Name">${escapeHtml(s.title)}</td>
-        <td data-label="Cost">${escapeHtml(s.cost)}</td>
-        <td class="col-prereq" data-label="Prerequisite">${escapeHtml(s.prereq)}</td>
-        <td class="col-desc" data-label="Description">${escapeHtml(s.desc)}</td>
+        <td class="col-name" data-label="Name">${escapeHtml(r.title)}</td>
+        <td data-label="Level">${escapeHtml(r.level)}</td>
+        <td class="col-effect" data-label="Effect">${escapeHtml(r.effect)}</td>
+        <td data-label="Type">${escapeHtml(r.type)}</td>
+        <td data-label="Mixed with Gas">${escapeHtml(r.mixedWithGas)}</td>
+        <td class="col-ingredients" data-label="Ingredients">${escapeHtml(r.ingredients)}</td>
+        <td class="col-desc" data-label="Description">${escapeHtml(r.desc)}</td>
       </tr>
     `;
   }).join('');
 
   display.innerHTML = `
-    <h2>${escapeHtml(activeCategory)}</h2>
-    <div class="skill-table-wrap">
-      <table class="skill-table">
+    <h2>${escapeHtml(labelFor(activeCategory))} Recipes</h2>
+    <div class="recipe-table-wrap">
+      <table class="recipe-table">
         <thead>
           <tr>
             <th>Name</th>
-            <th>Cost</th>
-            <th>Prerequisite</th>
+            <th>Level</th>
+            <th>Effect</th>
+            <th>Type</th>
+            <th>Mixed with Gas</th>
+            <th>Ingredients</th>
             <th>Description</th>
           </tr>
         </thead>
@@ -492,12 +497,12 @@ function renderDisplay(){
   `;
 }
 
-window.skill_selectCategory = skill_selectCategory;
-window.skill_selectSearchResult = skill_selectSearchResult;
-window.skill_search = skill_search;
+window.recipe_selectCategory = recipe_selectCategory;
+window.recipe_selectSearchResult = recipe_selectSearchResult;
+window.recipe_search = recipe_search;
 
 function init(){
-  loadSkills();
+  loadRecipes();
 }
 
 if(document.readyState === 'loading'){
