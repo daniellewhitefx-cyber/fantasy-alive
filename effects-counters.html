@@ -210,7 +210,7 @@
 </section>
 
 <div class="ec-page">
-<p class="ec-lede">A quick reference for every status effect in play, what it does, how long it lasts, and how to counter or cure it. Search by name or by what it does.</p>
+<p class="ec-lede">A quick reference for every status effect in play, what it does, and how long it lasts. Search by name or by what it does.</p>
 
 <div class="ec-search">
 <input type="text" id="ec-search-input" placeholder="Search effects..." oninput="ec_search(this.value)">
@@ -340,7 +340,6 @@ function renderResults(rawQuery){
       <td class="col-category" data-label="Category">${highlight(e.category, query)}</td>
       <td data-label="What It Does">${highlight(e.does, query)}</td>
       <td data-label="Duration">${highlight(e.duration, query)}</td>
-      <td data-label="Counters / Cures">${highlight(e.counters, query)}</td>
     </tr>
   `).join('');
 
@@ -353,7 +352,6 @@ function renderResults(rawQuery){
             <th>Category</th>
             <th>What It Does</th>
             <th>Duration</th>
-            <th>Counters / Cures</th>
           </tr>
         </thead>
         <tbody>
