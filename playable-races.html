@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playable Races - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Playable Races - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/playable-races.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Playable Races - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.page-hero{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  align-items:center;
+  height: 320px;
+  overflow: hidden;
+}
+.page-hero-content{
+  padding: 2rem 3rem 2rem 5.5rem;
+  text-align: center;
+}
+.page-hero .logo-img{ width:100%; max-width: 440px; height:auto; display:block; margin: 0 auto; }
+.page-hero h1{
+  font-family: 'EB Garamond', serif;
+  font-weight: 500;
+  font-size: 3rem;
+  margin: 0.5rem 0 0;
+  color: var(--brown);
+  text-align: center;
+}
+.page-hero-image{
+  position:relative;
+  overflow:hidden;
+  height: 100%;
+  min-height: 320px;
+}
+.page-hero-image::after{
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width: 45%; height:100%;
+  background: linear-gradient(to left, rgba(236,225,205,0) 0%, var(--cream) 100%);
+  pointer-events: none;
+}
+.page-hero-image img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+
+.races-page{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 2rem 4rem;
+}
+.races-intro{
+  font-family:'EB Garamond', serif;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: #2e2415;
+  max-width: 760px;
+  margin: 0 auto 3.5rem;
+  text-align:center;
+}
+.race-block{
+  display:flex;
+  gap: 3rem;
+  align-items:flex-start;
+  margin-bottom: 4rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px dotted var(--line);
+}
+.race-block:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.race-block:nth-child(even){ flex-direction: row-reverse; }
+.race-art{
+  flex: 0 0 36%;
+  max-width: 36%;
+}
+.race-art img{
+  width:100%; height:auto; display:block;
+}
+.race-text{ flex:1; min-width:0; }
+.race-text h2{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.9rem;
+  color: var(--brown-dark);
+  margin: 0 0 0.9rem;
+}
+.race-quote{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--brown-dark);
+  border-left: 3px solid var(--gold);
+  padding: 0.4rem 0 0.4rem 1.1rem;
+  margin: 0 0 1.3rem;
+}
+.race-quote cite{
+  display:block;
+  font-style: normal;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  color: var(--gold-dark);
+}
+.race-text p{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #2e2415;
+  margin: 0 0 1.1rem;
+}
+.race-text h3{
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gold-dark);
+  margin: 1.5rem 0 0.7rem;
+}
+.race-text ul{
+  margin: 0 0 1rem;
+  padding-left: 1.3rem;
+}
+.race-text ul li{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: #2e2415;
+  margin-bottom: 0.4rem;
+}
+.race-age{
+  display:inline-block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--brown);
+  background: var(--row-b);
+  padding: 0.45rem 0.9rem;
+  border-radius: 4px;
+  margin: 0.3rem 0 0.6rem;
+}
+
+@media (max-width: 900px){
+  .page-hero{ grid-template-columns: 1fr; height:auto; }
+  .page-hero-content{ padding: 1.5rem 1rem; }
+  .page-hero h1{ font-size: 2.2rem; }
+  .page-hero-image{ height:180px; min-height:180px; }
+  .page-hero-image::after{
+    width: 100%; height: 50%;
+    background: linear-gradient(to bottom, var(--cream) 0%, rgba(236,225,205,0) 100%);
+  }
+  .race-block, .race-block:nth-child(even){
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+  }
+  .race-art{ flex: 0 0 auto; max-width: 280px; margin: 0 auto; }
+  .race-text h2{ font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<section class="page-hero">
+<div class="page-hero-content">
+<img src="https://i.imgur.com/zcnx0lm.png" alt="Fantasy Alive" class="logo-img">
+<h1>Playable Races</h1>
+</div>
+<div class="page-hero-image">
+<img src="https://i.imgur.com/0w68P8n.jpeg" alt="Adventurers of different playable races gathered together">
+</div>
+</section>
+
+<div class="races-page">
+<p class="races-intro">There are a number of races available to characters within the Fantasy Alive system. Basic information on each race is listed below, drawn from the rulebook. The number of Skill Points listed for each race is for experienced Fantasy Alive players and is not applicable on new player templates.</p>
+
+<div class="race-block" id="race-curtainborn">
+<div class="race-art">
+<img src="https://i.imgur.com/3sgropb.png" alt="Illustration of a Curtainborn character conjuring a glowing orb of divine light">
+</div>
+<div class="race-text">
+<h2>Curtainborn</h2>
+<blockquote class="race-quote">&ldquo;And thus the babe was brought to bear, its blood tied to the Curtain. Their lineage touched by celestial or infernal origin will influence their path, but not determine it.&rdquo;<cite>High Apencan Priestess Ellisandra</cite></blockquote>
+<p>Lovers trysts, pacts for power, distant blood reawakened, or even more strange and arcane dealings created the curtainborn; children seen as half mortal and half divine. Many have a Celestial or Infernal parent, though few are lucky (or unlucky) enough to ever meet them, and this connection to the divine grants them incredible power at the cost of their mortal bodies. Curtainborn take to divine casting with incredible ease, but their physical bodies are fragile and don't respond well to physical labour or even conventional doctoring.</p>
+<p>Occasionally outcast for their differences, a curtainborn is just as likely to be welcomed with open arms by churches or communities dedicated to the gods. Born into nearly every society across Ariel, curtainborn tend to adopt the culture of their youth, their only unifying characteristic is their connection to the divine.</p>
+<p>The divine nature of the curtainborn is physically visible. They appear at first glance to be the same race as their mortal parentage, but their divine nature manifests as purple, blue, or orange blood, occasionally dependent on the nature of the divine parent but just as often random. This colours the eye sockets and the veins around the eyes in the colour of their divine blood, sometimes also visible elsewhere on the face or across the body.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 4 Life Points (LP)</li>
+<li>Begin with 2 Resurrections</li>
+<li>Begin with 5 Spiritual Energy skill</li>
+<li>Begin with the Spirit Sense skill</li>
+<li>May purchase LP up to a maximum of 10 LP</li>
+<li>May purchase Devotion skill for 4 SP each</li>
+<li>May purchase Prayer skill for 4 SP each</li>
+<li>Always receive +1 Armour Points (AP) from the Bless spell</li>
+<li>Always receive +1 Armour Points (AP) from the Aid spell</li>
+<li>No effect taken from healing from any Herbalism</li>
+<li>No effect from the Physician Skills: First Aid, Field Medic, Patient Care, Prolong, Restore, and Heal</li>
+<li>Cannot purchase Rapid Healing skill</li>
+<li>Must pay an additional 1 SP per level for all Trade Skills</li>
+<li>Must pay an additional 1 SP for the Physical Endurance skill</li>
+</ul>
+<p class="race-age">Youth: 25 &nbsp;|&nbsp; Elderly: 60 &nbsp;|&nbsp; Aging Rate: every 20 years &nbsp;|&nbsp; Max Age: 260</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>Base Mandatory Costuming of race origin required</li>
+<li>Prominent veins around the eyes: Blue, Purple, or Orange</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-dshunn">
+<div class="race-art">
+<img src="https://i.imgur.com/rWXKOG7.png" alt="Illustration of a D&#39;Shunn character with bioluminescent markings">
+</div>
+<div class="race-text">
+<h2>D&#39;Shunn</h2>
+<blockquote class="race-quote">&ldquo;There are two things that you should be afraid of at night, the most important being the faint glow of the D'Shunn you don't see.&rdquo;<cite>Ancient Proverb</cite></blockquote>
+<p>The name D'Shunn is said to come from an old term for them meaning, "Day Shunned". During the first Terror's Breach many D'Shunn fled, joining their brethren that dwelled within caverns, and there their societies grew. It is difficult to say if this description is apt or propaganda, but what is true is the initial lives in caverns were harsh to the D'Shunn, leading to a competitive people driven to succeed, possibly at any cost. Over time stories of the D'Shunn spread, the enigma of their territories speculated and propagated. These are people that make the darkness their home, were molded by it, and embraced it.</p>
+<p>Said to be distant cousins with the Elves, physically they are similar in their ear shape but otherwise starkly contrast one another. D'Shunn are known for their pure white hair, and their magical attunement manifesting in adapting to life in caverns with a bioluminescent glow to their skin, granting immunity to blindness of all magical natures.</p>
+<p>Physically D'Shunn are not known to be naturally exceptionally strong, and typically do not resurrect as many times as other races. However, their command of martial and magical prowess combined has led them to harness this power with great renown, having improved their control of the arcane, and being able to channel magical energy through their weapon with no prior training. Their aspirations formed them into masters of the arcane and of the night.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 4 Life Points (LP)</li>
+<li>Begin with 2 Resurrections</li>
+<li>Immune to all magical Blindness effects, calling "No effect" (magery, clerical, and innate magic)</li>
+<li>May purchase LP to a maximum of 10 LP</li>
+<li>May purchase the Magery skill for half cost</li>
+<li>May purchase the Catalyst skill for 4 SP</li>
+<li>May purchase the Concentration skill for 4 SP</li>
+<li>May purchase the Channel Spell skill for 10 SP (without any pre-requisites)</li>
+<li>Must pay an additional 5 SP for the Spiritual Endurance skill (15 SP total)</li>
+<li>Cannot purchase Exceptional Strength</li>
+</ul>
+<p class="race-age">Youth: 25 &nbsp;|&nbsp; Elderly: 65 &nbsp;|&nbsp; Aging Rate: every 10 years &nbsp;|&nbsp; Max Age: 165</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>Bioluminescent face patterning (done with reflective paints or glow in the dark paints, that must be easily visible in daylight)</li>
+<li>Patterning for bioluminescence must look natural, and not resemble symbols or tribal markings</li>
+<li>Pointed ears (elf-like)</li>
+<li>Recommended but not mandatory: white wig for hair</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-dwarf">
+<div class="race-art">
+<img src="https://i.imgur.com/ZFfg1h6.png" alt="Illustration of a Dwarf character carrying a large warhammer">
+</div>
+<div class="race-text">
+<h2>Dwarf</h2>
+<blockquote class="race-quote">&ldquo;In the Seventh Age, Belfur, son of Toric, King of the Kuzaak Thoth Mountains, laid down in this stone, 'No living being may cripple Dwarven strength. Stone is of our flesh and steel our lifeblood.'&rdquo;<cite>Etched on the inner cloister of Dar Eknur</cite></blockquote>
+<p>Much like the labours of their hands, the Dwarves themselves tend to be sturdily built. Perhaps their most defining physical feature though is their bushy eyebrows and prodigious facial hair, commonly groomed into magnificent beards or sideburns.</p>
+<p>In temperament, Dwarves are much like the stone of their mountain homes. They are unflinchingly stubborn, outwardly stoic and exceptionally patient. They venerate age and are loath to trust in anything that is not designed to last. This meticulous perfectionism makes them peerless craftsmen, who take fierce pride in their work. However, this same pride also leads to them being quickly offended, for there is no more valuable possession to a Dwarf than their honour. As such, Dwarves tend to be unquestionably loyal and take oaths with the utmost seriousness. The only thing that Dwarves disdain more than "finger-waving" arcane magic are those who would give their word and then break it.</p>
+<p>Dwarven society is highly structured and rooted firmly in age-old tradition. Each Dwarf holds a particular place within their house, and each house holds a particular place within the clan. At present there are seventeen Dwarven clans who hold territory across the continent, most of whose populaces reside within a single, fortified hold.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 6 Life Points (LP)</li>
+<li>Begin with 2 Resurrections</li>
+<li>Begin with the Physical Prowess skill</li>
+<li>May purchase LP to a maximum of 15 LP</li>
+<li>May purchase Armour Smith, Weapon Smith, Mechanic, and all Craftsman skills at 1 Skill Point less per level</li>
+<li>Must pay double (x2) Skill Points for the Read Magic, Magery and Magical Energy (ME) skills</li>
+<li>Cannot purchase the Escape skill</li>
+</ul>
+<p class="race-age">Youth: 25 &nbsp;|&nbsp; Elderly: 65 &nbsp;|&nbsp; Aging Rate: every 5 years &nbsp;|&nbsp; Max Age: 140</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>A Dwarven character must choose one of the following options for racial representation: a long, thick beard, or thick sideburns and bushy eyebrows</li>
+<li>Dwarven facial hair must be false hair (of matching colour) attached to the face or woven into existing facial hair as extensions, clearly distinguishable from the players natural hair</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-elf">
+<div class="race-art">
+<img src="https://i.imgur.com/IIWRy02.png" alt="Illustration of an Elf character">
+</div>
+<div class="race-text">
+<h2>Elf</h2>
+<blockquote class="race-quote">&ldquo;That is quite a stunning portrait of your grandmother, Ambassador. It looks like the artist has taken a few liberties, a true master of their craft that one. I wonder if they'd take a commission to capture the likeness of the Blythian Boar that plagued our lands a few years back... More wine?&rdquo;<cite>the final words spoken by the Elven diplomat Tethlir El&#39;nain to the Dwarven ambassador before the Dwarves withdrew from the trade negotiations</cite></blockquote>
+<p>Apenca, the Great Matron, creator of all life and the most widely and openly worshipped of all the gods is said, by the Elves, to have created them first, though this simple statement has resulted in much bloodshed between them and their cousins the Dwarves, who also lay claim to be first. It has always been clear that the Elves have more openly devoted their lives in the service of Apenca, while the Dwarves appear more concerned in the worship of steel and gem.</p>
+<p>Regardless of their order of their creation, the Elves are widely believed by most other races to be Apenca's first and most beloved creations. Elves at first-glance are elegant, serene, and wise, but extended interactions with them tends to reveal otherwise. The Elven mind is naturally attuned with the flows of magic, making it easier for them to learn the arcane arts. The Elves' longevity is tempered by Apenca's love for them, making it very difficult for her to let them return to the world when she could keep them near her. As a result they typically only resurrect once, unlike the majority of other races. While their body is weaker, their mind is strong making it difficult to alter their thoughts. Elves are easily noted by their distinct pointed ears.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 4 Life Points (LP)</li>
+<li>Begin with 1 Resurrection</li>
+<li>Begin with 1 Iron Will skill</li>
+<li>Begin with 5 Magical Energy skill</li>
+<li>May purchase LP to a maximum of 10 LP</li>
+<li>May purchase the Magery skill for half cost (rounded up)</li>
+<li>Must purchase the Spiritual Endurance skill for 5 additional SP</li>
+<li>Cannot purchase the Exceptional Strength skill</li>
+</ul>
+<p class="race-age">Youth: 35 &nbsp;|&nbsp; Elderly: 85 &nbsp;|&nbsp; Aging Rate: every 10 years &nbsp;|&nbsp; Max Age: 185</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>Pointed ears (latex/foam prosthetics); jewelry may be worn over the prosthetic, but may not be used in place of it</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-gnome">
+<div class="race-art">
+<img src="https://i.imgur.com/DsgKHln.png" alt="Illustration of a Gnome character with brightly coloured hair">
+</div>
+<div class="race-text">
+<h2>Gnome</h2>
+<blockquote class="race-quote">&ldquo;Hey! If I put some of those yellow leaves in this potion it starts making a loud whistling sound ... Oooh, look at the light!&rdquo;<cite>Last words of Tborren F&#39;Norn, Gnomish Alchemist</cite></blockquote>
+<p>It's often said that it's easier to stop the passage of time than the racing mind of a gnome. Though something of a hyperbole, gnomish intellect is renowned in the worlds of alchemy and herbalism alike for their natural affinity for the complex sciences. Their metabolism allows them to process toxins far better than other races. However, this comes at cost to their muscle density. Though they are not limited in physical stature, they are simply incapable of ever achieving exceptional levels of strength.</p>
+<p>Gnomes are easily recognizable by their heads of intensely vibrant hair in shades of green, pink, yellow, orange, or blue. A gnome's eyebrows and any facial hair also grow in the same bright colours. Some gnomes have been known to have freckles that match their hair as well.</p>
+<p>Some believe that a gnome's hair colour tells something of their personality. Blue hairs are thought to be more reasonable, at least by gnomish standards. Greens are talented herbalists and alchemists, or poisoners depending who you ask. Orange hairs are inquisitive and tend towards invention, and away from safety guidelines. Pinks are the free spirits, or the sweetly naive of the race. And yellow haired gnomes are thought to be gifted as seers, though usually destined for madness. This 'gnomenclature,' as it is sometimes called, is typically rebuked by gnomes as nothing beyond a stereotype when confronted with it personally. However, it is hardly uncommon for them to buy into it themselves to some degree or another.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 4 Life Points (LP)</li>
+<li>Begin with 2 Resurrections</li>
+<li>Begin with one Resist Poison skill</li>
+<li>May purchase additional Resist Poison skills without the prerequisite 8 LP</li>
+<li>May purchase LP to a maximum of 8 LP</li>
+<li>May purchase Herbalism skill for 2 SP less per level</li>
+<li>May purchase Alchemy skill for 2 SP less per level</li>
+<li>Cannot purchase the Physical Prowess skill</li>
+</ul>
+<p class="race-age">Youth: 20 &nbsp;|&nbsp; Elderly: 50 &nbsp;|&nbsp; Aging Rate: every 5 years &nbsp;|&nbsp; Max Age: 90</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>Brightly coloured hair: Green, Pink, Yellow, Orange, or Blue. This must be a worn wig completely covering all of the players natural hair and any hair on the face must be coloured to match. (A player with their natural hair dyed is not acceptable)</li>
+<li>Optionally, costuming may include freckles of the same colour as the hair</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-goblin">
+<div class="race-art">
+<img src="https://i.imgur.com/CzBB0EH.png" alt="Illustration of a Goblin character">
+</div>
+<div class="race-text">
+<h2>Goblin</h2>
+<blockquote class="race-quote">&ldquo;Stop looking at me like that, this'll work! ...and if it doesn't, the resulting confusion will be a great distraction and then we just stab 'em in the back. Either way, job done, right?&rdquo;<cite>Gibrock the Singed, goblin General</cite></blockquote>
+<p>Goblins, identifiable by their green skin and pointed ears, are typically seen by other races as buffoonish. However, though it tends to manifest in unconventional ways, goblins are possessed of an interesting cunning and industrious nature. To those unfamiliar with their ways, their ideas can seem silly sometimes to the point of becoming dangerous. While this may be true on the surface, they are often no less effective. Goblins are often happy to play into this image letting people think them foolish and continue to underestimate them.</p>
+<p>Goblins are a spiritually resilient race. Their spirits hold up to resurrections better than any other of the peoples in Ariel. They are also naturally agile, born with the ability to get out of the way of threats. These factors may have played a heavy role in the development of their penchant for risk taking. That said, they are not physically gifted people and when faced with the perils of combat, many lean on their natural talent for throwing weapons or sussing out an enemy's weak spot from behind.</p>
+<p>Perhaps the most curious element to goblin physiology is their complete lack of the ability to master the arts of magery. This deficiency is different to the difficulties other races have in learning to work arcane magics in that, regardless of the effort, their bodies are simply unable to conjure magical energy into a usable form. Spiritual energy and clerical workings are not affected by this trait. This unique facet has been the subject of much speculation and folklore. The stories range from them not coming from the same gods as the other races to it being the result of divine punishment, though no one is certain of the explanation.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 4 Life Points (LP)</li>
+<li>Begin with 3 Resurrections</li>
+<li>Begin with the Dodge skill</li>
+<li>May purchase LP to a maximum of 8 LP</li>
+<li>May purchase the Thrown Weapon skill for half cost (rounded up)</li>
+<li>May purchase the Backstab skill for half cost (rounded up)</li>
+<li>Cannot purchase Magery skill</li>
+<li>Cannot purchase the Physical Prowess skill</li>
+</ul>
+<p class="race-age">Youth: 14 &nbsp;|&nbsp; Elderly: 30 &nbsp;|&nbsp; Aging Rate: every 5 years &nbsp;|&nbsp; Max Age: 70</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>Green skin (makeup or prosthetics should cover exposed skin)</li>
+<li>Pointed ears (elf-like)</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-human">
+<div class="race-art">
+<img src="https://i.imgur.com/gvmeBdx.png" alt="Illustration of a Human character">
+</div>
+<div class="race-text">
+<h2>Human</h2>
+<blockquote class="race-quote">&ldquo;Alone we are resourceful, we survive; but together ... together we can do what is thought to be impossible!&rdquo;<cite>King Lyryan Haro during the final conquest of the Kingdom of Gelria 1705 A.T.</cite></blockquote>
+<p>The most common of the races, humans are adventurous, industrious, and passionate. Inclined towards community, humans are responsible for the largest cities, guilds, and empires across Ariel, relying on their versatility and adaptability to overcome obstacles. While they have no natural affinities, such as elves with their magic or the renowned physical strength of minotaurs, humans also have no natural drawbacks, enabling them to devote themselves to a truly staggering array of pursuits. As a result, you can find humans nearly everywhere, in every walk of life, using their varied skills to achieve remarkable things.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 15 Skill Points (SP)</li>
+<li>Begin with 5 Life Points (LP)</li>
+<li>Begin with 2 Resurrections</li>
+<li>May purchase LP to a maximum of 10 LP</li>
+</ul>
+<p class="race-age">Youth: 17 &nbsp;|&nbsp; Elderly: 45 &nbsp;|&nbsp; Aging Rate: every 5 years &nbsp;|&nbsp; Max Age: 95</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>No specific makeup or prosthetics are required</li>
+<li>Avoid costuming that could be mistaken for another race, such as false beards</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-lizardfolk">
+<div class="race-art">
+<img src="https://i.imgur.com/UMWWgi4.png" alt="Illustration of a Lizardfolk character">
+</div>
+<div class="race-text">
+<h2>Lizardfolk</h2>
+<blockquote class="race-quote">&ldquo;All life begins and ends with the tribe. Loyalty to your family is everything.&rdquo;<cite>Shaman Salazar Trueblood</cite></blockquote>
+<p>While no one statement easily describes the enigmatic Lizardfolk tribes, they come in essentially, one of three flavours: isolationist, reluctant participant, or outgoing adventurer. The Lizardfolk live within wet and swampy lands all over the world and are often ignored or left alone by most other cultures because of their reclusive nature and inhabitation of undesired land. This 'let live and leave me alone' attitude has led most Lizardfolk tribes to be more level-headed than other races, and this has afforded them unusual freedoms to spread across the continent relatively unhindered by borders or traditional land claims.</p>
+<p>Lizardfolk populations are hard to estimate, as some clans migrate constantly across their territories, while others do set up slightly more permanent settlements in order to conduct trade or business with other local populations. The migrants are typically those who refuse to interact with members outside their species, whereas those that choose to live in their village swamps are resigned to dealing with others, but are typically good-natured about it. Those few that leave their habitats are ready for a time of excitement and danger, but will usually rotate back to either a migratory or village living situation, depending on where they are in their lifecycle.</p>
+<p>While not physically strong, they are unnaturally tough and resilient, able to drop their tails to escape a sticky situation. The limb regrows usually within a month as their healing and regenerative properties are powerful. Lizardfolk are notorious for being unable to resist mind spells and other mind-altering effects. Lizardfolk focus on oral traditions and divine magic more than their counterparts.</p>
+<p>The racial characteristics of Lizardfolk are scales covering the entire body and face, which can be any colouration found on real lizards, and a lizard-like tail.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 6 Life Points (LP)</li>
+<li>Begin with 2 Resurrections</li>
+<li>Begin with Escape skill for free</li>
+<li>May purchase LP to a maximum of 15 LP</li>
+<li>May purchase the Physical Endurance skill for half cost (rounded up)</li>
+<li>May purchase the Resist Movement skill for half cost (rounded up)</li>
+<li>May purchase Rapid Healing skill without prerequisites for half cost (rounded up)</li>
+<li>Cannot purchase Iron Will skill</li>
+<li>Must pay +2 SP to purchase Exceptional Strength</li>
+<li>Must pay double for Read &amp; Write skill</li>
+<li>Must pay double for Read Magic skill</li>
+</ul>
+<p class="race-age">Youth: 16 &nbsp;|&nbsp; Elderly: 40 &nbsp;|&nbsp; Aging Rate: every 2 years &nbsp;|&nbsp; Max Age: 70</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>Scaled skin (makeup or prosthetics should cover exposed skin)</li>
+<li>Colouration representative of any real world lizards</li>
+<li>Solid, singularly black or brown make-up is not permitted</li>
+<li>Lizard-like tail</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-malkin">
+<div class="race-art">
+<img src="https://i.imgur.com/HSQqESp.png" alt="Illustration of a Malkin character">
+</div>
+<div class="race-text">
+<h2>Malkin</h2>
+<blockquote class="race-quote">&ldquo;Seek, first among all other things, one truth; that all who were born unto this world deserve their opportunity to find freedom.&rdquo;<cite>Alith-Handar, First Among the Free</cite></blockquote>
+<p>Though the Malkin themselves do not often take kindly to the comparison, physically they resemble a race of bipedal cats, fur-covered humanoids with pointed ears and a long, non-prehensile tail. Perhaps their most defining characteristic though is their innate resistance to spells, which cannot be controlled but can become stronger in some Malkin over time.</p>
+<p>Many of the adult Malkin on the continent today were not born here, but were instead bred by the arcaners of Magedom as servants and soldiers in that far-away land. Under the leadership of Alith-Handar, a large number of these so-called Kargath managed to escape during the Great Uprising of 2014 A.T. and eventually made their way to the continent where they have sought to create a new home and cultural identity for themselves. Perhaps unsurprisingly, nearly all such Malkin possess an extreme distrust of mages and a fear of being confined.</p>
+<p>The Malkin race claims no official nations or built-up cities of their own. Instead, those Malkin who have not integrated themselves into the populations of other lands live in a series of dispersed enclaves that maintain sizable territories in unclaimed areas across the continent, and they will fiercely defend their territory. Though natural-born hunters, and often possessing martial training from their former lives in Magedom, Malkin today can be found in nearly all walks of life.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 6 Life Points (LP)</li>
+<li>Begin with 2 Resurrections</li>
+<li>Begin with one Weapon Skill (all pre-requisites must be met at character creation)</li>
+<li>Begin with one innate Spell Shield skill. This innate ability is always on until used, and once used is treated as a per-encounter skill; if used between encounters it automatically returns after 5 minutes. The call for this is "Spell Shield." This racial ability is an exception to the rule that you can only have 1 Spell Shield active at a time, and functions as per the Spell Shield spell</li>
+<li>May purchase additional innate Spell Shields for 6 SP each</li>
+<li>May purchase LP to a maximum of 12 LP</li>
+<li>Must pay double Skill Points for the Magery skill</li>
+<li>Must take double the amount of required time in order to regenerate Magical Energy</li>
+<li>Must take double the amount of required time in order to regenerate Spiritual Energy</li>
+</ul>
+<p class="race-age">Youth: 20 &nbsp;|&nbsp; Elderly: 75 &nbsp;|&nbsp; Aging Rate: every 5 years &nbsp;|&nbsp; Max Age: 135</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>Prosthetic furry, pointed ears</li>
+<li>Make-up indicating the patterned skin of a large hunting cat (all exposed skin must be represented)</li>
+<li>Solid, singularly black or brown make-up is not permitted</li>
+<li>Long cat-like tail</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-minotaur">
+<div class="race-art">
+<img src="https://i.imgur.com/y63QKGI.png" alt="Illustration of a Minotaur character">
+</div>
+<div class="race-text">
+<h2>Minotaur</h2>
+<blockquote class="race-quote">&ldquo;The next person who calls me a cow will die much slower than that man.&rdquo;<cite>Marthoon the Black</cite></blockquote>
+<p>Though the mere mention of it seems to infuriate them, physically Minotaur appear as a cross between a humanoid and a bull, with coarse fur and a pair of bovine horns. Although their large, calloused hands are not suited to delicate tasks, Minotaur are incredibly strong and hardy, making them feared warriors on the battlefield and often sought out as labourers. Though their temperament may vary somewhat between kindreds, Minotaur are not generally known for their great patience and can be quick to react with aggression if provoked.</p>
+<p>Minotaur are organized into kindreds, large tribal groupings that form their own distinct societies. There are eight major Minotaur kindreds on the continent, along with numerous minor kindreds. Extended families that share a common set of traditions and values, Minotaur society is largely based upon one's place in these kindreds. Though none of the major kindreds claim territory with the established borders of separate nations, some minor kindreds have been known to live on such lands as migratory bands, and lone Minotaur can often be found throughout their wilderness and settlements.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 8 Life Points (LP)</li>
+<li>Begin with 2 Resurrections</li>
+<li>Begin with the Physical Prowess skill</li>
+<li>May purchase LP to a maximum of 20 LP</li>
+<li>May purchase the Exceptional Strength skill twice</li>
+<li>May purchase their first Exceptional Strength skill for half cost</li>
+<li>May purchase the Labourer skill at 1 Skill Point less per level</li>
+<li>Must pay an additional 2 Skill Points for all Trade Skills other than Labourer</li>
+<li>Must pay double Skill Points for the Magical Energy skill</li>
+<li>Must pay double Skill Points for the Spiritual Energy skill</li>
+</ul>
+<p class="race-age">Youth: 16 &nbsp;|&nbsp; Elderly: 30 &nbsp;|&nbsp; Aging Rate: every 2 years &nbsp;|&nbsp; Max Age: 70</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>Pair of bovine horns (if lost in-game, stubs must be represented)</li>
+<li>Fur (makeup or prosthetics should cover exposed skin)</li>
+<li>Solid, singularly black or brown make-up is not permitted</li>
+</ul>
+</div>
+</div>
+
+<div class="race-block" id="race-orc">
+<div class="race-art">
+<img src="https://i.imgur.com/ESBWefd.png" alt="Illustration of an Orc character">
+</div>
+<div class="race-text">
+<h2>Orc</h2>
+<blockquote class="race-quote">&ldquo;To bleed is to grow. It is through hard trial we find the weaknesses that must be cut out so that we might heal stronger.&rdquo;<cite>Chieftain Stora Truetongue</cite></blockquote>
+<p>Recognizable by their green skin and large tusks, Orcs are renowned for their inborn rage that pushes their already substantial physiques to exceptional levels in combat. This has fed into the long held belief by outsiders that they are little more than hot tempered and violent savages. However, continued interactions between orcs and other cultures has revealed that to be largely untrue. Though possessed of a certain brutal pragmatism, they are entirely capable of existing within a society.</p>
+<p>Orcs are one of the most physically robust peoples in Ariel. Even the average specimen can withstand grievous wounds and have been known to easily become resistant to toxins. They favour direct solutions and treat setbacks in their pursuits as opportunities to either prove their worth or learn from their failures. Conversely, orcs struggle with the more abstract concepts like reading, writing, and magery, often deeming them as overly complicated and unnecessary.</p>
+<h3>Racial Traits</h3>
+<ul>
+<li>Begin with 10 Skill Points (SP)</li>
+<li>Begin with 7 Life Points (LP)</li>
+<li>Begin with 2 Resurrections</li>
+<li>Begin with the Physical Prowess skill</li>
+<li>Begin with one Fury skill (any additional purchases require the pre-requisite skills)</li>
+<li>May purchase LP to a maximum of 15 LP</li>
+<li>May purchase the Resist Poison skill for 3 SP</li>
+<li>Must pay double for the Read &amp; Write skill</li>
+<li>Must pay double for the Read Magic skill</li>
+</ul>
+<p class="race-age">Youth: 15 &nbsp;|&nbsp; Elderly: 40 &nbsp;|&nbsp; Aging Rate: every 2 years &nbsp;|&nbsp; Max Age: 70</p>
+<h3>Mandatory Costuming</h3>
+<ul>
+<li>Green skin (makeup or prosthetics should cover any exposed skin)</li>
+<li>Tusks (fangs jutting up from the lower jaw)</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+</body>
+</html>
