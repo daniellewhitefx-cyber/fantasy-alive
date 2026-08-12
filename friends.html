@@ -39,7 +39,7 @@
 <div class="bank-recipient-picker" data-picker="friends">
 <label class="field-label" for="friends-search-input">Add a friend</label>
 <input type="text" id="friends-search-input" placeholder="Search player or character name..." autocomplete="off"
-  oninput="friends_search(this.value)">
+  oninput="friends_search(this.value)" onfocus="friends_search(this.value)" onblur="friends_hideResults()">
 <div class="member-search-list" id="friends-search-results"></div>
 </div>
 </div>
@@ -69,8 +69,8 @@ function escapeHtml(str){
 function selectChar(id){
   activeCharId = id;
   document.getElementById('friends-search-input').value = '';
+  document.getElementById('friends-search-results').innerHTML = '';
   renderSwitcher();
-  renderCandidates('');
   loadFriends();
 }
 
@@ -123,6 +123,12 @@ function renderCandidates(query){
 
 function friends_search(query){
   renderCandidates(query);
+}
+
+function friends_hideResults(){
+  setTimeout(() => {
+    document.getElementById('friends-search-results').innerHTML = '';
+  }, 150);
 }
 
 async function friends_addFriend(charId){
@@ -178,12 +184,12 @@ async function loadCharacters(){
   activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
   renderSwitcher();
   await loadAllCandidates();
-  renderCandidates('');
   await loadFriends();
 }
 
 window.selectChar = selectChar;
 window.friends_search = friends_search;
+window.friends_hideResults = friends_hideResults;
 window.friends_addFriend = friends_addFriend;
 window.friends_removeFriend = friends_removeFriend;
 document.addEventListener('fa-members-ready', loadCharacters);
