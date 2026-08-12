@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banking Tools (Staff) - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Banking Tools (Staff) - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/admin-bank.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Banking Tools (Staff) - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Banking Tools</h1>
+<p class="page-subhead">Staff tools. Record coin deposited in person and fulfill withdrawal requests.</p>
+
+<div class="reg-already-registered" id="ab-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to bank staff accounts.</p>
+</div>
+
+<div id="ab-wrap" style="display:none;">
+
+<div class="reg-section">
+<div class="reg-section-label">Record a Deposit</div>
+<div class="bank-form-grid">
+  <div class="bank-recipient-picker" data-picker="deposit">
+    <label class="field-label" for="ab-deposit-recipient-input">Player</label>
+    <input type="text" id="ab-deposit-recipient-input" placeholder="Search player name..." autocomplete="off"
+      oninput="ab_searchRecipients(this.value)">
+    <div class="bank-recipient-results" id="ab-deposit-recipient-results"></div>
+    <p class="bank-selected-recipient" id="ab-deposit-selected" style="display:none;"></p>
+  </div>
+  <div>
+    <label class="field-label" for="ab-deposit-amount">Amount</label>
+    <input type="number" id="ab-deposit-amount" min="1" step="1" placeholder="0">
+  </div>
+</div>
+<label class="field-label" for="ab-deposit-note">Note (optional)</label>
+<input type="text" id="ab-deposit-note" placeholder="e.g. handed over at check-in">
+<button class="btn-gold" style="margin-top:1rem;" onclick="ab_staffDeposit()">Record Deposit</button>
+<p class="reg-error-note" id="ab-deposit-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Pending Withdrawal Requests (All Players)</div>
+<div id="ab-staff-withdrawals"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let profileMap = {};
+let charsByPlayer = {};
+let selectedRecipient = null;
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtAmount(n){
+  return Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+function fmtDate(iso){
+  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+async function loadProfiles(){
+  const [{ data: profiles }, { data: chars }] = await Promise.all([
+    membersSupabase.from('profiles').select('id, display_name'),
+    membersSupabase.from('character_names').select('name, player_id')
+  ]);
+  profileMap = {};
+  (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
+  charsByPlayer = {};
+  (chars || []).forEach(c => {
+    (charsByPlayer[c.player_id] = charsByPlayer[c.player_id] || []).push(c.name);
+  });
+}
+
+function nameFor(id){
+  const base = profileMap[id] || 'Unknown player';
+  const chars = charsByPlayer[id];
+  return chars && chars.length ? `${base} (${chars.join(', ')})` : base;
+}
+
+async function ab_searchRecipients(query){
+  const results = document.getElementById('ab-deposit-recipient-results');
+  const q = query.trim();
+  if(!q){ results.innerHTML = ''; return; }
+
+  const [{ data: profileMatches }, { data: charMatches }] = await Promise.all([
+    membersSupabase.from('profiles').select('id, display_name').ilike('display_name', `%${q}%`).limit(8),
+    membersSupabase.from('character_names').select('id, name, player_id').ilike('name', `%${q}%`).limit(8)
+  ]);
+
+  const byId = {};
+  (profileMatches || []).forEach(p => { byId[p.id] = p.display_name; });
+  const missingIds = [...new Set((charMatches || []).map(c => c.player_id))].filter(id => !byId[id]);
+  if(missingIds.length){
+    const { data: extraProfiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', missingIds);
+    (extraProfiles || []).forEach(p => { byId[p.id] = p.display_name; });
+  }
+
+  const entries = Object.keys(byId).slice(0, 8);
+  if(entries.length === 0){
+    results.innerHTML = '<div class="bank-recipient-empty">No matching players.</div>';
+    return;
+  }
+
+  results.innerHTML = entries.map(id => {
+    const label = nameFor(id);
+    return `<button class="bank-recipient-result" onclick="ab_pickRecipient('${id}', '${label.replace(/'/g, "\\'")}')">${escapeHtml(label)}</button>`;
+  }).join('');
+}
+
+function ab_pickRecipient(id, name){
+  selectedRecipient = id;
+  document.getElementById('ab-deposit-recipient-results').innerHTML = '';
+  document.getElementById('ab-deposit-recipient-input').value = '';
+  const selectedEl = document.getElementById('ab-deposit-selected');
+  selectedEl.style.display = 'block';
+  selectedEl.textContent = `Selected: ${name}`;
+}
+
+function showError(el, msg){
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function ab_staffDeposit(){
+  const errorEl = document.getElementById('ab-deposit-error');
+  errorEl.style.display = 'none';
+  const amount = parseFloat(document.getElementById('ab-deposit-amount').value);
+  const note = document.getElementById('ab-deposit-note').value.trim();
+
+  if(!selectedRecipient){ showError(errorEl, 'Search for and select the player.'); return; }
+  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
+
+  const { error } = await membersSupabase.rpc('bank_staff_deposit', { p_player: selectedRecipient, p_amount: amount, p_note: note || null });
+  if(error){ showError(errorEl, error.message); return; }
+
+  document.getElementById('ab-deposit-amount').value = '';
+  document.getElementById('ab-deposit-note').value = '';
+  document.getElementById('ab-deposit-selected').style.display = 'none';
+  selectedRecipient = null;
+  await refreshStaffWithdrawals();
+}
+
+async function ab_staffFulfill(id){
+  const { error } = await membersSupabase.rpc('bank_staff_fulfill_withdrawal', { p_request_id: id });
+  if(error){ alert('Could not fulfill this request: ' + error.message); return; }
+  await refreshStaffWithdrawals();
+}
+
+async function refreshStaffWithdrawals(){
+  const { data } = await membersSupabase
+    .from('bank_withdrawal_requests')
+    .select('id, player_id, amount, note, status, created_at')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+
+  const target = document.getElementById('ab-staff-withdrawals');
+  if(!data || data.length === 0){
+    target.innerHTML = '<p class="reg-empty-note">No pending withdrawal requests.</p>';
+    return;
+  }
+
+  target.innerHTML = data.map(w => `
+    <div class="bank-bill-card">
+      <div><strong>${escapeHtml(nameFor(w.player_id))}</strong> requested <strong>${fmtAmount(w.amount)} coin</strong>${w.note ? ' - ' + escapeHtml(w.note) : ''} <span class="bank-request-date">(${fmtDate(w.created_at)})</span></div>
+      <div class="bank-bill-actions">
+        <button class="btn-gold" onclick="ab_staffFulfill('${w.id}')">Mark Fulfilled</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.ab_searchRecipients = ab_searchRecipients;
+window.ab_pickRecipient = ab_pickRecipient;
+window.ab_staffDeposit = ab_staffDeposit;
+window.ab_staffFulfill = ab_staffFulfill;
+
+document.addEventListener('fa-members-ready', async (e) => {
+  const user = e.detail.user;
+  const isStaff = !!(user.app_metadata && (user.app_metadata.bank_staff || user.app_metadata.site_admin));
+  if(!isStaff){
+    document.getElementById('ab-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('ab-wrap').style.display = 'block';
+
+  await loadProfiles();
+  await refreshStaffWithdrawals();
+});
+})();
+</script>
+
+</body>
+</html>

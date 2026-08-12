@@ -140,36 +140,6 @@
   </div>
 </div>
 
-<div class="reg-section bank-staff-section" id="bank-staff-section" style="display:none;">
-  <div class="reg-section-label">Staff Tools</div>
-
-  <div class="bank-staff-block">
-    <h3>Record a Deposit</h3>
-    <div class="bank-form-grid">
-      <div class="bank-recipient-picker" data-picker="deposit">
-        <label class="field-label" for="bank-deposit-recipient-input">Player</label>
-        <input type="text" id="bank-deposit-recipient-input" placeholder="Search player name..." autocomplete="off"
-          oninput="bank_searchRecipients('deposit', this.value)">
-        <div class="bank-recipient-results" id="bank-deposit-recipient-results"></div>
-        <p class="bank-selected-recipient" id="bank-deposit-selected" style="display:none;"></p>
-      </div>
-      <div>
-        <label class="field-label" for="bank-deposit-amount">Amount</label>
-        <input type="number" id="bank-deposit-amount" min="1" step="1" placeholder="0">
-      </div>
-    </div>
-    <label class="field-label" for="bank-deposit-note">Note (optional)</label>
-    <input type="text" id="bank-deposit-note" placeholder="e.g. handed over at check-in">
-    <button class="btn-gold" style="margin-top:1rem;" onclick="bank_staffDeposit()">Record Deposit</button>
-    <p class="reg-error-note" id="bank-deposit-error" style="display:none;"></p>
-  </div>
-
-  <div class="bank-staff-block">
-    <h3>Pending Withdrawal Requests (All Players)</h3>
-    <div id="bank-staff-withdrawals"><p class="reg-empty-note">Loading&hellip;</p></div>
-  </div>
-</div>
-
 </div>
 </div>
 
@@ -180,10 +150,9 @@
 <script src="js/members-auth.js"></script>
 <script>
 (function(){
-let isStaff = false;
 let profileMap = {};
 let charsByPlayer = {};
-let selectedRecipient = { send: null, bill: null, deposit: null };
+let selectedRecipient = { send: null, bill: null };
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -222,11 +191,9 @@ async function bank_searchRecipients(picker, query){
   const q = query.trim();
   if(!q){ results.innerHTML = ''; return; }
 
-  const excludeSelf = picker !== 'deposit' && window.faCurrentUser;
-
   let profileQuery = membersSupabase.from('profiles').select('id, display_name').ilike('display_name', `%${q}%`);
   let charQuery = membersSupabase.from('character_names').select('id, name, player_id').ilike('name', `%${q}%`);
-  if(excludeSelf){
+  if(window.faCurrentUser){
     profileQuery = profileQuery.neq('id', window.faCurrentUser.id);
     charQuery = charQuery.neq('player_id', window.faCurrentUser.id);
   }
@@ -343,32 +310,6 @@ async function bank_cancelWithdrawal(id){
   if(!confirm('Cancel this withdrawal request?')) return;
   const { error } = await membersSupabase.rpc('bank_cancel_withdrawal', { p_request_id: id });
   if(error){ alert('Could not cancel: ' + error.message); return; }
-  await refreshEverything();
-}
-
-async function bank_staffDeposit(){
-  const errorEl = document.getElementById('bank-deposit-error');
-  errorEl.style.display = 'none';
-  const player = selectedRecipient.deposit;
-  const amount = parseFloat(document.getElementById('bank-deposit-amount').value);
-  const note = document.getElementById('bank-deposit-note').value.trim();
-
-  if(!player){ showError(errorEl, 'Search for and select the player.'); return; }
-  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
-
-  const { error } = await membersSupabase.rpc('bank_staff_deposit', { p_player: player, p_amount: amount, p_note: note || null });
-  if(error){ showError(errorEl, error.message); return; }
-
-  document.getElementById('bank-deposit-amount').value = '';
-  document.getElementById('bank-deposit-note').value = '';
-  document.getElementById('bank-deposit-selected').style.display = 'none';
-  selectedRecipient.deposit = null;
-  await refreshEverything();
-}
-
-async function bank_staffFulfill(id){
-  const { error } = await membersSupabase.rpc('bank_staff_fulfill_withdrawal', { p_request_id: id });
-  if(error){ alert('Could not fulfill this request: ' + error.message); return; }
   await refreshEverything();
 }
 
@@ -490,38 +431,13 @@ async function refreshWithdrawals(){
   `).join('');
 }
 
-async function refreshStaffWithdrawals(){
-  if(!isStaff) return;
-  const { data } = await membersSupabase
-    .from('bank_withdrawal_requests')
-    .select('id, player_id, amount, note, status, created_at')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true });
-
-  const target = document.getElementById('bank-staff-withdrawals');
-  if(!data || data.length === 0){
-    target.innerHTML = '<p class="reg-empty-note">No pending withdrawal requests.</p>';
-    return;
-  }
-
-  target.innerHTML = data.map(w => `
-    <div class="bank-bill-card">
-      <div><strong>${escapeHtml(nameFor(w.player_id))}</strong> requested <strong>${fmtAmount(w.amount)} coin</strong>${w.note ? ' - ' + escapeHtml(w.note) : ''} <span class="bank-request-date">(${fmtDate(w.created_at)})</span></div>
-      <div class="bank-bill-actions">
-        <button class="btn-gold" onclick="bank_staffFulfill('${w.id}')">Mark Fulfilled</button>
-      </div>
-    </div>
-  `).join('');
-}
-
 async function refreshEverything(){
   await loadProfiles();
   await Promise.all([
     refreshBalance(),
     refreshHistory(),
     refreshBills(),
-    refreshWithdrawals(),
-    refreshStaffWithdrawals()
+    refreshWithdrawals()
   ]);
 }
 
@@ -534,15 +450,10 @@ window.bank_declineBill = bank_declineBill;
 window.bank_cancelBill = bank_cancelBill;
 window.bank_requestWithdrawal = bank_requestWithdrawal;
 window.bank_cancelWithdrawal = bank_cancelWithdrawal;
-window.bank_staffDeposit = bank_staffDeposit;
-window.bank_staffFulfill = bank_staffFulfill;
 window.bank_toggleAutoBank = bank_toggleAutoBank;
 window.bank_switchTab = bank_switchTab;
 
-document.addEventListener('fa-members-ready', async (e) => {
-  const user = e.detail.user;
-  isStaff = !!(user.app_metadata && (user.app_metadata.bank_staff || user.app_metadata.site_admin));
-  if(isStaff) document.getElementById('bank-staff-section').style.display = 'block';
+document.addEventListener('fa-members-ready', async () => {
   await refreshAutoBankPreference();
   await refreshEverything();
 });

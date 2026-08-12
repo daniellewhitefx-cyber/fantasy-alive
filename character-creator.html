@@ -38,6 +38,11 @@
 <p>Only 2 characters are allowed per player. Head back to your <a href="characters.html">Characters</a> page to view them.</p>
 </div>
 
+<div class="reg-flex-banner" id="cc-cast-banner" style="display:none;">
+<div class="ftext">Only joining as <strong>Cast</strong>? You can skip building a player character.</div>
+<button onclick="cc_becomeCastOnly()">I'm Here to Cast</button>
+</div>
+
 <div id="cc-form-wrap">
 
 <div class="reg-section">
@@ -410,14 +415,28 @@ async function cc_submit(){
 async function checkCap(){
   const { count } = await membersSupabase
     .from('characters')
-    .select('id', { count: 'exact', head: true });
+    .select('id', { count: 'exact', head: true })
+    .eq('player_id', window.faCurrentUser.id);
 
   existingCharCount = count || 0;
+
+  if(existingCharCount === 0){
+    document.getElementById('cc-cast-banner').style.display = 'flex';
+  }
 
   if(existingCharCount >= 2){
     document.getElementById('cc-cap-notice').style.display = 'block';
     document.getElementById('cc-form-wrap').style.display = 'none';
   }
+}
+
+async function cc_becomeCastOnly(){
+  if(!confirm("This marks your account as Cast-only and skips creating a player character. You can still create one later from the Characters page. Continue?")) return;
+
+  const { error } = await membersSupabase.rpc('player_set_cast_only', { p_enabled: true });
+  if(error){ alert(error.message); return; }
+
+  window.location.href = 'home.html';
 }
 
 async function init(){
@@ -438,6 +457,7 @@ async function init(){
   }
 }
 
+window.cc_becomeCastOnly = cc_becomeCastOnly;
 window.cc_onRaceChange = cc_onRaceChange;
 window.cc_selectCategory = cc_selectCategory;
 window.cc_updateFocus = cc_updateFocus;

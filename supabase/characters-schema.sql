@@ -22,6 +22,19 @@ update characters set social_class = 'Yeoman' where social_class is null or trim
 
 create index if not exists characters_player_idx on characters(player_id, created_at);
 
+-- Lets a brand-new player mark themselves as Cast-only from the character
+-- creator instead of building a player character, so they stop being
+-- redirected there on every members-area page load.
+alter table profiles add column if not exists is_cast boolean not null default false;
+
+create or replace function player_set_cast_only(p_enabled boolean)
+returns void language plpgsql security definer as $$
+begin
+  if auth.uid() is null then raise exception 'Not signed in'; end if;
+  update profiles set is_cast = p_enabled where id = auth.uid();
+end;
+$$;
+
 alter table characters enable row level security;
 
 drop policy if exists "Players see their own characters" on characters;

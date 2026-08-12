@@ -117,14 +117,18 @@ function render(){
 }
 
 async function loadCharacters(){
+  const me = window.faCurrentUser.id;
+
   const { data: chars } = await membersSupabase
     .from('characters')
     .select('id, name')
+    .eq('player_id', me)
     .order('created_at', { ascending: true });
 
   const { data: skillRows } = await membersSupabase
     .from('character_skills')
-    .select('id, character_id, category, skill_name, focus, level, teachable');
+    .select('id, character_id, category, skill_name, focus, level, teachable')
+    .eq('player_id', me);
 
   CHARACTERS = (chars || []).map(ch => ({
     id: ch.id,

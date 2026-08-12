@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Auctions (Staff) - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Manage Auctions (Staff) - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/admin-auction.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Manage Auctions (Staff) - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Manage Auctions</h1>
+<p class="page-subhead">Staff tools. Create items, put them live, close bidding, and track payment.</p>
+
+<div class="reg-already-registered" id="aa-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to auction staff accounts.</p>
+</div>
+
+<div id="aa-wrap" style="display:none;">
+
+<div class="reg-section">
+<div class="reg-section-label">New Item</div>
+<div class="bank-form-grid">
+<div>
+  <label class="field-label" for="aa-new-name">Item Name</label>
+  <input type="text" id="aa-new-name" placeholder="e.g. Hand-forged Dagger">
+</div>
+<div>
+  <label class="field-label" for="aa-new-image">Image (optional)</label>
+  <input type="file" id="aa-new-image" accept="image/*">
+</div>
+</div>
+<label class="field-label" for="aa-new-description">Description (optional)</label>
+<input type="text" id="aa-new-description" placeholder="What is it?">
+<div class="bank-form-grid" style="margin-top:0.9rem;">
+<div>
+  <label class="field-label" for="aa-new-starting">Starting Bid ($)</label>
+  <input type="number" id="aa-new-starting" min="0" step="1" value="10">
+</div>
+<div>
+  <label class="field-label" for="aa-new-increment">Minimum Increment ($)</label>
+  <input type="number" id="aa-new-increment" min="1" step="1" value="5">
+</div>
+</div>
+<label class="field-label" for="aa-new-ends-at" style="margin-top:0.9rem;">Ends At (optional)</label>
+<input type="datetime-local" id="aa-new-ends-at">
+<p class="reg-empty-note" style="margin-top:0.3rem;">Leave blank to close it manually instead of on a timer.</p>
+<button class="btn-gold" style="margin-top:1rem;" id="aa-new-save-btn" onclick="aa_createItem()">Create Item</button>
+<p class="reg-error-note" id="aa-new-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">All Items</div>
+<div id="aa-staff-list"></div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let profileMap = {};
+let allItems = [];
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtMoney(n){ return '$' + Number(n).toFixed(2).replace(/\.00$/, ''); }
+function nameFor(id){ return profileMap[id] || 'Unknown player'; }
+
+async function aa_uploadImage(file){
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const path = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+  const { error } = await membersSupabase.storage.from('auction-images').upload(path, file);
+  if(error) throw error;
+  const { data } = membersSupabase.storage.from('auction-images').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function aa_createItem(){
+  const errorEl = document.getElementById('aa-new-error');
+  const saveBtn = document.getElementById('aa-new-save-btn');
+  errorEl.style.display = 'none';
+
+  const name = document.getElementById('aa-new-name').value.trim();
+  const description = document.getElementById('aa-new-description').value.trim();
+  const imageFile = document.getElementById('aa-new-image').files[0];
+  const starting = parseFloat(document.getElementById('aa-new-starting').value);
+  const increment = parseFloat(document.getElementById('aa-new-increment').value);
+  const endsAtInput = document.getElementById('aa-new-ends-at').value;
+  const endsAt = endsAtInput ? new Date(endsAtInput).toISOString() : null;
+
+  saveBtn.disabled = true;
+  try{
+    let imageUrl = '';
+    if(imageFile){
+      imageUrl = await aa_uploadImage(imageFile);
+    }
+
+    const { error } = await membersSupabase.rpc('auction_create_item', {
+      p_name: name,
+      p_description: description,
+      p_image_url: imageUrl,
+      p_starting_bid: starting,
+      p_min_increment: increment,
+      p_ends_at: endsAt
+    });
+    if(error){
+      errorEl.textContent = error.message;
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('aa-new-name').value = '';
+    document.getElementById('aa-new-description').value = '';
+    document.getElementById('aa-new-image').value = '';
+    document.getElementById('aa-new-ends-at').value = '';
+    await loadItems();
+  } catch(err){
+    errorEl.textContent = err.message || 'Image upload failed.';
+    errorEl.style.display = 'block';
+  } finally {
+    saveBtn.disabled = false;
+  }
+}
+
+async function loadItems(){
+  const { data: items } = await membersSupabase
+    .from('auction_items')
+    .select('id, name, status, winner_player_id, winning_bid_amount, payment_status')
+    .order('created_at', { ascending: false });
+  allItems = items || [];
+  renderItems();
+}
+
+function renderItems(){
+  const list = document.getElementById('aa-staff-list');
+  if(allItems.length === 0){
+    list.innerHTML = '<p class="reg-empty-note">No auction items yet.</p>';
+    return;
+  }
+
+  list.innerHTML = allItems.map(it => `
+    <div class="bank-bill-card">
+      <strong>${escapeHtml(it.name)}</strong>
+      <span class="bank-request-date" style="float:right;">${it.status}</span>
+      ${it.winner_player_id ? `<div>Winner: ${escapeHtml(nameFor(it.winner_player_id))} - ${fmtMoney(it.winning_bid_amount)} (${it.payment_status})</div>` : ''}
+      <div class="bank-bill-actions">
+        ${it.status === 'draft' ? `<button class="btn-gold" data-go-live="${escapeHtml(it.id)}">Go Live</button>` : ''}
+        ${it.status === 'live' ? `<button class="btn-gold" data-close="${escapeHtml(it.id)}">Close Bidding</button>` : ''}
+        ${it.status === 'closed' && it.winner_player_id && it.payment_status === 'unpaid' ? `<button class="btn-outline" data-mark-paid="${escapeHtml(it.id)}">Mark Paid (at event)</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('[data-go-live]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { error } = await membersSupabase.rpc('auction_go_live', { p_item_id: btn.dataset.goLive });
+      if(error){ alert(error.message); return; }
+      await loadItems();
+    });
+  });
+  list.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if(!confirm('Close bidding on this item? The current highest bidder wins.')) return;
+      const { error } = await membersSupabase.rpc('auction_close', { p_item_id: btn.dataset.close });
+      if(error){ alert(error.message); return; }
+      await loadItems();
+    });
+  });
+  list.querySelectorAll('[data-mark-paid]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { error } = await membersSupabase.rpc('auction_staff_mark_paid', { p_item_id: btn.dataset.markPaid });
+      if(error){ alert(error.message); return; }
+      await loadItems();
+    });
+  });
+}
+
+window.aa_createItem = aa_createItem;
+
+document.addEventListener('fa-members-ready', async (e) => {
+  const user = e.detail.user;
+  const isStaff = !!(user.app_metadata && (user.app_metadata.auction_staff || user.app_metadata.site_admin));
+  if(!isStaff){
+    document.getElementById('aa-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('aa-wrap').style.display = 'block';
+
+  const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
+  profileMap = {};
+  (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
+
+  await loadItems();
+});
+})();
+</script>
+
+</body>
+</html>
