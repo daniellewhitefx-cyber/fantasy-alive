@@ -36,7 +36,7 @@
 <div class="bank-recipient-picker" data-picker="kudos">
 <label class="field-label" for="kudos-search-input">Give kudos to</label>
 <input type="text" id="kudos-search-input" placeholder="Search player or character name..." autocomplete="off"
-  oninput="kudos_search(this.value)">
+  oninput="kudos_search(this.value)" onfocus="kudos_search(this.value)" onblur="kudos_hideResults()">
 <div class="member-search-list" id="kudos-search-results"></div>
 <p class="bank-selected-recipient" id="kudos-selected" style="display:none;"></p>
 </div>
@@ -112,10 +112,16 @@ function kudos_search(query){
   renderCandidates(query);
 }
 
+function kudos_hideResults(){
+  setTimeout(() => {
+    document.getElementById('kudos-search-results').innerHTML = '';
+  }, 150);
+}
+
 function kudos_pickPerson(charId, label){
   selectedRecipient = { id: charId, label };
   document.getElementById('kudos-search-input').value = '';
-  renderCandidates('');
+  document.getElementById('kudos-search-results').innerHTML = '';
   const selectedEl = document.getElementById('kudos-selected');
   selectedEl.style.display = 'block';
   selectedEl.textContent = `Selected: ${label}`;
@@ -175,11 +181,11 @@ async function loadSubmitted(){
 
 async function init(){
   await loadAllCandidates();
-  renderCandidates('');
   await loadSubmitted();
 }
 
 window.kudos_search = kudos_search;
+window.kudos_hideResults = kudos_hideResults;
 window.kudos_pickPerson = kudos_pickPerson;
 window.kudos_submitKudos = kudos_submitKudos;
 document.addEventListener('fa-members-ready', init);
