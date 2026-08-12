@@ -110,6 +110,20 @@ function faLogStatus(event){
   return { state: 'open', opensAt, closesAt };
 }
 
+// Downtime hours available to spend on Training during an event's log:
+// 100 hours per week between the previous event's end and this event's
+// start. The first tracked event has no prior event to measure from,
+// so it gets a flat 400 hours (about four weeks' worth).
+function faTrainingHoursBudget(event){
+  const idx = FA_EVENT_DEFS.findIndex(d => faEventSlug(faParseDateOnly(d.start), faParseDateOnly(d.end)) === event.value);
+  if(idx > 0){
+    const prevEnd = faParseDateOnly(FA_EVENT_DEFS[idx - 1].end);
+    const weeks = Math.round((event.start - prevEnd) / (7 * 24 * 60 * 60 * 1000));
+    return Math.max(0, weeks * 100);
+  }
+  return 400;
+}
+
 function faWaitForElement(selector){
   return new Promise(resolve => {
     (function check(){
@@ -158,3 +172,4 @@ window.faGetCurrentUser = faGetCurrentUser;
 window.faCheckRegistration = faCheckRegistration;
 window.faLogWindow = faLogWindow;
 window.faLogStatus = faLogStatus;
+window.faTrainingHoursBudget = faTrainingHoursBudget;
