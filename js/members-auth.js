@@ -86,6 +86,11 @@ async function initMembersPage(){
   document.getElementById('member-account-name').textContent = displayName;
   markActiveNavLink();
 
+  if(user.app_metadata && user.app_metadata.site_admin){
+    const permLink = document.getElementById('member-permissions-link');
+    if(permLink) permLink.style.display = '';
+  }
+
   window.faCurrentUser = user;
   document.body.classList.add('members-ready');
   document.dispatchEvent(new CustomEvent('fa-members-ready', { detail: { user } }));
