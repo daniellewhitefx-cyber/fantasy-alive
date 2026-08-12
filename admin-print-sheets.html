@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Print Character Sheets (Staff) - Fantasy Alive</title>
+<title>Print Sheets (Staff) - Fantasy Alive</title>
 <link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Print Character Sheets (Staff) - Fantasy Alive">
+<meta property="og:title" content="Print Sheets (Staff) - Fantasy Alive">
 <meta property="og:description" content="Don't be afraid to live more than once!">
 <meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
 <meta property="og:url" content="https://fantasy-alive.vercel.app/admin-print-sheets.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Print Character Sheets (Staff) - Fantasy Alive">
+<meta name="twitter:title" content="Print Sheets (Staff) - Fantasy Alive">
 <meta name="twitter:description" content="Don't be afraid to live more than once!">
 <meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,6 +72,38 @@
 }
 .print-sheet-table th{ background:#eee; font-family:'Cinzel', serif; }
 
+.kp-print-title{
+  font-family: 'EB Garamond', serif;
+  color: #000;
+  padding: 0.15in 0.1in;
+}
+.kp-print-title h2{
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  margin: 0 0 0.1rem;
+  line-height: 1.1;
+}
+.kp-print-title p{
+  font-style: italic;
+  margin: 0 0 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.1;
+}
+.kp-print-table{
+  width:100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+.kp-print-table th, .kp-print-table td{
+  border: 1px solid #ccc;
+  padding: 0.2rem 0.4rem;
+  text-align:left;
+  line-height: 1.2;
+}
+.kp-print-table th{ background:#eee; font-family:'Cinzel', serif; }
+.kp-print-table td.kp-checkbox{ text-align:center; font-size: 1rem; }
+.kp-print-table tr{ page-break-inside: avoid; }
+
 @media print{
   @page{ margin: 0.25in; }
   div[data-include="partials/header.html"],
@@ -97,7 +129,7 @@
 
 <div>
 
-<h1 class="page-title">Print Character Sheets</h1>
+<h1 class="page-title">Print Sheets</h1>
 
 <div class="reg-already-registered" id="ps-blocked-notice" style="display:none;">
 <h3>Staff access required</h3>
@@ -110,14 +142,37 @@
 <div class="panel-head"><h2>Print Setup</h2></div>
 <div class="panel-body">
 <label class="field-label" for="ps-event-select">Event</label>
-<select id="ps-event-select" onchange="ps_loadRoster()"></select>
+<select id="ps-event-select" onchange="ps_onEventChange()"></select>
+</div>
+</div>
 
-<div id="ps-summary" style="margin-top:1rem;"></div>
-
+<div class="panel">
+<div class="panel-head"><h2>Character Sheets</h2></div>
+<div class="panel-body">
+<p class="reg-empty-note">One full page per registered character: race, stats, and skills, matching what's shown on their own Characters page.</p>
+<div id="ps-char-summary" style="margin-top:1rem;"></div>
 <button class="btn-gold" id="ps-print-btn" style="margin-top:1rem;" onclick="ps_printAll()" disabled>Print All Character Sheets</button>
-<p class="reg-empty-note" style="margin-top:0.6rem;">This opens your browser's print dialog with one page per character already laid out. Choose a printer, or "Save as PDF" to export it instead.</p>
 </div>
 </div>
+
+<div class="panel">
+<div class="panel-head"><h2>Meal Checklist</h2></div>
+<div class="panel-body">
+<p class="reg-empty-note">One table listing every diner with a meal plan and a checkbox under each meal they're signed up for, so kitchen staff can tick them off as they eat.</p>
+<div id="ps-kitchen-summary" style="margin-top:1rem;"></div>
+<button class="btn-gold" id="ps-meals-print-btn" style="margin-top:1rem;" onclick="ps_printMeals()" disabled>Print Meal Checklist</button>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-head"><h2>Dietary Restrictions</h2></div>
+<div class="panel-body">
+<p class="reg-empty-note">Everyone who noted a dietary restriction or allergy at registration.</p>
+<button class="btn-gold" id="ps-diet-print-btn" style="margin-top:1rem;" onclick="ps_printDietary()" disabled>Print Dietary Restrictions</button>
+</div>
+</div>
+
+<p class="reg-empty-note">Each button opens your browser's print dialog with the sheet already laid out. Choose a printer, or "Save as PDF" to export it instead.</p>
 
 </div>
 
@@ -135,6 +190,8 @@
 (function(){
 let ROSTER = [];
 let UNMATCHED = [];
+let DINERS = [];
+const MEAL_SLOTS = ['Saturday Breakfast', 'Saturday Lunch', 'Saturday Dinner', 'Sunday Breakfast'];
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -143,6 +200,13 @@ function escapeHtml(str){
 function emptyState(msg){
   return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
+
+function ps_doPrint(html){
+  document.getElementById('ps-print-area').innerHTML = html;
+  setTimeout(() => window.print(), 200);
+}
+
+/* ---------- character sheets ---------- */
 
 const RACE_STATS = {
   'Curtainborn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 5, baseMe: 0 },
@@ -187,8 +251,13 @@ function populateEventSelect(){
   if(window.FA_NEXT_EVENT) sel.value = window.FA_NEXT_EVENT.label;
 }
 
+function ps_onEventChange(){
+  ps_loadRoster();
+  ps_loadKitchen();
+}
+
 async function ps_loadRoster(){
-  const summaryEl = document.getElementById('ps-summary');
+  const summaryEl = document.getElementById('ps-char-summary');
   const printBtn = document.getElementById('ps-print-btn');
   printBtn.disabled = true;
   ROSTER = [];
@@ -269,8 +338,7 @@ async function ps_printAll(){
   const sheetById = {};
   (sheets || []).forEach(s => { sheetById[s.id] = s; });
 
-  const printArea = document.getElementById('ps-print-area');
-  printArea.innerHTML = ROSTER.map(r => {
+  const html = ROSTER.map(r => {
     const s = sheetById[r.id];
     if(!s) return '';
     const skills = s.skills || [];
@@ -304,11 +372,86 @@ async function ps_printAll(){
     `;
   }).join('');
 
-  setTimeout(() => window.print(), 200);
+  ps_doPrint(html);
 }
 
-window.ps_loadRoster = ps_loadRoster;
+/* ---------- kitchen sheets ---------- */
+
+async function ps_loadKitchen(){
+  const summaryEl = document.getElementById('ps-kitchen-summary');
+  const mealsBtn = document.getElementById('ps-meals-print-btn');
+  const dietBtn = document.getElementById('ps-diet-print-btn');
+  mealsBtn.disabled = true;
+  dietBtn.disabled = true;
+  DINERS = [];
+
+  const eventLabel = document.getElementById('ps-event-select').value;
+  if(!eventLabel || !window.FA_REGISTRATION_ENDPOINT) return;
+
+  summaryEl.innerHTML = '<p class="reg-empty-note">Loading diners&hellip;</p>';
+
+  try{
+    const res = await fetch(window.FA_REGISTRATION_ENDPOINT + '?action=kitchen&event=' + encodeURIComponent(eventLabel), { cache: 'no-store' });
+    if(!res.ok) throw new Error('Kitchen list request failed (' + res.status + ')');
+    const data = await res.json();
+    DINERS = (data.diners || []).slice().sort((a, b) => a.name.localeCompare(b.name));
+  } catch(err){
+    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load the kitchen list: ${escapeHtml(err.message)}. The registration Sheet needs a "kitchen" action added.</p>`;
+    return;
+  }
+
+  const dietCount = DINERS.filter(d => d.allergies && d.allergies.trim()).length;
+
+  if(DINERS.length === 0){
+    summaryEl.innerHTML = emptyState('No one has a meal plan for this event yet.');
+    return;
+  }
+
+  summaryEl.innerHTML = `<p><strong>${DINERS.length}</strong> diner${DINERS.length === 1 ? '' : 's'} with a meal plan, <strong>${dietCount}</strong> with a dietary restriction noted, for ${escapeHtml(eventLabel)}.</p>`;
+  mealsBtn.disabled = false;
+  dietBtn.disabled = dietCount === 0;
+}
+
+function ps_printMeals(){
+  const eventLabel = document.getElementById('ps-event-select').value;
+  const rows = DINERS.map(d => {
+    const cells = MEAL_SLOTS.map(slot => `<td class="kp-checkbox">${d.meals && d.meals[slot] ? '&#9744;' : ''}</td>`).join('');
+    return `<tr><td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.playerName)}</td>${cells}</tr>`;
+  }).join('');
+
+  ps_doPrint(`
+    <div class="kp-print-title">
+      <h2>Meal Checklist</h2>
+      <p>${escapeHtml(eventLabel)}</p>
+    </div>
+    <table class="kp-print-table">
+      <thead><tr><th>Character / Cast</th><th>Player</th>${MEAL_SLOTS.map(s => `<th>${escapeHtml(s)}</th>`).join('')}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `);
+}
+
+function ps_printDietary(){
+  const eventLabel = document.getElementById('ps-event-select').value;
+  const withDiet = DINERS.filter(d => d.allergies && d.allergies.trim());
+  const rows = withDiet.map(d => `<tr><td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.playerName)}</td><td>${escapeHtml(d.allergies)}</td></tr>`).join('');
+
+  ps_doPrint(`
+    <div class="kp-print-title">
+      <h2>Dietary Restrictions</h2>
+      <p>${escapeHtml(eventLabel)}</p>
+    </div>
+    <table class="kp-print-table">
+      <thead><tr><th>Character / Cast</th><th>Player</th><th>Dietary Restriction / Allergy</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `);
+}
+
+window.ps_onEventChange = ps_onEventChange;
 window.ps_printAll = ps_printAll;
+window.ps_printMeals = ps_printMeals;
+window.ps_printDietary = ps_printDietary;
 
 document.addEventListener('fa-members-ready', async () => {
   const { data: allowed, error } = await membersSupabase.rpc('fa_is_logistics_or_admin');
@@ -318,7 +461,7 @@ document.addEventListener('fa-members-ready', async () => {
   }
   document.getElementById('ps-wrap').style.display = 'block';
   populateEventSelect();
-  await ps_loadRoster();
+  await Promise.all([ps_loadRoster(), ps_loadKitchen()]);
 });
 })();
 </script>
