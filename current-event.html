@@ -20,9 +20,15 @@
 <link rel="stylesheet" href="css/members.css">
 <script src="js/vendor/supabase-js.min.js"></script>
 <style>
+.ce-cols{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  align-items: start;
+}
 .ce-stats{
   display:grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin-bottom: 1.2rem;
 }
@@ -45,6 +51,9 @@
   font-weight: 700;
   font-size: 1.5rem;
   color: var(--ink);
+}
+@media (max-width: 800px){
+  .ce-cols{ grid-template-columns: 1fr; }
 }
 @media (max-width: 600px){
   .ce-stats{ grid-template-columns: 1fr; }
@@ -186,21 +195,14 @@ async function renderOpen(){
         <div class="panel-body">
           <p class="reg-empty-note">Logging as ${escapeHtml(MY_CHARACTER.name)}.</p>
           <div class="ce-stats">
-            <div class="ce-stat"><div class="ce-stat-label">OC Remaining</div><div class="ce-stat-value">${OC_BALANCE}</div></div>
             <div class="ce-stat"><div class="ce-stat-label">OC Used</div><div class="ce-stat-value">${SPENT.xp_spent}</div></div>
             <div class="ce-stat"><div class="ce-stat-label">EXP Gained</div><div class="ce-stat-value">${SPENT.xp_spent}</div></div>
           </div>
-          <div class="bank-form-grid">
-            <div>
-              <label class="field-label" for="ce-xp-amount">OC to convert</label>
-              <select id="ce-xp-amount" onchange="ce_previewXp()">${ocAmountOptions(SPENT.xp_spent, n => `${n} OC = ${n} XP`)}</select>
-            </div>
-            <div style="display:flex; align-items:flex-end;">
-              <button class="btn-gold" style="width:100%;" onclick="ce_updateXp()">Update</button>
-            </div>
+          <div>
+            <label class="field-label" for="ce-xp-amount">OC to convert</label>
+            <select id="ce-xp-amount" onchange="ce_updateXp()">${ocAmountOptions(SPENT.xp_spent, n => `${n} OC = ${n} XP`)}</select>
           </div>
-          <p class="reg-empty-note" id="ce-xp-preview" style="margin-top:0.6rem;"></p>
-          <p class="reg-error-note" id="ce-xp-error" style="display:none;"></p>
+          <p class="reg-error-note" id="ce-xp-error" style="display:none; margin-top:0.6rem;"></p>
         </div>
       </div>
     `;
@@ -225,21 +227,14 @@ async function renderOpen(){
       <div class="panel-head"><h2>Convert OC to Copper</h2></div>
       <div class="panel-body">
         <div class="ce-stats">
-          <div class="ce-stat"><div class="ce-stat-label">OC Remaining</div><div class="ce-stat-value">${OC_BALANCE}</div></div>
           <div class="ce-stat"><div class="ce-stat-label">OC Used</div><div class="ce-stat-value">${SPENT.copper_spent}</div></div>
           <div class="ce-stat"><div class="ce-stat-label">Copper Gained</div><div class="ce-stat-value">${SPENT.copper_spent * 10}</div></div>
         </div>
-        <div class="bank-form-grid">
-          <div>
-            <label class="field-label" for="ce-copper-amount">OC to convert</label>
-            <select id="ce-copper-amount" onchange="ce_previewCopper()">${ocAmountOptions(SPENT.copper_spent, n => `${n} OC = ${n * 10} Copper`)}</select>
-          </div>
-          <div style="display:flex; align-items:flex-end;">
-            <button class="btn-gold" style="width:100%;" onclick="ce_updateCopper()">Update</button>
-          </div>
+        <div>
+          <label class="field-label" for="ce-copper-amount">OC to convert</label>
+          <select id="ce-copper-amount" onchange="ce_updateCopper()">${ocAmountOptions(SPENT.copper_spent, n => `${n} OC = ${n * 10} Copper`)}</select>
         </div>
-        <p class="reg-empty-note" id="ce-copper-preview" style="margin-top:0.6rem;"></p>
-        <p class="reg-error-note" id="ce-copper-error" style="display:none;"></p>
+        <p class="reg-error-note" id="ce-copper-error" style="display:none; margin-top:0.6rem;"></p>
       </div>
     </div>
   `;
@@ -254,58 +249,41 @@ async function renderOpen(){
         </div>
       </div>
     </div>
-    ${xpSection}
-    ${copperSection}
+    <div class="ce-cols">
+      ${xpSection}
+      ${copperSection}
+    </div>
   `;
-
-  ce_previewXp();
-  ce_previewCopper();
-}
-
-function ce_previewXp(){
-  const input = document.getElementById('ce-xp-amount');
-  const el = document.getElementById('ce-xp-preview');
-  if(!input || !el) return;
-  const amount = clampAmount(input.value);
-  el.textContent = amount === SPENT.xp_spent ? '' : `Will use ${amount} OC for ${amount} XP (currently ${SPENT.xp_spent}).`;
-}
-
-function ce_previewCopper(){
-  const input = document.getElementById('ce-copper-amount');
-  const el = document.getElementById('ce-copper-preview');
-  if(!input || !el) return;
-  const amount = clampAmount(input.value);
-  el.textContent = amount === SPENT.copper_spent ? '' : `Will use ${amount} OC for ${amount * 10} Copper (currently ${SPENT.copper_spent * 10} Copper).`;
 }
 
 async function ce_updateXp(){
+  const select = document.getElementById('ce-xp-amount');
   const errorEl = document.getElementById('ce-xp-error');
   errorEl.style.display = 'none';
-  const amount = clampAmount(document.getElementById('ce-xp-amount').value);
+  const amount = clampAmount(select.value);
 
   const { error } = await membersSupabase.rpc('event_log_set_oc_spend', {
     p_event_slug: EVENT.value, p_kind: 'xp', p_character_id: MY_CHARACTER.id, p_oc_amount: amount
   });
-  if(error){ showError(errorEl, error.message); return; }
+  if(error){ select.value = SPENT.xp_spent; showError(errorEl, error.message); return; }
 
   await renderOpen();
 }
 
 async function ce_updateCopper(){
+  const select = document.getElementById('ce-copper-amount');
   const errorEl = document.getElementById('ce-copper-error');
   errorEl.style.display = 'none';
-  const amount = clampAmount(document.getElementById('ce-copper-amount').value);
+  const amount = clampAmount(select.value);
 
   const { error } = await membersSupabase.rpc('event_log_set_oc_spend', {
     p_event_slug: EVENT.value, p_kind: 'copper', p_character_id: null, p_oc_amount: amount
   });
-  if(error){ showError(errorEl, error.message); return; }
+  if(error){ select.value = SPENT.copper_spent; showError(errorEl, error.message); return; }
 
   await renderOpen();
 }
 
-window.ce_previewXp = ce_previewXp;
-window.ce_previewCopper = ce_previewCopper;
 window.ce_updateXp = ce_updateXp;
 window.ce_updateCopper = ce_updateCopper;
 
