@@ -386,12 +386,12 @@ async function ensureTrainingCatalogLoaded(){
 
 async function refreshTrainingState(){
   const [{ data: skillRows }, { data: summary }, { data: purchases }] = await Promise.all([
-    membersSupabase.from('character_skills').select('category, skill_name, focus, level').eq('character_id', MY_CHARACTER.id),
+    membersSupabase.from('character_skills').select('id, category, skill_name, focus, level, sp_cost').eq('character_id', MY_CHARACTER.id),
     membersSupabase.rpc('event_log_training_summary', { p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id }),
-    membersSupabase.from('event_log_training_purchases').select('id, category, skill_name, focus, level, sp_cost, hours_cost')
+    membersSupabase.from('event_log_training_purchases').select('id, category, skill_name, focus, level, sp_cost, hours_cost, is_relevel, prev_level')
       .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true })
   ]);
-  TRAIN_KNOWN = (skillRows || []).map(sk => ({ category: sk.category, title: sk.skill_name, focus: sk.focus || '', level: sk.level }));
+  TRAIN_KNOWN = (skillRows || []).map(sk => ({ id: sk.id, category: sk.category, title: sk.skill_name, focus: sk.focus || '', level: sk.level, spCost: sk.sp_cost }));
   TRAIN_SUMMARY = summary || { spendable_sp: 0, hours_spent: 0 };
   TRAIN_PURCHASES = purchases || [];
   TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT);
@@ -407,22 +407,26 @@ async function loadTrainingData(){
   }
 }
 
-function ce_trainAlreadyKnown(category, title, focus){
+function ce_trainFindKnown(category, title, focus){
   const norm = s => (s || '').trim().toLowerCase();
-  return TRAIN_KNOWN.some(k => norm(k.category) === norm(category) && norm(k.title) === norm(title) && norm(k.focus) === norm(focus));
+  return TRAIN_KNOWN.find(k => norm(k.category) === norm(category) && norm(k.title) === norm(title) && norm(k.focus) === norm(focus)) || null;
 }
 
 function renderLearningListHtml(){
   if(!TRAIN_PURCHASES.length) return '';
-  const rows = TRAIN_PURCHASES.map(p => `
-    <tr>
-      <td>${escapeHtml(p.skill_name)}${p.focus ? ' (' + escapeHtml(p.focus) + ')' : ''}</td>
-      <td>${escapeHtml(p.category)}</td>
-      <td>${p.level}</td>
-      <td>${p.sp_cost} SP (${p.hours_cost} hrs)</td>
-      <td><button class="btn-outline" onclick="ce_trainCancel('${p.id}')" title="Cancel learning this skill">&times;</button></td>
-    </tr>
-  `).join('');
+  const rows = TRAIN_PURCHASES.map(p => {
+    const levelLabel = p.is_relevel ? `${p.prev_level} &rarr; ${p.level}` : `${p.level}`;
+    const costLabel = p.is_relevel ? `+${p.sp_cost} SP (+${p.hours_cost} hrs)` : `${p.sp_cost} SP (${p.hours_cost} hrs)`;
+    return `
+      <tr>
+        <td>${escapeHtml(p.skill_name)}${p.focus ? ' (' + escapeHtml(p.focus) + ')' : ''}</td>
+        <td>${escapeHtml(p.category)}</td>
+        <td>${levelLabel}</td>
+        <td>${costLabel}</td>
+        <td><button class="btn-outline" onclick="ce_trainCancel('${p.id}')" title="Cancel this training">&times;</button></td>
+      </tr>
+    `;
+  }).join('');
 
   return `
     <div class="panel">
@@ -484,7 +488,7 @@ function ce_trainSelectCategory(cat){
 function ce_trainRowState(idx){
   const s = TRAIN_ALL_SKILLS[idx];
   const key = skillKey(s);
-  TRAIN_BROWSE_STATE[key] = TRAIN_BROWSE_STATE[key] || { level: 1, focus: '' };
+  TRAIN_BROWSE_STATE[key] = TRAIN_BROWSE_STATE[key] || { focus: '' };
   return { s, key, state: TRAIN_BROWSE_STATE[key] };
 }
 
@@ -502,68 +506,92 @@ function trainFocusFieldHtml(idx, s, state, isLeveled){
   return `<input type="text" placeholder="${escapeHtml(parts.placeholder)}" value="${escapeHtml(state.focus)}" oninput="ce_trainUpdateFocus(${idx}, this.value)" ${widthStyle}>`;
 }
 
-function renderTrainBrowser(){
+// Resolves everything needed to render or act on one browse row: the
+// matching known skill (if any), whether acting on it is a relevel,
+// the level to act on (auto-detected: the next level up from whatever
+// is already known, or level 1 if it isn't known at all), and the
+// delta cost in SP/Hours (the delta equals the full cost for a
+// brand-new skill, since there's nothing to subtract).
+function ce_trainRowInfo(idx){
+  const { s, state } = ce_trainRowState(idx);
+  const parts = skillNameParts(s.title);
+  const isLeveled = isLeveledCost(s.cost);
+  const focusVal = parts.placeholder ? state.focus.trim() : '';
+  const known = (parts.placeholder && !focusVal) ? null : ce_trainFindKnown(s.category, parts.base, focusVal);
+  const isRelevel = isLeveled && !!known;
+
+  const level = isLeveled ? (known ? known.level + 1 : 1) : 1;
+
   const hoursRemaining = Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent);
   const spendableSp = TRAIN_SUMMARY.spendable_sp;
 
+  const cost = skillsParseCost(s.cost, level);
+  const deltaSp = cost === null ? null : (isRelevel ? cost - known.spCost : cost);
+  const deltaHours = deltaSp === null ? null : deltaSp * 5;
+
+  const alreadyKnownFlat = !isLeveled && !!known;
+  const canAct = deltaSp !== null && deltaSp > 0 && deltaSp <= spendableSp && deltaHours <= hoursRemaining
+    && !(parts.placeholder && !focusVal) && !alreadyKnownFlat;
+
+  return { s, parts, state, isLeveled, focusVal, known, isRelevel, level, cost, deltaSp, deltaHours, alreadyKnownFlat, canAct };
+}
+
+function trainCostLabel(info){
+  if(info.alreadyKnownFlat) return '-';
+  if(info.deltaSp === null) return info.s.cost;
+  return info.isRelevel ? `+${info.deltaSp} SP (+${info.deltaHours} hrs)` : `${info.deltaSp} SP (${info.deltaHours} hrs)`;
+}
+
+function renderTrainBrowser(){
   const rows = TRAIN_ALL_SKILLS
     .map((s, idx) => ({ s, idx }))
     .filter(({ s }) => s.category === TRAIN_CATEGORY && isPrereqMet(s.prereq, TRAIN_KNOWN))
     .filter(({ s }) => {
       const parts = skillNameParts(s.title);
-      return parts.placeholder || !ce_trainAlreadyKnown(s.category, parts.base, '');
+      if(parts.placeholder || isLeveledCost(s.cost)) return true;
+      return !ce_trainFindKnown(s.category, parts.base, '');
     });
 
-  document.getElementById('ce-train-browser-body').innerHTML = rows.length ? rows.map(({ s, idx }) => {
-    const parts = skillNameParts(s.title);
-    const state = TRAIN_BROWSE_STATE[skillKey(s)] || { level: 1, focus: '' };
-    const isLeveled = isLeveledCost(s.cost);
-    const cost = skillsParseCost(s.cost, state.level);
-    const hoursCost = cost === null ? null : cost * 5;
+  document.getElementById('ce-train-browser-body').innerHTML = rows.length ? rows.map(({ idx }) => {
+    const info = ce_trainRowInfo(idx);
+    const { s, parts, state, isLeveled } = info;
 
     let focusCell = '-';
     if(parts.placeholder && isLeveled){
-      focusCell = trainFocusFieldHtml(idx, s, state, true)
-        + `<input type="number" min="1" value="${state.level}" oninput="ce_trainUpdateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+      focusCell = trainFocusFieldHtml(idx, s, state, true) + `<span style="margin-left:0.5rem;">Level ${info.level}</span>`;
     } else if(parts.placeholder){
       focusCell = trainFocusFieldHtml(idx, s, state, false);
     } else if(isLeveled){
-      focusCell = `Level <input type="number" min="1" value="${state.level}" oninput="ce_trainUpdateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+      focusCell = `Level ${info.level}`;
     }
 
-    const alreadyKnown = parts.placeholder ? ce_trainAlreadyKnown(s.category, parts.base, state.focus) : false;
-    const canLearn = cost !== null && cost <= spendableSp && hoursCost <= hoursRemaining
-      && !(parts.placeholder && !state.focus.trim()) && !alreadyKnown;
-    const costLabel = cost === null ? s.cost : `${cost} SP (${hoursCost} hrs)`;
+    const nameLabel = escapeHtml(parts.base)
+      + (info.isRelevel ? ` <span class="reg-empty-note" style="display:inline;">(currently level ${info.known.level})</span>` : '');
+    const actionLabel = info.alreadyKnownFlat ? 'Known' : (info.isRelevel ? 'Level Up' : 'Learn');
 
     return `
       <tr>
-        <td>${escapeHtml(parts.base)}</td>
-        <td id="ce-train-cost-${idx}">${escapeHtml(costLabel)}</td>
+        <td>${nameLabel}</td>
+        <td id="ce-train-cost-${idx}">${escapeHtml(trainCostLabel(info))}</td>
         <td class="col-prereq">${escapeHtml(s.prereq)}</td>
         <td>${focusCell}</td>
-        <td><button class="btn-outline" id="ce-train-learn-${idx}" ${canLearn ? '' : 'disabled'} onclick="ce_trainLearn(${idx})">${alreadyKnown ? 'Known' : 'Learn'}</button></td>
+        <td><button class="btn-outline" id="ce-train-learn-${idx}" ${info.canAct ? '' : 'disabled'} onclick="ce_trainAct(${idx})">${actionLabel}</button></td>
       </tr>
     `;
   }).join('') : `<tr><td colspan="5">Nothing left to learn in this category.</td></tr>`;
 }
 
 function ce_trainUpdateRowLive(idx){
-  const { s, state } = ce_trainRowState(idx);
-  const parts = skillNameParts(s.title);
-  const hoursRemaining = Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent);
-  const spendableSp = TRAIN_SUMMARY.spendable_sp;
-  const cost = skillsParseCost(s.cost, state.level);
-  const hoursCost = cost === null ? null : cost * 5;
-  const alreadyKnown = parts.placeholder ? ce_trainAlreadyKnown(s.category, parts.base, state.focus) : false;
-  const canLearn = cost !== null && cost <= spendableSp && hoursCost <= hoursRemaining
-    && !(parts.placeholder && !state.focus.trim()) && !alreadyKnown;
+  const info = ce_trainRowInfo(idx);
 
   const costEl = document.getElementById('ce-train-cost-' + idx);
-  if(costEl) costEl.textContent = cost === null ? s.cost : `${cost} SP (${hoursCost} hrs)`;
+  if(costEl) costEl.textContent = trainCostLabel(info);
 
   const btn = document.getElementById('ce-train-learn-' + idx);
-  if(btn){ btn.disabled = !canLearn; btn.textContent = alreadyKnown ? 'Known' : 'Learn'; }
+  if(btn){
+    btn.disabled = !info.canAct;
+    btn.textContent = info.alreadyKnownFlat ? 'Known' : (info.isRelevel ? 'Level Up' : 'Learn');
+  }
 }
 
 function ce_trainUpdateFocus(idx, val){
@@ -572,31 +600,33 @@ function ce_trainUpdateFocus(idx, val){
   ce_trainUpdateRowLive(idx);
 }
 
-function ce_trainUpdateLevel(idx, val){
-  const { state } = ce_trainRowState(idx);
-  state.level = Math.max(1, parseInt(val, 10) || 1);
-  ce_trainUpdateRowLive(idx);
-}
-
-async function ce_trainLearn(idx){
+async function ce_trainAct(idx){
   const errorEl = document.getElementById('ce-train-error');
   errorEl.style.display = 'none';
-  const { s, key, state } = ce_trainRowState(idx);
-  const parts = skillNameParts(s.title);
-  const cost = skillsParseCost(s.cost, state.level);
-  if(cost === null) return;
-  if(parts.placeholder && !state.focus.trim()) return;
+  const info = ce_trainRowInfo(idx);
+  if(!info.canAct) return;
+  const { s, parts, isRelevel, known, level, cost, focusVal } = info;
+  const { key } = ce_trainRowState(idx);
 
-  const { error } = await membersSupabase.rpc('event_log_train_skill', {
-    p_event_slug: EVENT.value,
-    p_character_id: MY_CHARACTER.id,
-    p_hours_budget: TRAIN_BUDGET,
-    p_category: s.category,
-    p_skill_name: parts.base,
-    p_focus: parts.placeholder ? state.focus.trim() : null,
-    p_level: isLeveledCost(s.cost) ? state.level : 1,
-    p_sp_cost: cost
-  });
+  const { error } = isRelevel
+    ? await membersSupabase.rpc('event_log_relevel_skill', {
+        p_event_slug: EVENT.value,
+        p_character_id: MY_CHARACTER.id,
+        p_hours_budget: TRAIN_BUDGET,
+        p_character_skill_id: known.id,
+        p_new_level: level,
+        p_new_sp_cost: cost
+      })
+    : await membersSupabase.rpc('event_log_train_skill', {
+        p_event_slug: EVENT.value,
+        p_character_id: MY_CHARACTER.id,
+        p_hours_budget: TRAIN_BUDGET,
+        p_category: s.category,
+        p_skill_name: parts.base,
+        p_focus: parts.placeholder ? focusVal : null,
+        p_level: isLeveledCost(s.cost) ? level : 1,
+        p_sp_cost: cost
+      });
 
   if(error){ showError(errorEl, error.message); return; }
 
@@ -620,8 +650,7 @@ window.ce_updateCopper = ce_updateCopper;
 window.ce_selectTab = ce_selectTab;
 window.ce_trainSelectCategory = ce_trainSelectCategory;
 window.ce_trainUpdateFocus = ce_trainUpdateFocus;
-window.ce_trainUpdateLevel = ce_trainUpdateLevel;
-window.ce_trainLearn = ce_trainLearn;
+window.ce_trainAct = ce_trainAct;
 window.ce_trainCancel = ce_trainCancel;
 
 document.addEventListener('fa-members-ready', async () => {
