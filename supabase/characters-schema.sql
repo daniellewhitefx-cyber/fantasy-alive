@@ -37,10 +37,19 @@ $$;
 
 alter table characters enable row level security;
 
+-- Matches character-admin-schema.sql's version of this same policy
+-- exactly, so re-running either file in either order always lands on
+-- the correct, staff-aware rule instead of whichever file ran last
+-- silently overwriting the other's policy of the same name.
 drop policy if exists "Players see their own characters" on characters;
 create policy "Players see their own characters"
   on characters for select
-  using (player_id = auth.uid());
+  using (
+    player_id = auth.uid()
+    or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
+    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    or fa_is_site_admin()
+  );
 
 create table if not exists character_skills (
   id uuid primary key default gen_random_uuid(),
@@ -58,10 +67,16 @@ create index if not exists character_skills_character_idx on character_skills(ch
 
 alter table character_skills enable row level security;
 
+-- Matches character-admin-schema.sql's version of this same policy
+-- exactly, for the same reason as the characters policy above.
 drop policy if exists "Players see their own character skills" on character_skills;
 create policy "Players see their own character skills"
   on character_skills for select
-  using (player_id = auth.uid());
+  using (
+    player_id = auth.uid()
+    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    or fa_is_site_admin()
+  );
 
 create or replace function character_create(
   p_name text,

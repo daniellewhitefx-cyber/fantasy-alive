@@ -20,10 +20,14 @@ create policy "Departments are publicly readable"
   using (true);
 
 alter table department_members enable row level security;
+-- Matches permissions-admin-schema.sql's version of this same policy
+-- exactly, so re-running either file in either order always lands on
+-- the correct, admin-aware rule instead of whichever file ran last
+-- silently overwriting the other's policy of the same name.
 drop policy if exists "Players see their own department memberships" on department_members;
 create policy "Players see their own department memberships"
   on department_members for select
-  using (player_id = auth.uid());
+  using (player_id = auth.uid() or fa_is_site_admin());
 
 create table if not exists messages (
   id uuid primary key default gen_random_uuid(),
