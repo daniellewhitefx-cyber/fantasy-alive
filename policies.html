@@ -38,26 +38,23 @@
   color: var(--brown);
   text-align: center;
 }
-.photo-slot{
-  border: 2px dashed var(--gold-dark);
-  border-radius: 6px;
-  background: var(--cream-deep);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:0.6rem;
-  color: var(--brown-dark);
-  font-family:'Cinzel', serif;
-  font-weight:700;
-  font-size:0.8rem;
-  text-transform:uppercase;
-  letter-spacing:0.05em;
-  text-align:center;
-  padding:1rem;
+.page-hero-image{
+  position:relative;
+  overflow:hidden;
+  height: 100%;
+  min-height: 320px;
 }
-.photo-slot svg{ width:34px; height:34px; opacity:0.55; }
-.photo-slot.hero-slot{ height:100%; min-height:320px; border-radius:0; }
+.page-hero-image::after{
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width: 45%; height:100%;
+  background: linear-gradient(to left, rgba(236,225,205,0) 0%, var(--cream) 100%);
+  pointer-events: none;
+}
+.page-hero-image img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
 
 .policies-intro{
   max-width: 900px;
@@ -235,7 +232,11 @@
   .page-hero{ grid-template-columns: 1fr; height:auto; }
   .page-hero-content{ padding: 1.5rem 1rem; }
   .page-hero h1{ font-size: 2.2rem; }
-  .photo-slot.hero-slot{ height:180px; min-height:180px; }
+  .page-hero-image{ height:180px; min-height:180px; }
+  .page-hero-image::after{
+    width: 100%; height: 50%;
+    background: linear-gradient(to bottom, var(--cream) 0%, rgba(236,225,205,0) 100%);
+  }
   .policies-page{ grid-template-columns: 1fr; padding: 1.5rem 1.2rem 3rem; }
   .policy-toc{ position: static; }
 }
@@ -250,9 +251,8 @@
 <img src="https://i.imgur.com/zcnx0lm.png" alt="Fantasy Alive" class="logo-img">
 <h1>Policies</h1>
 </div>
-<div class="photo-slot hero-slot">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
-Add a photo
+<div class="page-hero-image">
+<img src="https://i.imgur.com/YF6JHIM.jpeg" alt="Fantasy Alive banner for the Policies page">
 </div>
 </section>
 
