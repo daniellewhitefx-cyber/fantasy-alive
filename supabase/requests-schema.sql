@@ -91,9 +91,15 @@ alter table kudos add column if not exists status text not null default 'pending
 alter table kudos add column if not exists decided_at timestamptz;
 
 drop policy if exists "Players see kudos they gave" on kudos;
-create policy "Players see kudos they gave"
+drop policy if exists "Players see kudos about them" on kudos;
+create policy "Players see kudos about them"
   on kudos for select
-  using (from_player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (
+    from_player_id = auth.uid()
+    or to_player_id = auth.uid()
+    or to_character_id in (select id from characters where player_id = auth.uid())
+    or fa_is_logistics_or_admin()
+  );
 
 create or replace function kudos_approve(p_id uuid)
 returns void language plpgsql security definer as $$

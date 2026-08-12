@@ -331,6 +331,7 @@ declare
   v_new_bank integer;
   v_new_kudos integer;
   v_new_remort integer;
+  v_new_kudos_received integer;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
 
@@ -378,6 +379,16 @@ begin
       and decided_at is not null
       and (v_last_seen is null or decided_at > v_last_seen);
 
+  select count(*) into v_new_kudos_received
+    from kudos
+    where status = 'approved'
+      and decided_at is not null
+      and (v_last_seen is null or decided_at > v_last_seen)
+      and (
+        to_player_id = v_player
+        or to_character_id in (select id from characters where player_id = v_player)
+      );
+
   return jsonb_build_object(
     'unread_messages', v_unread_messages,
     'new_xp', v_new_xp,
@@ -385,7 +396,8 @@ begin
     'new_bank', v_new_bank,
     'new_kudos', v_new_kudos,
     'new_remort', v_new_remort,
-    'total', v_unread_messages + v_new_xp + v_new_oc + v_new_bank + v_new_kudos + v_new_remort
+    'new_kudos_received', v_new_kudos_received,
+    'total', v_unread_messages + v_new_xp + v_new_oc + v_new_bank + v_new_kudos + v_new_remort + v_new_kudos_received
   );
 end;
 $$;
