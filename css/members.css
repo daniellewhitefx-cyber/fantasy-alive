@@ -178,6 +178,19 @@ body.members-ready .dashboard{ visibility:visible; }
   font-family: 'EB Garamond', serif;
   font-size: 1.05rem;
 }
+.friends-player-name{
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--gold-dark);
+  margin-top: 0.2rem;
+}
+.friends-remove-btn{
+  margin-top: 0.7rem;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.8rem;
+}
 
 .field-label{
   font-family: 'Cinzel', serif;
