@@ -149,8 +149,7 @@
 <div class="panel">
 <div class="panel-head"><h2>Character Sheets</h2></div>
 <div class="panel-body">
-<p class="reg-empty-note">One full page per registered character: race, stats, and skills, matching what's shown on their own Characters page.</p>
-<div id="ps-char-summary" style="margin-top:1rem;"></div>
+<div id="ps-char-summary"></div>
 <button class="btn-gold" id="ps-print-btn" style="margin-top:1rem;" onclick="ps_printAll()" disabled>Print All Character Sheets</button>
 </div>
 </div>
@@ -158,8 +157,7 @@
 <div class="panel">
 <div class="panel-head"><h2>Meal Checklist</h2></div>
 <div class="panel-body">
-<p class="reg-empty-note">One table listing every diner with a meal plan and a checkbox under each meal they're signed up for, so kitchen staff can tick them off as they eat.</p>
-<div id="ps-kitchen-summary" style="margin-top:1rem;"></div>
+<div id="ps-kitchen-summary"></div>
 <button class="btn-gold" id="ps-meals-print-btn" style="margin-top:1rem;" onclick="ps_printMeals()" disabled>Print Meal Checklist</button>
 </div>
 </div>
@@ -167,12 +165,9 @@
 <div class="panel">
 <div class="panel-head"><h2>Dietary Restrictions</h2></div>
 <div class="panel-body">
-<p class="reg-empty-note">Everyone who noted a dietary restriction or allergy at registration.</p>
-<button class="btn-gold" id="ps-diet-print-btn" style="margin-top:1rem;" onclick="ps_printDietary()" disabled>Print Dietary Restrictions</button>
+<button class="btn-gold" id="ps-diet-print-btn" onclick="ps_printDietary()" disabled>Print Dietary Restrictions</button>
 </div>
 </div>
-
-<p class="reg-empty-note">Each button opens your browser's print dialog with the sheet already laid out. Choose a printer, or "Save as PDF" to export it instead.</p>
 
 </div>
 
