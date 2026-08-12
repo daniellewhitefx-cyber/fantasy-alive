@@ -44,7 +44,7 @@ begin
 
   return query
     select
-      c.id, c.name, c.race, c.social_class, c.birthday, c.starting_sp,
+      c.id, c.name, c.race, c.social_class, c.birthday::text, c.starting_sp,
       coalesce(xp_balance(c.id), 0),
       coalesce((
         select jsonb_agg(jsonb_build_object(
