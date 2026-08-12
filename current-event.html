@@ -99,6 +99,14 @@ function clampAmount(v){
   return Math.max(0, Math.min(100, n));
 }
 
+function ocAmountOptions(selected, labelFor){
+  let html = '';
+  for(let n = 0; n <= 100; n++){
+    html += `<option value="${n}" ${n === selected ? 'selected' : ''}>${escapeHtml(labelFor(n))}</option>`;
+  }
+  return html;
+}
+
 function showError(el, msg){
   el.textContent = msg;
   el.style.display = 'block';
@@ -184,8 +192,8 @@ async function renderOpen(){
           </div>
           <div class="bank-form-grid">
             <div>
-              <label class="field-label" for="ce-xp-amount">OC to convert (0 to 100)</label>
-              <input type="number" id="ce-xp-amount" min="0" max="100" step="1" value="${SPENT.xp_spent}" oninput="ce_previewXp()">
+              <label class="field-label" for="ce-xp-amount">OC to convert</label>
+              <select id="ce-xp-amount" onchange="ce_previewXp()">${ocAmountOptions(SPENT.xp_spent, n => `${n} OC = ${n} XP`)}</select>
             </div>
             <div style="display:flex; align-items:flex-end;">
               <button class="btn-gold" style="width:100%;" onclick="ce_updateXp()">Update</button>
@@ -223,8 +231,8 @@ async function renderOpen(){
         </div>
         <div class="bank-form-grid">
           <div>
-            <label class="field-label" for="ce-copper-amount">OC to convert (0 to 100)</label>
-            <input type="number" id="ce-copper-amount" min="0" max="100" step="1" value="${SPENT.copper_spent}" oninput="ce_previewCopper()">
+            <label class="field-label" for="ce-copper-amount">OC to convert</label>
+            <select id="ce-copper-amount" onchange="ce_previewCopper()">${ocAmountOptions(SPENT.copper_spent, n => `${n} OC = ${n * 10} Copper`)}</select>
           </div>
           <div style="display:flex; align-items:flex-end;">
             <button class="btn-gold" style="width:100%;" onclick="ce_updateCopper()">Update</button>
