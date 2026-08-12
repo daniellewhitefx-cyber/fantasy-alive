@@ -94,6 +94,11 @@ function faLogWindow(event){
   closesAt.setDate(closesAt.getDate() - daysBack);
   closesAt.setHours(21, 0, 0, 0);
 
+  // TEMPORARY (testing only): force the Sep 11-13 log open early so it
+  // can be tried out before its real Aug 28 open date. Remove this block
+  // once testing is done.
+  if(event.value === 'sep-11-13') opensAt.setTime(Date.now() - 60000);
+
   return { opensAt, closesAt };
 }
 
