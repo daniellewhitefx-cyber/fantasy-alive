@@ -490,7 +490,7 @@ function ce_trainRowState(idx){
 
 function trainFocusFieldHtml(idx, s, state, isLeveled){
   const parts = skillNameParts(s.title);
-  const options = focusOptionsFor(s, TRAIN_ALL_SKILLS);
+  const options = focusOptionsFor(s, TRAIN_ALL_SKILLS, TRAIN_KNOWN);
   const widthStyle = `style="max-width:${isLeveled ? 140 : 180}px;display:inline-block;${isLeveled ? 'margin-right:0.5rem;' : ''}"`;
 
   if(options){
