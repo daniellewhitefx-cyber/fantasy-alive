@@ -391,6 +391,8 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 .log-type.oc{ background: #7a4f9e; }
 .log-type.msg{ background: var(--gold-dark); }
 .log-type.bank{ background: var(--brown); }
+.log-type.kudos{ background: #8a4b6b; }
+.log-type.remort{ background: #4a6b8a; }
 
 
 .msg-layout{

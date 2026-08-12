@@ -55,6 +55,8 @@
 <button class="btn-gold" onclick="ocsub_submitForm()">Submit</button>
 <span class="confirm-note" id="ocsub-confirm-note">Submitted.</span>
 
+<div class="submitted-list" id="ocsub-submitted-list"></div>
+
 </div>
 </div>
 
@@ -227,6 +229,38 @@ async function ocsub_submitForm(){
   setTimeout(() => note.classList.remove('show'), 2000);
   rows = [{ amount:'', reason:'' }];
   render();
+  await loadMySubmissions();
+}
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fmtDateTime(iso){
+  return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+async function loadMySubmissions(){
+  const list = document.getElementById('ocsub-submitted-list');
+  const { data: subs } = await membersSupabase
+    .from('oc_submission_requests')
+    .select('id, amount, reason, status, created_at')
+    .eq('player_id', window.faCurrentUser.id)
+    .order('created_at', { ascending: false });
+
+  if(!subs || subs.length === 0){ list.innerHTML = ''; return; }
+
+  list.innerHTML = `<h3>Your OC Submissions</h3>` + subs.map(s => {
+    const statusColor = s.status === 'approved' ? 'var(--good)' : s.status === 'denied' ? 'var(--bad)' : 'var(--gold-dark)';
+    const statusLabel = s.status === 'approved' ? 'Approved' : s.status === 'denied' ? 'Denied' : 'Pending review';
+    return `
+      <div class="submitted-item">
+        <div class="who">${s.amount} OC <span style="float:right; font-family:'Cinzel', serif; font-weight:700; font-size:0.72rem; color:${statusColor};">${statusLabel}</span></div>
+        ${escapeHtml(s.reason)}
+        <div class="reg-empty-note" style="margin-top:0.3rem;">${fmtDateTime(s.created_at)}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 function render(){
@@ -255,6 +289,7 @@ window.ocsub_updateQuickField = ocsub_updateQuickField;
 window.ocsub_setCastingMode = ocsub_setCastingMode;
 window.ocsub_addQuickRow = ocsub_addQuickRow;
 render();
+document.addEventListener('fa-members-ready', loadMySubmissions);
 })();
 </script>
 

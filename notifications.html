@@ -137,6 +137,45 @@ async function init(){
     (isNew(o.created_at) ? newItems : previousItems).push(entry);
   });
 
+  const { data: myKudos } = await membersSupabase
+    .from('kudos')
+    .select('to_character_id, to_player_id, status, decided_at')
+    .eq('from_player_id', me)
+    .in('status', ['approved', 'denied'])
+    .order('decided_at', { ascending: false })
+    .limit(50);
+  const kudosCharIds = [...new Set((myKudos || []).map(k => k.to_character_id).filter(Boolean))];
+  const kudosCharMap = {};
+  if(kudosCharIds.length){
+    const { data: kc } = await membersSupabase.from('character_names').select('id, name').in('id', kudosCharIds);
+    (kc || []).forEach(c => { kudosCharMap[c.id] = c.name; });
+  }
+  (myKudos || []).forEach(k => {
+    const target = k.to_player_id ? (profileMap[k.to_player_id] || 'Cast') : (kudosCharMap[k.to_character_id] || 'a character');
+    const entry = {
+      type: 'kudos',
+      date: k.decided_at,
+      html: `<strong>Kudos to ${escapeHtml(target)}</strong> ${k.status}`
+    };
+    (isNew(k.decided_at) ? newItems : previousItems).push(entry);
+  });
+
+  const { data: myRemorts } = await membersSupabase
+    .from('character_remort_requests')
+    .select('character_id, status, decided_at')
+    .eq('player_id', me)
+    .in('status', ['approved', 'denied'])
+    .order('decided_at', { ascending: false })
+    .limit(50);
+  (myRemorts || []).forEach(r => {
+    const entry = {
+      type: 'remort',
+      date: r.decided_at,
+      html: `<strong>Remort request for ${escapeHtml(charMap[r.character_id] || 'a character')}</strong> ${r.status}`
+    };
+    (isNew(r.decided_at) ? newItems : previousItems).push(entry);
+  });
+
   const { data: bankTxRows } = await membersSupabase
     .from('bank_transactions')
     .select('type, amount, note, counterparty_id, created_by, created_at')

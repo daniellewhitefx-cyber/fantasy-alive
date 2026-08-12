@@ -329,6 +329,8 @@ declare
   v_new_xp integer;
   v_new_oc integer;
   v_new_bank integer;
+  v_new_kudos integer;
+  v_new_remort integer;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
 
@@ -362,12 +364,28 @@ begin
         and (v_last_seen is null or resolved_at > v_last_seen))
   into v_new_bank;
 
+  select count(*) into v_new_kudos
+    from kudos
+    where from_player_id = v_player
+      and status in ('approved', 'denied')
+      and decided_at is not null
+      and (v_last_seen is null or decided_at > v_last_seen);
+
+  select count(*) into v_new_remort
+    from character_remort_requests
+    where player_id = v_player
+      and status in ('approved', 'denied')
+      and decided_at is not null
+      and (v_last_seen is null or decided_at > v_last_seen);
+
   return jsonb_build_object(
     'unread_messages', v_unread_messages,
     'new_xp', v_new_xp,
     'new_oc', v_new_oc,
     'new_bank', v_new_bank,
-    'total', v_unread_messages + v_new_xp + v_new_oc + v_new_bank
+    'new_kudos', v_new_kudos,
+    'new_remort', v_new_remort,
+    'total', v_unread_messages + v_new_xp + v_new_oc + v_new_bank + v_new_kudos + v_new_remort
   );
 end;
 $$;
