@@ -16,7 +16,7 @@ begin
   end if;
 
   return query
-    select u.id, u.email, coalesce(p.display_name, u.raw_user_meta_data ->> 'display_name', u.email)
+    select u.id, u.email::text, coalesce(p.display_name, u.raw_user_meta_data ->> 'display_name', u.email)::text
     from auth.users u
     left join profiles p on p.id = u.id
     order by 3;
