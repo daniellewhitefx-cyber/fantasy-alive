@@ -1,9 +1,14 @@
+-- Matches character-admin-schema.sql's version of this same policy
+-- exactly, so re-running either file in either order always lands on
+-- the correct, staff-aware rule instead of whichever file ran last
+-- silently overwriting the other's policy of the same name.
 drop policy if exists "Players see their own characters" on characters;
 create policy "Players see their own characters"
   on characters for select
   using (
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
+    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
     or fa_is_site_admin()
   );
 
@@ -22,13 +27,17 @@ create index if not exists character_remort_requests_character_idx on character_
 
 alter table character_remort_requests enable row level security;
 
+-- Matches requests-schema.sql's version of this same policy exactly,
+-- so re-running either file in either order always lands on the
+-- correct, Logistics-department-aware rule instead of whichever file
+-- ran last silently overwriting the other's policy of the same name.
 drop policy if exists "Players and staff see remort requests" on character_remort_requests;
 create policy "Players and staff see remort requests"
   on character_remort_requests for select
   using (
     player_id = auth.uid()
     or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
-    or fa_is_site_admin()
+    or fa_is_logistics_or_admin()
   );
 
 create or replace function character_request_remort(p_character_id uuid)
