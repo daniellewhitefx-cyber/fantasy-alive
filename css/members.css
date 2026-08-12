@@ -116,7 +116,7 @@ body.members-ready .dashboard{ visibility:visible; }
 .panel{
   border: 2px solid var(--line);
   border-radius: 0;
-  background: #fff;
+  background: var(--row-a);
   margin-bottom: 1.6rem;
 }
 .panel-head{
@@ -213,7 +213,7 @@ body.members-ready .dashboard{ visibility:visible; }
   border: 2px solid var(--line);
   border-radius: 0;
   padding: 0.9rem 1.1rem;
-  background: #fff;
+  background: var(--row-b);
   font-family: 'EB Garamond', serif;
   font-size: 1.05rem;
 }
@@ -411,7 +411,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
   border: 2px solid var(--line);
   border-radius: 0;
   padding: 0.8rem 1rem;
-  background:#fff;
+  background: var(--row-b);
   margin-bottom: 0.7rem;
   font-family:'EB Garamond', serif;
 }
@@ -479,7 +479,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
   border: 2px solid var(--gold);
   border-radius: 0;
   overflow:hidden;
-  background: #fff;
+  background: var(--row-a);
 }
 .msg-folder-rail{
   width: 170px;
@@ -575,7 +575,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
   display:block;
   width:100%;
   text-align:left;
-  background: #fff;
+  background: var(--row-a);
   border:none;
   border-bottom: 1px solid var(--line);
   padding: 0.7rem 0.9rem;
@@ -754,7 +754,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
   border: 2px solid var(--line);
   border-radius: 0;
   padding: 1.1rem 1.2rem 1.3rem;
-  background: #fff;
+  background: var(--row-b);
   margin-bottom: 2rem;
 }
 .quick-add-extra{
@@ -1222,7 +1222,7 @@ select.reg-date-select{
   border: 2px solid var(--line);
   border-radius: 0;
   padding: 0.9rem 1.1rem;
-  background: #fff;
+  background: var(--row-b);
   margin-bottom: 0.8rem;
   font-family: 'EB Garamond', serif;
   font-size: 1rem;
