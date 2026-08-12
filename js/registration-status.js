@@ -75,6 +75,36 @@ const FA_EVENTS = FA_EVENT_DEFS
 
 const FA_NEXT_EVENT = FA_EVENTS.length ? FA_EVENTS[0] : null;
 
+const FA_PAST_EVENTS = FA_EVENT_DEFS
+  .map(faBuildEvent)
+  .filter(e => e.end < FA_TODAY)
+  .sort((a, b) => b.start - a.start);
+
+// The log for an event opens two weeks before it starts at 6pm, and
+// closes the Monday before the event at 9pm.
+function faLogWindow(event){
+  const opensAt = new Date(event.start);
+  opensAt.setDate(opensAt.getDate() - 14);
+  opensAt.setHours(18, 0, 0, 0);
+
+  const closesAt = new Date(event.start);
+  const day = closesAt.getDay();
+  let daysBack = day === 0 ? 6 : day - 1;
+  if(daysBack === 0) daysBack = 7;
+  closesAt.setDate(closesAt.getDate() - daysBack);
+  closesAt.setHours(21, 0, 0, 0);
+
+  return { opensAt, closesAt };
+}
+
+function faLogStatus(event){
+  const { opensAt, closesAt } = faLogWindow(event);
+  const now = new Date();
+  if(now < opensAt) return { state: 'not-open', opensAt, closesAt };
+  if(now > closesAt) return { state: 'closed', opensAt, closesAt };
+  return { state: 'open', opensAt, closesAt };
+}
+
 function faWaitForElement(selector){
   return new Promise(resolve => {
     (function check(){
@@ -118,5 +148,8 @@ async function faCheckRegistration(eventLabel, who, characterName, playerEmail){
 window.FA_REGISTRATION_ENDPOINT = FA_REGISTRATION_ENDPOINT;
 window.FA_EVENTS = FA_EVENTS;
 window.FA_NEXT_EVENT = FA_NEXT_EVENT;
+window.FA_PAST_EVENTS = FA_PAST_EVENTS;
 window.faGetCurrentUser = faGetCurrentUser;
 window.faCheckRegistration = faCheckRegistration;
+window.faLogWindow = faLogWindow;
+window.faLogStatus = faLogStatus;
