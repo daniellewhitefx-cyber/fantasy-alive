@@ -15,9 +15,13 @@ create policy "Profiles are publicly readable"
 create or replace function handle_new_user()
 returns trigger language plpgsql security definer as $$
 begin
-  insert into profiles (id, display_name)
-  values (new.id, coalesce(new.raw_user_meta_data ->> 'display_name', new.email))
-  on conflict (id) do nothing;
+  begin
+    insert into profiles (id, display_name)
+    values (new.id, coalesce(new.raw_user_meta_data ->> 'display_name', new.email))
+    on conflict (id) do nothing;
+  exception when others then
+    raise warning 'handle_new_user: failed to create profile for %: %', new.id, sqlerrm;
+  end;
   return new;
 end;
 $$;
