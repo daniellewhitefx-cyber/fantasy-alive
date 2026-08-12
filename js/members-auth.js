@@ -87,8 +87,8 @@ async function initMembersPage(){
   markActiveNavLink();
 
   if(user.app_metadata && user.app_metadata.site_admin){
-    const permLink = document.getElementById('member-permissions-link');
-    if(permLink) permLink.style.display = '';
+    const staffGroup = document.getElementById('member-staff-group');
+    if(staffGroup) staffGroup.style.display = '';
   }
 
   window.faCurrentUser = user;
