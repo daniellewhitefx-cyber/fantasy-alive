@@ -125,6 +125,7 @@ async function initMembersPage(){
     ['member-requests-link', canSeeRequests],
     ['member-permissions-link', isSiteAdmin],
     ['member-print-sheets-link', canSeeRequests],
+    ['member-print-kitchen-link', canSeeRequests],
   ];
   let anyStaffAccess = false;
   staffLinks.forEach(([id, allowed]) => {
