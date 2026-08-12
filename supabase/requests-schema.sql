@@ -88,6 +88,7 @@ grant select on oc_submission_requests to authenticated;
 -- pending/approved/denied lifecycle as the other request types.
 
 alter table kudos add column if not exists status text not null default 'pending' check (status in ('pending', 'approved', 'denied'));
+alter table kudos add column if not exists decided_at timestamptz;
 
 drop policy if exists "Players see kudos they gave" on kudos;
 create policy "Players see kudos they gave"
@@ -99,7 +100,7 @@ returns void language plpgsql security definer as $$
 begin
   if not fa_is_logistics_or_admin() then raise exception 'Staff only'; end if;
 
-  update kudos set status = 'approved' where id = p_id and status = 'pending';
+  update kudos set status = 'approved', decided_at = now() where id = p_id and status = 'pending';
   if not found then raise exception 'Request not found or already decided'; end if;
 end;
 $$;
@@ -109,7 +110,7 @@ returns void language plpgsql security definer as $$
 begin
   if not fa_is_logistics_or_admin() then raise exception 'Staff only'; end if;
 
-  update kudos set status = 'denied' where id = p_id and status = 'pending';
+  update kudos set status = 'denied', decided_at = now() where id = p_id and status = 'pending';
   if not found then raise exception 'Request not found or already decided'; end if;
 end;
 $$;
