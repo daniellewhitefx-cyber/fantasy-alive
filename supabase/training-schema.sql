@@ -156,4 +156,24 @@ begin
 end;
 $$;
 
+-- Undoes a skill learned this log, refunding the Hours and SP it cost
+-- by removing the granted character_skills row (the training purchase
+-- row cascades away with it).
+create or replace function event_log_cancel_training(p_purchase_id uuid)
+returns void language plpgsql security definer as $$
+declare
+  v_player uuid := auth.uid();
+  v_char_skill_id uuid;
+begin
+  if v_player is null then raise exception 'Not signed in'; end if;
+
+  select character_skill_id into v_char_skill_id
+    from event_log_training_purchases
+    where id = p_purchase_id and player_id = v_player;
+  if not found then raise exception 'Training purchase not found'; end if;
+
+  delete from character_skills where id = v_char_skill_id;
+end;
+$$;
+
 grant select on event_log_training_purchases to authenticated;

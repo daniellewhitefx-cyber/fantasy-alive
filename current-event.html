@@ -109,6 +109,7 @@ let ACTIVE_TAB = 'oc';
 let TRAIN_ALL_SKILLS = [];
 let TRAIN_CATEGORY = null;
 let TRAIN_KNOWN = [];
+let TRAIN_PURCHASES = [];
 let TRAIN_SUMMARY = { spendable_sp: 0, hours_spent: 0 };
 let TRAIN_BUDGET = 0;
 let TRAIN_BROWSE_STATE = {};
@@ -203,10 +204,16 @@ async function checkRegistrationAndRender(){
 }
 
 async function renderOpen(){
-  const [{ data: ocRows }, { data: summary }] = await Promise.all([
+  const tasks = [
     membersSupabase.from('oc_transactions').select('amount').eq('player_id', window.faCurrentUser.id),
     membersSupabase.rpc('event_log_oc_summary', { p_event_slug: EVENT.value })
-  ]);
+  ];
+  if(REGISTERED_AS === 'character' && MY_CHARACTER){
+    TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT);
+    tasks.push(refreshTrainingState());
+  }
+
+  const [{ data: ocRows }, { data: summary }] = await Promise.all(tasks);
 
   OC_BALANCE = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
   SPENT = summary || { xp_spent: 0, copper_spent: 0 };
@@ -221,12 +228,7 @@ async function renderOpen(){
         <h2>${escapeHtml(EVENT.longLabel)}</h2>
         ${loggingAsLabel ? `<span class="ce-logging-as">Logging as ${escapeHtml(loggingAsLabel)}</span>` : ''}
       </div>
-      <div class="panel-body">
-        <div class="bank-balance-card">
-          <div class="bank-balance-label">Your Ogre Chips</div>
-          <div class="bank-balance-amount">${OC_BALANCE}</div>
-        </div>
-      </div>
+      <div class="panel-body" id="ce-header-stats">${renderHeaderStatsHtml()}</div>
     </div>
     <div class="day-toggle" id="ce-tabs"></div>
     <div id="ce-tab-body"></div>
@@ -234,6 +236,23 @@ async function renderOpen(){
 
   renderTabBar();
   await renderTabBody();
+}
+
+function renderHeaderStatsHtml(){
+  const trainingStats = (REGISTERED_AS === 'character' && MY_CHARACTER) ? `
+    <div class="ce-stats" style="margin-top:1rem; margin-bottom:0;">
+      <div class="ce-stat"><div class="ce-stat-label">Hours Remaining</div><div class="ce-stat-value">${Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent)} / ${TRAIN_BUDGET}</div></div>
+      <div class="ce-stat"><div class="ce-stat-label">Spendable SP</div><div class="ce-stat-value">${TRAIN_SUMMARY.spendable_sp}</div></div>
+    </div>
+  ` : '';
+
+  return `
+    <div class="bank-balance-card">
+      <div class="bank-balance-label">Your Ogre Chips</div>
+      <div class="bank-balance-amount">${OC_BALANCE}</div>
+    </div>
+    ${trainingStats}
+  `;
 }
 
 function renderTabBar(){
@@ -364,12 +383,15 @@ async function ensureTrainingCatalogLoaded(){
 }
 
 async function refreshTrainingState(){
-  const [{ data: skillRows }, { data: summary }] = await Promise.all([
+  const [{ data: skillRows }, { data: summary }, { data: purchases }] = await Promise.all([
     membersSupabase.from('character_skills').select('category, skill_name, focus, level').eq('character_id', MY_CHARACTER.id),
-    membersSupabase.rpc('event_log_training_summary', { p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id })
+    membersSupabase.rpc('event_log_training_summary', { p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id }),
+    membersSupabase.from('event_log_training_purchases').select('id, category, skill_name, focus, level, sp_cost, hours_cost')
+      .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true })
   ]);
   TRAIN_KNOWN = (skillRows || []).map(sk => ({ category: sk.category, title: sk.skill_name, focus: sk.focus || '', level: sk.level }));
   TRAIN_SUMMARY = summary || { spendable_sp: 0, hours_spent: 0 };
+  TRAIN_PURCHASES = purchases || [];
   TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT);
 }
 
@@ -388,6 +410,33 @@ function ce_trainAlreadyKnown(category, title, focus){
   return TRAIN_KNOWN.some(k => norm(k.category) === norm(category) && norm(k.title) === norm(title) && norm(k.focus) === norm(focus));
 }
 
+function renderLearningListHtml(){
+  if(!TRAIN_PURCHASES.length) return '';
+  const rows = TRAIN_PURCHASES.map(p => `
+    <tr>
+      <td>${escapeHtml(p.skill_name)}${p.focus ? ' (' + escapeHtml(p.focus) + ')' : ''}</td>
+      <td>${escapeHtml(p.category)}</td>
+      <td>${p.level}</td>
+      <td>${p.sp_cost} SP (${p.hours_cost} hrs)</td>
+      <td><button class="btn-outline" onclick="ce_trainCancel('${p.id}')" title="Cancel learning this skill">&times;</button></td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="panel">
+      <div class="panel-head"><h2>Learning Skills</h2></div>
+      <div class="panel-body">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Skill</th><th>Type</th><th>Level</th><th>Cost</th><th></th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderTrainingBody(){
   const body = document.getElementById('ce-tab-body');
 
@@ -396,16 +445,11 @@ function renderTrainingBody(){
     return;
   }
 
-  const hoursRemaining = Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent);
-
   body.innerHTML = `
+    ${renderLearningListHtml()}
     <div class="panel">
       <div class="panel-head"><h2>Training</h2></div>
       <div class="panel-body">
-        <div class="ce-stats">
-          <div class="ce-stat"><div class="ce-stat-label">Hours Remaining</div><div class="ce-stat-value">${hoursRemaining} / ${TRAIN_BUDGET}</div></div>
-          <div class="ce-stat"><div class="ce-stat-label">Spendable SP</div><div class="ce-stat-value">${TRAIN_SUMMARY.spendable_sp}</div></div>
-        </div>
         <div class="day-toggle" id="ce-train-cat-tabs"></div>
         <div class="table-scroll">
           <table class="data-table">
@@ -556,6 +600,16 @@ async function ce_trainLearn(idx){
 
   delete TRAIN_BROWSE_STATE[key];
   await refreshTrainingState();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+  renderTrainingBody();
+}
+
+async function ce_trainCancel(purchaseId){
+  const { error } = await membersSupabase.rpc('event_log_cancel_training', { p_purchase_id: purchaseId });
+  if(error){ alert(error.message); return; }
+
+  await refreshTrainingState();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
   renderTrainingBody();
 }
 
@@ -566,6 +620,7 @@ window.ce_trainSelectCategory = ce_trainSelectCategory;
 window.ce_trainUpdateFocus = ce_trainUpdateFocus;
 window.ce_trainUpdateLevel = ce_trainUpdateLevel;
 window.ce_trainLearn = ce_trainLearn;
+window.ce_trainCancel = ce_trainCancel;
 
 document.addEventListener('fa-members-ready', async () => {
   EVENT = window.FA_NEXT_EVENT;
