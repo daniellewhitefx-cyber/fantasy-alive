@@ -11,6 +11,25 @@ create policy "Players see their own department memberships"
   on department_members for select
   using (player_id = auth.uid() or fa_is_site_admin());
 
+-- Lists every registered player for the Permissions page. Reads auth.users
+-- directly rather than the profiles table, since a handful of accounts
+-- predate profiles being reliably backfilled on signup (see
+-- fix-signup-error.sql) and would otherwise be missing from the list.
+create or replace function admin_list_players()
+returns table(id uuid, display_name text) language plpgsql security definer as $$
+begin
+  if not fa_is_site_admin() then
+    raise exception 'Only site admins can list players';
+  end if;
+
+  return query
+    select u.id, coalesce(p.display_name, u.raw_user_meta_data ->> 'display_name', u.email)
+    from auth.users u
+    left join profiles p on p.id = u.id
+    order by 2;
+end;
+$$;
+
 create or replace function admin_get_player_flags(p_player_id uuid)
 returns jsonb language plpgsql security definer as $$
 declare

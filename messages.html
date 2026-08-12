@@ -107,6 +107,20 @@ function fromSelectorOptionsHtml(){
   return html;
 }
 
+function playerSelectOptionsHtml(){
+  const me = window.faCurrentUser.id;
+  return Object.keys(profileMap)
+    .filter(id => id !== me)
+    .map(id => ({ id, label: nameFor(id) }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+    .map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.label)}</option>`)
+    .join('');
+}
+
+function msg_pickPlayerFromSelect(id){
+  composeTarget = id ? { type: 'player', id } : null;
+}
+
 function parseFromValue(val){
   if(val && val.startsWith('character:')) return { characterId: val.slice('character:'.length), departmentId: null };
   if(val && val.startsWith('department:')) return { characterId: null, departmentId: val.slice('department:'.length) };
@@ -130,10 +144,11 @@ function msg_startCompose(){
       <option value="department">A Department</option>
     </select>
     <div id="msg-compose-target-wrap">
-      <label class="field-label" for="msg-compose-player-search">Player</label>
-      <input type="text" id="msg-compose-player-search" placeholder="Search player or character name..." autocomplete="off" oninput="msg_searchComposeRecipient(this.value)">
-      <div class="bank-recipient-results" id="msg-compose-player-results"></div>
-      <p class="bank-selected-recipient" id="msg-compose-selected" style="display:none;"></p>
+      <label class="field-label" for="msg-compose-player-select">Player</label>
+      <select id="msg-compose-player-select" onchange="msg_pickPlayerFromSelect(this.value)">
+        <option value="">Choose a player</option>
+        ${playerSelectOptionsHtml()}
+      </select>
     </div>
     <label class="field-label" for="msg-compose-subject" style="margin-top:1rem;">Subject</label>
     <input type="text" id="msg-compose-subject" placeholder="What's this about?" maxlength="120">
@@ -152,10 +167,11 @@ function msg_composeTypeChange(){
 
   if(type === 'player'){
     wrap.innerHTML = `
-      <label class="field-label" for="msg-compose-player-search">Player</label>
-      <input type="text" id="msg-compose-player-search" placeholder="Search player or character name..." autocomplete="off" oninput="msg_searchComposeRecipient(this.value)">
-      <div class="bank-recipient-results" id="msg-compose-player-results"></div>
-      <p class="bank-selected-recipient" id="msg-compose-selected" style="display:none;"></p>
+      <label class="field-label" for="msg-compose-player-select">Player</label>
+      <select id="msg-compose-player-select" onchange="msg_pickPlayerFromSelect(this.value)">
+        <option value="">Choose a player</option>
+        ${playerSelectOptionsHtml()}
+      </select>
     `;
   } else {
     wrap.innerHTML = `
@@ -170,48 +186,6 @@ function msg_composeTypeChange(){
 
 function msg_pickDepartment(id){
   composeTarget = id ? { type: 'department', id } : null;
-}
-
-async function msg_searchComposeRecipient(query){
-  const results = document.getElementById('msg-compose-player-results');
-  const q = query.trim();
-  if(!q){ results.innerHTML = ''; return; }
-
-  const [{ data: profileMatches }, { data: charMatches }] = await Promise.all([
-    membersSupabase.from('profiles').select('id, display_name').ilike('display_name', `%${q}%`).neq('id', window.faCurrentUser.id).limit(8),
-    membersSupabase.from('character_names').select('id, name, player_id').ilike('name', `%${q}%`).neq('player_id', window.faCurrentUser.id).limit(8)
-  ]);
-
-  const byId = {};
-  (profileMatches || []).forEach(p => { byId[p.id] = p.display_name; });
-  const missingIds = [...new Set((charMatches || []).map(c => c.player_id))].filter(id => !byId[id]);
-  if(missingIds.length){
-    const { data: extraProfiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', missingIds);
-    (extraProfiles || []).forEach(p => { byId[p.id] = p.display_name; });
-  }
-
-  const entries = Object.keys(byId).slice(0, 8);
-  if(entries.length === 0){
-    results.innerHTML = '<div class="bank-recipient-empty">No matching players.</div>';
-    return;
-  }
-
-  results.innerHTML = entries.map(id => {
-    const label = nameFor(id);
-    return `<button class="bank-recipient-result" data-id="${escapeHtml(id)}" data-name="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
-  }).join('');
-  results.querySelectorAll('.bank-recipient-result').forEach(btn => {
-    btn.addEventListener('click', () => msg_pickPlayer(btn.dataset.id, btn.dataset.name));
-  });
-}
-
-function msg_pickPlayer(id, name){
-  composeTarget = { type: 'player', id };
-  document.getElementById('msg-compose-player-results').innerHTML = '';
-  document.getElementById('msg-compose-player-search').value = '';
-  const selectedEl = document.getElementById('msg-compose-selected');
-  selectedEl.style.display = 'block';
-  selectedEl.textContent = `Selected: ${name}`;
 }
 
 async function msg_send(){
@@ -582,8 +556,7 @@ async function init(){
 window.msg_startCompose = msg_startCompose;
 window.msg_composeTypeChange = msg_composeTypeChange;
 window.msg_pickDepartment = msg_pickDepartment;
-window.msg_searchComposeRecipient = msg_searchComposeRecipient;
-window.msg_pickPlayer = msg_pickPlayer;
+window.msg_pickPlayerFromSelect = msg_pickPlayerFromSelect;
 window.msg_send = msg_send;
 window.msg_reply = msg_reply;
 

@@ -296,6 +296,18 @@ async function loadHero(){
 
   const char = chars && chars[0];
   if(!char){
+    const { data: profile } = await membersSupabase.from('profiles').select('is_cast').eq('id', me).maybeSingle();
+    if(profile && profile.is_cast){
+      hero.innerHTML = `
+        <div class="home-hero-body">
+          <div class="home-hero-eyebrow">Welcome back</div>
+          <div class="home-hero-name">Cast</div>
+          <p class="home-hero-tagline">You're set up as Cast. Create a player character any time from the Characters page.</p>
+        </div>
+        <div class="home-hero-cta"><a href="character-creator.html"><button class="btn-gold">Create Character</button></a></div>
+      `;
+      return;
+    }
     hero.innerHTML = `
       <div class="home-hero-body">
         <div class="home-hero-eyebrow">Welcome</div>

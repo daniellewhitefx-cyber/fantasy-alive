@@ -14,6 +14,27 @@ create policy "Members see only their own private notes"
   on member_private_notes for select
   using (id = auth.uid());
 
+-- Safety net for the profiles row a new signup should already get from the
+-- handle_new_user trigger (see bank-schema.sql / fix-signup-error.sql): the
+-- members area calls this on every page load so a player's display name
+-- never silently shows as "Unknown player" if that trigger ever misses.
+create or replace function ensure_profile()
+returns void language plpgsql security definer as $$
+declare
+  v_name text;
+  v_email text;
+begin
+  if auth.uid() is null then raise exception 'Not signed in'; end if;
+
+  select raw_user_meta_data ->> 'display_name', email into v_name, v_email
+  from auth.users where id = auth.uid();
+
+  insert into profiles (id, display_name)
+  values (auth.uid(), coalesce(v_name, v_email))
+  on conflict (id) do update set display_name = coalesce(v_name, v_email);
+end;
+$$;
+
 create or replace function account_set_display_name(p_display_name text)
 returns void language plpgsql security definer as $$
 begin

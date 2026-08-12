@@ -42,47 +42,6 @@
 <div id="auction-wins-list"></div>
 </div>
 
-<div class="bank-staff-section" id="auction-staff-section" style="display:none;">
-<h2 class="page-title" style="font-size:1.3rem;">Manage Auctions</h2>
-
-<div class="bank-staff-block">
-<h3>New Item</h3>
-<div class="bank-form-grid">
-<div>
-  <label class="field-label" for="auction-new-name">Item Name</label>
-  <input type="text" id="auction-new-name" placeholder="e.g. Hand-forged Dagger">
-</div>
-<div>
-  <label class="field-label" for="auction-new-image">Image (optional)</label>
-  <input type="file" id="auction-new-image" accept="image/*">
-</div>
-</div>
-<label class="field-label" for="auction-new-description">Description (optional)</label>
-<input type="text" id="auction-new-description" placeholder="What is it?">
-<div class="bank-form-grid" style="margin-top:0.9rem;">
-<div>
-  <label class="field-label" for="auction-new-starting">Starting Bid ($)</label>
-  <input type="number" id="auction-new-starting" min="0" step="1" value="10">
-</div>
-<div>
-  <label class="field-label" for="auction-new-increment">Minimum Increment ($)</label>
-  <input type="number" id="auction-new-increment" min="1" step="1" value="5">
-</div>
-</div>
-<label class="field-label" for="auction-new-ends-at" style="margin-top:0.9rem;">Ends At (optional)</label>
-<input type="datetime-local" id="auction-new-ends-at">
-<p class="reg-empty-note" style="margin-top:0.3rem;">Leave blank to close it manually instead of on a timer.</p>
-<button class="btn-gold" style="margin-top:1rem;" id="auction-new-save-btn" onclick="auction_createItem()">Create Item</button>
-<p class="reg-error-note" id="auction-new-error" style="display:none;"></p>
-</div>
-
-<div class="bank-staff-block">
-<h3>All Items</h3>
-<div id="auction-staff-list"></div>
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -94,12 +53,10 @@
 <script>
 (function(){
 let profileMap = {};
-let isStaff = false;
 let currentItem = null;
 let currentItemClosed = false;
 let currentBids = [];
 let myLastBidAt = null;
-let allItemsForStaff = [];
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -373,134 +330,15 @@ async function handleAuctionPaymentReturn(){
   await loadMyWins();
 }
 
-async function auctionUploadImage(file){
-  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-  const path = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
-  const { error } = await membersSupabase.storage.from('auction-images').upload(path, file);
-  if(error) throw error;
-  const { data } = membersSupabase.storage.from('auction-images').getPublicUrl(path);
-  return data.publicUrl;
-}
-
-async function auction_createItem(){
-  const errorEl = document.getElementById('auction-new-error');
-  const saveBtn = document.getElementById('auction-new-save-btn');
-  errorEl.style.display = 'none';
-
-  const name = document.getElementById('auction-new-name').value.trim();
-  const description = document.getElementById('auction-new-description').value.trim();
-  const imageFile = document.getElementById('auction-new-image').files[0];
-  const starting = parseFloat(document.getElementById('auction-new-starting').value);
-  const increment = parseFloat(document.getElementById('auction-new-increment').value);
-  const endsAtInput = document.getElementById('auction-new-ends-at').value;
-  const endsAt = endsAtInput ? new Date(endsAtInput).toISOString() : null;
-
-  saveBtn.disabled = true;
-  try{
-    let imageUrl = '';
-    if(imageFile){
-      imageUrl = await auctionUploadImage(imageFile);
-    }
-
-    const { error } = await membersSupabase.rpc('auction_create_item', {
-      p_name: name,
-      p_description: description,
-      p_image_url: imageUrl,
-      p_starting_bid: starting,
-      p_min_increment: increment,
-      p_ends_at: endsAt
-    });
-    if(error){
-      errorEl.textContent = error.message;
-      errorEl.style.display = 'block';
-      return;
-    }
-
-    document.getElementById('auction-new-name').value = '';
-    document.getElementById('auction-new-description').value = '';
-    document.getElementById('auction-new-image').value = '';
-    document.getElementById('auction-new-ends-at').value = '';
-    await loadStaffItems();
-  } catch(err){
-    errorEl.textContent = err.message || 'Image upload failed.';
-    errorEl.style.display = 'block';
-  } finally {
-    saveBtn.disabled = false;
-  }
-}
-
-async function loadStaffItems(){
-  if(!isStaff) return;
-  const { data: items } = await membersSupabase
-    .from('auction_items')
-    .select('id, name, status, winner_player_id, winning_bid_amount, payment_status')
-    .order('created_at', { ascending: false });
-  allItemsForStaff = items || [];
-  renderStaffItems();
-}
-
-function renderStaffItems(){
-  const list = document.getElementById('auction-staff-list');
-  if(allItemsForStaff.length === 0){
-    list.innerHTML = '<p class="reg-empty-note">No auction items yet.</p>';
-    return;
-  }
-
-  list.innerHTML = allItemsForStaff.map(it => `
-    <div class="bank-bill-card">
-      <strong>${escapeHtml(it.name)}</strong>
-      <span class="bank-request-date" style="float:right;">${it.status}</span>
-      ${it.winner_player_id ? `<div>Winner: ${escapeHtml(nameFor(it.winner_player_id))} - ${fmtMoney(it.winning_bid_amount)} (${it.payment_status})</div>` : ''}
-      <div class="bank-bill-actions">
-        ${it.status === 'draft' ? `<button class="btn-gold" data-go-live="${escapeHtml(it.id)}">Go Live</button>` : ''}
-        ${it.status === 'live' ? `<button class="btn-gold" data-close="${escapeHtml(it.id)}">Close Bidding</button>` : ''}
-        ${it.status === 'closed' && it.winner_player_id && it.payment_status === 'unpaid' ? `<button class="btn-outline" data-mark-paid="${escapeHtml(it.id)}">Mark Paid (at event)</button>` : ''}
-      </div>
-    </div>
-  `).join('');
-
-  list.querySelectorAll('[data-go-live]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const { error } = await membersSupabase.rpc('auction_go_live', { p_item_id: btn.dataset.goLive });
-      if(error){ alert(error.message); return; }
-      await loadStaffItems();
-      await loadCurrentItem();
-    });
-  });
-  list.querySelectorAll('[data-close]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      if(!confirm('Close bidding on this item? The current highest bidder wins.')) return;
-      const { error } = await membersSupabase.rpc('auction_close', { p_item_id: btn.dataset.close });
-      if(error){ alert(error.message); return; }
-      await loadStaffItems();
-      await loadCurrentItem();
-      await loadMyWins();
-    });
-  });
-  list.querySelectorAll('[data-mark-paid]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const { error } = await membersSupabase.rpc('auction_staff_mark_paid', { p_item_id: btn.dataset.markPaid });
-      if(error){ alert(error.message); return; }
-      await loadStaffItems();
-    });
-  });
-}
-
 window.auction_placeBid = auction_placeBid;
-window.auction_createItem = auction_createItem;
 
-document.addEventListener('fa-members-ready', async (e) => {
-  const user = e.detail.user;
-  isStaff = !!(user.app_metadata && (user.app_metadata.auction_staff || user.app_metadata.site_admin));
-  document.getElementById('auction-staff-section').style.display = isStaff ? 'block' : 'none';
-
+document.addEventListener('fa-members-ready', async () => {
   const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
 
   await loadCurrentItem();
   await loadMyWins();
-  await loadStaffItems();
   await handleAuctionPaymentReturn();
 });
 })();

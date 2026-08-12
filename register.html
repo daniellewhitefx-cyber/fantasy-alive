@@ -702,6 +702,7 @@ async function loadCharacters(){
   const { data } = await membersSupabase
     .from('characters')
     .select('id, name')
+    .eq('player_id', window.faCurrentUser.id)
     .order('created_at', { ascending: true });
   CHARACTERS = data || [];
   render();

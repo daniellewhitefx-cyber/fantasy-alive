@@ -71,23 +71,38 @@ function escapeHtml(str){
 async function loadAllCandidates(){
   const myUserId = window.faCurrentUser ? window.faCurrentUser.id : null;
 
-  const [{ data: chars }, { data: profiles }] = await Promise.all([
+  const [{ data: chars }, { data: profiles }, { data: castRows }] = await Promise.all([
     membersSupabase.from('character_names').select('id, name, player_id'),
-    membersSupabase.from('profiles').select('id, display_name')
+    membersSupabase.from('profiles').select('id, display_name'),
+    membersSupabase.from('profiles').select('id, display_name').eq('is_cast', true)
   ]);
 
   const nameByPlayer = {};
   (profiles || []).forEach(p => { nameByPlayer[p.id] = p.display_name; });
 
-  ALL_CANDIDATES = (chars || [])
+  const charOwnerIds = new Set((chars || []).map(c => c.player_id));
+
+  const charCandidates = (chars || [])
     .filter(c => c.player_id !== myUserId)
     .map(c => ({
+      type: 'character',
       id: c.id,
       name: c.name,
       playerName: nameByPlayer[c.player_id] || 'Unknown player',
       label: `${c.name} [${nameByPlayer[c.player_id] || 'Unknown player'}]`
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    }));
+
+  const castCandidates = (castRows || [])
+    .filter(p => p.id !== myUserId && !charOwnerIds.has(p.id))
+    .map(p => ({
+      type: 'player',
+      id: p.id,
+      name: p.display_name,
+      playerName: p.display_name,
+      label: `${p.display_name} (Cast)`
+    }));
+
+  ALL_CANDIDATES = [...charCandidates, ...castCandidates].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function renderCandidates(query){
@@ -104,7 +119,7 @@ function renderCandidates(query){
   }
 
   resultsEl.innerHTML = matches.map(c =>
-    `<button class="bank-recipient-result" onclick="kudos_pickPerson('${c.id}', '${c.label.replace(/'/g, "\\'")}')">${escapeHtml(c.label)}</button>`
+    `<button class="bank-recipient-result" onclick="kudos_pickPerson('${c.type}', '${c.id}', '${c.label.replace(/'/g, "\\'")}')">${escapeHtml(c.label)}</button>`
   ).join('');
 }
 
@@ -118,8 +133,8 @@ function kudos_hideResults(){
   }, 150);
 }
 
-function kudos_pickPerson(charId, label){
-  selectedRecipient = { id: charId, label };
+function kudos_pickPerson(type, id, label){
+  selectedRecipient = { type, id, label };
   document.getElementById('kudos-search-input').value = '';
   document.getElementById('kudos-search-results').innerHTML = '';
   const selectedEl = document.getElementById('kudos-selected');
@@ -137,7 +152,8 @@ async function kudos_submitKudos(){
 
   const { error } = await membersSupabase.from('kudos').insert({
     from_player_id: window.faCurrentUser.id,
-    to_character_id: selectedRecipient.id,
+    to_character_id: selectedRecipient.type === 'character' ? selectedRecipient.id : null,
+    to_player_id: selectedRecipient.type === 'player' ? selectedRecipient.id : null,
     message: text
   });
   if(error){ showError(errorEl, error.message); return; }
@@ -157,24 +173,30 @@ async function loadSubmitted(){
   const list = document.getElementById('kudos-submitted-list');
   const { data: rows } = await membersSupabase
     .from('kudos')
-    .select('id, to_character_id, message, created_at')
+    .select('id, to_character_id, to_player_id, message, created_at')
     .order('created_at', { ascending: false });
 
   if(!rows || rows.length === 0){ list.innerHTML = ''; return; }
 
-  const charIds = [...new Set(rows.map(r => r.to_character_id))];
+  const charIds = [...new Set(rows.map(r => r.to_character_id).filter(Boolean))];
   const { data: chars } = await membersSupabase.from('character_names').select('id, name, player_id').in('id', charIds);
   const charById = {};
   (chars || []).forEach(c => { charById[c.id] = c; });
 
-  const playerIds = [...new Set((chars || []).map(c => c.player_id))];
+  const castPlayerIds = [...new Set(rows.map(r => r.to_player_id).filter(Boolean))];
+  const playerIds = [...new Set([...(chars || []).map(c => c.player_id), ...castPlayerIds])];
   const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', playerIds);
   const nameByPlayer = {};
   (profiles || []).forEach(p => { nameByPlayer[p.id] = p.display_name; });
 
   list.innerHTML = `<h3>Kudos You've Given</h3>` + rows.map(r => {
-    const c = charById[r.to_character_id];
-    const who = c ? `${c.name} [${nameByPlayer[c.player_id] || 'Unknown player'}]` : 'Unknown character';
+    let who;
+    if(r.to_player_id){
+      who = `${nameByPlayer[r.to_player_id] || 'Unknown player'} (Cast)`;
+    } else {
+      const c = charById[r.to_character_id];
+      who = c ? `${c.name} [${nameByPlayer[c.player_id] || 'Unknown player'}]` : 'Unknown character';
+    }
     return `<div class="submitted-item"><div class="who">${escapeHtml(who)}</div>${escapeHtml(r.message)}</div>`;
   }).join('');
 }
