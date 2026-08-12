@@ -19,6 +19,37 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/members.css">
 <script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.ce-stats{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+.ce-stat{
+  border: 2px solid var(--line);
+  background: var(--row-b);
+  padding: 0.9rem 1.1rem;
+}
+.ce-stat-label{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 0.3rem;
+}
+.ce-stat-value{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--ink);
+}
+@media (max-width: 600px){
+  .ce-stats{ grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
 
@@ -44,11 +75,11 @@
 <script src="js/members-auth.js"></script>
 <script>
 (function(){
-let CHARACTERS = [];
+let EVENT = null;
+let REGISTERED_AS = null;
+let MY_CHARACTER = null;
 let OC_BALANCE = 0;
 let SPENT = { xp_spent: 0, copper_spent: 0 };
-let HISTORY = [];
-let EVENT = null;
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -60,6 +91,17 @@ function emptyState(msg){
 
 function fmtDateTime(d){
   return d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function clampAmount(v){
+  let n = parseInt(v, 10);
+  if(isNaN(n)) n = 0;
+  return Math.max(0, Math.min(100, n));
+}
+
+function showError(el, msg){
+  el.textContent = msg;
+  el.style.display = 'block';
 }
 
 function renderNoEvent(){
@@ -78,142 +120,186 @@ function renderLocked(status){
   `;
 }
 
-async function renderOpen(){
-  const [{ data: chars }, { data: ocRows }, { data: summary }, { data: history }] = await Promise.all([
-    membersSupabase.from('characters').select('id, name').eq('player_id', window.faCurrentUser.id).order('created_at', { ascending: true }),
-    membersSupabase.from('oc_transactions').select('amount').eq('player_id', window.faCurrentUser.id),
-    membersSupabase.rpc('event_log_oc_summary', { p_event_slug: EVENT.value }),
-    membersSupabase.from('event_log_oc_spends').select('id, kind, character_id, oc_amount, created_at').eq('player_id', window.faCurrentUser.id).eq('event_slug', EVENT.value).order('created_at', { ascending: false })
-  ]);
-
-  CHARACTERS = chars || [];
-  OC_BALANCE = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
-  SPENT = summary || { xp_spent: 0, copper_spent: 0 };
-  HISTORY = history || [];
-
-  const charById = {};
-  CHARACTERS.forEach(c => { charById[c.id] = c; });
-
-  const xpRemaining = Math.max(0, 100 - SPENT.xp_spent);
-  const copperRemaining = Math.max(0, 100 - SPENT.copper_spent);
-
-  const charOptions = CHARACTERS.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
-
-  const historyHtml = HISTORY.length ? HISTORY.map(h => {
-    const when = new Date(h.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    const desc = h.kind === 'xp'
-      ? `${h.oc_amount} OC &rarr; ${h.oc_amount} XP for ${escapeHtml((charById[h.character_id] || {}).name || 'a character')}`
-      : `${h.oc_amount} OC &rarr; ${h.oc_amount * 10} Copper`;
-    return `<div class="submitted-item"><div class="who">${desc} <span class="bank-request-date" style="float:right;">${when}</span></div></div>`;
-  }).join('') : '';
-
+function renderNotRegistered(){
   document.getElementById('ce-content').innerHTML = `
     <div class="panel">
       <div class="panel-head"><h2>${escapeHtml(EVENT.longLabel)}</h2></div>
       <div class="panel-body">
-
-        <div class="bank-tabs" role="tablist">
-          <button class="bank-tab active" data-tab="spend-oc">Spend OC</button>
-        </div>
-
-        <div class="bank-tab-panel" data-panel="spend-oc">
-
-          <div class="bank-balance-card">
-            <div class="bank-balance-label">Your Ogre Chips</div>
-            <div class="bank-balance-amount">${OC_BALANCE}</div>
-          </div>
-
-          <div class="reg-section">
-            <div class="reg-section-label">Spend OC for XP</div>
-            ${CHARACTERS.length === 0 ? `<p class="reg-empty-note">You need a character to spend OC on XP.</p>` : `
-              <p class="reg-empty-note">1 OC = 1 XP. ${xpRemaining} of 100 OC remaining this event.</p>
-              <div class="bank-form-grid">
-                <div>
-                  <label class="field-label" for="ce-xp-character">Character</label>
-                  <select id="ce-xp-character">${charOptions}</select>
-                </div>
-                <div>
-                  <label class="field-label" for="ce-xp-amount">OC to spend</label>
-                  <input type="number" id="ce-xp-amount" min="1" max="${Math.min(xpRemaining, OC_BALANCE)}" step="1" ${xpRemaining === 0 ? 'disabled' : ''}>
-                </div>
-              </div>
-              <button class="btn-gold" style="margin-top:1rem;" onclick="ce_spendXp()" ${xpRemaining === 0 ? 'disabled' : ''}>Spend for XP</button>
-              <p class="reg-error-note" id="ce-xp-error" style="display:none;"></p>
-            `}
-          </div>
-
-          <div class="reg-section">
-            <div class="reg-section-label">Spend OC for Copper</div>
-            <p class="reg-empty-note">1 OC = 10 Copper. ${copperRemaining} of 100 OC remaining this event.</p>
-            <div class="bank-form-grid">
-              <div>
-                <label class="field-label" for="ce-copper-amount">OC to spend</label>
-                <input type="number" id="ce-copper-amount" min="1" max="${Math.min(copperRemaining, OC_BALANCE)}" step="1" ${copperRemaining === 0 ? 'disabled' : ''} oninput="ce_updateCopperPreview()">
-              </div>
-              <div>
-                <label class="field-label">You'll receive</label>
-                <p style="margin:0.65rem 0 0;" id="ce-copper-preview">0 Copper</p>
-              </div>
-            </div>
-            <button class="btn-gold" style="margin-top:1rem;" onclick="ce_spendCopper()" ${copperRemaining === 0 ? 'disabled' : ''}>Spend for Copper</button>
-            <p class="reg-error-note" id="ce-copper-error" style="display:none;"></p>
-          </div>
-
-          <div class="reg-section">
-            <div class="reg-section-label">Your OC Spends This Event</div>
-            <div class="submitted-list">${historyHtml || emptyState('No OC spent yet this event.')}</div>
-          </div>
-
-        </div>
+        ${emptyState("You're not registered for this event yet.")}
+        <a href="register.html"><button class="btn-gold">Register for This Event</button></a>
       </div>
     </div>
   `;
 }
 
-function ce_updateCopperPreview(){
-  const amount = parseInt(document.getElementById('ce-copper-amount').value, 10) || 0;
-  document.getElementById('ce-copper-preview').textContent = (amount * 10) + ' Copper';
+async function checkRegistrationAndRender(){
+  const me = window.faCurrentUser;
+  document.getElementById('ce-content').innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Checking your registration&hellip;</p></div></div>`;
+
+  let registrants;
+  try{
+    const res = await fetch(window.FA_REGISTRATION_ENDPOINT + '?action=list&event=' + encodeURIComponent(EVENT.label), { cache: 'no-store' });
+    if(!res.ok) throw new Error('Registration check failed (' + res.status + ')');
+    const data = await res.json();
+    registrants = data.registrants || [];
+  } catch(err){
+    document.getElementById('ce-content').innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-error-note">Couldn't check your registration: ${escapeHtml(err.message)}</p></div></div>`;
+    return;
+  }
+
+  const mine = registrants.find(r => (r.email || '').trim().toLowerCase() === (me.email || '').trim().toLowerCase());
+  if(!mine){ renderNotRegistered(); return; }
+
+  REGISTERED_AS = mine.who;
+  MY_CHARACTER = null;
+
+  if(mine.who === 'character'){
+    const { data: chars } = await membersSupabase.from('characters').select('id, name').eq('player_id', me.id);
+    MY_CHARACTER = (chars || []).find(c => c.name.trim().toLowerCase() === (mine.characterName || '').trim().toLowerCase()) || null;
+  }
+
+  await renderOpen();
 }
 
-async function ce_spendXp(){
+async function renderOpen(){
+  const [{ data: ocRows }, { data: summary }] = await Promise.all([
+    membersSupabase.from('oc_transactions').select('amount').eq('player_id', window.faCurrentUser.id),
+    membersSupabase.rpc('event_log_oc_summary', { p_event_slug: EVENT.value })
+  ]);
+
+  OC_BALANCE = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
+  SPENT = summary || { xp_spent: 0, copper_spent: 0 };
+
+  let xpSection;
+  if(REGISTERED_AS === 'character' && MY_CHARACTER){
+    xpSection = `
+      <div class="panel">
+        <div class="panel-head"><h2>Convert OC to EXP</h2></div>
+        <div class="panel-body">
+          <p class="reg-empty-note">Logging as ${escapeHtml(MY_CHARACTER.name)}.</p>
+          <div class="ce-stats">
+            <div class="ce-stat"><div class="ce-stat-label">OC Remaining</div><div class="ce-stat-value">${OC_BALANCE}</div></div>
+            <div class="ce-stat"><div class="ce-stat-label">OC Used</div><div class="ce-stat-value">${SPENT.xp_spent}</div></div>
+            <div class="ce-stat"><div class="ce-stat-label">EXP Gained</div><div class="ce-stat-value">${SPENT.xp_spent}</div></div>
+          </div>
+          <div class="bank-form-grid">
+            <div>
+              <label class="field-label" for="ce-xp-amount">OC to convert (0 to 100)</label>
+              <input type="number" id="ce-xp-amount" min="0" max="100" step="1" value="${SPENT.xp_spent}" oninput="ce_previewXp()">
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+              <button class="btn-gold" style="width:100%;" onclick="ce_updateXp()">Update</button>
+            </div>
+          </div>
+          <p class="reg-empty-note" id="ce-xp-preview" style="margin-top:0.6rem;"></p>
+          <p class="reg-error-note" id="ce-xp-error" style="display:none;"></p>
+        </div>
+      </div>
+    `;
+  } else if(REGISTERED_AS === 'character'){
+    xpSection = `
+      <div class="panel">
+        <div class="panel-head"><h2>Convert OC to EXP</h2></div>
+        <div class="panel-body">${emptyState('We could not match your registered character to one of your characters. Contact staff for help.')}</div>
+      </div>
+    `;
+  } else {
+    xpSection = `
+      <div class="panel">
+        <div class="panel-head"><h2>Convert OC to EXP</h2></div>
+        <div class="panel-body">${emptyState("You're registered as Cast this event, so there's no character to gain XP.")}</div>
+      </div>
+    `;
+  }
+
+  const copperSection = `
+    <div class="panel">
+      <div class="panel-head"><h2>Convert OC to Copper</h2></div>
+      <div class="panel-body">
+        <div class="ce-stats">
+          <div class="ce-stat"><div class="ce-stat-label">OC Remaining</div><div class="ce-stat-value">${OC_BALANCE}</div></div>
+          <div class="ce-stat"><div class="ce-stat-label">OC Used</div><div class="ce-stat-value">${SPENT.copper_spent}</div></div>
+          <div class="ce-stat"><div class="ce-stat-label">Copper Gained</div><div class="ce-stat-value">${SPENT.copper_spent * 10}</div></div>
+        </div>
+        <div class="bank-form-grid">
+          <div>
+            <label class="field-label" for="ce-copper-amount">OC to convert (0 to 100)</label>
+            <input type="number" id="ce-copper-amount" min="0" max="100" step="1" value="${SPENT.copper_spent}" oninput="ce_previewCopper()">
+          </div>
+          <div style="display:flex; align-items:flex-end;">
+            <button class="btn-gold" style="width:100%;" onclick="ce_updateCopper()">Update</button>
+          </div>
+        </div>
+        <p class="reg-empty-note" id="ce-copper-preview" style="margin-top:0.6rem;"></p>
+        <p class="reg-error-note" id="ce-copper-error" style="display:none;"></p>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('ce-content').innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h2>${escapeHtml(EVENT.longLabel)}</h2></div>
+      <div class="panel-body">
+        <div class="bank-balance-card">
+          <div class="bank-balance-label">Your Ogre Chips</div>
+          <div class="bank-balance-amount">${OC_BALANCE}</div>
+        </div>
+      </div>
+    </div>
+    ${xpSection}
+    ${copperSection}
+  `;
+
+  ce_previewXp();
+  ce_previewCopper();
+}
+
+function ce_previewXp(){
+  const input = document.getElementById('ce-xp-amount');
+  const el = document.getElementById('ce-xp-preview');
+  if(!input || !el) return;
+  const amount = clampAmount(input.value);
+  el.textContent = amount === SPENT.xp_spent ? '' : `Will use ${amount} OC for ${amount} XP (currently ${SPENT.xp_spent}).`;
+}
+
+function ce_previewCopper(){
+  const input = document.getElementById('ce-copper-amount');
+  const el = document.getElementById('ce-copper-preview');
+  if(!input || !el) return;
+  const amount = clampAmount(input.value);
+  el.textContent = amount === SPENT.copper_spent ? '' : `Will use ${amount} OC for ${amount * 10} Copper (currently ${SPENT.copper_spent * 10} Copper).`;
+}
+
+async function ce_updateXp(){
   const errorEl = document.getElementById('ce-xp-error');
   errorEl.style.display = 'none';
-  const characterId = document.getElementById('ce-xp-character').value;
-  const amount = parseInt(document.getElementById('ce-xp-amount').value, 10);
+  const amount = clampAmount(document.getElementById('ce-xp-amount').value);
 
-  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
-
-  const { error } = await membersSupabase.rpc('event_log_spend_oc_for_xp', {
-    p_event_slug: EVENT.value, p_character_id: characterId, p_oc_amount: amount
+  const { error } = await membersSupabase.rpc('event_log_set_oc_spend', {
+    p_event_slug: EVENT.value, p_kind: 'xp', p_character_id: MY_CHARACTER.id, p_oc_amount: amount
   });
   if(error){ showError(errorEl, error.message); return; }
 
   await renderOpen();
 }
 
-async function ce_spendCopper(){
+async function ce_updateCopper(){
   const errorEl = document.getElementById('ce-copper-error');
   errorEl.style.display = 'none';
-  const amount = parseInt(document.getElementById('ce-copper-amount').value, 10);
+  const amount = clampAmount(document.getElementById('ce-copper-amount').value);
 
-  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
-
-  const { error } = await membersSupabase.rpc('event_log_spend_oc_for_copper', {
-    p_event_slug: EVENT.value, p_oc_amount: amount
+  const { error } = await membersSupabase.rpc('event_log_set_oc_spend', {
+    p_event_slug: EVENT.value, p_kind: 'copper', p_character_id: null, p_oc_amount: amount
   });
   if(error){ showError(errorEl, error.message); return; }
 
   await renderOpen();
 }
 
-function showError(el, msg){
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-window.ce_spendXp = ce_spendXp;
-window.ce_spendCopper = ce_spendCopper;
-window.ce_updateCopperPreview = ce_updateCopperPreview;
+window.ce_previewXp = ce_previewXp;
+window.ce_previewCopper = ce_previewCopper;
+window.ce_updateXp = ce_updateXp;
+window.ce_updateCopper = ce_updateCopper;
 
 document.addEventListener('fa-members-ready', async () => {
   EVENT = window.FA_NEXT_EVENT;
@@ -222,7 +308,7 @@ document.addEventListener('fa-members-ready', async () => {
   const status = window.faLogStatus(EVENT);
   if(status.state !== 'open'){ renderLocked(status); return; }
 
-  await renderOpen();
+  await checkRegistrationAndRender();
 });
 })();
 </script>
