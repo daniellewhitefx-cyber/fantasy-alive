@@ -134,6 +134,16 @@ a{ color:inherit; text-decoration:none; }
 .footer-block .icon{ width: 28px; height: 28px; flex-shrink:0; fill: var(--gold); }
 .footer-logo img{ width: 60px; height: auto; display:block; }
 .footer-policies{ text-decoration: underline; font-size: 0.9rem; }
+.footer-social{ gap: 1rem; }
+.footer-social a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: var(--gold);
+  transition: color 0.15s ease;
+}
+.footer-social a:hover{ color: var(--gold-dark); }
+.footer-social svg{ width: 24px; height: 24px; fill: currentColor; }
 
 @media (max-width: 900px) and (min-width: 641px){
   .nav{ grid-template-columns: 1fr; }
