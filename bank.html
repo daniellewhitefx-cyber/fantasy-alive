@@ -35,10 +35,6 @@
 <div class="bank-balance-card">
   <div class="bank-balance-label">Current Balance</div>
   <div class="bank-balance-amount" id="bank-balance-amount">&hellip;</div>
-  <label class="bank-auto-toggle">
-    <input type="checkbox" id="bank-auto-bank-checkbox" onchange="bank_toggleAutoBank(this.checked)">
-    Bank my coin earned from log for this event instead of receiving it.
-  </label>
 </div>
 
 <div class="panel">
@@ -322,14 +318,6 @@ async function bank_cancelWithdrawal(id){
   await refreshEverything();
 }
 
-async function bank_toggleAutoBank(checked){
-  const { error } = await membersSupabase.rpc('bank_set_auto_bank_preference', { p_enabled: checked });
-  if(error){
-    alert('Could not save that preference: ' + error.message);
-    document.getElementById('bank-auto-bank-checkbox').checked = !checked;
-  }
-}
-
 function showError(el, msg){
   el.textContent = msg;
   el.style.display = 'block';
@@ -347,13 +335,6 @@ function bank_switchTab(tab){
 async function refreshBalance(){
   const { data, error } = await membersSupabase.rpc('bank_my_balance');
   document.getElementById('bank-balance-amount').textContent = error ? 'Unavailable' : (fmtAmount(data) + ' coin');
-}
-
-async function refreshAutoBankPreference(){
-  const user = window.faCurrentUser;
-  if(!user) return;
-  const { data } = await membersSupabase.from('profiles').select('auto_bank_log_coin').eq('id', user.id).maybeSingle();
-  document.getElementById('bank-auto-bank-checkbox').checked = !!(data && data.auto_bank_log_coin);
 }
 
 async function refreshHistory(){
@@ -459,11 +440,9 @@ window.bank_declineBill = bank_declineBill;
 window.bank_cancelBill = bank_cancelBill;
 window.bank_requestWithdrawal = bank_requestWithdrawal;
 window.bank_cancelWithdrawal = bank_cancelWithdrawal;
-window.bank_toggleAutoBank = bank_toggleAutoBank;
 window.bank_switchTab = bank_switchTab;
 
 document.addEventListener('fa-members-ready', async () => {
-  await refreshAutoBankPreference();
   await refreshEverything();
 });
 })();

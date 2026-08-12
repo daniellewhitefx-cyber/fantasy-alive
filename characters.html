@@ -57,6 +57,7 @@
 <script src="js/include.js"></script>
 <script src="js/members-auth.js"></script>
 <script src="js/registration-status.js"></script>
+<script src="js/xp-convert.js"></script>
 <script>
 (function(){
 let CHARACTERS = [];
@@ -99,14 +100,6 @@ function deriveStats(c){
   const me = race.baseMe + skillLevelTotal(skills, 'Magical Energy') + (hasSkill(skills, 'Magery') ? 1 : 0);
 
   return { lp, se, me, resurrectionsLeft };
-}
-
-function xpPerSp(currentSp){
-  if(currentSp <= 40) return 10;
-  if(currentSp <= 80) return 15;
-  if(currentSp <= 150) return 20;
-  if(currentSp <= 200) return 25;
-  return 30;
 }
 
 function chars_selectChar(id){
@@ -166,7 +159,7 @@ function render(){
 
   const spent = c.skills.reduce((sum, s) => sum + s.sp, 0);
   const experience = xpByChar[c.id] || 0;
-  const ratio = xpPerSp(c.startingSp) + ':1';
+  const conv = faConvertXpToSp(experience, c.startingSp, spent);
   const stats = deriveStats(c);
 
   document.getElementById('chars-char-panel').innerHTML = `
@@ -174,12 +167,13 @@ function render(){
       <div class="stat-row"><span class="stat-label">Race</span><span class="stat-value">${escapeHtml(c.race)}</span></div>
       <div class="stat-row"><span class="stat-label">Social Class</span><span class="stat-value">${c.socialClass ? escapeHtml(c.socialClass) : '-'}</span></div>
       <div class="stat-row"><span class="stat-label">Birthday</span><span class="stat-value">${c.birthday ? escapeHtml(c.birthday) : '-'}</span></div>
-      <div class="stat-row"><span class="stat-label">Skill Points</span><span class="stat-value">${spent}/${c.startingSp}</span></div>
+      <div class="stat-row"><span class="stat-label">Skill Points</span><span class="stat-value">${spent}/${conv.totalPool}</span></div>
       <div class="stat-row"><span class="stat-label">LP</span><span class="stat-value">${stats.lp}</span></div>
       <div class="stat-row"><span class="stat-label">SE/ME</span><span class="stat-value">${stats.se}/${stats.me}</span></div>
       <div class="stat-row"><span class="stat-label">Resurrections Left</span><span class="stat-value">${stats.resurrectionsLeft}</span></div>
-      <div class="stat-row"><span class="stat-label">Experience</span><span class="stat-value">${experience}</span></div>
-      <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${ratio}</span></div>
+      <div class="stat-row"><span class="stat-label">Experience</span><span class="stat-value">${conv.leftoverXp.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="stat-label">XP Converted</span><span class="stat-value">${(conv.xpConvertedSp * conv.rate).toLocaleString()} / ${conv.xpBalance.toLocaleString()} Exp</span></div>
+      <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${conv.rate}:1</span></div>
     </div>
     <div class="table-scroll">
     <table class="data-table">
