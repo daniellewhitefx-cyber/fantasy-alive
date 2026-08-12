@@ -8,14 +8,57 @@ create table if not exists character_friends (
 
 alter table character_friends enable row level security;
 
+-- Friendship now requires the other side to accept: character_id is the
+-- requester, friend_character_id is the requestee, and a row starts
+-- 'pending' until the requestee accepts it. Existing rows predate this and
+-- were already treated as mutual, so they're backfilled to 'accepted' once.
+do $$
+begin
+  if not exists (
+    select 1 from information_schema.columns
+    where table_name = 'character_friends' and column_name = 'status'
+  ) then
+    alter table character_friends add column status text not null default 'pending' check (status in ('pending', 'accepted'));
+    update character_friends set status = 'accepted';
+  end if;
+end $$;
+
 drop policy if exists "Players manage their own characters friends" on character_friends;
-create policy "Players manage their own characters friends"
-  on character_friends for all
+
+drop policy if exists "Players see their own friend rows" on character_friends;
+create policy "Players see their own friend rows"
+  on character_friends for select
   using (
     character_id in (select id from characters where player_id = auth.uid())
+    or friend_character_id in (select id from characters where player_id = auth.uid())
     or fa_is_site_admin()
-  )
+  );
+
+drop policy if exists "Players send friend requests from their own characters" on character_friends;
+create policy "Players send friend requests from their own characters"
+  on character_friends for insert
   with check (
     character_id in (select id from characters where player_id = auth.uid())
+    and status = 'pending'
+  );
+
+drop policy if exists "Recipients accept friend requests" on character_friends;
+create policy "Recipients accept friend requests"
+  on character_friends for update
+  using (
+    friend_character_id in (select id from characters where player_id = auth.uid())
+    and status = 'pending'
+  )
+  with check (
+    friend_character_id in (select id from characters where player_id = auth.uid())
+    and status = 'accepted'
+  );
+
+drop policy if exists "Either side can remove a request or friendship" on character_friends;
+create policy "Either side can remove a request or friendship"
+  on character_friends for delete
+  using (
+    character_id in (select id from characters where player_id = auth.uid())
+    or friend_character_id in (select id from characters where player_id = auth.uid())
     or fa_is_site_admin()
   );
