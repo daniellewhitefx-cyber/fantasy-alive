@@ -44,11 +44,6 @@
 
 <div class="reg-section" id="chars-remort-area" style="margin-top:2.4rem;"></div>
 
-<div class="reg-section" id="chars-staff-remort-section" style="display:none;">
-<div class="reg-section-label">Staff Tools - Pending Remort Requests</div>
-<div id="chars-staff-remort-list"><p class="reg-empty-note">Loading&hellip;</p></div>
-</div>
-
 </div>
 </div>
 
@@ -63,8 +58,6 @@ let CHARACTERS = [];
 let activeCharId = null;
 let remortByChar = {};
 let xpByChar = {};
-let profileMap = {};
-let isRemortStaff = false;
 
 const RACE_STATS = {
   'Curtainborn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 5, baseMe: 0 },
@@ -230,60 +223,6 @@ async function loadRemortStatus(){
   (data || []).forEach(r => { if(!remortByChar[r.character_id]) remortByChar[r.character_id] = r; });
 }
 
-async function loadProfiles(){
-  const { data } = await membersSupabase.from('profiles').select('id, display_name');
-  profileMap = {};
-  (data || []).forEach(p => { profileMap[p.id] = p.display_name; });
-}
-
-function nameFor(id){ return profileMap[id] || 'Unknown player'; }
-
-async function refreshStaffRemorts(){
-  if(!isRemortStaff) return;
-
-  const { data: requests } = await membersSupabase
-    .from('character_remort_requests')
-    .select('id, character_id, player_id, requested_at')
-    .eq('status', 'pending')
-    .order('requested_at', { ascending: true });
-
-  const target = document.getElementById('chars-staff-remort-list');
-  if(!requests || requests.length === 0){
-    target.innerHTML = '<p class="reg-empty-note">No pending remort requests.</p>';
-    return;
-  }
-
-  const charIds = [...new Set(requests.map(r => r.character_id))];
-  const { data: chars } = await membersSupabase.from('characters').select('id, name, race').in('id', charIds);
-  const charMap = {};
-  (chars || []).forEach(c => { charMap[c.id] = c; });
-
-  target.innerHTML = requests.map(r => {
-    const c = charMap[r.character_id] || { name: 'Unknown character', race: '' };
-    return `
-      <div class="bank-bill-card">
-        <div><strong>${escapeHtml(nameFor(r.player_id))}</strong> requests a remort for <strong>${escapeHtml(c.name)}</strong> (${escapeHtml(c.race)})</div>
-        <div class="bank-bill-actions">
-          <button class="btn-gold" onclick="chars_approveRemort('${r.id}')">Approve</button>
-          <button class="btn-outline" onclick="chars_denyRemort('${r.id}')">Deny</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-async function chars_approveRemort(reqId){
-  const { error } = await membersSupabase.rpc('character_approve_remort', { p_request_id: reqId });
-  if(error){ alert(error.message); return; }
-  await refreshStaffRemorts();
-}
-
-async function chars_denyRemort(reqId){
-  const { error } = await membersSupabase.rpc('character_deny_remort', { p_request_id: reqId });
-  if(error){ alert(error.message); return; }
-  await refreshStaffRemorts();
-}
-
 async function loadCharacters(){
   const { data: chars, error } = await membersSupabase
     .from('characters')
@@ -327,18 +266,9 @@ async function loadCharacters(){
 
 window.chars_selectChar = chars_selectChar;
 window.chars_requestRemort = chars_requestRemort;
-window.chars_approveRemort = chars_approveRemort;
-window.chars_denyRemort = chars_denyRemort;
 
-document.addEventListener('fa-members-ready', async (e) => {
-  const user = e.detail.user;
-  isRemortStaff = !!(user.app_metadata && (user.app_metadata.remort_staff || user.app_metadata.site_admin));
-  if(isRemortStaff) document.getElementById('chars-staff-remort-section').style.display = 'block';
+document.addEventListener('fa-members-ready', async () => {
   await loadCharacters();
-  if(isRemortStaff){
-    await loadProfiles();
-    await refreshStaffRemorts();
-  }
 });
 })();
 </script>

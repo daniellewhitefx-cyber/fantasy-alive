@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Requests (Staff) - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Requests (Staff) - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/admin-requests.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Requests (Staff) - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.req-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 1rem;
+  border: 2px solid var(--line);
+  border-radius: 0;
+  padding: 0.8rem 1rem;
+  background: #fff;
+  margin-bottom: 0.7rem;
+}
+.req-row-body{ font-family:'EB Garamond', serif; font-size: 1rem; }
+.req-row-who{ font-family:'Cinzel', serif; font-weight:700; }
+.req-row-meta{ font-size: 0.85rem; color: var(--brown-dark); margin-top: 0.2rem; }
+.req-row-actions{
+  display:flex;
+  gap: 0.5rem;
+  flex-shrink:0;
+}
+.req-btn{
+  width: 38px; height: 38px;
+  border: 2px solid var(--line);
+  background: #fff;
+  border-radius: 0;
+  cursor:pointer;
+  font-size: 1.1rem;
+  line-height:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.req-btn-approve{ border-color: var(--good); color: var(--good); }
+.req-btn-approve:hover{ background: var(--good); color: #fff; }
+.req-btn-deny{ border-color: var(--bad); color: var(--bad); }
+.req-btn-deny:hover{ background: var(--bad); color: #fff; }
+.req-tab-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Requests</h1>
+<p class="page-subhead">Staff tools. Review and decide Remort Requests, OC Submissions, and Kudos in one place.</p>
+
+<div class="reg-already-registered" id="req-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to site admins and Logistics.</p>
+</div>
+
+<div id="req-wrap" style="display:none;">
+
+<div class="bank-tabs" role="tablist">
+<button class="bank-tab active" data-tab="remort" onclick="req_switchTab('remort')">Remort Requests <span id="req-count-remort"></span></button>
+<button class="bank-tab" data-tab="oc" onclick="req_switchTab('oc')">OC Submissions <span id="req-count-oc"></span></button>
+<button class="bank-tab" data-tab="kudos" onclick="req_switchTab('kudos')">Kudos <span id="req-count-kudos"></span></button>
+</div>
+
+<div class="bank-tab-panel" data-panel="remort">
+<div class="req-tab-head">
+<div class="reg-section-label" style="margin:0;">Pending Remort Requests</div>
+<button class="btn-outline" onclick="req_approveAll('remort')">Approve All</button>
+</div>
+<div id="req-list-remort"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+<div class="bank-tab-panel" data-panel="oc" style="display:none;">
+<div class="req-tab-head">
+<div class="reg-section-label" style="margin:0;">Pending OC Submissions</div>
+<button class="btn-outline" onclick="req_approveAll('oc')">Approve All</button>
+</div>
+<div id="req-list-oc"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+<div class="bank-tab-panel" data-panel="kudos" style="display:none;">
+<div class="req-tab-head">
+<div class="reg-section-label" style="margin:0;">Pending Kudos</div>
+<button class="btn-outline" onclick="req_approveAll('kudos')">Approve All</button>
+</div>
+<div id="req-list-kudos"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let profileMap = {};
+let charById = {};
+let remortRows = [];
+let ocRows = [];
+let kudosRows = [];
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtDateTime(iso){
+  return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+function nameFor(id){ return profileMap[id] || 'Unknown player'; }
+
+function req_switchTab(tab){
+  document.querySelectorAll('#req-wrap .bank-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  document.querySelectorAll('#req-wrap .bank-tab-panel').forEach(panel => {
+    panel.style.display = panel.dataset.panel === tab ? 'block' : 'none';
+  });
+}
+
+function updateCounts(){
+  document.getElementById('req-count-remort').textContent = remortRows.length ? `(${remortRows.length})` : '';
+  document.getElementById('req-count-oc').textContent = ocRows.length ? `(${ocRows.length})` : '';
+  document.getElementById('req-count-kudos').textContent = kudosRows.length ? `(${kudosRows.length})` : '';
+}
+
+async function loadNames(playerIds, characterIds){
+  const missingPlayerIds = [...new Set(playerIds)].filter(id => id && !profileMap[id]);
+  if(missingPlayerIds.length){
+    const { data } = await membersSupabase.from('profiles').select('id, display_name').in('id', missingPlayerIds);
+    (data || []).forEach(p => { profileMap[p.id] = p.display_name; });
+  }
+  const missingCharIds = [...new Set(characterIds)].filter(id => id && !charById[id]);
+  if(missingCharIds.length){
+    const { data } = await membersSupabase.from('characters').select('id, name, race').in('id', missingCharIds);
+    (data || []).forEach(c => { charById[c.id] = c; });
+  }
+}
+
+/* ---------- Remort ---------- */
+
+async function loadRemort(){
+  const { data } = await membersSupabase
+    .from('character_remort_requests')
+    .select('id, character_id, player_id, requested_at')
+    .eq('status', 'pending')
+    .order('requested_at', { ascending: true });
+  remortRows = data || [];
+  await loadNames(remortRows.map(r => r.player_id), remortRows.map(r => r.character_id));
+  renderRemort();
+  updateCounts();
+}
+
+function renderRemort(){
+  const target = document.getElementById('req-list-remort');
+  if(remortRows.length === 0){
+    target.innerHTML = '<p class="reg-empty-note">No pending remort requests.</p>';
+    return;
+  }
+  target.innerHTML = remortRows.map(r => {
+    const c = charById[r.character_id] || { name: 'Unknown character', race: '' };
+    return `
+      <div class="req-row">
+        <div class="req-row-body">
+          <div class="req-row-who">${escapeHtml(nameFor(r.player_id))}</div>
+          <div>Remort for ${escapeHtml(c.name)} (${escapeHtml(c.race)})</div>
+          <div class="req-row-meta">${fmtDateTime(r.requested_at)}</div>
+        </div>
+        <div class="req-row-actions">
+          <button class="req-btn req-btn-approve" title="Approve" data-approve="${escapeHtml(r.id)}">&#10003;</button>
+          <button class="req-btn req-btn-deny" title="Deny" data-deny="${escapeHtml(r.id)}">&times;</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  target.querySelectorAll('[data-approve]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { error } = await membersSupabase.rpc('character_approve_remort', { p_request_id: btn.dataset.approve });
+      if(error){ alert(error.message); return; }
+      await loadRemort();
+    });
+  });
+  target.querySelectorAll('[data-deny]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { error } = await membersSupabase.rpc('character_deny_remort', { p_request_id: btn.dataset.deny });
+      if(error){ alert(error.message); return; }
+      await loadRemort();
+    });
+  });
+}
+
+/* ---------- OC Submissions ---------- */
+
+async function loadOc(){
+  const { data } = await membersSupabase
+    .from('oc_submission_requests')
+    .select('id, player_id, amount, reason, created_at')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+  ocRows = data || [];
+  await loadNames(ocRows.map(r => r.player_id), []);
+  renderOc();
+  updateCounts();
+}
+
+function renderOc(){
+  const target = document.getElementById('req-list-oc');
+  if(ocRows.length === 0){
+    target.innerHTML = '<p class="reg-empty-note">No pending OC submissions.</p>';
+    return;
+  }
+  target.innerHTML = ocRows.map(r => `
+    <div class="req-row">
+      <div class="req-row-body">
+        <div class="req-row-who">${escapeHtml(nameFor(r.player_id))} &middot; ${r.amount} OC</div>
+        <div>${escapeHtml(r.reason)}</div>
+        <div class="req-row-meta">${fmtDateTime(r.created_at)}</div>
+      </div>
+      <div class="req-row-actions">
+        <button class="req-btn req-btn-approve" title="Approve" data-approve="${escapeHtml(r.id)}">&#10003;</button>
+        <button class="req-btn req-btn-deny" title="Deny" data-deny="${escapeHtml(r.id)}">&times;</button>
+      </div>
+    </div>
+  `).join('');
+
+  target.querySelectorAll('[data-approve]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { error } = await membersSupabase.rpc('oc_submission_approve', { p_id: btn.dataset.approve });
+      if(error){ alert(error.message); return; }
+      await loadOc();
+    });
+  });
+  target.querySelectorAll('[data-deny]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { error } = await membersSupabase.rpc('oc_submission_deny', { p_id: btn.dataset.deny });
+      if(error){ alert(error.message); return; }
+      await loadOc();
+    });
+  });
+}
+
+/* ---------- Kudos ---------- */
+
+async function loadKudos(){
+  const { data } = await membersSupabase
+    .from('kudos')
+    .select('id, from_player_id, to_character_id, to_player_id, message, created_at')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+  kudosRows = data || [];
+  await loadNames(
+    [...kudosRows.map(r => r.from_player_id), ...kudosRows.map(r => r.to_player_id)],
+    kudosRows.map(r => r.to_character_id)
+  );
+  renderKudos();
+  updateCounts();
+}
+
+function renderKudos(){
+  const target = document.getElementById('req-list-kudos');
+  if(kudosRows.length === 0){
+    target.innerHTML = '<p class="reg-empty-note">No pending kudos.</p>';
+    return;
+  }
+  target.innerHTML = kudosRows.map(r => {
+    const to = r.to_player_id ? `${nameFor(r.to_player_id)} (Cast)` : (charById[r.to_character_id] ? charById[r.to_character_id].name : 'Unknown character');
+    return `
+      <div class="req-row">
+        <div class="req-row-body">
+          <div class="req-row-who">${escapeHtml(nameFor(r.from_player_id))} &rarr; ${escapeHtml(to)}</div>
+          <div>${escapeHtml(r.message)}</div>
+          <div class="req-row-meta">${fmtDateTime(r.created_at)}</div>
+        </div>
+        <div class="req-row-actions">
+          <button class="req-btn req-btn-approve" title="Approve" data-approve="${escapeHtml(r.id)}">&#10003;</button>
+          <button class="req-btn req-btn-deny" title="Deny" data-deny="${escapeHtml(r.id)}">&times;</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  target.querySelectorAll('[data-approve]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { error } = await membersSupabase.rpc('kudos_approve', { p_id: btn.dataset.approve });
+      if(error){ alert(error.message); return; }
+      await loadKudos();
+    });
+  });
+  target.querySelectorAll('[data-deny]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { error } = await membersSupabase.rpc('kudos_deny', { p_id: btn.dataset.deny });
+      if(error){ alert(error.message); return; }
+      await loadKudos();
+    });
+  });
+}
+
+/* ---------- Approve All ---------- */
+
+async function req_approveAll(kind){
+  let rows, rpcName, paramKey, reload;
+  if(kind === 'remort'){ rows = remortRows; rpcName = 'character_approve_remort'; paramKey = 'p_request_id'; reload = loadRemort; }
+  else if(kind === 'oc'){ rows = ocRows; rpcName = 'oc_submission_approve'; paramKey = 'p_id'; reload = loadOc; }
+  else { rows = kudosRows; rpcName = 'kudos_approve'; paramKey = 'p_id'; reload = loadKudos; }
+
+  if(rows.length === 0) return;
+  if(!confirm(`Approve all ${rows.length} pending item${rows.length === 1 ? '' : 's'}?`)) return;
+
+  await Promise.all(rows.map(r => membersSupabase.rpc(rpcName, { [paramKey]: r.id })));
+  await reload();
+  if(typeof refreshRequestsBadge === 'function') refreshRequestsBadge();
+}
+
+window.req_switchTab = req_switchTab;
+window.req_approveAll = req_approveAll;
+
+document.addEventListener('fa-members-ready', async () => {
+  const { data: allowed, error } = await membersSupabase.rpc('fa_is_logistics_or_admin');
+  if(error || !allowed){
+    document.getElementById('req-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('req-wrap').style.display = 'block';
+
+  await Promise.all([loadRemort(), loadOc(), loadKudos()]);
+});
+})();
+</script>
+
+</body>
+</html>
