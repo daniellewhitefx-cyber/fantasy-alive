@@ -26,6 +26,18 @@
   gap: 1.2rem;
   align-items: start;
 }
+.ce-event-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.ce-logging-as{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  color: var(--brown-dark);
+}
 .ce-stats{
   display:grid;
   grid-template-columns: repeat(2, 1fr);
@@ -193,7 +205,6 @@ async function renderOpen(){
       <div class="panel">
         <div class="panel-head"><h2>Convert OC to EXP</h2></div>
         <div class="panel-body">
-          <p class="reg-empty-note">Logging as ${escapeHtml(MY_CHARACTER.name)}.</p>
           <div class="ce-stats">
             <div class="ce-stat"><div class="ce-stat-label">OC Used</div><div class="ce-stat-value">${SPENT.xp_spent}</div></div>
             <div class="ce-stat"><div class="ce-stat-label">EXP Gained</div><div class="ce-stat-value">${SPENT.xp_spent}</div></div>
@@ -239,9 +250,16 @@ async function renderOpen(){
     </div>
   `;
 
+  const loggingAsLabel = REGISTERED_AS === 'character' && MY_CHARACTER
+    ? MY_CHARACTER.name
+    : (REGISTERED_AS === 'cast' ? 'Cast' : '');
+
   document.getElementById('ce-content').innerHTML = `
     <div class="panel">
-      <div class="panel-head"><h2>${escapeHtml(EVENT.longLabel)}</h2></div>
+      <div class="panel-head ce-event-head">
+        <h2>${escapeHtml(EVENT.longLabel)}</h2>
+        ${loggingAsLabel ? `<span class="ce-logging-as">Logging as ${escapeHtml(loggingAsLabel)}</span>` : ''}
+      </div>
       <div class="panel-body">
         <div class="bank-balance-card">
           <div class="bank-balance-label">Your Ogre Chips</div>
