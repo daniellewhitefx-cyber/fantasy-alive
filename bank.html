@@ -182,6 +182,7 @@
 (function(){
 let isStaff = false;
 let profileMap = {};
+let charsByPlayer = {};
 let selectedRecipient = { send: null, bill: null, deposit: null };
 
 function escapeHtml(str){
@@ -197,14 +198,23 @@ function fmtDate(iso){
 }
 
 async function loadProfiles(){
-  const { data, error } = await membersSupabase.from('profiles').select('id, display_name');
+  const [{ data: profiles, error }, { data: chars }] = await Promise.all([
+    membersSupabase.from('profiles').select('id, display_name'),
+    membersSupabase.from('character_names').select('name, player_id')
+  ]);
   if(error) return;
   profileMap = {};
-  (data || []).forEach(p => { profileMap[p.id] = p.display_name; });
+  (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
+  charsByPlayer = {};
+  (chars || []).forEach(c => {
+    (charsByPlayer[c.player_id] = charsByPlayer[c.player_id] || []).push(c.name);
+  });
 }
 
 function nameFor(id){
-  return profileMap[id] || 'Unknown player';
+  const base = profileMap[id] || 'Unknown player';
+  const chars = charsByPlayer[id];
+  return chars && chars.length ? `${base} (${chars.join(', ')})` : base;
 }
 
 async function bank_searchRecipients(picker, query){
@@ -238,9 +248,10 @@ async function bank_searchRecipients(picker, query){
     return;
   }
 
-  results.innerHTML = entries.map(([id, name]) => `
-    <button class="bank-recipient-result" onclick="bank_pickRecipient('${picker}', '${id}', '${name.replace(/'/g, "\\'")}')">${escapeHtml(name)}</button>
-  `).join('');
+  results.innerHTML = entries.map(([id]) => {
+    const label = nameFor(id);
+    return `<button class="bank-recipient-result" onclick="bank_pickRecipient('${picker}', '${id}', '${label.replace(/'/g, "\\'")}')">${escapeHtml(label)}</button>`;
+  }).join('');
 }
 
 function bank_pickRecipient(picker, id, name){
