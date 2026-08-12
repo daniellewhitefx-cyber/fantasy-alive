@@ -85,8 +85,16 @@
 }
 .home-hero-stat .val{ font-family:'Cinzel', serif; font-weight:700; font-size:1.15rem; color:var(--ink); }
 .home-hero-stat .lbl{ font-family:'Cinzel', serif; font-size:0.62rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--gold-dark); }
-.home-hero-cta{ flex-shrink:0; }
-.home-hero-cta .btn-gold{ border-radius:0; white-space:nowrap; }
+.home-hero-cta{
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  gap: 0.5rem;
+  align-items:stretch;
+}
+.home-hero-cta .btn-gold,
+.home-hero-cta .btn-outline{ border-radius:0; white-space:nowrap; width:100%; }
+.home-hero-cta .chars-registered-badge{ white-space:nowrap; }
 
 .home-kpis{
   display:grid;
@@ -284,8 +292,12 @@ async function loadHero(){
           <div class="home-hero-name">Cast</div>
           <p class="home-hero-tagline">You're set up as Cast. Create a player character any time from the Characters page.</p>
         </div>
-        <div class="home-hero-cta"><a href="character-creator.html"><button class="btn-gold">Create Character</button></a></div>
+        <div class="home-hero-cta">
+          <a href="character-creator.html"><button class="btn-gold">Create Character</button></a>
+          <div id="home-register-cta"><a href="register.html"><button class="btn-gold">Register for Next Event</button></a></div>
+        </div>
       `;
+      updateRegisterCta('cast', 'Cast');
       return;
     }
     hero.innerHTML = `
@@ -294,7 +306,10 @@ async function loadHero(){
         <div class="home-hero-name">No character yet</div>
         <p class="home-hero-tagline">Create your first character to get started.</p>
       </div>
-      <div class="home-hero-cta"><a href="character-creator.html"><button class="btn-gold">Create Character</button></a></div>
+      <div class="home-hero-cta">
+        <a href="character-creator.html"><button class="btn-gold">Create Character</button></a>
+        <a href="register.html"><button class="btn-gold">Register for Next Event</button></a>
+      </div>
     `;
     return;
   }
@@ -318,8 +333,27 @@ async function loadHero(){
       <div class="home-hero-stat"><div class="val">${stats.se}</div><div class="lbl">SE</div></div>
       <div class="home-hero-stat"><div class="val">${stats.resurrectionsLeft}</div><div class="lbl">Res.</div></div>
     </div>
-    <div class="home-hero-cta"><a href="characters.html"><button class="btn-gold">View Character</button></a></div>
+    <div class="home-hero-cta">
+      <a href="characters.html"><button class="btn-gold">View Character</button></a>
+      <div id="home-register-cta"><a href="register.html"><button class="btn-gold">Register for Next Event</button></a></div>
+    </div>
   `;
+  updateRegisterCta('character', char.name);
+}
+
+async function updateRegisterCta(who, characterName){
+  const el = document.getElementById('home-register-cta');
+  if(!el || !window.FA_NEXT_EVENT) return;
+
+  try{
+    const user = await faGetCurrentUser();
+    if(!user) return;
+    const result = await faCheckRegistration(window.FA_NEXT_EVENT.label, who, characterName, user.email);
+    if(result.registered){
+      el.innerHTML = `<a href="register.html" class="chars-registered-badge">&#10003; You're Registered for ${escapeHtml(window.FA_NEXT_EVENT.label)}</a>`;
+    }
+  } catch(err){
+  }
 }
 
 /* ---------- kpi row ---------- */
