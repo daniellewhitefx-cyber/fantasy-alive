@@ -1093,6 +1093,14 @@ select.reg-date-select{
   cursor:pointer;
 }
 .bank-recipient-result:hover{ background: var(--gold); }
+.member-search-list{
+  position: static;
+  margin-top: 0.6rem;
+  background: #fff;
+  border: 2px solid var(--gold);
+  max-height: 280px;
+  overflow-y: auto;
+}
 .bank-recipient-empty{
   padding: 0.6rem 0.8rem;
   font-family: 'EB Garamond', serif;

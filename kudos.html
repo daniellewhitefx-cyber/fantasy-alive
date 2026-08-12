@@ -37,7 +37,7 @@
 <label class="field-label" for="kudos-search-input">Give kudos to</label>
 <input type="text" id="kudos-search-input" placeholder="Search player or character name..." autocomplete="off"
   oninput="kudos_search(this.value)">
-<div class="bank-recipient-results" id="kudos-search-results"></div>
+<div class="member-search-list" id="kudos-search-results"></div>
 <p class="bank-selected-recipient" id="kudos-selected" style="display:none;"></p>
 </div>
 
@@ -62,53 +62,60 @@
 <script>
 (function(){
 let selectedRecipient = null;
+let ALL_CANDIDATES = [];
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-async function kudos_search(query){
-  const q = query.trim();
-  const resultsEl = document.getElementById('kudos-search-results');
-  if(!q){ resultsEl.innerHTML = ''; return; }
-
+async function loadAllCandidates(){
   const myUserId = window.faCurrentUser ? window.faCurrentUser.id : null;
 
-  const [{ data: charMatches }, { data: profileMatches }] = await Promise.all([
-    membersSupabase.from('character_names').select('id, name, player_id').ilike('name', `%${q}%`).limit(8),
-    membersSupabase.from('profiles').select('id, display_name').ilike('display_name', `%${q}%`).limit(8)
+  const [{ data: chars }, { data: profiles }] = await Promise.all([
+    membersSupabase.from('character_names').select('id, name, player_id'),
+    membersSupabase.from('profiles').select('id, display_name')
   ]);
 
-  const charById = {};
-  (charMatches || []).forEach(c => { charById[c.id] = c; });
+  const nameByPlayer = {};
+  (profiles || []).forEach(p => { nameByPlayer[p.id] = p.display_name; });
 
-  const matchedPlayerIds = [...new Set((profileMatches || []).map(p => p.id))];
-  if(matchedPlayerIds.length){
-    const { data: theirChars } = await membersSupabase.from('character_names').select('id, name, player_id').in('player_id', matchedPlayerIds);
-    (theirChars || []).forEach(c => { charById[c.id] = c; });
-  }
+  ALL_CANDIDATES = (chars || [])
+    .filter(c => c.player_id !== myUserId)
+    .map(c => ({
+      id: c.id,
+      name: c.name,
+      playerName: nameByPlayer[c.player_id] || 'Unknown player',
+      label: `${c.name} [${nameByPlayer[c.player_id] || 'Unknown player'}]`
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
 
-  const candidates = Object.values(charById).filter(c => c.player_id !== myUserId).slice(0, 8);
-  if(candidates.length === 0){
+function renderCandidates(query){
+  const q = query.trim().toLowerCase();
+  const resultsEl = document.getElementById('kudos-search-results');
+
+  const matches = q
+    ? ALL_CANDIDATES.filter(c => c.name.toLowerCase().includes(q) || c.playerName.toLowerCase().includes(q))
+    : ALL_CANDIDATES;
+
+  if(matches.length === 0){
     resultsEl.innerHTML = '<div class="bank-recipient-empty">No matching characters.</div>';
     return;
   }
 
-  const playerIds = [...new Set(candidates.map(c => c.player_id))];
-  const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', playerIds);
-  const nameByPlayer = {};
-  (profiles || []).forEach(p => { nameByPlayer[p.id] = p.display_name; });
+  resultsEl.innerHTML = matches.map(c =>
+    `<button class="bank-recipient-result" onclick="kudos_pickPerson('${c.id}', '${c.label.replace(/'/g, "\\'")}')">${escapeHtml(c.label)}</button>`
+  ).join('');
+}
 
-  resultsEl.innerHTML = candidates.map(c => {
-    const label = `${c.name} [${nameByPlayer[c.player_id] || 'Unknown player'}]`;
-    return `<button class="bank-recipient-result" onclick="kudos_pickPerson('${c.id}', '${label.replace(/'/g, "\\'")}')">${escapeHtml(label)}</button>`;
-  }).join('');
+function kudos_search(query){
+  renderCandidates(query);
 }
 
 function kudos_pickPerson(charId, label){
   selectedRecipient = { id: charId, label };
   document.getElementById('kudos-search-input').value = '';
-  document.getElementById('kudos-search-results').innerHTML = '';
+  renderCandidates('');
   const selectedEl = document.getElementById('kudos-selected');
   selectedEl.style.display = 'block';
   selectedEl.textContent = `Selected: ${label}`;
@@ -166,10 +173,16 @@ async function loadSubmitted(){
   }).join('');
 }
 
+async function init(){
+  await loadAllCandidates();
+  renderCandidates('');
+  await loadSubmitted();
+}
+
 window.kudos_search = kudos_search;
 window.kudos_pickPerson = kudos_pickPerson;
 window.kudos_submitKudos = kudos_submitKudos;
-document.addEventListener('fa-members-ready', loadSubmitted);
+document.addEventListener('fa-members-ready', init);
 })();
 </script>
 
