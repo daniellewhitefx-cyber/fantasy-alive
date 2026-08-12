@@ -160,6 +160,24 @@ async function init(){
     (isNew(k.decided_at) ? newItems : previousItems).push(entry);
   });
 
+  const receivedOrParts = [`to_player_id.eq.${me}`];
+  if(charIds.length) receivedOrParts.push(`to_character_id.in.(${charIds.join(',')})`);
+  const { data: receivedKudos } = await membersSupabase
+    .from('kudos')
+    .select('from_player_id, message, decided_at')
+    .eq('status', 'approved')
+    .or(receivedOrParts.join(','))
+    .order('decided_at', { ascending: false })
+    .limit(50);
+  (receivedKudos || []).forEach(k => {
+    const entry = {
+      type: 'kudos',
+      date: k.decided_at,
+      html: `<strong>Kudos from ${escapeHtml(profileMap[k.from_player_id] || 'a player')}</strong>: ${escapeHtml(k.message)}`
+    };
+    (isNew(k.decided_at) ? newItems : previousItems).push(entry);
+  });
+
   const { data: myRemorts } = await membersSupabase
     .from('character_remort_requests')
     .select('character_id, status, decided_at')
@@ -168,10 +186,11 @@ async function init(){
     .order('decided_at', { ascending: false })
     .limit(50);
   (myRemorts || []).forEach(r => {
+    const link = r.status === 'approved' ? ` &middot; <a href="character-edit.html?id=${encodeURIComponent(r.character_id)}">Continue your remort</a>` : '';
     const entry = {
       type: 'remort',
       date: r.decided_at,
-      html: `<strong>Remort request for ${escapeHtml(charMap[r.character_id] || 'a character')}</strong> ${r.status}`
+      html: `<strong>Remort request for ${escapeHtml(charMap[r.character_id] || 'a character')}</strong> ${r.status}${link}`
     };
     (isNew(r.decided_at) ? newItems : previousItems).push(entry);
   });
