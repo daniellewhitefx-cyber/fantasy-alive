@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Current Event - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Current Event - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/current-event.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Current Event - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Current Event</h1>
+
+<div id="ce-content"><p class="reg-empty-note">Loading&hellip;</p></div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let CHARACTERS = [];
+let OC_BALANCE = 0;
+let SPENT = { xp_spent: 0, copper_spent: 0 };
+let HISTORY = [];
+let EVENT = null;
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
+
+function fmtDateTime(d){
+  return d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function renderNoEvent(){
+  document.getElementById('ce-content').innerHTML = `<div class="panel"><div class="panel-body">${emptyState('No upcoming event is scheduled yet.')}</div></div>`;
+}
+
+function renderLocked(status){
+  const label = status.state === 'not-open'
+    ? `The log for ${escapeHtml(EVENT.longLabel)} opens ${fmtDateTime(status.opensAt)}.`
+    : `The log for ${escapeHtml(EVENT.longLabel)} closed ${fmtDateTime(status.closesAt)}.`;
+  document.getElementById('ce-content').innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h2>${escapeHtml(EVENT.longLabel)}</h2></div>
+      <div class="panel-body">${emptyState(label)}</div>
+    </div>
+  `;
+}
+
+async function renderOpen(){
+  const [{ data: chars }, { data: ocRows }, { data: summary }, { data: history }] = await Promise.all([
+    membersSupabase.from('characters').select('id, name').eq('player_id', window.faCurrentUser.id).order('created_at', { ascending: true }),
+    membersSupabase.from('oc_transactions').select('amount').eq('player_id', window.faCurrentUser.id),
+    membersSupabase.rpc('event_log_oc_summary', { p_event_slug: EVENT.value }),
+    membersSupabase.from('event_log_oc_spends').select('id, kind, character_id, oc_amount, created_at').eq('player_id', window.faCurrentUser.id).eq('event_slug', EVENT.value).order('created_at', { ascending: false })
+  ]);
+
+  CHARACTERS = chars || [];
+  OC_BALANCE = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
+  SPENT = summary || { xp_spent: 0, copper_spent: 0 };
+  HISTORY = history || [];
+
+  const charById = {};
+  CHARACTERS.forEach(c => { charById[c.id] = c; });
+
+  const xpRemaining = Math.max(0, 100 - SPENT.xp_spent);
+  const copperRemaining = Math.max(0, 100 - SPENT.copper_spent);
+
+  const charOptions = CHARACTERS.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
+
+  const historyHtml = HISTORY.length ? HISTORY.map(h => {
+    const when = new Date(h.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const desc = h.kind === 'xp'
+      ? `${h.oc_amount} OC &rarr; ${h.oc_amount} XP for ${escapeHtml((charById[h.character_id] || {}).name || 'a character')}`
+      : `${h.oc_amount} OC &rarr; ${h.oc_amount * 10} Copper`;
+    return `<div class="submitted-item"><div class="who">${desc} <span class="bank-request-date" style="float:right;">${when}</span></div></div>`;
+  }).join('') : '';
+
+  document.getElementById('ce-content').innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h2>${escapeHtml(EVENT.longLabel)}</h2></div>
+      <div class="panel-body">
+
+        <div class="bank-tabs" role="tablist">
+          <button class="bank-tab active" data-tab="spend-oc">Spend OC</button>
+        </div>
+
+        <div class="bank-tab-panel" data-panel="spend-oc">
+
+          <div class="bank-balance-card">
+            <div class="bank-balance-label">Your Ogre Chips</div>
+            <div class="bank-balance-amount">${OC_BALANCE}</div>
+          </div>
+
+          <div class="reg-section">
+            <div class="reg-section-label">Spend OC for XP</div>
+            ${CHARACTERS.length === 0 ? `<p class="reg-empty-note">You need a character to spend OC on XP.</p>` : `
+              <p class="reg-empty-note">1 OC = 1 XP. ${xpRemaining} of 100 OC remaining this event.</p>
+              <div class="bank-form-grid">
+                <div>
+                  <label class="field-label" for="ce-xp-character">Character</label>
+                  <select id="ce-xp-character">${charOptions}</select>
+                </div>
+                <div>
+                  <label class="field-label" for="ce-xp-amount">OC to spend</label>
+                  <input type="number" id="ce-xp-amount" min="1" max="${Math.min(xpRemaining, OC_BALANCE)}" step="1" ${xpRemaining === 0 ? 'disabled' : ''}>
+                </div>
+              </div>
+              <button class="btn-gold" style="margin-top:1rem;" onclick="ce_spendXp()" ${xpRemaining === 0 ? 'disabled' : ''}>Spend for XP</button>
+              <p class="reg-error-note" id="ce-xp-error" style="display:none;"></p>
+            `}
+          </div>
+
+          <div class="reg-section">
+            <div class="reg-section-label">Spend OC for Copper</div>
+            <p class="reg-empty-note">1 OC = 10 Copper. ${copperRemaining} of 100 OC remaining this event.</p>
+            <div class="bank-form-grid">
+              <div>
+                <label class="field-label" for="ce-copper-amount">OC to spend</label>
+                <input type="number" id="ce-copper-amount" min="1" max="${Math.min(copperRemaining, OC_BALANCE)}" step="1" ${copperRemaining === 0 ? 'disabled' : ''} oninput="ce_updateCopperPreview()">
+              </div>
+              <div>
+                <label class="field-label">You'll receive</label>
+                <p style="margin:0.65rem 0 0;" id="ce-copper-preview">0 Copper</p>
+              </div>
+            </div>
+            <button class="btn-gold" style="margin-top:1rem;" onclick="ce_spendCopper()" ${copperRemaining === 0 ? 'disabled' : ''}>Spend for Copper</button>
+            <p class="reg-error-note" id="ce-copper-error" style="display:none;"></p>
+          </div>
+
+          <div class="reg-section">
+            <div class="reg-section-label">Your OC Spends This Event</div>
+            <div class="submitted-list">${historyHtml || emptyState('No OC spent yet this event.')}</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function ce_updateCopperPreview(){
+  const amount = parseInt(document.getElementById('ce-copper-amount').value, 10) || 0;
+  document.getElementById('ce-copper-preview').textContent = (amount * 10) + ' Copper';
+}
+
+async function ce_spendXp(){
+  const errorEl = document.getElementById('ce-xp-error');
+  errorEl.style.display = 'none';
+  const characterId = document.getElementById('ce-xp-character').value;
+  const amount = parseInt(document.getElementById('ce-xp-amount').value, 10);
+
+  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
+
+  const { error } = await membersSupabase.rpc('event_log_spend_oc_for_xp', {
+    p_event_slug: EVENT.value, p_character_id: characterId, p_oc_amount: amount
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  await renderOpen();
+}
+
+async function ce_spendCopper(){
+  const errorEl = document.getElementById('ce-copper-error');
+  errorEl.style.display = 'none';
+  const amount = parseInt(document.getElementById('ce-copper-amount').value, 10);
+
+  if(!amount || amount <= 0){ showError(errorEl, 'Enter an amount greater than 0.'); return; }
+
+  const { error } = await membersSupabase.rpc('event_log_spend_oc_for_copper', {
+    p_event_slug: EVENT.value, p_oc_amount: amount
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  await renderOpen();
+}
+
+function showError(el, msg){
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+window.ce_spendXp = ce_spendXp;
+window.ce_spendCopper = ce_spendCopper;
+window.ce_updateCopperPreview = ce_updateCopperPreview;
+
+document.addEventListener('fa-members-ready', async () => {
+  EVENT = window.FA_NEXT_EVENT;
+  if(!EVENT){ renderNoEvent(); return; }
+
+  const status = window.faLogStatus(EVENT);
+  if(status.state !== 'open'){ renderLocked(status); return; }
+
+  await renderOpen();
+});
+})();
+</script>
+
+</body>
+</html>
