@@ -33,15 +33,25 @@
 <div class="char-switcher" id="char-switcher"></div>
 
 <h1 class="page-title">Friends</h1>
-<p class="page-subhead">Friends are tracked per character. Search for anyone in the player base to add them.</p>
+<p class="page-subhead">Friends are tracked per character. Search for anyone in the player base to send a friend request, they'll need to accept before you show up on each other's list.</p>
 
 <div class="section-block">
 <div class="bank-recipient-picker" data-picker="friends">
-<label class="field-label" for="friends-search-input">Add a friend</label>
+<label class="field-label" for="friends-search-input">Send a friend request</label>
 <input type="text" id="friends-search-input" placeholder="Search player or character name..." autocomplete="off"
   oninput="friends_search(this.value)" onfocus="friends_search(this.value)" onblur="friends_hideResults()">
 <div class="member-search-list" id="friends-search-results"></div>
 </div>
+</div>
+
+<div class="section-block" id="friends-incoming-block" style="display:none;">
+<h3>Friend Requests</h3>
+<div class="card-grid" id="friends-incoming-list"></div>
+</div>
+
+<div class="section-block" id="friends-outgoing-block" style="display:none;">
+<h3>Sent Requests</h3>
+<div class="card-grid" id="friends-outgoing-list"></div>
 </div>
 
 <div class="section-block">
@@ -81,6 +91,8 @@ function renderSwitcher(){
   ).join('');
 }
 
+let EXCLUDED_CANDIDATE_IDS = new Set();
+
 async function loadAllCandidates(){
   const myUserId = window.faCurrentUser ? window.faCurrentUser.id : null;
 
@@ -107,9 +119,10 @@ function renderCandidates(query){
   const q = query.trim().toLowerCase();
   const resultsEl = document.getElementById('friends-search-results');
 
-  const matches = q
+  const matches = (q
     ? ALL_CANDIDATES.filter(c => c.name.toLowerCase().includes(q) || c.playerName.toLowerCase().includes(q))
-    : ALL_CANDIDATES;
+    : ALL_CANDIDATES
+  ).filter(c => !EXCLUDED_CANDIDATE_IDS.has(c.id));
 
   if(matches.length === 0){
     resultsEl.innerHTML = '<div class="bank-recipient-empty">No matching characters.</div>';
@@ -117,7 +130,7 @@ function renderCandidates(query){
   }
 
   resultsEl.innerHTML = matches.map(c =>
-    `<button class="bank-recipient-result" onclick="friends_addFriend('${c.id}')">${escapeHtml(c.label)}</button>`
+    `<button class="bank-recipient-result" onclick="friends_sendRequest('${c.id}')">${escapeHtml(c.label)}</button>`
   ).join('');
 }
 
@@ -131,48 +144,151 @@ function friends_hideResults(){
   }, 150);
 }
 
-async function friends_addFriend(charId){
+async function friends_sendRequest(charId){
   if(!activeCharId) return;
-  const { error } = await membersSupabase.from('character_friends')
-    .upsert({ character_id: activeCharId, friend_character_id: charId }, { onConflict: 'character_id,friend_character_id', ignoreDuplicates: true });
-  if(error){ alert('Could not add friend: ' + error.message); return; }
+
+  // If they already sent us a pending request, sending one back just accepts theirs.
+  const { data: reverse } = await membersSupabase.from('character_friends')
+    .select('status')
+    .eq('character_id', charId).eq('friend_character_id', activeCharId)
+    .maybeSingle();
+
+  if(reverse && reverse.status === 'pending'){
+    const { error } = await membersSupabase.from('character_friends')
+      .update({ status: 'accepted' })
+      .eq('character_id', charId).eq('friend_character_id', activeCharId);
+    if(error){ alert('Could not accept friend request: ' + error.message); return; }
+  } else {
+    const { error } = await membersSupabase.from('character_friends')
+      .upsert({ character_id: activeCharId, friend_character_id: charId, status: 'pending' }, { onConflict: 'character_id,friend_character_id', ignoreDuplicates: true });
+    if(error){ alert('Could not send friend request: ' + error.message); return; }
+  }
+  document.getElementById('friends-search-input').value = '';
+  document.getElementById('friends-search-results').innerHTML = '';
   await loadFriends();
 }
 
-async function friends_removeFriend(friendCharId){
+async function friends_acceptRequest(requesterId){
+  if(!activeCharId) return;
+  const { error } = await membersSupabase.from('character_friends')
+    .update({ status: 'accepted' })
+    .eq('character_id', requesterId).eq('friend_character_id', activeCharId);
+  if(error){ alert('Could not accept friend request: ' + error.message); return; }
+  await loadFriends();
+}
+
+async function friends_declineRequest(requesterId){
   if(!activeCharId) return;
   const { error } = await membersSupabase.from('character_friends')
     .delete()
-    .eq('character_id', activeCharId)
-    .eq('friend_character_id', friendCharId);
+    .eq('character_id', requesterId).eq('friend_character_id', activeCharId);
+  if(error){ alert('Could not decline friend request: ' + error.message); return; }
+  await loadFriends();
+}
+
+async function friends_cancelRequest(targetId){
+  if(!activeCharId) return;
+  const { error } = await membersSupabase.from('character_friends')
+    .delete()
+    .eq('character_id', activeCharId).eq('friend_character_id', targetId);
+  if(error){ alert('Could not cancel friend request: ' + error.message); return; }
+  await loadFriends();
+}
+
+async function friends_removeFriend(otherCharId){
+  if(!activeCharId) return;
+  const { error } = await membersSupabase.from('character_friends')
+    .delete()
+    .or(`and(character_id.eq.${activeCharId},friend_character_id.eq.${otherCharId}),and(character_id.eq.${otherCharId},friend_character_id.eq.${activeCharId})`);
   if(error){ alert('Could not remove friend: ' + error.message); return; }
   await loadFriends();
 }
 
+function friends_renderNamedCards(ids, charById, nameByPlayer, buttonsFor){
+  return ids.map(id => {
+    const c = charById[id];
+    if(!c) return '';
+    return `
+    <div class="info-card">
+      <div>${escapeHtml(c.name)}</div>
+      <div class="friends-player-name">${escapeHtml(nameByPlayer[c.player_id] || 'Unknown player')}</div>
+      ${buttonsFor(id)}
+    </div>`;
+  }).join('');
+}
+
 async function loadFriends(){
   const listEl = document.getElementById('friends-list');
-  if(!activeCharId){ listEl.innerHTML = ''; return; }
+  const incomingBlock = document.getElementById('friends-incoming-block');
+  const outgoingBlock = document.getElementById('friends-outgoing-block');
+  const incomingList = document.getElementById('friends-incoming-list');
+  const outgoingList = document.getElementById('friends-outgoing-list');
 
-  const { data: rows } = await membersSupabase.from('character_friends').select('friend_character_id').eq('character_id', activeCharId);
-  const friendIds = (rows || []).map(r => r.friend_character_id);
-  if(friendIds.length === 0){
-    listEl.innerHTML = `<p class="page-subhead" style="margin:0;">No friends added yet for this character.</p>`;
+  if(!activeCharId){
+    listEl.innerHTML = '';
+    incomingBlock.style.display = 'none';
+    outgoingBlock.style.display = 'none';
+    EXCLUDED_CANDIDATE_IDS = new Set();
     return;
   }
 
-  const { data: chars } = await membersSupabase.from('character_names').select('id, name, player_id').in('id', friendIds);
+  const { data: rows } = await membersSupabase.from('character_friends')
+    .select('character_id, friend_character_id, status')
+    .or(`character_id.eq.${activeCharId},friend_character_id.eq.${activeCharId}`);
+
+  const accepted = [];
+  const incoming = [];
+  const outgoing = [];
+  (rows || []).forEach(r => {
+    const otherId = r.character_id === activeCharId ? r.friend_character_id : r.character_id;
+    if(r.status === 'accepted') accepted.push(otherId);
+    else if(r.friend_character_id === activeCharId) incoming.push(r.character_id);
+    else outgoing.push(r.friend_character_id);
+  });
+
+  EXCLUDED_CANDIDATE_IDS = new Set([...accepted, ...incoming, ...outgoing]);
+
+  const allIds = [...EXCLUDED_CANDIDATE_IDS];
+  if(allIds.length === 0){
+    listEl.innerHTML = `<p class="page-subhead" style="margin:0;">No friends added yet for this character.</p>`;
+    incomingBlock.style.display = 'none';
+    outgoingBlock.style.display = 'none';
+    return;
+  }
+
+  const { data: chars } = await membersSupabase.from('character_names').select('id, name, player_id').in('id', allIds);
   const playerIds = [...new Set((chars || []).map(c => c.player_id))];
   const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', playerIds);
   const nameByPlayer = {};
   (profiles || []).forEach(p => { nameByPlayer[p.id] = p.display_name; });
+  const charById = {};
+  (chars || []).forEach(c => { charById[c.id] = c; });
 
-  listEl.innerHTML = (chars || []).map(c => `
-    <div class="info-card">
-      <div>${escapeHtml(c.name)}</div>
-      <div class="friends-player-name">${escapeHtml(nameByPlayer[c.player_id] || 'Unknown player')}</div>
-      <button class="btn-outline friends-remove-btn" onclick="friends_removeFriend('${c.id}')">Remove</button>
-    </div>
-  `).join('');
+  if(incoming.length){
+    incomingBlock.style.display = '';
+    incomingList.innerHTML = friends_renderNamedCards(incoming, charById, nameByPlayer, id => `
+      <div class="row-inline" style="margin:0.7rem 0 0;">
+        <button class="btn-gold friends-remove-btn" onclick="friends_acceptRequest('${id}')">Accept</button>
+        <button class="btn-outline friends-remove-btn" onclick="friends_declineRequest('${id}')">Decline</button>
+      </div>`);
+  } else {
+    incomingBlock.style.display = 'none';
+  }
+
+  if(outgoing.length){
+    outgoingBlock.style.display = '';
+    outgoingList.innerHTML = friends_renderNamedCards(outgoing, charById, nameByPlayer, id =>
+      `<button class="btn-outline friends-remove-btn" onclick="friends_cancelRequest('${id}')">Cancel Request</button>`);
+  } else {
+    outgoingBlock.style.display = 'none';
+  }
+
+  if(accepted.length){
+    listEl.innerHTML = friends_renderNamedCards(accepted, charById, nameByPlayer, id =>
+      `<button class="btn-outline friends-remove-btn" onclick="friends_removeFriend('${id}')">Remove</button>`);
+  } else {
+    listEl.innerHTML = `<p class="page-subhead" style="margin:0;">No friends added yet for this character.</p>`;
+  }
 }
 
 async function loadCharacters(){
@@ -190,7 +306,10 @@ async function loadCharacters(){
 window.selectChar = selectChar;
 window.friends_search = friends_search;
 window.friends_hideResults = friends_hideResults;
-window.friends_addFriend = friends_addFriend;
+window.friends_sendRequest = friends_sendRequest;
+window.friends_acceptRequest = friends_acceptRequest;
+window.friends_declineRequest = friends_declineRequest;
+window.friends_cancelRequest = friends_cancelRequest;
 window.friends_removeFriend = friends_removeFriend;
 document.addEventListener('fa-members-ready', loadCharacters);
 </script>

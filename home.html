@@ -19,6 +19,146 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/members.css">
 <script src="js/vendor/supabase-js.min.js"></script>
+<style>
+/* Members Home dashboard: every element here is sharp-cornered by design. */
+.home-hero{
+  display:flex;
+  gap: 1.4rem;
+  align-items:center;
+  border: 2px solid var(--brown-dark);
+  border-radius: 0;
+  background: var(--row-b);
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.4rem;
+  box-shadow: 6px 6px 0 0 var(--gold);
+}
+.home-hero-badge{
+  width: 76px; height: 76px;
+  flex-shrink:0;
+  border: 2px solid var(--brown-dark);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.home-hero-body{ flex:1; min-width:0; }
+.home-hero-eyebrow{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 0.2rem;
+}
+.home-hero-name{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+  color: var(--ink);
+  margin: 0 0 0.2rem;
+}
+.home-hero-tagline{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--brown-dark);
+}
+.home-hero-stats{
+  display:flex;
+  gap: 0.6rem;
+  flex-shrink:0;
+  flex-wrap: wrap;
+}
+.home-hero-stat{
+  border: 2px solid var(--brown-dark);
+  border-radius: 0;
+  background: #fff;
+  padding: 0.5rem 0.8rem;
+  text-align:center;
+  min-width: 56px;
+}
+.home-hero-stat .val{ font-family:'Cinzel', serif; font-weight:700; font-size:1.15rem; color:var(--ink); }
+.home-hero-stat .lbl{ font-family:'Cinzel', serif; font-size:0.62rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--gold-dark); }
+.home-hero-cta{ flex-shrink:0; }
+.home-hero-cta .btn-gold{ border-radius:0; white-space:nowrap; }
+
+.home-kpis{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+.home-kpi{
+  border: 2px solid var(--line);
+  border-radius: 0;
+  background: #fff;
+  padding: 0.9rem 1.1rem;
+}
+.home-kpi-label{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 0.3rem;
+}
+.home-kpi-value{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--ink);
+}
+.home-kpi-sub{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.85rem;
+  color: var(--brown);
+  margin-top: 0.15rem;
+}
+@media (max-width: 720px){
+  .home-kpis{ grid-template-columns: repeat(2, 1fr); }
+  .home-hero{ flex-wrap: wrap; }
+}
+
+.home-split{
+  display:grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1.4rem;
+  align-items:start;
+}
+@media (max-width: 900px){
+  .home-split{ grid-template-columns: 1fr; }
+}
+.home-panel{
+  border: 2px solid var(--line);
+  border-radius: 0;
+  background: #fff;
+}
+.home-panel-head{
+  padding: 0.9rem 1.2rem;
+  border-bottom: 2px solid var(--line);
+  background: var(--cream-deep);
+}
+.home-panel-head h2{
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  margin: 0;
+  color: var(--brown-dark);
+}
+.home-panel-body{ padding: 1.1rem 1.2rem 1.3rem; }
+.home-panel .auction-item-card,
+.home-panel .auction-item-image,
+.home-panel .btn-gold,
+.home-panel .btn-outline,
+.home-panel .bank-bill-card{ border-radius: 0; }
+.home-panel .bank-form-grid input{ border-radius: 0; }
+</style>
 </head>
 <body>
 
@@ -31,26 +171,55 @@
 <div>
 
 <h1 class="page-title">Home</h1>
-<p class="page-subhead">The current auction item and the latest updates, all in one place.</p>
+<p class="page-subhead">Your character at a glance, the current auction, and the latest updates.</p>
 
-<div class="reg-section">
-<div class="reg-section-label">Current Auction Item</div>
-<div id="home-auction-wrap"><p class="reg-empty-note">Loading&hellip;</p></div>
+<div class="home-hero" id="home-hero">
+  <p class="reg-empty-note">Loading&hellip;</p>
 </div>
 
-<div class="bank-staff-section" id="home-announce-staff-section" style="display:none;">
-<div class="reg-section-label">Post an Update</div>
-<label class="field-label" for="home-announce-title">Title</label>
-<input type="text" id="home-announce-title" placeholder="What's this about?">
-<label class="field-label" for="home-announce-body" style="margin-top:0.7rem;">Update</label>
-<textarea id="home-announce-body" placeholder="Write the update..."></textarea>
-<button class="btn-gold" style="margin-top:1rem;" onclick="home_postAnnouncement()">Post Update</button>
-<p class="reg-error-note" id="home-announce-error" style="display:none;"></p>
+<div class="home-kpis">
+  <div class="home-kpi">
+    <div class="home-kpi-label">Bank</div>
+    <div class="home-kpi-value" id="home-kpi-bank">&hellip;</div>
+  </div>
+  <div class="home-kpi">
+    <div class="home-kpi-label">Ogre Chips</div>
+    <div class="home-kpi-value" id="home-kpi-oc">&hellip;</div>
+  </div>
+  <div class="home-kpi">
+    <div class="home-kpi-label">Messages</div>
+    <div class="home-kpi-value" id="home-kpi-messages">&hellip;</div>
+  </div>
+  <div class="home-kpi">
+    <div class="home-kpi-label">Next Event</div>
+    <div class="home-kpi-value" id="home-kpi-event">&hellip;</div>
+    <div class="home-kpi-sub" id="home-kpi-event-sub"></div>
+  </div>
 </div>
 
-<div class="reg-section">
-<div class="reg-section-label">Updates</div>
-<div id="home-announce-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+<div class="home-split">
+
+<div class="home-panel">
+  <div class="home-panel-head"><h2>Auction Spotlight</h2></div>
+  <div class="home-panel-body" id="home-auction-wrap"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+<div class="home-panel">
+  <div class="home-panel-head"><h2>Recent Updates</h2></div>
+  <div class="home-panel-body">
+    <div class="bank-staff-section" id="home-announce-staff-section" style="display:none; margin-bottom:1.2rem;">
+      <div class="reg-section-label">Post an Update</div>
+      <label class="field-label" for="home-announce-title">Title</label>
+      <input type="text" id="home-announce-title" placeholder="What's this about?">
+      <label class="field-label" for="home-announce-body" style="margin-top:0.7rem;">Update</label>
+      <textarea id="home-announce-body" placeholder="Write the update..."></textarea>
+      <button class="btn-gold" style="margin-top:1rem;" onclick="home_postAnnouncement()">Post Update</button>
+      <p class="reg-error-note" id="home-announce-error" style="display:none;"></p>
+    </div>
+    <div id="home-announce-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+  </div>
+</div>
+
 </div>
 
 </div>
@@ -71,12 +240,128 @@ function escapeHtml(str){
 }
 
 function fmtMoney(n){ return '$' + Number(n).toFixed(2).replace(/\.00$/, ''); }
+function fmtAmount(n){ return Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
 
 function fmtDateTime(iso){
   return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 function nameFor(id){ return profileMap[id] || 'Unknown player'; }
+
+/* ---------- hero: primary character spotlight ---------- */
+
+const RACE_STATS = {
+  'Curtainborn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 5, baseMe: 0 },
+  'D\'Shunn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Dwarf': { baseLp: 6, maxLp: 15, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Elf': { baseLp: 4, maxLp: 10, baseResurrections: 1, baseSe: 0, baseMe: 5 },
+  'Gnome': { baseLp: 4, maxLp: 8, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Goblin': { baseLp: 4, maxLp: 8, baseResurrections: 3, baseSe: 0, baseMe: 0 },
+  'Human': { baseLp: 5, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Lizardfolk': { baseLp: 6, maxLp: 15, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Malkin': { baseLp: 6, maxLp: 12, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Minotaur': { baseLp: 8, maxLp: 20, baseResurrections: 2, baseSe: 0, baseMe: 0 },
+  'Orc': { baseLp: 7, maxLp: 15, baseResurrections: 2, baseSe: 0, baseMe: 0 }
+};
+const MAX_RESURRECTIONS = 5;
+
+function skillLevelTotal(skills, name){
+  return skills.filter(s => s.name.trim().toLowerCase() === name.toLowerCase()).reduce((sum, s) => sum + (s.level || 0), 0);
+}
+function hasSkill(skills, name){
+  return skills.some(s => s.name.trim().toLowerCase() === name.toLowerCase());
+}
+function deriveStats(race, skills){
+  const r = RACE_STATS[race] || { baseLp: 5, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 };
+  const lp = Math.min(r.baseLp + skillLevelTotal(skills, 'Physical Endurance'), r.maxLp);
+  const resurrectionsLeft = Math.min(r.baseResurrections + skillLevelTotal(skills, 'Spiritual Endurance'), MAX_RESURRECTIONS);
+  const se = r.baseSe + skillLevelTotal(skills, 'Spiritual Energy') + (hasSkill(skills, 'Theology') ? 1 : 0);
+  return { lp, se, resurrectionsLeft };
+}
+
+function initials(name){
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+}
+
+async function loadHero(){
+  const hero = document.getElementById('home-hero');
+  const me = window.faCurrentUser.id;
+
+  const { data: chars } = await membersSupabase
+    .from('characters')
+    .select('id, name, race, social_class, created_at')
+    .eq('player_id', me)
+    .order('created_at', { ascending: true })
+    .limit(1);
+
+  const char = chars && chars[0];
+  if(!char){
+    hero.innerHTML = `
+      <div class="home-hero-body">
+        <div class="home-hero-eyebrow">Welcome</div>
+        <div class="home-hero-name">No character yet</div>
+        <p class="home-hero-tagline">Create your first character to get started.</p>
+      </div>
+      <div class="home-hero-cta"><a href="character-creator.html"><button class="btn-gold">Create Character</button></a></div>
+    `;
+    return;
+  }
+
+  const { data: skillRows } = await membersSupabase
+    .from('character_skills')
+    .select('skill_name, level')
+    .eq('character_id', char.id);
+  const skills = (skillRows || []).map(sk => ({ name: sk.skill_name, level: sk.level }));
+  const stats = deriveStats(char.race, skills);
+
+  hero.innerHTML = `
+    <div class="home-hero-badge">${escapeHtml(initials(char.name))}</div>
+    <div class="home-hero-body">
+      <div class="home-hero-eyebrow">Welcome back</div>
+      <div class="home-hero-name">${escapeHtml(char.name)}</div>
+      <p class="home-hero-tagline">${escapeHtml(char.race || 'Unknown race')}${char.social_class ? ' &middot; ' + escapeHtml(char.social_class) : ''}</p>
+    </div>
+    <div class="home-hero-stats">
+      <div class="home-hero-stat"><div class="val">${stats.lp}</div><div class="lbl">LP</div></div>
+      <div class="home-hero-stat"><div class="val">${stats.se}</div><div class="lbl">SE</div></div>
+      <div class="home-hero-stat"><div class="val">${stats.resurrectionsLeft}</div><div class="lbl">Res.</div></div>
+    </div>
+    <div class="home-hero-cta"><a href="characters.html"><button class="btn-gold">View Character</button></a></div>
+  `;
+}
+
+/* ---------- kpi row ---------- */
+
+async function loadKpis(){
+  const me = window.faCurrentUser.id;
+
+  const bankEl = document.getElementById('home-kpi-bank');
+  const { data: balance, error: balanceErr } = await membersSupabase.rpc('bank_my_balance');
+  bankEl.textContent = balanceErr ? 'Unavailable' : fmtAmount(balance) + ' cp';
+
+  const ocEl = document.getElementById('home-kpi-oc');
+  const { data: ocRows } = await membersSupabase.from('oc_transactions').select('amount').eq('player_id', me);
+  const ocTotal = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
+  ocEl.textContent = fmtAmount(ocTotal) + ' OC';
+
+  const messagesEl = document.getElementById('home-kpi-messages');
+  const { data: unread } = await membersSupabase.rpc('message_unread_count');
+  const unreadCount = unread || 0;
+  messagesEl.textContent = unreadCount > 0 ? unreadCount + ' new' : 'None';
+
+  const eventEl = document.getElementById('home-kpi-event');
+  const eventSubEl = document.getElementById('home-kpi-event-sub');
+  const nextEvent = window.FA_NEXT_EVENT;
+  if(nextEvent){
+    eventEl.textContent = nextEvent.label;
+    const days = Math.ceil((nextEvent.start - new Date()) / 86400000);
+    eventSubEl.textContent = days > 0 ? days + ' day' + (days === 1 ? '' : 's') + ' away' : 'This weekend';
+  } else {
+    eventEl.textContent = 'TBA';
+  }
+}
+
+/* ---------- auction spotlight (unchanged behaviour) ---------- */
 
 let currentAuctionItem = null;
 let currentAuctionItemClosed = false;
@@ -227,6 +512,8 @@ async function home_placeAuctionBid(){
 
 window.home_placeAuctionBid = home_placeAuctionBid;
 
+/* ---------- recent updates (unchanged behaviour) ---------- */
+
 async function loadAnnouncements(){
   const list = document.getElementById('home-announce-list');
   const { data: rows } = await membersSupabase
@@ -289,6 +576,8 @@ document.addEventListener('fa-members-ready', async (e) => {
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
 
+  await loadHero();
+  await loadKpis();
   await loadCurrentAuctionItem();
   await loadAnnouncements();
 });
