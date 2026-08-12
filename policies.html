@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Policies - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Policies - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/policies.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Policies - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.page-hero{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  align-items:center;
+  height: 320px;
+  overflow: hidden;
+}
+.page-hero-content{
+  padding: 2rem 3rem 2rem 5.5rem;
+  text-align: center;
+}
+.page-hero .logo-img{ width:100%; max-width: 440px; height:auto; display:block; margin: 0 auto; }
+.page-hero h1{
+  font-family: 'EB Garamond', serif;
+  font-weight: 500;
+  font-size: 3rem;
+  margin: 0.5rem 0 0;
+  color: var(--brown);
+  text-align: center;
+}
+.photo-slot{
+  border: 2px dashed var(--gold-dark);
+  border-radius: 6px;
+  background: var(--cream-deep);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:0.6rem;
+  color: var(--brown-dark);
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  font-size:0.8rem;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  text-align:center;
+  padding:1rem;
+}
+.photo-slot svg{ width:34px; height:34px; opacity:0.55; }
+.photo-slot.hero-slot{ height:100%; min-height:320px; border-radius:0; }
+
+.policies-intro{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 0;
+  text-align:center;
+}
+.policies-intro p{
+  font-family:'EB Garamond', serif;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: #2e2415;
+  margin: 0 0 1rem;
+}
+
+.policies-page{
+  display:grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2.5rem;
+  padding: 2rem 3rem 4rem;
+  max-width: 1300px;
+  margin: 0 auto;
+  align-items:start;
+}
+.policies-content{ min-width:0; }
+.policy-toc{
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  overflow:hidden;
+  position: sticky;
+  top: 1.5rem;
+}
+.policy-cat{
+  border-bottom: 1px solid var(--gold-dark);
+}
+.policy-cat:last-child{ border-bottom:none; }
+.policy-cat-header{
+  background: var(--ink);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  padding: 0.7rem 1rem;
+}
+.policy-cat-items{
+  display:flex;
+  flex-direction:column;
+}
+.policy-cat-items a{
+  display:block;
+  background: var(--cream-deep);
+  border-top: 1px dotted var(--gold-dark);
+  color: var(--brown);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  padding: 0.65rem 1rem 0.65rem 1.4rem;
+}
+.policy-cat-items a:hover{ background: var(--gold); color: var(--ink); }
+
+.policy-category{ margin-bottom: 3rem; }
+.policy-category:last-child{ margin-bottom:0; }
+.policy-category h2{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--brown-dark);
+  margin: 0 0 1.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid var(--gold);
+}
+.policy-section{
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px dotted var(--line);
+  scroll-margin-top: 1.5rem;
+}
+.policy-section:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.policy-section h3{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--gold-dark);
+  margin: 0 0 1rem;
+}
+.policy-section h4{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--brown-dark);
+  margin: 1.4rem 0 0.6rem;
+}
+.policy-section h5{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--brown-dark);
+  margin: 1.2rem 0 0.5rem;
+}
+.policy-section h6{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--gold-dark);
+  margin: 1rem 0 0.5rem;
+}
+.policy-section p{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: #2e2415;
+  margin: 0 0 1rem;
+}
+.policy-section p strong:only-child{
+  display:block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+}
+.policy-section ul, .policy-section ol{
+  margin: 0 0 1rem;
+  padding-left: 1.4rem;
+}
+.policy-section li{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: #2e2415;
+  margin-bottom: 0.4rem;
+}
+.policy-section img{
+  max-width: 100%;
+  height:auto;
+  display:block;
+  margin: 1rem 0;
+  border: 2px solid var(--gold-dark);
+}
+.policy-section .table-wrap{
+  width: 100%;
+  overflow-x: auto;
+  margin: 0 0 1.2rem;
+}
+.policy-section table{
+  width:100%;
+  border-collapse: collapse;
+  border: 2px solid var(--gold);
+  background: var(--row-a);
+}
+.policy-section table td{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px dotted var(--gold-dark);
+  color: #2e2415;
+}
+.policy-section table tr:nth-child(odd){ background: var(--row-b); }
+.policy-source{
+  margin: 0;
+  font-size: 0.85rem;
+}
+.policy-source a{
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  color: var(--gold-dark);
+  text-decoration: underline;
+}
+
+@media (max-width: 900px){
+  .page-hero{ grid-template-columns: 1fr; height:auto; }
+  .page-hero-content{ padding: 1.5rem 1rem; }
+  .page-hero h1{ font-size: 2.2rem; }
+  .photo-slot.hero-slot{ height:180px; min-height:180px; }
+  .policies-page{ grid-template-columns: 1fr; padding: 1.5rem 1.2rem 3rem; }
+  .policy-toc{ position: static; }
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<section class="page-hero">
+<div class="page-hero-content">
+<img src="https://i.imgur.com/zcnx0lm.png" alt="Fantasy Alive" class="logo-img">
+<h1>Policies</h1>
+</div>
+<div class="photo-slot hero-slot">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+Add a photo
+</div>
+</section>
+
+<div class="policies-intro">
+<p>Fantasy Alive strives to make a welcoming and friendly game in which players come together to create an immersive game world full of physical, mental and emotional challenges. We work to encourage a positive community to allow everyone to enjoy the game and have fun together.</p>
+<p>Please read through our Policies below, and feel free to reach out to our team if you have any questions.</p>
+</div>
+
+<div class="policies-page">
+<nav class="policy-toc">
+<div class="policy-cat">
+<div class="policy-cat-header">Behaviour and Community Policies</div>
+<div class="policy-cat-items">
+<a href="#policy-code-of-conduct">Code of Conduct</a>
+<a href="#policy-consent-liability">Consent to Participate in EAO Games and Release from Liability</a>
+<a href="#policy-support-manual">EAO Support Manual</a>
+<a href="#policy-health-care">Health and Care of Player Policy</a>
+<a href="#policy-age-restriction">Player Age Restriction</a>
+<a href="#policy-gender-identity">Gender Identity and Character Gender Policy</a>
+</div>
+</div>
+<div class="policy-cat">
+<div class="policy-cat-header">Business Policies</div>
+<div class="policy-cat-items">
+<a href="#policy-payment-refund">Payment and Refund Policy</a>
+<a href="#policy-donation">Donation Policy</a>
+<a href="#policy-franchising">Franchising Opportunities</a>
+<a href="#policy-business-vendor">Business and Vendor Policy</a>
+</div>
+</div>
+<div class="policy-cat">
+<div class="policy-cat-header">Game Management Policies</div>
+<div class="policy-cat-items">
+<a href="#policy-rule-change">Rule Change Policy and Method</a>
+<a href="#policy-remort-retirement">Remort, Retirement and Finishment Policy</a>
+<a href="#policy-noble-policy">Player Character Nobles - Privileges and Responsibilities</a>
+<a href="#policy-clerical-investment">Clerical Investment Deities: Losing Faith and Changing Deities</a>
+</div>
+</div></nav>
+
+<div class="policies-content">
+<div class="policy-category" id="policy-behaviour-and-community-policies">
+<h2>Behaviour and Community Policies</h2>
+<div class="policy-section" id="policy-code-of-conduct">
+<h3>Code of Conduct</h3>
+
+<p>All EAO policies are living documents and are subject to change. If you have concerns or suggestions for the improvement of any policies, please email <a href="mailto:Owners@fantasyalivelrp.com" rel="noopener" target="_blank">Owners@fantasyalivelrp.com</a>. </p>
+<p>UPDATED: 2023-09-27</p>
+<p><strong>FORWARD</strong></p>
+<p>Endless Adventures Ontario (EAO) strives to maintain a good atmosphere for Live Action Role-play (LARP) as well as to make all people feel welcome. Doing so provides an enjoyable and entertaining experience for everyone.</p>
+<p>In games run by EAO, which can be socially competitive and at times high adrenaline, it can be easy to come across misunderstandings and disagreements. This Code of Conduct outlines what is expected at EAO events and on any EAO public or private forums such as the website, Facebook pages/groups or Discord.</p>
+<p>Please play smart and be respectful of each other.</p>
+<p><strong>INTRODUCTION</strong></p>
+<p>EAO aims to create an in-game experience that is filled with danger and challenges both physical and social. This allows players to explore both positive and negative aspects of society in a safe atmosphere. Out of game, however, we expect our community to maintain an environment free of harassment or behaviour that causes other players to feel unsafe or unwelcome.</p>
+<p>The following Code of Conduct is not meant to be exhaustive and may be modified by EAO at any time. Participating in any EAO events, functions, or forums indicates agreement to this Code of Conduct. Breaking the Code of Conduct can result in corrective action up to and including termination of your ability to play or participate.</p>
+<p><strong>PLAYING FOR THE ENJOYMENT OF ALL</strong></p>
+<p>All EAO games are designed to bring people together to collaboratively build a game world that everyone can join in and enjoy. It is the responsibility of all players of EAO games, from Owners and Plot, to Cast and Characters, to maintain this enjoyable world. When playing EAO games, everyone should be working to share in the fun, include people in the excitement, and work together to solve the problems. No one player, or one group of players', enjoyment may be made a priority over another. The only way these games can be the best they can be is when all the players work together to see that everyone has fun. Below are specific methods to accomplish this goal. </p>
+<p><strong>VIOLENCE, DISCRIMINATION &amp; HARASSMENT</strong></p>
+<p>Conduct that ought to have been reasonably known to be incorporating abusive, overly harsh, consistently derogatory, insulting, or intentionally demeaning behaviour will not be tolerated by EAO. Out of Character physical abuse, discrimination, or verbal abuse will also not be accepted. Such behaviour will lead to corrective action up to and including the individual being asked to leave EAO events either temporarily or permanently, or the involvement of law enforcement should the behaviour violate the law. Individuals removed from game will only be allowed to return to EAO events at the discretion of the game Owner and Directors. This policy applies to everyone in the EAO community: Players, Marshals, Plot, Cast and Volunteers, and Staff.</p>
+<p>The policy is guided by the Ontario Human Rights Code. This Code defines harassment as: "engaging in a course of vexatious comment or conduct that is known or ought to be known to be unwelcome." We all have some common sense around what are appropriate comments for public consumption and what aren't. The Code also prohibits discrimination and harassment on the basis of age, race, creed, gender, and sexual orientation.</p>
+<p><strong>Reporting</strong>: If you are the target of violence, discrimination or harassment by a Player, Cast member, Plot Member, Marshall, or Staff of EAO please speak to the game Owner, Director or an EAO Support Team member. If the incident is of a criminal nature, ensure that you also report it to the police. Complaints can also be made through a third party, but will need to be confirmed with the complainant as well as those involved before corrective action can be taken.</p>
+<p>All complaints will be heard and investigated with as much sensitivity and care as possible as per the EAO Support Manual. EAO is intended to be a welcoming place for all so it is our hope that no one will ever feel as though they cannot speak to one of the representatives listed.</p>
+<p><strong>DRUGS &amp; ALCOHOL</strong></p>
+<p>EAO does not allow alcohol or any illegal drugs or any player under the influence at its events. This includes in the parking lot or anywhere on the premises, even before the game begins or after it ends. EAO will remove any member suspected of being intoxicated from game. Further infractions by an individual will lead to more severe corrective action.</p>
+<p>Any illegal drugs found will be immediately reported to the police and that player will be removed from the game.</p>
+<p><strong>PLAYER, STAFF, PLOT &amp; CAST EXPECTATIONS</strong></p>
+<ol>
+<li>Communicate. Everyone has different comfort levels. Here are a few ways you can communicate with your fellow players to ensure everyone's enjoyment:</li>
+</ol>
+<ul>
+<li>Check In:
+<ul>
+<li> If you're not sure if your behaviour is welcome, just ask. If you feel unsure after an emotionally charged event or discussion has happened in game feel free to speak to the other people involved. Check in with the person by putting your hand or weapon on your head or don a yellow headband to signify that you're asking out of game. If you are uncomfortable with someone's behaviour towards you ask them to desist with the offending behaviour. If it persists, report it to a game Owner, Director or an EAO Support Team member. </li>
+</ul>
+</li>
+<li>Exit Scene:
+<ul>
+<li>Any Player may at any time signify themselves as OOG (out-of-game) and declare "Exit Scene" to immediately leave the current situation they are in if they feel unsafe for OOG reasons. When declaring this, the player must then immediately leave that area where that portion of the game is occurring. Should the Player require assistance from another, that Player may also make the same actions and calls to provide that assistance. Any Players using this call must remain OOG until they can speak to an Owner to ensure the player is safe and healthy. The player may then return to the game in another location based on the Owner and Player's discretion. No Player will ever be penalized for using this call unless it is deemed to be abusing the call by an Owner.</li>
+</ul>
+</li>
+<li>Change of Scene Request:
+<ul>
+<li>Any Player may request of any Plot, Red-Light, Owner or other Player that the scene in which they are in be altered to accommodate OOG mental or physical health concerns. This may be done through putting your hand or weapon on your head or don a yellow headband to signify that you're asking out of game and making a simple statement to the other Player such as "I am not comfortable OOG with the current scene. Can we please skip this part/not discuss this idea/not require these actions/etc." When possible, a card with this option will be made available at Logistics for any Player to take and produce to another Player instead of the initial statement. No Player is ever required to provide a reason for this request. When this Change of Scene Request is made, the other Player(s) involved must comply and adjust the current scene to comply. No Player will ever be penalized for using this call unless it is deemed to be abusing the call by an Owner.</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>Show respect toward all property and possessions. Damage or theft of Out of Game property will not be tolerated.</li>
+</ol>
+<p>III. EAO games are highly geared towards cooperative Player VS Environment gameplay. While Player VS Player, which can be defined as actions taken against another Character that would significantly and negatively affect that character's story arc, does take place it should only happen due to in-game conflict and not be driven by Out of Game motivations. For this reasoning, Plot or the game Owner may question a player at any point on their character's motivation for targeting another player.</p>
+<ol>
+<li>Due to the sensitive and controversial nature of the subject, EAO will not employ themes or story lines that depict acts of simulated or story-related sexual violence. Scenes of sexual violence between players are strictly prohibited, and jokes about sexual violence are neither amusing nor appropriate. Any Player including these themes in their role play will be warned by Plot, Marshals, or the Owner, and may lead to corrective action up to a permanent ban from the game.</li>
+</ol>
+<ol>
+<li>Meta-gaming. Use of out of game knowledge to your own advantage or to affect in game actions is meta-gaming. Some examples of this would be looting a Player to take special items that you know they possess through out of game knowledge or targeting them for death or attack because you do not personally like them. Meta-gaming hurts the game and constitutes cheating.</li>
+</ol>
+<ol>
+<li>If you have to go out of game, you must signify that you are out of game either by placing your hand or weapon on the top of your head or by wearing a yellow headband. Going out of game should only be done during events for good reasons, such as to use the washroom, ensure that players are safe and uninjured, if a player is feeling unwell out of game, to step away from a scene that is causing the player distress, to stop and request a change to a scene due to OOG mental or physical health reasons, to ask a question that is immediately pertinent, or to tend to and ensure the safety of a campfire. Examples of improper reasons for going out of game are: avoiding a situation that is detrimental to your character, to listen to conversations that would not be had while your character was present in game, or to discuss out of game topics not relevant to the current in game situation. Going out of game for improper reasons constitutes cheating.</li>
+</ol>
+<p>VII. Be a good sport. It is expected that in the course of play, a character may achieve triumphs or suffer reversals. While it is natural to enjoy success or dislike losses, it is expected of all participants that they be gracious in victory or defeat, at least out of character. At the end of the day it is a game played with many other like-minded individuals, and either victory OR loss may lead to interesting plot and character development down the line. Failure to abide by the boundaries of good sportsmanship may lead to a warning from Marshals or the game Owner.</p>
+<p><strong>Plot, Marshals, Cast &amp; Volunteer Guidelines</strong></p>
+<p>VIII. Be trustworthy. It is important as Plot, Marshals and Cast members to keep a level of trust with Players in regards to skills, abilities, and information. Information obtained about a Player should not be discussed or shared with other Players or Cast. Keep information obtained while Casting, or through your position as Plot or a Marshal out of game when you play your personal character. Failure to do so constitutes meta-gaming.</p>
+<ol>
+<li>Help to preserve the in-game atmosphere. It can be as simple as throwing on a tabard or a few simple costume items to go out as a farmer when going to the inn for meals instead of sitting in the tavern out of game. It creates a richer environment for Players and assists with game immersion. </li>
+</ol>
+<ol>
+<li>Plot and Cast are here to entertain the Players while also enjoying themselves. Don't make encounters more deadly than intended. Death is part of the game but not the intent of every monster or villain.</li>
+</ol>
+<ol>
+<li>Marshals, Plot members and Staff act as the face of the game and organization behind the EAO community. They are expected to be leaders in upholding the EAO Code of Conduct and treating those in the EAO community with respect during all EAO related interactions. This does not mean that they are denied the ability to share their opinion so long as it's done in a respectful and appropriate manner. Marshals, Plot members or Staff acting contrary to this Code will be removed from their position at EAO.</li>
+</ol>
+<p>XII. Cast members are responsible for listening to and following the directions of the Plot Team. Plot members are given their role so that they can provide interesting and challenging situations for players and if a Cast member chooses to not follow the Plot member's directions, then the game will suffer. Cast who fail to follow Plot member's directions are considered to be cheating and will be dismissed from Casting.</p>
+<p><strong>ENDLESS ADVENTURES WEBSITE AND ONLINE SPACES</strong></p>
+<p>Online interactions on the EAO public forums or other online spaces can become bullying or harassing if they're persistent and unwanted. While we expect debate to happen online, it is expected to be conducted in a civil manner and with the same courtesy and manners as you would in person.</p>
+<p>Post material under the appropriate designations. For example, in-game material for the Fantasy Alive game such as role-play or in-game announcements should be posted on the "Fantasy Alive: In Game" page. Do not deliberately share material on out-of-game forum(s) that would reveal the secrets of your character or other players' characters. Doing so constitutes meta-gaming. Any group or individual wishing to create public or private web spaces associated with EAO games must be approved by the Owner and adhere to this Code of Conduct. These spaces must also allow the game Owner or a representative chosen by the Owner to have access to these web spaces.</p>
+<p>The game Owner (or Moderators designated by the Owners) reserve(s) the right to remove any post(s) and/or limit or remove comments from EAO online spaces based on their discretion. Reasons for this could be, but are not limited to: they are unrelated to the LARP and EAO community, they violate the Code of Conduct, or they are seen to cause harm to EAO.</p>
+<p>If you're joking around and people tell you to stop and you don't, you are in the wrong. We request that you give someone a warning in regards to being offended. Therefore, if you find a post on an EAO online space offensive please let the poster know in a polite manner. If they persist on the topic, contact the game Owner, Director or an EAO Support Team member and corrective action will be taken.</p>
+<p><strong>Tagging Photos</strong>: It is EAO's privacy policy that when posting photos or tagging photos on the EAO online spaces that you tag only yourself.</p>
+<p><strong>CORRECTIVE ACTION</strong></p>
+<p>It's easy to misunderstand each other at times. While we hope that players can communicate and self-correct poor behaviour and misunderstandings, EAO understands there are times when intervention is needed. In such cases, please report any infractions against the Code of Conduct to the game Owners, Directors or an EAO Support Team member. While we will strive to keep those involved in a conflict informed, please do not expect immediate action. It takes time to properly assess the situation and speak with everyone who is involved. We must allow all involved individuals to tell their side in order to come to an educated conclusion. In the case of a misunderstanding, staff can take steps to moderate discussion between both parties to try and come to a solution.</p>
+<p><strong>Minor Infractions</strong></p>
+<p>Minor infractions include, but are not limited to: a participant being belligerent out of game or in-game after they've been asked to stop, being overly forward when someone has asked them not to be, purposefully ruining the enjoyment of other players, cheating, or acting generally disruptive at game. Minor infractions will be handled with a verbal warning and can also lead to a player's XP being docked. Repeated minor infractions will lead to a written warning. If infractions continue after a verbal and written warning the player will be suspended from game. If their behaviour does not correct after being suspended, a player may be banned from participating in future EAO events and on the EAO online spaces. </p>
+<p><strong>Major Infractions</strong></p>
+<p>Major infractions include, but may not be limited to: assault, harassment, sexual misconduct, theft, or destruction of property. Major infractions constitute basis for dismissal from game, suspension, or banning.</p>
+<p><strong>INFRACTIONS OUTSIDE OF ENDLESS ADVENTURES</strong></p>
+<p>EAO will take into consideration and listen to any concerns in regards to conflict from out of game interactions entering into game. However, EAO is unable to police conflicts outside of EAO events or outside of its affiliated online spaces. If you are being harassed, discriminated against, or threatened on Facebook we suggest that you contact Facebook and report the misconduct. If the offense is of a criminal or threatening nature contact the police. Should Major Infractions occur outside of EAO, the game Owner(s) reserve the right to take corrective action.</p>
+<p><strong>PUBLIC DISPLAYS OF INTIMACY AND UNDRESS</strong></p>
+<p>In order to protect its members, Endless Adventures Ontario does not permit displays of sexual intimacy or undress in public spaces at its events. EAO wants to ensure that players are able to provide their consent for interactions. Due to the fact that not everyone may have given consent to what they might witness at game at all times, we have policies to ensure the safety and comfort of all players, including any individuals who may be underage on site. This covers all public spaces on site for the entire event, including before the game begins and after it ends.</p>
+<p>The following actions constitute displays of sexual intimacy or undress:</p>
+<ul>
+<li>Failure to wear a minimum of at least undergarments (i.e. what would constitute 'swimwear' or greater is required in public spaces) for more than the very brief moments you are changing clothing. You may also change your clothing freely in the washrooms. </li>
+<li>Engaging in sexual relations of any sort (e.g., touching the intimate parts of another person's or your own body for the purpose of arousing or gratifying sexual desire) </li>
+</ul>
+<p>All areas on the site are considered to be public spaces so these rules are applicable to them. This includes inside parked cars or tents, as they may be visible or audible to other players outside.</p>
+<p><strong>IN-GAME SPACE RULES AND ETIQUETTE</strong></p>
+<ul>
+<li>The main gathering space at any event is an in-game space. Please ensure that you remain in-character at all times for the enjoyment and immersion of the rest of the players. Please refrain from having out-of-game conversations or phone calls in in-game spaces, e.g., in the TO game in the tavern, including upstairs. </li>
+<li>Unless specifically allowed by the game (such as in Dormancy), Cell phones should not be in full display at game as they are not consistent with the in-game technology/time period. Please do not leave alarms on your phones that may wake up other players, especially if you may not be in your bunk when the alarm goes off. </li>
+<li>Do not record or take photos of anyone without their consent. Do not take photos in sleeping or private areas where individuals may be sleeping or changing their clothing. </li>
+<li>Any public sleeping areas are shared public spaces. Bunks are generally first-come, first-served. However, people with medical needs (e.g. a CPAP machine for sleep apnea) have priority for the bunks next to the outlets. </li>
+<li>Please refrain from using strongly scented products indoors out of respect for individuals with scent sensitivities. </li>
+<li>Please ensure you follow basic hygiene when you attend game (e.g. you have bathed recently). </li>
+<li>Within sleeping spaces, individuals are not permitted to touch any items that do not belong to them, unless they are accompanied by an Owner or given explicit permission by the player who owns the item.</li>
+<li>Sleeping spaces are considered an in-game space, please try to disguise or hide your non-period items. You also get XP for decorating your bunk in-game! </li>
+<li>Please try to be respectful about taking up space. Please try to keep your belongings within one bunk and potentially the floor space in front of it. Please ensure that your items are not impeding space for players to walk through the area. </li>
+<li>Please be respectful of other players' comfort and personal space. Do not stare at people who are changing or sleeping.</li>
+<li>If you are uncomfortable with changing in a public sleeping space, feel free to change in the bathrooms or to hang a sheet between bunks for privacy. </li>
+</ul>
+<p><strong>LINKS</strong></p>
+<p><strong>Ontario Human Rights Code</strong></p>
+<p><a href="http://www.ohrc.on.ca/en/guide-your-rights-and-responsibilities-under-human-rights-code-0" rel="noopener" target="_blank">http://www.ohrc.on.ca/en/guide-your-rights-and-responsibilities-under-human-rights-code-0</a> </p>
+<p><strong>Facebook - Statement of Rights and Responsibilities </strong></p>
+<p>https://www.facebook.com/legal/terms</p>
+<p><strong>Facebook - What to do if you're being bullied, harassed or attacked on Facebook.</strong></p>
+<p>https://www.facebook.com/help/116326365118751</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/code-of-conduct/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-consent-liability">
+<h3>Consent to Participate in EAO Games and Release from Liability</h3>
+
+<p>(Updated 2023-05-10)</p>
+<p>All players of Endless Adventures Games agree willingly to participate in the activities sponsored by the organization known as Endless Adventures Ontario Inc (EAO). EAO has rules that govern the activities. These rules include, but are not limited to: the specific game-system rulebook, all EAO and game-specific policies, all game manuals, any site-specific or time-specific rules, all supplemental rules published by EAO, and the instructions of EAO and game-specific staff.</p>
+<p>EAO makes no representation or claims as to the condition or safety of the land, structures or surroundings, whether owned or not owned, leased or rented, operated or maintained by EAO.</p>
+<p>I understand that all activities sponsored by EAO are <strong>voluntary </strong>and that I do not have to participate unless I choose to do so. I understand that these activities are potentially dangerous or harmful to my person and/or property. EAO does <strong>not </strong>provide any insurance coverage for my person or property. I acknowledge that I am responsible for my own safety, health care needs, and the protection of my property. </p>
+<p>In exchange for allowing me to participate in the events sponsored by EAO and any related activities, I agree that I am responsible for any and all actions and any and all ramifications of those actions that I undertake during participation in said events or activities. I also agree to release from liability, agree to indemnify, and agree to hold harmless, EAO and any EAO Shareholder, Director, officer or employee, EAO council member, agent, volunteer, or game-specific employee acting within the scope of their duties and/or responsibilities, for any injury, indiscretion or offence, be it physical, emotional, and/or psychological, to my person or for damage to my property. This release shall be binding upon myself, successors in interest and/or any person(s) suing on my behalf.</p>
+<p>I have read the statements in this document and agree to its terms and have voluntarily agreed to it. I understand that this document is complete unto itself and that any oral promises or representations made to me concerning this document and/or its terms are not binding upon EAO, its executive council, shareholders, officers, agents, board of directors, or employees.</p>
+<p>I understand that in no way is EAO to be held liable for any actions I may perform during my participation in EAO events. I acknowledge that I have been made aware that:</p>
+<ul>
+<li>Drugs and illegal substances are forbidden on site during any EAO event. Anyone violating this rule will be removed from site.</li>
+<li>No one is to grab, hold, strike or in any way physically harm another participant.</li>
+<li>Climbing of buildings, trees or other objects is not allowed. Nor may anyone crawl under any building, bridge, or structure.</li>
+<li>During Combat no one is to swing or hit another participant's head, neck or face area or hands.</li>
+<li>If at any time a participant calls "Zebra", all within earshot are to immediately stop what they are doing. A "Zebra" call may be used if someone is injured, lost, or about to encounter an unsafe situation whether intentionally or not.</li>
+<li>Any and all weapons used during an EAO event are to be of the boffer or foam latex variety, and must be inspected at the beginning of each event and approved by a Weapon Marshal for safety. Any weapon not inspected and approved is considered unsafe and is unusable.</li>
+<li>No running, combat, or similar activities is allowed: within 20ft of an operating fire pit, stove, pit, cliff, body of water or in any other unsafe location.</li>
+<li>Smoking, vaping or any other similar act is only allowed by those legally entitled to do so (those over the age of 19), and is only permitted in designated areas of the site in accordance with the site-specific rules.</li>
+<li>No one may run, move, travel, or participate in combat or similar in-game activities when in possession of a lit cigarette or other like product.</li>
+<li>Although food and drink may be provided, participants are not prohibited from bringing their own food and drink and are not required to utilize anything supplied. Any food allergies or dietary concerns are the responsibility of the participant. EAO is <strong>not </strong>responsible for any adverse reactions a participant may have to any food or drink supplied. Facilities available for food preparation and storage on the site are reserved for EAO usage only.</li>
+<li>EAO is <strong>not </strong>responsible for ensuring that participants take appropriate medications, eat or drink sufficient amounts for weather conditions or activity levels, nor is EAO responsible for any adverse effects, which may occur as a result of medical conditions.</li>
+<li>Fires are to be lit in designated, and approved fire pits only, and at no time may be left unattended.</li>
+<li>Townsfolk are people who are at the event for atmosphere and practical services only. Townsfolk are often merchants (of real wares not in-game items), tavern staff, performers, and other general townsfolk. These players are not active in the game and do not carry weapons or packets. At no time may these players participate in in-game or physical combat.</li>
+<li>Whenever you come across another player who is unarmed you are to treat them as Non-Combat characters. (See the game specific rulebook for rules on interacting with Non-Combat Characters.) EAO appreciates the presence of these individuals and encourages them to come and participate.</li>
+<li>All players are expected to behave in compliance with the Ontario Human Rights Code. Infractions won't be tolerated.</li>
+<li>EAO occasionally uses plot and story elements that may contain mature subject matter. All participants should be aware of this fact, and EAO takes no responsibility for any material that may be considered offensive.</li>
+<li>All combat, theft, damage, magical and spell descriptions, and religious ethos mentioned in EAO games are completely fictional. Never use these rules or articles in any action that is dangerous or unlawful.</li>
+<li>All alchemical and herbal creations used in EAO games are completely fictional, while some components may share names with actual substances; any and all formula and recipes are fictional. Never attempt to actually create these substances, as they will very likely be harmful.</li>
+<li>By participating in this game, I acknowledge that...
+<ul>
+<li>I am aware of the above safety rules, and agree to follow all such rules. I understand that if I am found violating any of these rules I will be punished as deemed appropriate by EAO officials. Should my actions result in a ban from playing EAO games, I forfeit any and all pre-paid fees, as well as any rights and privileges awarded me as a player of EAO games. EAO is not liable or responsible for any injuries, illnesses, or damage/loss of property I may sustain or that I may cause.</li>
+<li>I have fully read and understand the Health and Care of Player Policy and agree to abide by it at all EAO events.</li>
+</ul>
+</li>
+</ul>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/consent-to-participate-in-eao-games-and-release-from-liability/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-support-manual">
+<h3>EAO Support Manual</h3>
+
+<h4>Purpose</h4>
+<p>First and foremost is to promote all EAO games in a positive light in all public actions and words. Provide for the community of all EAO games a friendly and helpful access point to bring any issues forward and assist the player, as needed, in bringing these issues to the proper channels for solutions.</p>
+<h4>Goal</h4>
+<p>Provide guidance for all EAO game Players who are experiencing an issue which lessens their enjoyment of the game and in doing so, develop and maintain a friendly and welcoming community for all EAO game Players.</p>
+<h4>Request for Support </h4>
+<p><strong>Should a situation you wish to request support for arises, please reach out to an EAO Support Team member as soon as possible!</strong></p>
+<p>Generally, requests can be settled much easier if they are brought to the attention of the EAO Support Team member immediately. They are prepared to take time during a game, or when they can between games, to assist our players.</p>
+<p><strong>All requests for support brought to us will be taken seriously!</strong></p>
+<h5>In-between event requests:</h5>
+<p>Requests for support may be submitted by either of these two methods:</p>
+<ul>
+<li>Privately message an Owner.</li>
+</ul>
+<p>Owners can be reached through either Facebook Messenger or via email: <a href="mailto:Owners@fantasyalivelrp.com" rel="noopener" target="_blank">Owners@fantasyalivelrp.com</a> </p>
+<ul>
+<li>Email the EAO Support Team at <a href="mailto:EAOSupport@endlessadventures.ca" rel="noopener" target="_blank">EAOSupport@endlessadventures.ca</a> </li>
+</ul>
+<p>Please note that if you choose to email, one selected EAO Support Team member and the Directors of EAO will be able to view the initial request. From there, a specific EAO Support Team member will be assigned to your request and take over the discussion of it privately.</p>
+<ul>
+<li>Privately message an EAO Support Team member</li>
+</ul>
+<p>While reaching out to a member of the EAO Support Team privately is allowed, please be aware that depending on the situation, a more formal method of resolving any requests may be applied.</p>
+<p>In this initial request for support, we ask that you provide only this information:</p>
+<ol>
+<li>Your name.</li>
+<li>Explicitly state that you would like to submit a request for support. </li>
+<li>Provide the method in which you would prefer to be contacted about this issue (i.e. Messenger chat, voice or video call, email, etc.) * Please note that Owners and/or an EAO Support Team member may request additional forms of contact to better provide assistance.</li>
+<li>Optionally, you may request a specific EAO Support Team member to take on the request for support. That EAO Support Team member may or may not accept this based on their and the Owner's discretion.</li>
+</ol>
+<p>After the initial request has been submitted, please allow 2-7 days for a response. At that time the EAO Support Team member and/or Owner will discuss the matter with the Player.</p>
+<h5>During an Event requests:</h5>
+<p>During an event, you may approach any Owner or Team member(s) and request a chance to speak to them out-of-game. The Owner or Team member(s) will extract themselves from their current situation as soon as possible and will bring the requester to a quiet place to talk out-of-game.</p>
+<p>If you speak to the Team member, these follow-up type questions will be asked. This will allow us to better support you.</p>
+<p>Would you like me to go with you to speak to the Owners or a Player about your concern?</p>
+<p>Would you like me to speak to the EAO Support Team and Owners about your concern?</p>
+<p>Would you like to be anonymous or may I use your name to speak to the EAO Support Team and Owners?</p>
+<p>Are there member(s) of the EAO Support Team you do not want involved? </p>
+<p>The first action of the EAO Support Team member approached with a support request will be to assess the situation and take any necessary actions to resolve immediate concerns. Players who are addressed by the EAO Support Team member during this time, whether they are bringing the issue forward or are players involved in the issue, are required to defer to the EAO Support Team member until such time as the immediate concerns are resolved. This deference may involve separation from the other players involved in the issue, stepping out-of-game and aside for a private talk, escorting a player or players directly to an Owner for a discussion or any other actions the EAO Support Team member believes is necessary to assist with immediate concerns.</p>
+<p>At the Team member's discretion, they may offer to act as a support agent to the player making the request. In this case, the Team member will assist the player in working to resolve their request on their own. Should this method not resolve the request, or the EAO Support Team member believes further action is needed, the issue must then be brought to the attention of the Owners, if not brought directly to them at the start. The Owners will then decide how to handle the issue. Based on the issue, these actions can range from a quick chat with the player(s) involved, to a full investigation of the incident, to taking the issue to the proper legal authorities.</p>
+<p>The Directors of EAO and Owners of EAO Games will generally decide on their actions based on consultations with an EAO Support Team member, or the entire Team. Though in some circumstances, this consultation may not be done depending on the sensitivity of the issue, the player(s) requests for anonymity or other factors. Players bringing forth issues may also request that certain members of the EAO Support Team be not consulted on the issue, and this request will always be accepted.</p>
+<p>As necessary, EAO will apply resources to ensure the issue is handled properly and resolved appropriately.</p>
+<h4>Privacy and EAO Support Team</h4>
+<p>We take privacy very seriously. All information about a request will be kept confidential by the EAO Support Team member and Owners. This includes keeping names of both requester and any players involved in the request private as well as all details provided during the private discussion. This includes keeping confidential any current support requests or any past requests or issues. There is no time-frame at which the information about an EAO Support request for support will be available to the public, so all information will be kept private indefinitely.</p>
+<p>Each request made will generally include 1 EAO Support Team member and the Owners. In some cases the Owners may ask the Player requesting support to include one or more EAO Support Team member or a DIrector of EAO, but will only do so at the approval of the Player. </p>
+<p>Please note all EAO Support requests for support are discussed with the Owners. This is necessary for them to be able to keep records and continuity. You can remain anonymous to the Owners, in most cases. If you have asked to be anonymous and the EAO Support Team member or Owner feels they need to know who you are, the EAO Support Team member will speak to you first and have a discussion around why this may be necessary (ex: legal ramification or a discussion with another player and you is the next possible step in resolving the request.) </p>
+<h4>Goal of Support Request</h4>
+<p>Whether the request for support is between or during an event, the final question that will be asked of you is: </p>
+<p>What do you hope to accomplish from your request for support? </p>
+<p>Answers to this question can be whatever the Player feels. For example, "I don't currently feel comfortable because of &lt;THIS&gt; reason at the game and my goal would be to feel comfortable again" or "I feel that this &lt;THING&gt; is making it hard for me to play the game and I would like it reviewed and possibly changed." </p>
+<p>Our Goal as the EAO Support Team is to support players while also making sure all requests have a clear goal of what that player wants to accomplish. This is done so that we limit confusion or misunderstanding of the player's request.</p>
+<h4>Documentation</h4>
+<p>Regardless of the issue brought forward, or the extent of the Owner's actions, all issues will be documented. </p>
+<p>The details of the issue will be logged in official EAO records, including all information brought forward as part of the issue. This includes notes on verbal meetings, exact unaltered text from written testimonies, recorded voice or video meetings and any other information which arises during the handling of an issue.</p>
+<p>When documenting an issue, the EAO Support Team will aim to answer these questions:</p>
+<ul>
+<li>Who - Who is the situation about? Who was involved? Who knows about it or witnessed it happen?</li>
+<li>What - What happened? What were they doing at the time? What may have caused the situation?</li>
+<li>When - When did the situation take place? Has it happened on multiple occasions?</li>
+<li>Where - Where did it happen?</li>
+<li>How - How are they feeling after the incident? How can you help them? How would they like to see it resolved?</li>
+</ul>
+<p>Documentation of past issues will be used to determine the results of a support request, with each documented breach of the Code of Conduct or other negative actions used to cause more strict corrective actions.</p>
+<h4>Interviews/Investigation</h4>
+<p>For some support requests, the Owners may decide that the issue requires an investigation to give the necessary information to make a proper and fair decision to settle the issue. These investigations can involve in-person, video, voice or text interviews with any player related to the issue and/or requests for information, official documents or any other items could be used for proof of a claim.</p>
+<p>All participation in an EAO investigation is voluntary and any player may elect to leave the process at any time. Any legal/Government/personal documents or other personal items shown to EAO as part of an investigation within the EAO organization will not be held for any length of time or copies made for documentation.</p>
+<p>Interviews or other aspects of an investigation will be performed by the Owners. A member of the EAO Support Team may be empowered by the Owners to take on aspects of an investigation but may only do so if approved by the Owners.</p>
+<p>Investigations may require multiple interviews or meetings. All aspects of an investigation are voluntary but in order to obtain all the information we require to make a proper judgment, we request that all players agree to participate.</p>
+<h4>Time-frame of Investigation</h4>
+<p>Investigations into issues will be completed in as quick a time as possible while still ensuring all the necessary information is gathered to make a proper decision. </p>
+<p>Issues brought to the EAO Support Team immediately following an incident at an in-person game will be attempted to be settled at that time while all players involved are available. </p>
+<p>Issues brought to the EAO Support Team by other methods will likely take longer to settle as contacting all players involved can take time. </p>
+<p>Investigations may take some time but Team members will perform check-ins and keep players apprised of any implementations or decisions.</p>
+<h4>Decisions and Resolutions</h4>
+<p>When possible, the EAO Support Team member will work with all players involved in a support request to come to a solution that is acceptable to all. This method of resolution will be attempted first in all but the most severe cases. </p>
+<p>If a solution both parties can agree on cannot be found, or an issue is found to require corrective action under the Code of Conduct (<a href="https://fantasyalivelrp.com/pages/code-of-conduct" rel="noopener" target="_blank">https://fantasyalivelrp.com/pages/code-of-conduct</a>) then the decision on the issue is made solely by the Owners. This decision may be made while in consultation with the EAO Support Team, but the final word is provided by the Owners.</p>
+<p>A decision on an issue brought to the players by the Owners is the final word on the issue. All players must abide by that decision and accept any requirements laid out in that decision.</p>
+<p>Decisions will be communicated to the players involved in the issue in as much detail as can be given while still maintaining the privacy of all players involved. All decisions will be fully recorded in the documentation. </p>
+<h4>Aftermath</h4>
+<p>Following the resolution of a support request, all players are required to abide by the details of the resolution or decision. </p>
+<p>Any player failing to abide by the decision of the Owners will be subject to corrective actions based on the severity of the breach.</p>
+<p>Should new information arise concerning an issue, then a player may bring that information to the EAO Support Team member. This information may reopen an investigation or change a decision made by the Owners, but only at the discretion of the Owners in consultation with the EAO Support Team member.</p>
+<p>An Owner or an EAO Support Team member will get back to any player involved in the support request to inform them that the request has been fulfilled and provide what information is acceptable while still maintaining the privacy and safety of the players and the game.</p>
+<h4>EAO Support Team member Role</h4>
+<p>An EAO Support Team member's role is to support the Owners in handling player support requests and promote the friendly positive community of all EAO games. They act as advisors to the Owners to provide alternative perspectives and useful ideas. Team members are empowered to provide support to players who request assistance in resolving their own requests. They will sometimes be empowered by the Owners to perform interviews, investigations or mediation on some issues, but may not perform any investigation or interviews without express permission from the Owners. EAO Support Team members may never give the final decision on any issue.</p>
+<p>EAO Support Team members are a voluntary position and may choose to assist with an issue or not at their discretion. The Owners may also choose to remove a Team member from the discussion on a support request at their discretion. This removal may be done with or without a reason given to the Team member at the Owner's discretion. </p>
+<p>EAO Support Team members are required to conduct themselves with care and compassion while handling a support request. When empowered to investigate, the EAO Support Team member must respect the position of authority they have been granted and act only in ways which uphold EAO's ideals of a welcoming and respectful community. </p>
+<p>EAO Support Team members receiving a support request which is part of another aspect of an EAO game, such as Rules or Plot, should direct the player to the proper channel to express their issue. </p>
+<h4><strong>EAO Support Team</strong></h4>
+<p>This position is responsible for providing support for players and all positions within EAO games. They will generally assist players by bringing their concerns to the proper person to be handled, but they may also remain within the request for support if requested by any of the parties involved. This position works under the supervision of the Owners and Directors of EAO.</p>
+<p><strong>Specific Responsibilities</strong></p>
+<ul>
+<li>Be available during EAO game events for players to speak to for support requests.</li>
+<li>Be available between EAO game events to assist players and Position holders.</li>
+<li>Assist players with reporting issues or requests for assistance to Owners.</li>
+<li>Following completion of a Support Case, they must take one month of break from all responsibilities of the Position. Returning to the Team at the discretion of the Support Team member and the EAO Directors.</li>
+<li>Maintain the privacy of any player approaching the EAO Support Team member if so requested.</li>
+<li>Work directly with any players or Position to assist in resolving requests for support.</li>
+<li>Assist in the timely response to emails sent to the EAO Support Team email.</li>
+<li>Ensure that all character, player, investigation or other information collected is kept private and only provided at the discretion of an Owner.</li>
+<li>May be authorised to do investigations for Owners and/or EAO Directors at their request and the agreement of the EAO Support Team member. </li>
+<li>EAO Support Team members are NOT authorised to do any punishments or corrective actions as these must be decided and laid down by an Owner.</li>
+<li>Formal training will be provided by EAO to assist in the Position. </li>
+</ul>
+<p><strong>Term of Position</strong></p>
+<ul>
+<li>3 year term with option for renewal.</li>
+<li>May be removed from the Position at the EAO Support Team member's request or at the discretion of the EAO Directors.</li>
+</ul>
+<p><strong>Application Requirements</strong></p>
+<ul>
+<li>Minimum 6 months of event attendance</li>
+<li>Proven record of fairness and sensitivity to Player's needs</li>
+<li>Completion of formal training courses equivalent or provided by EAO Directors.</li>
+<li>A non-disclosure agreement must be agreed upon and signed.</li>
+</ul>
+<p><strong>Expected Time Spent each month on Position:</strong></p>
+<ul>
+<li>Between Events: 4h</li>
+<li>During each Event: 1.5h</li>
+</ul>
+<p><strong>Compensation</strong></p>
+<ul>
+<li>150 OC per event attended.</li>
+<li>1 Free event for each Case resolved to the satisfaction of the EAO Consultant and the Owner(s).</li>
+</ul>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/endless-adventures-ontario-support-team-manual/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-health-care">
+<h3>Health and Care of Player Policy</h3>
+
+<p>Updated: 2023-05-20</p>
+<p><strong>NOTE: This is a living document, meaning that this document will be updated and changed as new information is received and considered. Should you have any suggestions for this policy, please provide such input to: </strong><a href="mailto:owners@fantasyalivelrp.com" rel="noopener" target="_blank"><strong>owners@fantasyalivelrp.com</strong></a><strong> </strong></p>
+<p>Endless Adventures endeavours to make a game that is fun and safe for all involved. But with the physicality and the ever-present possibility of accidents, EAO also prepares to handle any injuries that may arise. Here are the ways in which we work to keep the game safe.</p>
+<p>The procedures and guidelines outlined in this document will be followed by all EAO games and all official events. Individual games or events may have additional aspects put in place to ensure the safety or health of the players for that game. These additional aspects will be made available to the Players of that game in whatever method deemed best by that game's Owner.</p>
+<h4>Zebra Call</h4>
+<p>Within the Rules of all EAO games is a single word call of "Zebra". This is the call to pause the game for two reasons: </p>
+<p>The first is for a Plot Member to describe or act out a certain aspect of the story. Once this part is completed the call of "Lay on" is done and the game continues.</p>
+<p>The second is to ensure that at any time the game can be halted to care for any player. This pause in the game lasts as long as is necessary to ensure the safety and well-being of all players, whether that takes only a few minutes to ensure that everyone is alright or an hour while an injured player is given proper medical care.</p>
+<h4>First Aid Kit</h4>
+<p>EAO works to keep properly stocked first aid kit(s) readily accessible at events. The location of the First Aid Kit(s) will be announced at the beginning of each event to make sure all participants are aware.</p>
+<h4>Emergency Care</h4>
+<p>In the case of a serious injury, an Owner or an appropriate and responsible representative for EAO will accompany the injured person to an emergency medical care facility. The Owner or representative will be there to advocate for the injured person and ensure they receive proper care until the emergency has passed or is replaced by a family member or guardian of the injured player.</p>
+<h4>Emergency Procedures</h4>
+<p>Each Endless Adventure game will draw up and make available to all players their emergency procedures. This document will provide instructions on what to do in case of a fire, medical emergency or other serious incident. We request that all players familiarize themselves with that information to ensure the safety of all players in the unlikely situation one of these emergencies occur.</p>
+<h5></h5>
+<h4>Procedures and Methods to Reduce Player Illness</h4>
+<p>The following outlines the actions EAO games will take, and what EAO recommends Players do to ensure the safety and health of all people attending an Endless Adventures Ontario (EAO) games, event or other official gathering.</p>
+<p>The following will be updated as needed based on government and health care professional requirements or advice. Any updates to this document will be announced publicly on official EAO spaces.</p>
+<h5>Requirement to comply</h5>
+<p>All persons attending an EAO event must comply with the rules and guidelines provided in this document. Any person or people who fail to comply will be reminded for minor infractions, warned only once for multiple minor infractions or a moderate one, or immediately removed from the event for an infraction after a warning or a major infraction. All decisions on compliance are at the discretion of the Owners. </p>
+<p>All people attending an EAO event will be required to acknowledge that they have read this document in full and understand the requirements. This can be done through an online Log form or declared to the Owner or Health Officer screening at the entrance of an event.</p>
+<h5>Screening</h5>
+<p>All people attending an EAO event should check themselves for signs of illness (coughing, sore throat, fever, etc.) <strong>BEFORE</strong> travelling to the event. One method of doing this check is through the COVID-19 Self-Assessment which can be done through the government of Ontario's website here: <a href="https://covid-19.ontario.ca/self-assessment/" rel="noopener" target="_blank">https://covid-19.ontario.ca/self-assessment/</a> Should the person have any symptoms of an illness or assess as needing to get tested and/or self-isolate, then they must not go to the event. </p>
+<p>Note that Players with symptoms to issues which have been deemed as not contagious (preferably by a medical professional) may attend EAO events. This includes issues such as seasonal allergies. It is the Player's responsibility to prove the symptoms are not contagious and the final decision on the Player's attendance at an event is at the discretion of the Owner.</p>
+<p>Should a person develop any symptoms of illness during an event, they should immediately remove themselves from the game site. If a person does not do so, an Owner will have them removed.</p>
+<p>If you have prepaid for an event and cannot attend due to illness, a refund or transferring of the payment to a future event is allowed. Please contact Logistics with your request no later than one week after the event to ensure this is done. If no request for a refund or transfer is received within one week of the end of the event, then the payment will be applied to that event and all normal XP and log decisions will be applied.</p>
+<p>EAO will not be posting a health screener at the entrance of events. All Players are required to self-regulate for illness for the sake of the whole community.</p>
+<h5>Vaccination Requirements</h5>
+<p>EAO does not require any Player attending events to have any vaccinations. All government required ones are highly recommended for any person for their own health, but EAO will not request proof of any vaccination. </p>
+<p>EAO does highly recommend Players get all vaccines available by the government health agencies in your area for the sake of themselves and the community.</p>
+<h5>Sleeping Spaces</h5>
+<p>All Players are recommended to sleep in their own tents or cabins when possible. Communal sleeping spaces are available for those that require them, but all Players choosing to sleep in those areas understand the risk of transmission of illness. EAO will take actions to mitigate potential illness as outlined later in this document.</p>
+<h5>Wearing of personal protective equipment</h5>
+<p>EAO does not require the wearing of any personal protective equipment such as face masks during EAO events except in any specific cases listed below. Players are welcome to wear them during any time while at events however they see fit and EAO will ensure that all Players respect this decision. Any incident which causes a Player to feel uncomfortable or bullied for their decision concerning personal protective equipment may be cause for corrective action at the Owner's discretion.</p>
+<p>While EAO does not require masks during events, they are recommended for Players spending time in indoor common areas and during any close contact with other Players. Though all recommendations received from medical professionals has been that combat outside is not an issue for illness transmission, so EAO allows Players to decide to mask during combat.</p>
+<p>If a Player wishes to wear a mask during any or all parts of an EAO event they are requested to bring their own mask(s). Some single-use masks will be made available by EAO for those who require them.</p>
+<h5><strong>Combat</strong></h5>
+<p>Combat encounters must follow all rules within the Rulebook with these additional requirements.</p>
+<ul>
+<li>When a character is required to fall down, such as when they take a Sleep effect or are brought to zero or -1 LP, they may choose to remove themselves from the area they are in if they are concerned about the proximity of others. This movement can be IG RP, or OOG movement based on the Player's discretion, and during this movement all counts they may need to perform are paused until they reach a safe location, at which time the counts begin again.</li>
+<li>Any Player may at any time signify themselves as OOG and declare "Exit Scene" to immediately leave the current situation they are in. When declaring this, the player must then immediately leave that area where that portion of the game is occurring. Should the Player require assistance from another, that Player may also make the same actions and calls to provide that assistance. Any Players using this call must remain OOG until they can speak to an Owner to ensure the player is safe and healthy. The player may then return to the game in another location based on the Owner and Player's discretion. No Player will ever be penalized for using this call unless it is deemed to be abusing the call by an Owner.</li>
+<li>All Players are asked to focus on greater dramatic combat. This will both enhance the combat to create a more fun game for all, but will also assist with maintaining control of everyone's bodies to lessen contact, injuries and improper weapon use.</li>
+<li>All Players are strongly urged to never exceed a ratio of 3-to-1 of opponents in combat. Should a skirmish reach a point of 3 combatants against one (or any multiple of that, such as 6 on 2, etc.) then all Players on the higher side should refrain from joining the skirmish. Players are also requested to ensure they are allowing others to join in combat encounters by taking turns in encounters, or cycling out during a fight. These techniques to encourage participation should be organized as much in-game as possible.</li>
+<li>For any skills or actions that normally require a touch, the player using the skill or action must confirm consent of the target to be touched. If consent is not given, the player may instead use a Weapon Marshal approved safe short-sized or hand-to-hand phys-rep or a thrown packet (if appropriate).</li>
+<li>Red-lights during any encounter may enforce these safety guidelines at their discretion. All Players are required to defer to their decisions at the time.</li>
+<li>Any Player entering combat without a mask and wishing to put one on may step aside or ask for a quick OOG moment while putting the mask on. A Zebra call may also be used to put the mask on. Once the Player is ready, combat may continue.</li>
+<li>If a situation arises where a Player is having a health issue or trouble breathing, whether in combat or not, the Player or one nearby may call a Zebra or help the Player to safe location. While the Player is in distress, they are considered out-of-game until they are confident that they can return to the game safely. This is in addition to the normal rules for Zebra calls and the Health and Safety policy found above.</li>
+<li>Any Player who refuses or fails to follow these guidelines may be subject to corrective action up to permanent ban from all EAO games.</li>
+</ul>
+<h5>Eating/Dining</h5>
+<p>EAO highly recommends and promotes Players to dine outside.</p>
+<p>Food provided by EAO will be done with the least amount of shared items as possible, and those shared items cleaned and disinfected appropriately. The Owners of each game will determine the safest method of providing food based on their kitchen and serving situation.</p>
+<p>All people attending an EAO event may only share food if they take reasonable precautions to ensure the safety of others. All Players have the right to refuse to provide or take food or drink from anyone else should they believe it is unsafe. It is recommended by EAO that Players provide food to only themselves and their household or use the game's meal plan (if available) to ensure safety. Any Players who choose to share food do so knowing and understanding the risks and may not hold EAO or any EAO representative responsible for any ill-effects. </p>
+<h5>EAO Procedures for mitigating illness</h5>
+<p>This section details the actions and preparation that EAO games will do in order to help lower the chances any Player gets sick during or as a result of an EAO event.</p>
+<h5><em>Cast Combat and Equipment</em></h5>
+<p>EAO will ensure that disposable masks will be made available to Cast and Plot Members.</p>
+<p>Makeup use will be limited and self applied whenever possible. Each Cast Member will use a different brush/makeup applier.</p>
+<p>Efforts will be made to provide outside options for Cast members for eating and resting purposes. </p>
+<h5><em>Food Preparation and Staff</em></h5>
+<p>All EAO staff preparing food must properly wash their hands before starting. While preparing food, they must wear a mask and remove or firmly secure any parts of clothing that could interfere or come in contact with food or preparation. </p>
+<h5><em>Other EAO Procedures</em></h5>
+<p>EAO will ensure that all hand-washing areas are properly stocked with soap, paper towels and trash bins.</p>
+<p>EAO will ensure that hand-sanitizer is available in easily accessible areas and is kept properly filled and working.</p>
+<p>EAO will ensure surfaces and common objects are cleaned and disinfected.</p>
+<p>EAO will ensure that any Player showing symptoms of illness are removed from events as soon as possible. Players are requested to assist the Owners by reporting illness or removing themselves from events when feeling unwell.</p>
+<p>EAO will work to ensure indoor areas have as much ventilation as possible during events. This can be done through opening windows and doors, providing fans and any other efforts deemed necessary. This will be done based on factors such as the weather to ensure Player comfort.</p>
+<p>EAO requires that Players not part of Cast refrain from entering into the designated Cast/Plot area (Cast Camp, Cabin or otherwise) unless given explicit permission by a Plot member. This allows Cast to prepare without interference.</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/health-and-care-of-player-policy/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-age-restriction">
+<h3>Player Age Restriction</h3>
+
+<p>(Updated 2024-02-22)</p>
+<p>EAO runs a game for a mature audience, so restricts all players to be of at least 18 years of age.</p>
+<p>With permission from the Owner of a game, anyone 16 or 17 may attend with a Guardian present. We do not allow anyone under the age of 16 to join the game with the exception of our family friendly Faire event.</p>
+<p>If you are under 18 years and wish to play, contact the game Owner in conjunction with your Guardian to request permission and fill out the proper paperwork.</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/endless-adventures-ontario-age-restriction/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-gender-identity">
+<h3>Gender Identity and Character Gender Policy</h3>
+
+<p>Endless Adventures understands that there is a wide variety of gender identification and what it means to individuals. At all EAO games, we take no official stance or require any player to identify themselves in any specific fashion.</p>
+<p>Players may create a Character with any gender identity they wish, so long as that identity is played respectfully. Should there be an issue concerning disrespectful actions, an Owner will enforce corrective actions as is reasonable up to removal of the offending character from the game and banning of the offending Player.</p>
+<p>Players who wish to change the gender identity of their Characters may do so after consulting with an Owner and expressing the reason for their desire. This change will only be disallowed if the reason is one which will breach the requirement of playing a gender identity respectfully.</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/gender-identity-and-character-gender-policy/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+</div>
+
+<div class="policy-category" id="policy-business-policies">
+<h2>Business Policies</h2>
+<div class="policy-section" id="policy-payment-refund">
+<h3>Payment and Refund Policy</h3>
+
+<h4>Event Payments</h4>
+<p>Endless Adventures LARPs require payment for each event or meal(s) before the event starts, or before the player joins in if arriving after the event has started. The exact payment amount may be subject to change but will be made clearly public on the EAO website and on postings put up at the event.</p>
+<p>Players participating in the event as a Character are required to pay for the event. This includes Non-Combat Characters and allowed Under-Age Players.</p>
+<p>Players participating as a Cast Member, Dedicated Member, Plot Member, Head of Plot or Plot Manager do not pay for the event, but are responsible for following all of the guidelines listed in the posted EAO Positions document. </p>
+<p>In the event a Player purchases an event and is unable to attend, the default will be for the payment to be used for the event with all of the associated benefits: XP granted, OC converted, skills purchased, downtime spent and any tags or coin owed to the Character saved for the next event attended.</p>
+<p>At the Player's request, an event payment may be transferred to a later event or refunded to the Player. This request must be submitted no later than 7 days after the final day of the event paid for but not attended or the default for the payment will be used with all of the associated benefits as mentioned above.</p>
+<ul>
+<li>An event payment transferred to a later event will be noted on the Player's database entry and held there until used by the Player.</li>
+<li>An event payment refund will be issued via e-transfer to an email address given by the Player (with a $1 service fee).</li>
+</ul>
+<p>Event payments will not be transferred or refunded after an event has ended that the Player attended except for cases such as:</p>
+<ul>
+<li>The Player arrived at the event but had to leave before playing for a reasonable amount of time.</li>
+<li>The Player attended the event but due to health problems was unable to reasonably participate.</li>
+<li>Another situation in which the Owners agree that the Player deserves the option.</li>
+</ul>
+<h4>Meal Payments</h4>
+<p>Meals offered at events must be paid for by any Player with the exception of those participating as a Dedicated Cast Member, Plot Member, Head of Plot or Plot Manager who receive meals as part of their Position Compensation. </p>
+<p>In the event a Player purchases a meal and is unable to use it, the Player must inform EAO at least 48 hours before the event to receive a full refund. After that time a refund of half of the amount spent on food will be provided. A meal payment refund will be via e-transfer to an email address given by the Player (with a $1 service fee).</p>
+<p>A meal purchase may be transferred to a future event if the Player informs Fantasy Alive no later than 7 days following an event the meal plan was not used. </p>
+<p>Meal payments will not be refunded after an event has ended that the Player attended except for cases such as:</p>
+<ul>
+<li>The Player arrived at the event but had to leave before being able to partake in a reasonable amount of the meal(s) purchased.</li>
+<li>The Player attended the event but due to health problems was unable to reasonably partake in the meal(s) purchased.</li>
+<li>Another situation in which the Owners agree that the Player deserves the refund.</li>
+</ul>
+<p>Refunds requested for these cases must be received within 7 days of the end of the event.</p>
+<h4>OC or IG Item Purchases</h4>
+<p>Refunds for in-game items or OC purchases may be refunded up to 30 days after their purchase. The IG item must be returned to EAO before this refund will be processed. For OC, the Player must have enough OC to cover the amount purchased at the time of the refund request, which will then be subtracted from the Player when the refund is provided. After 30 days, no refunds for these will be provided.</p>
+<p>Items provided to EAO games in exchange for OC may be returned upon request within 60 days. Following that, the item will only be returned at the discretion of the Owners. EAO cannot guarantee the condition of the item and will not be held liable for any damage done to the item.</p>
+<h4>Year Passes (Event or Meal)</h4>
+<p>Year Passes for Events or Meals work only for the calendar year they are purchased. No Events or Meals will be deferred to later events.</p>
+<p>Year Event or Meal Passes may be refunded at the request of the holder and will provide a refund proportional to the number of events remaining for the year. </p>
+<p>OC granted for the purchase of a Year Pass will be subtracted from the Player's total, with any amount not covered subtracted from the refund amount at a rate of 1 OC per $1 (to a minimum of no refund given.)</p>
+<p>A Year Pass refund will be via e-transfer to an email address given by the Player (with a $1 service fee).</p>
+<h4>6-Event Flex Passes (Event or Meal)</h4>
+<p>6-Event Flex Event or Meal Passes may be refunded at the request of the holder and will provide a refund proportionate to the number of events remaining on the Pass.</p>
+<p>OC granted for the purchase of a 6-Event Pass will be subtracted from the Player's total, with any amount not covered subtracted from the refund amount at a rate of 1 OC per $1 (to a minimum of no refund given).</p>
+<p>A 6-Event Flex Pass refund will be via e-transfer to an email address given by the Player (with a $1 service fee).</p>
+<p>Page Link - https://endlessadventures159804310.wordpress.com/payment-and-refund-policy/</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/payment-and-refund-policy/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-donation">
+<h3>Donation Policy</h3>
+
+<p>Endless Adventures may accept donations of costuming, props or anything else the game may need at the time. These donations are granted Ogre Chips (OC) as a reward for providing items or productive working time that benefit the games.</p>
+<p>To donate an item to EAO, the Player must contact an Owner with the details of the item and get approval from the Owner before the donation is accepted and OC given. Items which are not approved will not be accepted or give the Player any OC.</p>
+<p>At times, EAO will post a list of items which they will accept as donations. These will be accepted based on the details of the items listed but the Player should still contact an Owner when choosing to donate something from the list.</p>
+<p>A Player wishing to donate their time to the advancement of EAO should contact an Owner and discuss their abilities and training to see where their talents could be of assistance. If the Player is accepted into a Position, then they will be compensated as described in the specific Position Description.</p>
+<p>Website: https://endlessadventures159804310.wordpress.com/donation-policy/</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/donation-policy/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-franchising">
+<h3>Franchising Opportunities</h3>
+
+<p>Endless Adventures is accepting applications for franchise locations. If you are interested in being part of EAO, please contact the Owners at <a href="mailto:director.ian@endlessadventures.ca" rel="noopener" target="_blank">director.ian@endlessadventures.ca</a> with a brief introduction. Interested parties will be contacted for further information and discussion.</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/eao-franchises/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-business-vendor">
+<h3>Business and Vendor Policy</h3>
+
+<p>Endless Adventures is open to partnering with businesses and services that relate to LARPing within some guidelines in order to preserve the integrity and immersion of the game.</p>
+<h4>Fantasy Alive Faire</h4>
+<p>A special Faire is held each year during an event in the Summer at the Fantasy Alive Toronto location. This time includes family-friendly activities, a tournament of skill and areas for vendors to set up booths. These areas are available for rent for businesses to set up their wares and sell to the Fantasy Alive players.</p>
+<h5>Guidelines for Faire Vending:</h5>
+<ul>
+<li>Interested vendors must contact the Owners at least 1 month before the Faire event to arrange the details.</li>
+<li>The cost of the space for vendors varies based on size of booth and location. Please speak to the Owners for details.</li>
+<li>Vendors are required to bring all equipment necessary for setting up their booths. There are no tables or other equipment available for use at the site.</li>
+<li>Vendors should dress in appropriate costuming, present their booths in such a way as to fit within the game's atmosphere and maintain the role-play of the game as much as possible.</li>
+</ul>
+<h4>Businesses at Endless Adventure Events</h4>
+<p>Besides the Faire, Endless Adventures is open to businesses attending and providing their wares or services to the players. </p>
+<h5>Guidelines for Businesses at events:</h5>
+<ul>
+<li>Contact the Owners of the game you wish to attend at least 3 weeks before an event to setup the details.</li>
+<li>The cost for businesses varies based on type of goods or services and extent of interaction. Please speak to the Owners for details.</li>
+<li>Businesses are required to bring all equipment necessary for setting up their goods or services. </li>
+<li>Vendors should dress in appropriate costuming, present their business in such a way as to fit within the game's atmosphere and maintain the role-play of the game as much as possible.</li>
+</ul>
+<h4>Endless Adventures Online Spaces</h4>
+<p>Endless Adventures hosts a myriad of web spaces for use in between-game role-play, official game announcements and to facilitate communication between players. These spaces are intended for Endless Adventures related information only, so advertisements for businesses or any other things not affiliated with Endless Adventures are not permitted without express prior permission given. </p>
+<h5>Guidelines for use of Official Endless Adventures Online spaces:</h5>
+<ul>
+<li>Any information concerning outside businesses, events or other non-Endless Adventures related articles require permission from the Owners before posting to these web spaces. </li>
+<li>Approved postings may incur a fee for advertising on Endless Adventures web spaces. Please contact the Owners of the game you wish to advertise in for details.</li>
+<li>Postings which are not approved will be deleted and may also incur a ban of the person responsible from Official Endless Adventures web spaces based on the Owner's discretion.</li>
+</ul>
+<p>Website Link: https://endlessadventures159804310.wordpress.com/business-and-vendor-policy/</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/business-and-vendor-policy/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+</div>
+
+<div class="policy-category" id="policy-game-management-policies">
+<h2>Game Management Policies</h2>
+<div class="policy-section" id="policy-rule-change">
+<h3>Rule Change Policy and Method</h3>
+
+<p>Once a year for one month, the Fantasy Alive Rulebook will be available online as a Google Document for any player of Fantasy Alive to read and comment on. These comments will be reviewed by the Owners and considered for changes to the Fantasy Alive Rulebook for the following year.</p>
+<p>Please note that all comments will be reviewed, but only the ones believed to be suitable for the game of Fantasy Alive will be used for rule changes.</p>
+<p>All thoughts are welcome during this time, but any rude or offensive comments will be deleted and the player responsible will face corrective actions beginning with disregarding of all other comments on rules up to a full ban from Fantasy Alive based on the severity of the offense.</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/fantasy-alive-rule-change-policy-and-method/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-remort-retirement">
+<h3>Remort, Retirement and Finishment Policy</h3>
+
+<p> This Policy is in effect for characters that Remort, Retire or Finish as of August 2018.</p>
+<p>Remort</p>
+<p>This is an option for Players of Fantasy Alive to change aspects of their character to try out different styles of play. This option is available to players once for free and each additional time for a $30 Logistics fee until the Character's SP Total exceeds the Players' SP Cap. A player may also Remort once the second event a player ever plays a character. After passing the SP Cap, Remorting your character is no longer an option. Remorting follows these rules:</p>
+<p>o The character keeps all SP/XP accumulated to the point of Remorting.</p>
+<p>o All coin and tags held by character must be turned into Log.</p>
+<p>o OC may be converted to Coin up to the set OC cap as per a normal registration.</p>
+<p>o New character begins with a starting coin amount of 300 cp (plus any OC converted to Coin). This can be used to purchase items from the list below.</p>
+<p>o All skills may be completely changed up to the character's current SP Total</p>
+<p>o Race may be changed</p>
+<p>o If race is changed, character must be an entirely different person with a new name and no memories or relations built previously. Otherwise, the Player can decide whether the new Character is entirely new or just the previous Character with some different aspects.</p>
+<p>o OC may be converted to XP up to the Player's OC cap as per a normal registration.</p>
+<p>o OC may not be converted for Items or Services.</p>
+<p>o The character gives up any ability to use their downtime for anything during the Log period of the Remort.</p>
+<p>o The player may not submit any Between Game Actions, Role-Play on the Boards, or any other use of their previous Character or Remorted Character during the Log period of the Remort.</p>
+<p>o The previous character may be used by Plot at their discretion. Plot may request the Player to Cast as the character during these times, but the Player is not required to do so.</p>
+<p>For example...</p>
+<p>Gerald the Brave currently has these stats:</p>
+<p>· Human</p>
+<p>· Skills: 1-handed Sword, Counter Attack &lt;1h Sword&gt;, Parry &lt;1h Sword&gt;, Physical Prowess, Shield, Wear Light Armour, Wear Heavy Armour, Weapon Mastert &lt;1h Sword&gt; x3</p>
+<p>· 55 total SP</p>
+<p>· Tags for: Longsword, Shield, 10 Locations of Chain Armour.</p>
+<p>· 650cp in coin.</p>
+<p>· 45 OC</p>
+<p>The Player of "Gerald the Brave" decides to Remort the character into "Hagar the Wise." The new character is worked out like this...</p>
+<p>· Name changed to "Hagar the Wise"</p>
+<p>· Race changed from Human to Elf</p>
+<p>· The Player decided to convert some of their OC into SP (15 OC = 15 XP, Conversion ratio is 15XP:1SP = 1 SP)</p>
+<p>· 56 total SP</p>
+<p>· Skills changed to: Read and Write, Read Magic, Magery, Catalyst, Concentration, Magical Energy x18.</p>
+<p>· Previous tags handed into Log: Longsword, Shield, 10 Locations of Chain Armour.</p>
+<p>· Previous Coin handed into Log: 650cp</p>
+<p>· The Player decided to convert the remaining OC into Coin (30 OC = 300cp)</p>
+<p>· Hagar starts with 300cp + Coin from OC conversion (300cp) = 600cp.</p>
+<p>· Hagar selects to start with a Fire Bolt Spell (575cp)</p>
+<p>· Remaining starting money is given in Coin: 25cp.</p>
+<p>· All downtime is forfeit.</p>
+<p>· The Player does not send in any Between Games Action or participate in any RP as "Gerald" or "Hagar."</p>
+<p>· The next event, the Player submits all this information through the Character Creator Form on the website (<a href="http://fantasyalivelrp.com/new-player-character-creator/" rel="noopener" target="_blank">http://fantasyalivelrp.com/new-player-character-creator/</a>) and on the Event Registration form (<a href="http://fantasyalivelrp.com/event-registration/" rel="noopener" target="_blank">http://fantasyalivelrp.com/event-registration/</a>).</p>
+<h4><strong>Retirement</strong></h4>
+<p>There comes a time when a character decides to leave the life of adventure. Retirement in Fantasy Alive is when a Player decides that they no longer wish to play their current Character and instead try out something brand new. This can be done any time after a Character SP Total exceeds the Player's SP Cap.</p>
+<p>A Retired Character has these qualities:</p>
+<p>· May not be played except at the request of a Plot Member.</p>
+<p>· No longer gains XP/SP or changes in any skills</p>
+<p>· May not roleplay or otherwise act on Fantasy Alive official online sites.</p>
+<p>Retirement can occur in two ways: Quest or Immediate</p>
+<p>A Retirement Quest is something that is designed to be the end of the character's story, a culmination of all of their adventures into one final chapter. Characters eligible for Retirement may request from Plot a Retirement Quest which may be provided should these conditions are met:</p>
+<p>· The Quest must be no longer than 3-5 events long.</p>
+<p>· The Quest must end with the Character being Retired as per all set qualities set above.</p>
+<p>· Plot will develop the Quest in conjunction with the Player's wishes but Plot, Head of Plot and Owners have the final say in how the Quest plays out.</p>
+<p>· The player must use the base starting SP as per the rulebook for their next character. (15 SP for Human, 10 SP for all other races.)</p>
+<p>· Retirement quests will begin when Plot resources are available.</p>
+<p>To Retire a Character through a Quest, the steps below are followed:</p>
+<p>o Head of Plot and Logisitics must be informed of the player's decision to take the Quest Retirement option.</p>
+<p>o Plot speaks to the player and together they work out a suitable final chapter for the character.</p>
+<p>o The Quest commences once Plot is prepared and continues until the story is completed (within 5 events maximum)</p>
+<p>o The player then follows these steps in creating a new character:</p>
+<p>§ The new Character made must be an entirely different person with no memories or relations built previously.</p>
+<p>§ Their new character is set at 15 or 10SP based on the race chosen.</p>
+<p>§ All coin and tags held by character must be turned into Log.</p>
+<p>· Items and coin may be given to other characters, but at the discretion of Owners.</p>
+<p>§ OC may be converted to Coin up to the set OC cap as per a normal registration.</p>
+<p>§ OC may not be converted for Items or Services.</p>
+<p>§ New character begins with a starting coin amount of 300 cp (plus any OC converted to Coin). This can be used to purchase items from the list below.</p>
+<p>§ Race, Skills Backstory and any other aspects of the Character may be selected normally.</p>
+<p>§ OC may be converted to XP up to the Player's OC cap as per a normal registration.</p>
+<p>§ The character gives up any ability to use their downtime for anything during the Log period of the Remort.</p>
+<p>§ The player may not submit any Between Game Actions, Role-Play on the Boards, or any other use of their previous Character or Remorted Character during the Log period of the Remort.</p>
+<p>§ The Retired character may be used by Plot at their and the Player's discretion. Plot may request the Player to Cast as the character during these times, but the Player is not required to do so.</p>
+<p>For example...</p>
+<p>Gerald the Super Brave currently has these stats:</p>
+<p>· Human</p>
+<p>· Skills: 1-handed Sword, Counter Attack &lt;1h Sword&gt;, Parry &lt;1h Sword&gt; x3, Physical Prowess, Shield, Wear Light Armour, Wear Heavy Armour, Weapon Mastert &lt;1h Sword&gt; x3, Dodge x5</p>
+<p>· 120 total SP</p>
+<p>· Tags for: MC Longsword, MC Shield, 20 Locations of Chain Armour.</p>
+<p>· 3500cp in coin.</p>
+<p>· 200 OC</p>
+<p>· 80 SP Cap</p>
+<p>The Player of "Gerald the Super Brave" decides to Quest to Retire the character and make a new one "Hagar the Not-so-Wise." The new character is worked out like this...</p>
+<p>· The player sends an email to Plot@fantasyalivelrp.com and Logistics@fantasyalivelrp.com and states their decision to Retire Gerald and asks for a Quest.</p>
+<p>· A Plot Member talks to the player and works out a Quest for Gerald in which he hunts down the murderer of his best friend.</p>
+<p>· Plot prepares and runs the story of this Quest for Gerald 2 events after the request was put in.</p>
+<p>· The Quest lasts for 3 events, in which Gerald follows the story and ends with Gerald being reunited with his best friend thought lost forever. Together they leave the adventuring life.</p>
+<p>· With the Quest complete, the player Retires Gerald and begins making a new character.</p>
+<p>· Gerald is archived by Log.</p>
+<p>· Previous tags handed into Log: MC Longsword, MC Shield, 20 Locations of Chain Armour.</p>
+<p>· Previous Coin handed into Log: 3500cp</p>
+<p>· The Player requests to give his MC Longsword to another character because "It was just a loaner and my character would want to give it back." The request is approved and the MC Longsword tag is delivered to the other Player/Character in an appropriate method.</p>
+<p>· The Player submits the Character Creation form (<a href="http://fantasyalivelrp.com/new-player-character-creator/" rel="noopener" target="_blank">http://fantasyalivelrp.com/new-player-character-creator/</a>) with these details:</p>
+<p>o Name: "Hagar the Extra Wise"</p>
+<p>o Race: Elf</p>
+<p>o The player converts 100 OC to XP and receives 10 SP (10XP = 1 SP)</p>
+<p>o 20 total SP</p>
+<p>o Skills input into Form: Read and Write, Read Magic, Magery, Magical Energy x 4.</p>
+<p>o The Player decides to convert some OC into Coin: 100 OC = 1000cp</p>
+<p>o Hagar starts with 300cp + Coin from OC conversion (1000cp) = 1300cp.</p>
+<p>o Hagar selects to start with a Spellbook (9cp), Fire Bolt Spell (575cp) and Lend Health Spell (509 cp)</p>
+<p>o Remaining starting money is given in Coin: 207 cp.</p>
+<p>o All downtime is forfeit.</p>
+<p>o The Player does not send in any Between Games Action or participate in any RP as "Gerald" or "Hagar."</p>
+<p>o The next event, the Player submits an Event Registration form to log their new character. (<a href="http://fantasyalivelrp.com/event-registration/" rel="noopener" target="_blank">http://fantasyalivelrp.com/event-registration/</a>).</p>
+<p>An Immediate Retirement follows the same qualities listed above but takes effect as soon as the player informs Logistics. Following this process the new character starts at the player's SP Cap.</p>
+<p>To Immediately Retire a Character, the steps below are followed:</p>
+<p>· The player sends an email to Logistics@fantasyalivelrp.com and states their decision to Retire Gerald.</p>
+<p>· Gerald is archived by Log.</p>
+<p>· The new Character made must be an entirely different person with no memories or relations built previously.</p>
+<p>· Their new character is set at SP equal to their SP Cap</p>
+<p>· All additional SP is converted to OC at a rate of 1 SP = 10 OC</p>
+<p>· Any XP remaining on the old character is put into Banked XP to be used freely.</p>
+<p>· All coin and tags held by character must be turned into Log.</p>
+<p>o Items and coin may be given to other characters, but at the discretion of Owners.</p>
+<p>· OC may be converted to Coin with no limit.</p>
+<p>· OC may not be converted for Items or Services.</p>
+<p>· New character begins with a starting coin amount of 300 cp (plus any OC converted to Coin). This can be used to purchase items from the list below.</p>
+<p>· Race, Skills Backstory and any other aspects of the Character may be selected normally.</p>
+<p>· OC may not be converted to XP for this Log period.</p>
+<p>· The character gives up any ability to use their downtime for anything during the Log period of the Remort.</p>
+<p>· The player may not submit any Between Game Actions, Role-Play on the Boards, or any other use of their previous Character or Remorted Character during the Log period of the Remort.</p>
+<p>· The Retired character may be used by Plot at their and the Player's discretion. Plot may request the Player to Cast as the character during these times, but the Player is not required to do so.</p>
+<p>For example...</p>
+<p>Gerald the Super Brave currently has these stats:</p>
+<p>· Human</p>
+<p>· Skills: 1-handed Sword, Counter Attack &lt;1h Sword&gt;, Parry &lt;1h Sword&gt; x3, Physical Prowess, Shield, Wear Light Armour, Wear Heavy Armour, Weapon Mastert &lt;1h Sword&gt; x3, Dodge x5</p>
+<p>· 120 total SP</p>
+<p>· Tags for: MC Longsword, MC Shield, 20 Locations of Chain Armour.</p>
+<p>· 3500cp in coin.</p>
+<p>· 200 OC</p>
+<p>· 80 SP Cap</p>
+<p>The Player of "Gerald the Super Brave" decides to Retire the character and make a new one "Hagar the Extra Wise." The new character is worked out like this...</p>
+<p>· Gerald is archived by Log.</p>
+<p>· Gerald has 40 SP over his SP Cap (120 SP total - 80 SP Cap = 40 SP). This is converted to 400 OC (1SP = 10 OC). This is added to the Player's current 200 OC for a total of 600 OC.</p>
+<p>· Previous tags handed into Log: MC Longsword, MC Shield, 20 Locations of Chain Armour.</p>
+<p>· Previous Coin handed into Log: 3500cp</p>
+<p>· The Player requests to give his MC Longsword to another character because "It was just a loaner and my character would want to give it back." The request is approved and the MC Longsword tag is delivered to the other Player/Character in an appropriate method.</p>
+<p>· The Player submits the Character Creation form (<a href="http://fantasyalivelrp.com/new-player-character-creator/" rel="noopener" target="_blank">http://fantasyalivelrp.com/new-player-character-creator/</a>) with these details:</p>
+<p>o Name: "Hagar the Extra Wise"</p>
+<p>o Race: Elf</p>
+<p>o The Player cannot convert OC to XP so skips that part of the Form.</p>
+<p>o 80 total SP</p>
+<p>o Skills input into Form: Read and Write, Read Magic, Magery, Catalyst x3, Concentration x3, Magical Energy x20, Dodge.</p>
+<p>o The Player decides to convert some OC into Coin: 200 OC = 2000cp</p>
+<p>o Hagar starts with 300cp + Coin from OC conversion (2000cp) = 2300cp.</p>
+<p>o Hagar selects to start with a Spellbook (9 cp), Fire Bolt Spell (575cp), Mystic Leather Spell (773cp) and Lend Health Spell (509 cp)</p>
+<p>o Remaining starting money is given in Coin: 434cp.</p>
+<p>o All downtime is forfeit.</p>
+<p>o The Player does not send in any Between Games Action or participate in any RP as "Gerald" or "Hagar."</p>
+<p>o The next event, the Player submits an Event Registration form to log their new character. (<a href="http://fantasyalivelrp.com/event-registration/" rel="noopener" target="_blank">http://fantasyalivelrp.com/event-registration/</a>).</p>
+<h4><strong>Finishment</strong></h4>
+<p>When a character dies and becomes a Spirit while having no Resurrections on their sheet. The character's Spirit passes through the Curtain and can no longer be resurrected.</p>
+<p>When a character is in this position, the Player has a few options:</p>
+<p>1. Follow the same rules for Immediate Retirement (details above) and create a new character. The new character can be created that same event.</p>
+<p>2. The Player may choose to finish the event as a Cast Member (and will receive OC for doing so).</p>
+<p>3. The Player may switch to an alternate character already created.</p>
+<h4><strong>Equipment for New Characters</strong></h4>
+<p>(Removed in this document to save space. List is same as Merchant available goods with some illegal goods included.)</p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/fantasy-alive-character-retirement-remort-and-finishment-policy/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-noble-policy">
+<h3>Player Character Nobles - Privileges and Responsibilities</h3>
+
+<h4>PC Noble Privileges and Responsibilities</h4>
+<p>This document takes effect for events following January 1<sup>st</sup>, 2019 onward.</p>
+<p>Nobility in Fantasy Alive is a status that sets a character on a level above the majority of others in legal authority, political power and prestige. As this raising of one character over another can cause schisms between players, Fantasy Alive has developed this document to clarify the reasons, bonuses and requirements of players who play these roles.</p>
+<p>Please note that this document particularly pertains to players with a character who is Nobility. Plot and Owners will have Noble characters as well, though their requirements for earning, maintaining or losing their Noble titles will be based solely upon IG story and world politics.</p>
+<h5>Player Noble Induction</h5>
+<p>In order for players to be inducted into Nobility they must show these aspects:</p>
+<ul>
+<li>Leadership ability both with their character and as a player.</li>
+<li>Reasonably consistent event attendance</li>
+<li>In-game character actions proving to current Nobility their suitability.</li>
+<li>Reading and full understanding of this document</li>
+</ul>
+<p>Upon proving the above, approval by Head of Plot, Plot Manager and Owners must be given and the player must agree to the title both in-game as their character and out-of-game as their player.</p>
+<h5>Player Nobility Requirements</h5>
+<h5><em>Leadership</em></h5>
+<p>A PC noble is a player who has shown the Owners of Fantasy Alive their leadership potential both as their character within the world and how the player interacts with the community. This leadership should be shown in exemplary role-play, active participation in the community (such as in one of the various official Positions), and as an overall good example for players to follow. A noble is one who is in the position to guide the players to a great fantasy role-playing experience, and the expectations to accomplish this are higher for those with higher noble titles. </p>
+<p>A noble will be looked to as a leader, as someone who Plot can rely on to assist on the PC side of the game in getting mods ready and doing their best to ensure all players get a chance to participate to the extent they wish. </p>
+<h5><em>Player versus Player Actions</em></h5>
+<p>A PC noble should be fully aware of the great authority they wield, especially in the case of conflict with other players. This authority should be used in the capacity of a leader, rather than of a dictator. </p>
+<p>It is expected that minor conflicts should be able to be worked out by the PC noble and the other player in a reasonable way, should that not be the case, or the conflict escalates into a larger one, then the PC noble must reach out to a Player Relations Representative and/or Owners for assistance in handling the conflict. </p>
+<p>No PC noble is allowed to deal out Death or Finishment in retaliation to conflict or as punishment for an in-game crime or action without prior approval from Owners.</p>
+<h5><em>Attendance</em></h5>
+<p>A PC noble must attend events regularly to maintain their title as extended absences from the game do not allow the player to keep up with the ever-changing story. If a total of 4 consecutive events are not attended, the PC will automatically revoke their noble title. Note that this is events that are attended in person, events which are paid for and logged do not count for PC noble attendance. After 4 consecutive events, the character can be played normally, but they will lose all privileges and responsibilities and will be set to Yeoman class. No negative repercussions will occur either in-game to the character or out-of-game to the player for this loss of title. </p>
+<p>Should a player who has lost their title due to attendance wish to regain it, they must demonstrate the aspects above to the Owners again. If events are missed to do extenuating circumstances the PC Noble is responsible for discussing their situation with the Owners. The noble title may be retained or returned at the discretion of the Owners.</p>
+<h5><em>Deference to Plot</em></h5>
+<p>A PC noble will never be the judge or run a trial of another PC. Past experience has confirmed that any legal responsibilities taken on by PCs results in players coming to resent the Noble player or have led to abuses of this power. As such, a PC noble may take part in a trial, but the ultimate authority in handling IG laws will be a Cast noble selected by the Head of Plot, Plot Manager and/or Owners.</p>
+<p>The Plot Team may find times when they need assistance from a PC noble for a story-line. In this situation, PC nobles and the Plot Team will discuss the assistance required and come to a reasonable decision on the PC noble's actions to provide this assistance. Should the PC Noble and Plot Team be unable to come to an agreement in this situation, an Owner will speak to both sides and make the final decision based on what is best for all involved.</p>
+<h5>Player Nobility Privileges </h5>
+<h5><em>Income</em></h5>
+<p>Nobility of all levels earn automatic income so long as they keep their title. This income is from either a stipend from their superior or income granted from Serfs and Mines. The exact amount is shown on the table below.</p>
+<p>In order to gain this income, the player must attend an event as their Noble. When an event is missed, the income that could have been earned from that event is spent on upkeeping any luxuries, paying any servants and any remaining funds are considered to be spent on maintaining the noble's estate, lands or other Noble expenses. PC nobles may still pay for an event to earn XP and convert OC, but they will not gain noble income for doing so. Only by physically attending an event will this income be given.</p>
+<img alt="PC Noble class time, weekly costs, and weekly income table" src="https://lh7-us.googleusercontent.com/Z1XM-itwBVqTeko3Qa-8K8IB_XMlKE_CyykscMIPKoFLDlDOP2OWFtAsRYHjFPzyuADmSBHhap8Jnj3K5QzJk0NRy9OwhJ8ou697rqZaksP9fKZOp2VQg07KVuh8jY9wLL7zB-r_r0V6SZ8xg3V54w"/>
+<h5><em>Luxuries</em></h5>
+<p>A PC noble is automatically given the Luxuries listed in the above table. These Luxuries may be used normally (such as using a horse to shorten travel times). For Servants and Soldiers, the PC noble may request to have these roles be run by a Cast Member at an event but will only occur at Plot discretion. In general, the Servants and Soldiers kept by a PC noble are tasked with maintaining and ensuring the safety of the noble's property, land and Serfs. </p>
+<p>It is suggested that should a PC noble wish to have guards or servants that they find a PC character(s) to fill the roles (and the income/costs will be handled by Logisitics).</p>
+<p>A PC noble's Luxuries may change over time based on in-game actions and events. Such as a PC noble could meet a mercenary travelling through town and offer them a permanent position. If the mercenary accepted then the PC nobles' character information would be updated to have an additional Guard/Soldier, with the cost that goes with that.</p>
+<h5><em>Contacts/Information</em></h5>
+<p>A noble is granted greater access to information, items and contacts. Each event a Noble Briefing will be provided to all PC nobles. This briefing will generally be more overarching story information, such as army movements, nation diplomacy and rumours from far off lands.</p>
+<h6>Contact</h6>
+<p>Upon granting a noble title, the PC noble must select a type of Contact they wish to have. This can be from the list below, or another one approved by the Head of Plot, Plot Manager and Owners. When registering for an event, a noble is permitted to ask for one piece of information from their selected Contact and will receive a response based on the request and the nature of the Contact. Changing of Contacts must be handled on an in-game basis.</p>
+<h6>Possible Contacts</h6>
+<ul>
+<li>Merchant Guild</li>
+<li>Thieves Guild</li>
+<li>Mage's Guild</li>
+<li>King's Court</li>
+<li>Foreign Country (Michian, Eldersire, Churning Waters, etc.)</li>
+</ul>
+<h6>Merchant</h6>
+<p>A PC noble will be granted an NPC Merchant (generally the noble's Major Domo or similar title). The PC noble may use this merchant's skill to buy/sell objects as if they had the skill themselves for any event that they may also collect their Noble Income. Like Noble Income, any time the merchant is not used, they have been considered to have spent their time maintaining the Noble's stature. The exact levels and categories are listed below for each level of Nobility. Upon gaining their title, the PC Noble must choose what categories the Merchant will specialize in. Following that the categories may not be changed without firing the current NPC and hiring another (which will be handled on a case-by-case basis by Plot, Logistics and Owners). If a PC Noble rises or lowers in Noble title, then the categories must be added or lost accordingly.</p>
+<div class="table-wrap"><table><tbody><tr><td><strong>Noble Title</strong></td><td><strong>NPC Merchant</strong></td><td><strong># Categories</strong></td></tr><tr><td>Ward</td><td>No Merchant NPC</td><td>N/A</td></tr><tr><td>Knight/Dame and Magistrate</td><td>Level 2</td><td>1</td></tr><tr><td>Lord/Lady</td><td>Level 4</td><td>2</td></tr><tr><td>Baron/Baroness</td><td>Level 6</td><td>3</td></tr><tr><td>Duke/Duchess</td><td>Not available to PC Nobles</td><td>N/A</td></tr><tr><td>Prince/Princess</td><td>Not available to PC Nobles</td><td>N/A</td></tr><tr><td>King/Queen</td><td>Not available to PC Nobles</td><td>N/A</td></tr></tbody></table></div>
+<h6>Tutors</h6>
+<p>A PC Noble will also have Tutor contacts available for any skill which exists in the Rulebook with the exception of levels of Clerical Investment and Divination above 6. These Tutors can be utilized by the PC Noble or be provided to any other character at the Noble's request. Please note that these Tutors will still require payment as normal.</p>
+<h5><em>Grant Citizenship</em></h5>
+<p>A PC noble has the power to grant Citizenship to any character they deem fit. This social class is seen as a reward for exemplary service to the noble and then requires the noble to protect the Citizen, so should be used with forethought. The granting of Citizenship should be done in consultation with Plot and Owners, but is left to the discretion of the PC noble. Should this authority be abused by the PC noble, the Citizenship(s) granted will be removed before any further actions are considered.</p>
+<h5>Player Nobility Removal</h5>
+<p>Player Nobility can be removed at any time by the Owners of Fantasy Alive if they believe the PC Noble's actions to be not benefitting the game as a whole, or events are not attended as described above. If reasonable, the Owners will attempt to work with the PC noble to direct them to meet the expected requirements. </p>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/fantasy-alive-pc-noble-policy/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+<div class="policy-section" id="policy-clerical-investment">
+<h3>Clerical Investment Deities: Losing Faith and Changing Deities</h3>
+
+<p>When a player first purchases the skill Clerical Investment, they must immediately select a deity from the list within the rulebook. The deity determines all aspects of the Clerical Investment and so selection is mandatory.</p>
+<h4>Losing Faith</h4>
+<p>Sometimes a character can come to a point where they feel that they can no longer follow the deity they chose for Clerical Investment. This can be for a variety of reasons but are generally due to actions taken in-game. Should the player decide that their character can no longer follow their current deity, then they must inform Plot that their character is giving up their faith. Once this notice is given, these effects happen immediately:</p>
+<ul>
+<li>The skill Clerical Investment level remains on the character's sheet as is. No skill points are refunded or altered.</li>
+<li>The deity focus of the character's Clerical Investment is changed to &lt;None&gt;</li>
+<li>The character can no longer cast any spells through their Clerical Investment.</li>
+<li>The character can no longer Work for a Cause.</li>
+<li>The character can no longer use any At Will spells from their Clerical Investment.</li>
+<li>Any other abilities or drawbacks causes by the character having the Clerical Investment skill are removed (with the exception of any specifically excluded by Plot).</li>
+</ul>
+<p>A character may remain in this state with their Clerical Investment indefinitely.</p>
+<h4>Regaining Faith</h4>
+<p>A mortal who loses their faith in a deity is not one that will be welcomed back by any in the pantheon easily. For a character to gain an Investment in a new deity, then they must perform a suitable penance and then prove their devotion beyond a doubt. Here are the general requirements for this to occur:</p>
+<ul>
+<li>The character must spend a minimum of 1-3 full events without faith as described above.</li>
+<li>During this time without faith:
+<ul>
+<li>The character must perform significant actions to promote or glorify the deity they seek Investment in during the events.</li>
+<li>The character must devote a significant amount of their downtime between events in service to the deity they seek Investment in.</li>
+</ul>
+</li>
+<li> The Investment must be approved by Plot and Owners at their discretion.</li>
+</ul>
+<p>It should be fully understood that becoming Invested in another deity is not an easy task as the deities in the Fantasy Alive world do not take kindly to anyone turning their backs on any of the pantheon. As such the requirements above are merely guidelines and may be more or less difficult based on the details of the character, the deity (or deities) involved and the circumstances. Some examples of things that could affect the difficulty of proving faith are:</p>
+<ul>
+<li>Returning to the same deity turned from before.</li>
+<li>Attempting to Invest in any deity more than once.</li>
+<li>Being tempted to change to an Opposed deity.</li>
+</ul>
+
+<p class="policy-source"><a href="https://fantasyalivelrp.com/fantasy-alive-clerical-investment-deities-losing-faith-and-changing-deities/" target="_blank" rel="noopener">View original source</a></p>
+</div>
+</div></div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+</body>
+</html>
