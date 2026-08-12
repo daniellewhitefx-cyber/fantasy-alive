@@ -215,7 +215,8 @@ async function ps_loadRoster(){
     membersSupabase.from('character_names').select('id, name, player_id')
   ]);
   if(playersErr || charsErr){
-    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load players or characters to match against.</p>`;
+    const detail = [playersErr && `players: ${playersErr.message}`, charsErr && `characters: ${charsErr.message}`].filter(Boolean).join(' / ');
+    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load players or characters to match against (${escapeHtml(detail)}).</p>`;
     return;
   }
 
