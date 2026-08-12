@@ -124,6 +124,7 @@ async function initMembersPage(){
     ['member-manage-auctions-link', meta.auction_staff || isSiteAdmin],
     ['member-requests-link', canSeeRequests],
     ['member-permissions-link', isSiteAdmin],
+    ['member-print-sheets-link', canSeeRequests],
   ];
   let anyStaffAccess = false;
   staffLinks.forEach(([id, allowed]) => {
