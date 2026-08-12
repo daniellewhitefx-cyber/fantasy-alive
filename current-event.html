@@ -44,6 +44,11 @@
   gap: 1rem;
   margin-bottom: 1.2rem;
 }
+.ce-header-stats{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
 .ce-stat{
   border: 2px solid var(--line);
   background: var(--row-b);
@@ -239,19 +244,16 @@ async function renderOpen(){
 }
 
 function renderHeaderStatsHtml(){
-  const trainingStats = (REGISTERED_AS === 'character' && MY_CHARACTER) ? `
-    <div class="ce-stats" style="margin-top:1rem; margin-bottom:0;">
-      <div class="ce-stat"><div class="ce-stat-label">Hours Remaining</div><div class="ce-stat-value">${Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent)} / ${TRAIN_BUDGET}</div></div>
-      <div class="ce-stat"><div class="ce-stat-label">Spendable SP</div><div class="ce-stat-value">${TRAIN_SUMMARY.spendable_sp}</div></div>
-    </div>
+  const trainingTiles = (REGISTERED_AS === 'character' && MY_CHARACTER) ? `
+    <div class="ce-stat"><div class="ce-stat-label">Hours Remaining</div><div class="ce-stat-value">${Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent)} / ${TRAIN_BUDGET}</div></div>
+    <div class="ce-stat"><div class="ce-stat-label">Spendable SP</div><div class="ce-stat-value">${TRAIN_SUMMARY.spendable_sp}</div></div>
   ` : '';
 
   return `
-    <div class="bank-balance-card">
-      <div class="bank-balance-label">Your Ogre Chips</div>
-      <div class="bank-balance-amount">${OC_BALANCE}</div>
+    <div class="ce-header-stats">
+      <div class="ce-stat"><div class="ce-stat-label">Your Ogre Chips</div><div class="ce-stat-value">${OC_BALANCE}</div></div>
+      ${trainingTiles}
     </div>
-    ${trainingStats}
   `;
 }
 
