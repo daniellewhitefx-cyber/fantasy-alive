@@ -230,7 +230,7 @@ function renderTabs(){
 
 function focusFieldHtml(idx, s, state, isLeveled){
   const parts = skillNameParts(s.title);
-  const options = focusOptionsFor(s, allSkills);
+  const options = focusOptionsFor(s, allSkills, chosen);
   const widthStyle = `style="max-width:${isLeveled ? 140 : 180}px;display:inline-block;${isLeveled ? 'margin-right:0.5rem;' : ''}"`;
 
   if(options){

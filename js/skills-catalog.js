@@ -18,11 +18,16 @@ function skillKey(s){ return s.category + '::' + s.title; }
 
 function isLeveledCost(costStr){ return /\+lvl|[x×*]\s*lvl|\/\s*pt\.?/i.test(costStr); }
 
-function focusOptionsFor(s, allSkills){
+// knownSkills entries look like { category, title, level }. Weapon type
+// options are scoped to Weapon Skills already known, since you can't
+// take combat proficiency in a weapon you haven't learned to use.
+function focusOptionsFor(s, allSkills, knownSkills){
   const parts = skillNameParts(s.title);
   if(!parts.placeholder) return null;
   if(parts.placeholder.toLowerCase() === 'weapon type'){
-    return allSkills.filter(x => x.category === 'Weapon Skill').map(x => skillNameParts(x.title).base);
+    const known = knownSkills || [];
+    const types = known.filter(k => k.category === 'Weapon Skill').map(k => k.title);
+    return [...new Set(types)];
   }
   if(parts.base === 'Channel Spell') return ENERGY_TYPES;
   if(parts.base === 'Clerical Investment') return DEITIES;
