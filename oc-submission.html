@@ -206,12 +206,22 @@ function ocsub_removeRow(i){
 function ocsub_updateAmount(i, val){ rows[i].amount = val; }
 function ocsub_updateReason(i, val){ rows[i].reason = val; }
 
-function ocsub_submitForm(){
+async function ocsub_submitForm(){
   const incomplete = rows.some(r => !r.amount || !r.reason.trim());
   if(incomplete){
     alert('Fill in an amount and reasoning for every row before submitting.');
     return;
   }
+
+  const results = await Promise.all(rows.map(r =>
+    membersSupabase.rpc('oc_submit_request', { p_amount: parseInt(r.amount, 10), p_reason: r.reason.trim() })
+  ));
+  const failed = results.find(r => r.error);
+  if(failed){
+    alert('Could not submit: ' + failed.error.message);
+    return;
+  }
+
   const note = document.getElementById('ocsub-confirm-note');
   note.classList.add('show');
   setTimeout(() => note.classList.remove('show'), 2000);

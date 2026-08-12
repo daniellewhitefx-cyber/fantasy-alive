@@ -71,6 +71,22 @@ async function refreshMessagesBadge(){
   }
 }
 
+async function refreshRequestsBadge(){
+  const badge = document.getElementById('member-requests-badge');
+  if(!badge) return;
+  try{
+    const { data } = await membersSupabase.rpc('requests_pending_count');
+    const count = data || 0;
+    if(count > 0){
+      badge.textContent = count;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(err){
+  }
+}
+
 async function initMembersPage(){
   const { data } = await membersSupabase.auth.getSession();
   if(!data.session){
@@ -94,10 +110,19 @@ async function initMembersPage(){
 
   const meta = user.app_metadata || {};
   const isSiteAdmin = !!meta.site_admin;
+  let canSeeRequests = isSiteAdmin;
+  if(!canSeeRequests){
+    try{
+      const { data } = await membersSupabase.rpc('fa_is_logistics_or_admin');
+      canSeeRequests = !!data;
+    } catch(err){
+    }
+  }
   const staffLinks = [
     ['member-manage-characters-link', meta.character_staff || isSiteAdmin],
     ['member-banking-tools-link', meta.bank_staff || isSiteAdmin],
     ['member-manage-auctions-link', meta.auction_staff || isSiteAdmin],
+    ['member-requests-link', canSeeRequests],
     ['member-permissions-link', isSiteAdmin],
   ];
   let anyStaffAccess = false;
@@ -117,6 +142,7 @@ async function initMembersPage(){
   document.dispatchEvent(new CustomEvent('fa-members-ready', { detail: { user } }));
   refreshNotifBadge();
   refreshMessagesBadge();
+  refreshRequestsBadge();
 }
 
 window.membersSignOut = membersSignOut;

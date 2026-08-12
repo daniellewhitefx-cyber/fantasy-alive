@@ -173,7 +173,7 @@ async function loadSubmitted(){
   const list = document.getElementById('kudos-submitted-list');
   const { data: rows } = await membersSupabase
     .from('kudos')
-    .select('id, to_character_id, to_player_id, message, created_at')
+    .select('id, to_character_id, to_player_id, message, status, created_at')
     .order('created_at', { ascending: false });
 
   if(!rows || rows.length === 0){ list.innerHTML = ''; return; }
@@ -197,7 +197,9 @@ async function loadSubmitted(){
       const c = charById[r.to_character_id];
       who = c ? `${c.name} [${nameByPlayer[c.player_id] || 'Unknown player'}]` : 'Unknown character';
     }
-    return `<div class="submitted-item"><div class="who">${escapeHtml(who)}</div>${escapeHtml(r.message)}</div>`;
+    const statusColor = r.status === 'approved' ? 'var(--good)' : r.status === 'denied' ? 'var(--bad)' : 'var(--gold-dark)';
+    const statusLabel = r.status === 'approved' ? 'Approved' : r.status === 'denied' ? 'Denied' : 'Pending review';
+    return `<div class="submitted-item"><div class="who">${escapeHtml(who)} <span style="float:right; font-family:'Cinzel', serif; font-weight:700; font-size:0.72rem; color:${statusColor};">${statusLabel}</span></div>${escapeHtml(r.message)}</div>`;
   }).join('');
 }
 
