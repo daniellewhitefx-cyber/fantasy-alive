@@ -76,7 +76,6 @@
 <div>
 
 <h1 class="page-title">Requests</h1>
-<p class="page-subhead">Staff tools. Review and decide Remort Requests, OC Submissions, and Kudos in one place.</p>
 
 <div class="reg-already-registered" id="req-blocked-notice" style="display:none;">
 <h3>Staff access required</h3>
@@ -136,6 +135,9 @@ let kudosRows = [];
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
 function fmtDateTime(iso){
   return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
@@ -186,7 +188,7 @@ async function loadRemort(){
 function renderRemort(){
   const target = document.getElementById('req-list-remort');
   if(remortRows.length === 0){
-    target.innerHTML = '<p class="reg-empty-note">No pending remort requests.</p>';
+    target.innerHTML = emptyState('No pending remort requests.');
     return;
   }
   target.innerHTML = remortRows.map(r => {
@@ -239,7 +241,7 @@ async function loadOc(){
 function renderOc(){
   const target = document.getElementById('req-list-oc');
   if(ocRows.length === 0){
-    target.innerHTML = '<p class="reg-empty-note">No pending OC submissions.</p>';
+    target.innerHTML = emptyState('No pending OC submissions.');
     return;
   }
   target.innerHTML = ocRows.map(r => `
@@ -292,7 +294,7 @@ async function loadKudos(){
 function renderKudos(){
   const target = document.getElementById('req-list-kudos');
   if(kudosRows.length === 0){
-    target.innerHTML = '<p class="reg-empty-note">No pending kudos.</p>';
+    target.innerHTML = emptyState('No pending kudos.');
     return;
   }
   target.innerHTML = kudosRows.map(r => {

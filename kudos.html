@@ -31,7 +31,6 @@
 <div>
 
 <h1 class="page-title">Kudos</h1>
-<p class="page-subhead">Give a quick pat on the back to a player. Search for anyone in the player base to give them kudos.</p>
 
 <div class="bank-recipient-picker" data-picker="kudos">
 <label class="field-label" for="kudos-search-input">Give kudos to</label>
@@ -198,9 +197,9 @@ async function loadSubmitted(){
       const c = charById[r.to_character_id];
       who = c ? `${c.name} [${nameByPlayer[c.player_id] || 'Unknown player'}]` : 'Unknown character';
     }
-    const statusColor = r.status === 'approved' ? 'var(--good)' : r.status === 'denied' ? 'var(--bad)' : 'var(--gold-dark)';
+    const statusClass = r.status === 'approved' ? 'approved' : r.status === 'denied' ? 'denied' : 'pending';
     const statusLabel = r.status === 'approved' ? 'Approved' : r.status === 'denied' ? 'Denied' : 'Pending review';
-    return `<div class="submitted-item"><div class="who">${escapeHtml(who)} <span style="float:right; font-family:'Cinzel', serif; font-weight:700; font-size:0.72rem; color:${statusColor};">${statusLabel}</span></div>${escapeHtml(r.message)}</div>`;
+    return `<div class="submitted-item"><div class="who">${escapeHtml(who)} <span class="status-pill ${statusClass}" style="float:right;">${statusLabel}</span></div>${escapeHtml(r.message)}</div>`;
   }).join('');
 }
 

@@ -31,7 +31,6 @@
 <div>
 
 <h1 class="page-title">OC Submission</h1>
-<p class="page-subhead">Request Ogre Coins for things you've done. OC applies to your account as a whole, not a specific character. Add as many entries as you need before submitting.</p>
 
 <div class="quick-add-box">
 <label class="field-label" for="ocsub-quick-type">Quick add</label>
@@ -251,11 +250,11 @@ async function loadMySubmissions(){
   if(!subs || subs.length === 0){ list.innerHTML = ''; return; }
 
   list.innerHTML = `<h3>Your OC Submissions</h3>` + subs.map(s => {
-    const statusColor = s.status === 'approved' ? 'var(--good)' : s.status === 'denied' ? 'var(--bad)' : 'var(--gold-dark)';
+    const statusClass = s.status === 'approved' ? 'approved' : s.status === 'denied' ? 'denied' : 'pending';
     const statusLabel = s.status === 'approved' ? 'Approved' : s.status === 'denied' ? 'Denied' : 'Pending review';
     return `
       <div class="submitted-item">
-        <div class="who">${s.amount} OC <span style="float:right; font-family:'Cinzel', serif; font-weight:700; font-size:0.72rem; color:${statusColor};">${statusLabel}</span></div>
+        <div class="who">${s.amount} OC <span class="status-pill ${statusClass}" style="float:right;">${statusLabel}</span></div>
         ${escapeHtml(s.reason)}
         <div class="reg-empty-note" style="margin-top:0.3rem;">${fmtDateTime(s.created_at)}</div>
       </div>

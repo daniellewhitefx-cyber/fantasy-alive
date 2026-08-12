@@ -31,7 +31,6 @@
 <div>
 
 <h1 class="page-title">Bank</h1>
-<p class="page-subhead">Your coin is shared across every character you own. Deposit coin in person at events, send or bill other players, or request a withdrawal ahead of your next event.</p>
 
 <div class="bank-balance-card">
   <div class="bank-balance-label">Current Balance</div>
@@ -41,6 +40,10 @@
     Bank my coin earned from log for this event instead of receiving it.
   </label>
 </div>
+
+<div class="panel">
+<div class="panel-head"><h2>Manage Your Coin</h2></div>
+<div class="panel-body">
 
 <div class="bank-tabs" role="tablist">
   <button class="bank-tab active" data-tab="withdraw" onclick="bank_switchTab('withdraw')">Withdraw</button>
@@ -143,6 +146,9 @@
 </div>
 </div>
 
+</div>
+</div>
+
 <div data-include="partials/footer.html"></div>
 
 <script src="js/include.js"></script>
@@ -156,6 +162,9 @@ let selectedRecipient = { send: null, bill: null };
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
 
 function fmtAmount(n){
@@ -390,7 +399,7 @@ async function refreshBills(){
   const fromMe = (data || []).filter(b => b.from_player_id === user.id && b.status === 'pending');
 
   const toMeEl = document.getElementById('bank-bills-to-me');
-  toMeEl.innerHTML = toMe.length === 0 ? '<p class="reg-empty-note">None right now.</p>' : toMe.map(b => `
+  toMeEl.innerHTML = toMe.length === 0 ? emptyState('None right now.') : toMe.map(b => `
     <div class="bank-bill-card">
       <div><strong>${escapeHtml(nameFor(b.from_player_id))}</strong> billed you <strong>${fmtAmount(b.amount)} coin</strong>${b.note ? ' - ' + escapeHtml(b.note) : ''}</div>
       <div class="bank-bill-actions">
@@ -401,7 +410,7 @@ async function refreshBills(){
   `).join('');
 
   const fromMeEl = document.getElementById('bank-bills-from-me');
-  fromMeEl.innerHTML = fromMe.length === 0 ? '<p class="reg-empty-note">None right now.</p>' : fromMe.map(b => `
+  fromMeEl.innerHTML = fromMe.length === 0 ? emptyState('None right now.') : fromMe.map(b => `
     <div class="bank-bill-card">
       <div>You billed <strong>${escapeHtml(nameFor(b.to_player_id))}</strong> <strong>${fmtAmount(b.amount)} coin</strong>${b.note ? ' - ' + escapeHtml(b.note) : ''} - waiting for payment</div>
       <div class="bank-bill-actions">
@@ -419,7 +428,7 @@ async function refreshWithdrawals(){
 
   const target = document.getElementById('bank-withdrawal-list');
   if(!data || data.length === 0){
-    target.innerHTML = '<p class="reg-empty-note">None yet.</p>';
+    target.innerHTML = emptyState('None yet.');
     return;
   }
 

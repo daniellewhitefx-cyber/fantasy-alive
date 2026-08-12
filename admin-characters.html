@@ -31,7 +31,6 @@
 <div>
 
 <h1 class="page-title">Manage Characters</h1>
-<p class="page-subhead">Staff tools. Changes here bypass the normal Skill Point budget - use with care.</p>
 
 <div class="reg-already-registered" id="ac-blocked-notice" style="display:none;">
 <h3>Staff access required</h3>
@@ -220,6 +219,9 @@ const ENERGY_TYPES = ['Magical Energy','Spiritual Energy'];
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
 
 function skillNameParts(title){
   const m = title.match(/^(.*?)\s*[\[\(]([^\]\)]+)[\]\)]\s*$/);
@@ -358,7 +360,7 @@ async function loadXp(){
     <div class="bank-bill-card">
       <div><strong>${h.amount > 0 ? '+' : ''}${h.amount} XP</strong>${h.note ? ' - ' + escapeHtml(h.note) : ''} <span class="bank-request-date">(${fmtDate(h.created_at)})</span></div>
     </div>
-  `).join('') : '<p class="reg-empty-note">No XP history yet.</p>';
+  `).join('') : emptyState('No XP history yet.');
 }
 
 async function ac_adjustXp(){
@@ -396,7 +398,7 @@ async function loadOc(){
     <div class="bank-bill-card">
       <div><strong>${h.amount > 0 ? '+' : ''}${h.amount} OC</strong>${h.note ? ' - ' + escapeHtml(h.note) : ''} <span class="bank-request-date">(${fmtDate(h.created_at)})</span></div>
     </div>
-  `).join('') : '<p class="reg-empty-note">No OC history yet.</p>';
+  `).join('') : emptyState('No OC history yet.');
 }
 
 async function ac_adjustOc(){

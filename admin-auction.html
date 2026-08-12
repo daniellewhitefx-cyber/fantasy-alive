@@ -31,7 +31,6 @@
 <div>
 
 <h1 class="page-title">Manage Auctions</h1>
-<p class="page-subhead">Staff tools. Create items, put them live, close bidding, and track payment.</p>
 
 <div class="reg-already-registered" id="aa-blocked-notice" style="display:none;">
 <h3>Staff access required</h3>
@@ -93,6 +92,9 @@ let allItems = [];
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
 function fmtMoney(n){ return '$' + Number(n).toFixed(2).replace(/\.00$/, ''); }
 function nameFor(id){ return profileMap[id] || 'Unknown player'; }
@@ -165,7 +167,7 @@ async function loadItems(){
 function renderItems(){
   const list = document.getElementById('aa-staff-list');
   if(allItems.length === 0){
-    list.innerHTML = '<p class="reg-empty-note">No auction items yet.</p>';
+    list.innerHTML = emptyState('No auction items yet.');
     return;
   }
 

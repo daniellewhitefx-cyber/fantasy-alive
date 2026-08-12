@@ -135,29 +135,6 @@
 @media (max-width: 900px){
   .home-split{ grid-template-columns: 1fr; }
 }
-.home-panel{
-  border: 2px solid var(--line);
-  border-radius: 0;
-  background: #fff;
-}
-.home-panel-head{
-  padding: 0.9rem 1.2rem;
-  border-bottom: 2px solid var(--line);
-  background: var(--cream-deep);
-}
-.home-panel-head h2{
-  font-family: 'Cinzel', serif;
-  font-size: 1.05rem;
-  margin: 0;
-  color: var(--brown-dark);
-}
-.home-panel-body{ padding: 1.1rem 1.2rem 1.3rem; }
-.home-panel .auction-item-card,
-.home-panel .auction-item-image,
-.home-panel .btn-gold,
-.home-panel .btn-outline,
-.home-panel .bank-bill-card{ border-radius: 0; }
-.home-panel .bank-form-grid input{ border-radius: 0; }
 </style>
 </head>
 <body>
@@ -171,7 +148,6 @@
 <div>
 
 <h1 class="page-title">Home</h1>
-<p class="page-subhead">Your character at a glance, the current auction, and the latest updates.</p>
 
 <div class="home-hero" id="home-hero">
   <p class="reg-empty-note">Loading&hellip;</p>
@@ -199,14 +175,14 @@
 
 <div class="home-split">
 
-<div class="home-panel">
-  <div class="home-panel-head"><h2>Auction Spotlight</h2></div>
-  <div class="home-panel-body" id="home-auction-wrap"><p class="reg-empty-note">Loading&hellip;</p></div>
+<div class="panel">
+  <div class="panel-head"><h2>Auction Spotlight</h2></div>
+  <div class="panel-body" id="home-auction-wrap"><p class="reg-empty-note">Loading&hellip;</p></div>
 </div>
 
-<div class="home-panel">
-  <div class="home-panel-head"><h2>Recent Updates</h2></div>
-  <div class="home-panel-body">
+<div class="panel">
+  <div class="panel-head"><h2>Recent Updates</h2></div>
+  <div class="panel-body">
     <div class="bank-staff-section" id="home-announce-staff-section" style="display:none; margin-bottom:1.2rem;">
       <div class="reg-section-label">Post an Update</div>
       <label class="field-label" for="home-announce-title">Title</label>
@@ -237,6 +213,10 @@ let isAnnounceStaff = false;
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
 
 function fmtMoney(n){ return '$' + Number(n).toFixed(2).replace(/\.00$/, ''); }
@@ -444,7 +424,7 @@ async function loadCurrentAuctionItem(){
 function renderCurrentAuctionItem(){
   const wrap = document.getElementById('home-auction-wrap');
   if(!currentAuctionItem){
-    wrap.innerHTML = '<p class="reg-empty-note">No auction is currently live.</p>';
+    wrap.innerHTML = emptyState('No auction is currently live.');
     return;
   }
 
@@ -534,7 +514,7 @@ async function loadAnnouncements(){
     .order('created_at', { ascending: false });
 
   if(!rows || rows.length === 0){
-    list.innerHTML = '<p class="reg-empty-note">No updates posted yet.</p>';
+    list.innerHTML = emptyState('No updates posted yet.');
     return;
   }
 

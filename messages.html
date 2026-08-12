@@ -31,7 +31,6 @@
 <div>
 
 <h1 class="page-title">Messages</h1>
-<p class="page-subhead">Message another player directly, or reach a department like Plot or Logistics.</p>
 
 <div class="msg-layout">
 
@@ -77,6 +76,9 @@ let composeTarget = null;
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
 
 function fmtDateTime(iso){
@@ -258,7 +260,7 @@ function renderConversationList(){
   const target = document.getElementById('msg-conversation-list');
   const visible = conversations.filter(c => conversationView(c) === activeView);
   if(visible.length === 0){
-    target.innerHTML = '<p class="reg-empty-note" style="padding:1rem;">No conversations here.</p>';
+    target.innerHTML = emptyState('No conversations here.');
     return;
   }
   target.innerHTML = visible.map(c => `

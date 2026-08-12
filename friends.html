@@ -33,7 +33,6 @@
 <div class="char-switcher" id="char-switcher"></div>
 
 <h1 class="page-title">Friends</h1>
-<p class="page-subhead">Friends are tracked per character. Search for anyone in the player base to send a friend request, they'll need to accept before you show up on each other's list.</p>
 
 <div class="section-block">
 <div class="bank-recipient-picker" data-picker="friends">
@@ -74,6 +73,9 @@ let ALL_CANDIDATES = [];
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
 
 function selectChar(id){
@@ -250,7 +252,7 @@ async function loadFriends(){
 
   const allIds = [...EXCLUDED_CANDIDATE_IDS];
   if(allIds.length === 0){
-    listEl.innerHTML = `<p class="page-subhead" style="margin:0;">No friends added yet for this character.</p>`;
+    listEl.innerHTML = emptyState('No friends added yet for this character.');
     incomingBlock.style.display = 'none';
     outgoingBlock.style.display = 'none';
     return;
@@ -287,7 +289,7 @@ async function loadFriends(){
     listEl.innerHTML = friends_renderNamedCards(accepted, charById, nameByPlayer, id =>
       `<button class="btn-outline friends-remove-btn" onclick="friends_removeFriend('${id}')">Remove</button>`);
   } else {
-    listEl.innerHTML = `<p class="page-subhead" style="margin:0;">No friends added yet for this character.</p>`;
+    listEl.innerHTML = emptyState('No friends added yet for this character.');
   }
 }
 
