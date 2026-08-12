@@ -61,6 +61,7 @@
 <script>
 (function(){
 let profileMap = {};
+let charsByPlayer = {};
 let departments = [];
 let myCharacters = [];
 let myDepartments = [];
@@ -82,7 +83,11 @@ function fmtDateTime(iso){
   return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
-function nameFor(playerId){ return profileMap[playerId] || 'Unknown player'; }
+function nameFor(playerId){
+  const base = profileMap[playerId] || 'Unknown player';
+  const chars = charsByPlayer[playerId];
+  return chars && chars.length ? `${base} (${chars.join(', ')})` : base;
+}
 function deptName(id){ const d = departments.find(x => x.id === id); return d ? d.name : 'Unknown department'; }
 function charNameFor(id){ return charNameMap[id] || 'Unknown character'; }
 
@@ -185,15 +190,16 @@ async function msg_searchComposeRecipient(query){
     (extraProfiles || []).forEach(p => { byId[p.id] = p.display_name; });
   }
 
-  const entries = Object.entries(byId).slice(0, 8);
+  const entries = Object.keys(byId).slice(0, 8);
   if(entries.length === 0){
     results.innerHTML = '<div class="bank-recipient-empty">No matching players.</div>';
     return;
   }
 
-  results.innerHTML = entries.map(([id, name]) => `
-    <button class="bank-recipient-result" data-id="${escapeHtml(id)}" data-name="${escapeHtml(name)}">${escapeHtml(name)}</button>
-  `).join('');
+  results.innerHTML = entries.map(id => {
+    const label = nameFor(id);
+    return `<button class="bank-recipient-result" data-id="${escapeHtml(id)}" data-name="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
+  }).join('');
   results.querySelectorAll('.bank-recipient-result').forEach(btn => {
     btn.addEventListener('click', () => msg_pickPlayer(btn.dataset.id, btn.dataset.name));
   });
@@ -548,9 +554,16 @@ async function loadMessages(reopenKey){
 async function init(){
   const me = window.faCurrentUser.id;
 
-  const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
+  const [{ data: profiles }, { data: allChars }] = await Promise.all([
+    membersSupabase.from('profiles').select('id, display_name'),
+    membersSupabase.from('character_names').select('name, player_id')
+  ]);
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
+  charsByPlayer = {};
+  (allChars || []).forEach(c => {
+    (charsByPlayer[c.player_id] = charsByPlayer[c.player_id] || []).push(c.name);
+  });
 
   const { data: depts } = await membersSupabase.from('departments').select('id, name').order('name');
   departments = depts || [];
