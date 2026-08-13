@@ -2,3 +2,4 @@
 .env.*
 supabase/.env
 supabase/functions/**/.env
+.wrangler/
