@@ -191,6 +191,20 @@ function renderCharPanel(c){
         <div class="stat-row"><span class="stat-label">XP Converted</span><span class="stat-value">${(conv.xpConvertedSp * conv.rate).toLocaleString()} / ${conv.xpBalance.toLocaleString()} Exp</span></div>
         <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${conv.rate}:1</span></div>
       </div>
+    </div>
+    <div>
+      <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th>${showDatesLearned ? '<th>Learned</th>' : ''}</tr></thead>
+        <tbody>
+          ${c.skills.length ? c.skills.map(s => `<tr><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.type)}</td><td>${escapeHtml(s.focus)}</td><td>${s.level}</td><td>${s.sp}</td>${showDatesLearned ? `<td>${fmtDate(s.learnedAt)}</td>` : ''}</tr>`).join('')
+            : `<tr><td colspan="${showDatesLearned ? 6 : 5}">No skills chosen yet.</td></tr>`}
+        </tbody>
+      </table>
+      </div>
+      <div style="display:flex; justify-content:flex-end; margin-top:0.5rem;">
+        <button class="btn-outline" style="font-size:0.8rem; padding:0.35rem 0.7rem;" onclick="chars_toggleDatesLearned()">${showDatesLearned ? 'Hide' : 'Show'} Dates Learned</button>
+      </div>
       <div class="reg-section" style="margin-top:1rem;">
         <div class="reg-section-label">Event Splash Page Privacy</div>
         <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem; cursor:pointer;">
@@ -204,20 +218,6 @@ function renderCharPanel(c){
         <button class="btn-outline" style="margin-top:0.8rem;" onclick="chars_savePrivacy('${c.id}')">Save Privacy Settings</button>
         <p class="reg-success-note" id="chars-privacy-success" style="display:none;"></p>
         <p class="reg-error-note" id="chars-privacy-error" style="display:none;"></p>
-      </div>
-    </div>
-    <div>
-      <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
-        <button class="btn-outline" style="font-size:0.8rem; padding:0.35rem 0.7rem;" onclick="chars_toggleDatesLearned()">${showDatesLearned ? 'Hide' : 'Show'} Dates Learned</button>
-      </div>
-      <div class="table-scroll">
-      <table class="data-table">
-        <thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th>${showDatesLearned ? '<th>Learned</th>' : ''}</tr></thead>
-        <tbody>
-          ${c.skills.length ? c.skills.map(s => `<tr><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.type)}</td><td>${escapeHtml(s.focus)}</td><td>${s.level}</td><td>${s.sp}</td>${showDatesLearned ? `<td>${fmtDate(s.learnedAt)}</td>` : ''}</tr>`).join('')
-            : `<tr><td colspan="${showDatesLearned ? 6 : 5}">No skills chosen yet.</td></tr>`}
-        </tbody>
-      </table>
       </div>
     </div>
   `;
