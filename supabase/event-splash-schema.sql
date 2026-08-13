@@ -44,7 +44,7 @@ returns table (
     end
   from characters c
   where auth.uid() is not null
-    and lower(c.name) = any(select lower(x) from unnest(p_character_names));
+    and lower(c.name) = any(select lower(x) from unnest(p_character_names) as x);
 $$;
 
 -- The Event Info feed (per-event Plot updates) is scoped to the Plot
