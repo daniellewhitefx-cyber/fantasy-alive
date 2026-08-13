@@ -120,6 +120,7 @@
 <script src="js/members-auth.js"></script>
 <script src="js/skills-data.js"></script>
 <script src="js/skills-catalog.js"></script>
+<script src="js/character-stats.js"></script>
 <script>
 (function(){
 let allSkills = [];
@@ -129,6 +130,11 @@ let browseState = {};
 let existingCharCount = 0;
 
 function currentRace(){ return document.getElementById('cc-race').value; }
+function currentStats(){
+  const race = currentRace();
+  if(!race) return null;
+  return faDeriveStats(race, chosen.map(s => ({ name: s.title, level: s.level })));
+}
 function startingSP(){
   if(existingCharCount === 0) return 30;
   return currentRace() === 'Human' ? 15 : 10;
@@ -249,7 +255,7 @@ function renderBrowser(){
 
   const rows = allSkills
     .map((s, idx) => ({ s, idx }))
-    .filter(({ s }) => s.category === activeCategory && isPrereqMet(s.prereq, chosen));
+    .filter(({ s }) => s.category === activeCategory && isPrereqMet(s.prereq, chosen, currentStats()));
 
   document.getElementById('cc-browser-body').innerHTML = rows.map(({ s, idx }) => {
     const parts = skillNameParts(s.title);

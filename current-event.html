@@ -102,6 +102,7 @@
 <script src="js/xp-convert.js"></script>
 <script src="js/skills-data.js"></script>
 <script src="js/skills-catalog.js"></script>
+<script src="js/character-stats.js"></script>
 <script>
 (function(){
 let EVENT = null;
@@ -114,6 +115,7 @@ let ACTIVE_TAB = 'oc';
 let TRAIN_ALL_SKILLS = [];
 let TRAIN_CATEGORY = null;
 let TRAIN_KNOWN = [];
+let TRAIN_STATS = null;
 let TRAIN_PURCHASES = [];
 let TRAIN_SUMMARY = { spendable_sp: 0, hours_spent: 0 };
 let TRAIN_BUDGET = 0;
@@ -201,7 +203,7 @@ async function checkRegistrationAndRender(){
   MY_CHARACTER = null;
 
   if(mine.who === 'character'){
-    const { data: chars } = await membersSupabase.from('characters').select('id, name').eq('player_id', me.id);
+    const { data: chars } = await membersSupabase.from('characters').select('id, name, race').eq('player_id', me.id);
     MY_CHARACTER = (chars || []).find(c => c.name.trim().toLowerCase() === (mine.characterName || '').trim().toLowerCase()) || null;
   }
 
@@ -392,6 +394,7 @@ async function refreshTrainingState(){
       .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true })
   ]);
   TRAIN_KNOWN = (skillRows || []).map(sk => ({ id: sk.id, category: sk.category, title: sk.skill_name, focus: sk.focus || '', level: sk.level, spCost: sk.sp_cost }));
+  TRAIN_STATS = faDeriveStats(MY_CHARACTER.race, TRAIN_KNOWN.map(k => ({ name: k.title, level: k.level })));
   TRAIN_SUMMARY = summary || { spendable_sp: 0, hours_spent: 0 };
   TRAIN_PURCHASES = purchases || [];
   TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT);
@@ -545,7 +548,7 @@ function trainCostLabel(info){
 function renderTrainBrowser(){
   const rows = TRAIN_ALL_SKILLS
     .map((s, idx) => ({ s, idx }))
-    .filter(({ s }) => s.category === TRAIN_CATEGORY && isPrereqMet(s.prereq, TRAIN_KNOWN))
+    .filter(({ s }) => s.category === TRAIN_CATEGORY && isPrereqMet(s.prereq, TRAIN_KNOWN, TRAIN_STATS))
     .filter(({ s }) => {
       const parts = skillNameParts(s.title);
       if(parts.placeholder || isLeveledCost(s.cost)) return true;
