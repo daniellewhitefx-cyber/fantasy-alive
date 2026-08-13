@@ -85,6 +85,69 @@
 }
 .ce-info-item:last-child{ border-bottom: none; }
 .ce-info-item p{ margin: 0; white-space: pre-wrap; }
+.shop-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.shop-card{
+  border: 2px solid var(--line);
+  background: var(--row-b);
+  padding: 1rem;
+  display:flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.shop-card:hover{
+  transform: translateY(-3px);
+  border-color: var(--gold-dark);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+}
+.shop-card-head{
+  display:flex;
+  align-items:center;
+  gap: 0.6rem;
+}
+.shop-card-icon{
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--gold-dark);
+  color: var(--ink);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+.shop-card-name{
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.shop-card-price{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--gold-dark);
+  letter-spacing: 0.02em;
+}
+.shop-card-actions{
+  display:flex;
+  align-items:center;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+.shop-qty{
+  width: 54px;
+  text-align: center;
+}
 </style>
 </head>
 <body>
@@ -113,6 +176,7 @@
 <script src="js/skills-data.js"></script>
 <script src="js/skills-catalog.js"></script>
 <script src="js/character-stats.js"></script>
+<script src="js/shoppe-data.js"></script>
 <script>
 (function(){
 let EVENT = null;
@@ -131,6 +195,13 @@ let INFO_ROSTER = [];
 let INFO_CAST_COUNT = 0;
 let INFO_ITEMS = [];
 let INFO_CAN_EDIT = false;
+
+let SHOP_ALL_ITEMS = [];
+let SHOP_CATEGORY = null;
+let SHOP_QTY_STATE = {};
+let SHOP_BANK_BALANCE = 0;
+let SHOP_PURCHASES = [];
+let SHOP_LOAD_ERROR = null;
 
 let TRAIN_ALL_SKILLS = [];
 let TRAIN_CATEGORY = null;
@@ -276,6 +347,7 @@ function renderTabBar(){
     <button class="${ACTIVE_TAB === 'info' ? 'active' : ''}" onclick="ce_selectTab('info')">Event Info</button>
     <button class="${ACTIVE_TAB === 'oc' ? 'active' : ''}" onclick="ce_selectTab('oc')">Spend OC</button>
     <button class="${ACTIVE_TAB === 'training' ? 'active' : ''}" onclick="ce_selectTab('training')">Training</button>
+    <button class="${ACTIVE_TAB === 'shoppe' ? 'active' : ''}" onclick="ce_selectTab('shoppe')">Shoppe</button>
   `;
 }
 
@@ -325,6 +397,13 @@ async function renderTabBody(){
 
   if(ACTIVE_TAB === 'oc'){
     body.innerHTML = renderOcHtml();
+    return;
+  }
+
+  if(ACTIVE_TAB === 'shoppe'){
+    body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Loading the shop&hellip;</p></div></div>`;
+    await loadShopData();
+    renderShopBody();
     return;
   }
 
@@ -547,6 +626,158 @@ async function ce_infoDelete(id){
 
   INFO_LOADED = false;
   await renderInfoBody();
+}
+
+// --- Shoppe tab ---
+
+async function loadShopData(){
+  SHOP_LOAD_ERROR = null;
+  try{
+    if(!SHOP_ALL_ITEMS.length){
+      SHOP_ALL_ITEMS = await shoppeLoadFromSheet();
+      const categories = shoppeOrderedCategories(SHOP_ALL_ITEMS);
+      SHOP_CATEGORY = categories.length ? categories[0] : null;
+    }
+    const [{ data: balance }, { data: purchases }] = await Promise.all([
+      membersSupabase.rpc('bank_my_balance'),
+      membersSupabase.from('shoppe_purchases').select('id, category, item_name, unit_cost_copper, quantity, total_cost_copper')
+        .eq('player_id', window.faCurrentUser.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true })
+    ]);
+    SHOP_BANK_BALANCE = balance || 0;
+    SHOP_PURCHASES = purchases || [];
+  } catch(err){
+    SHOP_LOAD_ERROR = err.message;
+  }
+}
+
+function renderShopPurchasesHtml(){
+  if(!SHOP_PURCHASES.length) return '';
+  const rows = SHOP_PURCHASES.map(p => `
+    <tr>
+      <td>${escapeHtml(p.item_name)}</td>
+      <td>${escapeHtml(p.category)}</td>
+      <td>${p.quantity}</td>
+      <td>${p.total_cost_copper} Copper</td>
+      <td><button class="btn-outline" onclick="ce_shopCancel('${p.id}')" title="Refund this purchase">&times;</button></td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="panel">
+      <div class="panel-head"><h2>Purchased This Event</h2></div>
+      <div class="panel-body">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Item</th><th>Category</th><th>Qty</th><th>Cost</th><th></th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderShopBody(){
+  const body = document.getElementById('ce-tab-body');
+
+  if(SHOP_LOAD_ERROR){
+    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>Shoppe</h2></div><div class="panel-body"><p class="reg-error-note">Couldn't load the shop: ${escapeHtml(SHOP_LOAD_ERROR)}</p></div></div>`;
+    return;
+  }
+
+  body.innerHTML = `
+    ${renderShopPurchasesHtml()}
+    <div class="panel">
+      <div class="panel-head ce-event-head">
+        <h2>The Shoppe</h2>
+        <span class="ce-logging-as">Your Copper: ${SHOP_BANK_BALANCE}</span>
+      </div>
+      <div class="panel-body">
+        <div class="day-toggle" id="ce-shop-cat-tabs"></div>
+        <div class="shop-grid" id="ce-shop-grid"></div>
+        <p class="reg-error-note" id="ce-shop-error" style="display:none; margin-top:0.6rem;"></p>
+      </div>
+    </div>
+  `;
+
+  renderShopCatTabs();
+  renderShopGrid();
+}
+
+function renderShopCatTabs(){
+  const categories = shoppeOrderedCategories(SHOP_ALL_ITEMS);
+  document.getElementById('ce-shop-cat-tabs').innerHTML = categories.map(cat =>
+    `<button class="${cat === SHOP_CATEGORY ? 'active' : ''}" onclick="ce_shopSelectCategory('${cat.replace(/'/g, "\\'")}')">${escapeHtml(cat)}</button>`
+  ).join('');
+}
+
+function ce_shopSelectCategory(cat){
+  SHOP_CATEGORY = cat;
+  renderShopCatTabs();
+  renderShopGrid();
+}
+
+function renderShopGrid(){
+  const items = SHOP_ALL_ITEMS.filter(i => i.category === SHOP_CATEGORY);
+
+  document.getElementById('ce-shop-grid').innerHTML = items.length ? items.map(item => {
+    const key = item.category + '::' + item.name;
+    SHOP_QTY_STATE[key] = SHOP_QTY_STATE[key] || 1;
+    const qty = SHOP_QTY_STATE[key];
+    const total = item.costCopper * qty;
+    const canAfford = total <= SHOP_BANK_BALANCE;
+    const keyEsc = key.replace(/'/g, "\\'");
+
+    return `
+      <div class="shop-card">
+        <div class="shop-card-head">
+          <div class="shop-card-icon">${escapeHtml(item.name.charAt(0).toUpperCase())}</div>
+          <div class="shop-card-name">${escapeHtml(item.name)}</div>
+        </div>
+        <div class="shop-card-price">${item.costCopper} Copper each</div>
+        <div class="shop-card-actions">
+          <input type="number" min="1" value="${qty}" class="shop-qty" onchange="ce_shopUpdateQty('${keyEsc}', this.value)">
+          <button class="btn-outline" style="flex:1;" ${canAfford ? '' : 'disabled'} onclick="ce_shopBuy('${item.category.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}', ${item.costCopper})">Buy (${total})</button>
+        </div>
+      </div>
+    `;
+  }).join('') : `<p class="reg-empty-note">Nothing in this category yet.</p>`;
+}
+
+function ce_shopUpdateQty(key, val){
+  let n = parseInt(val, 10);
+  if(isNaN(n) || n < 1) n = 1;
+  SHOP_QTY_STATE[key] = n;
+  renderShopGrid();
+}
+
+async function ce_shopBuy(category, itemName, unitCost){
+  const errorEl = document.getElementById('ce-shop-error');
+  errorEl.style.display = 'none';
+  const key = category + '::' + itemName;
+  const qty = SHOP_QTY_STATE[key] || 1;
+
+  const { error } = await membersSupabase.rpc('shoppe_buy_item', {
+    p_event_slug: EVENT.value,
+    p_character_id: (REGISTERED_AS === 'character' && MY_CHARACTER) ? MY_CHARACTER.id : null,
+    p_category: category,
+    p_item_name: itemName,
+    p_unit_cost_copper: unitCost,
+    p_quantity: qty
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  delete SHOP_QTY_STATE[key];
+  await loadShopData();
+  renderShopBody();
+}
+
+async function ce_shopCancel(purchaseId){
+  const { error } = await membersSupabase.rpc('shoppe_cancel_purchase', { p_purchase_id: purchaseId });
+  if(error){ alert(error.message); return; }
+
+  await loadShopData();
+  renderShopBody();
 }
 
 // --- Training tab ---
@@ -829,6 +1060,10 @@ window.ce_trainAct = ce_trainAct;
 window.ce_trainCancel = ce_trainCancel;
 window.ce_infoPost = ce_infoPost;
 window.ce_infoDelete = ce_infoDelete;
+window.ce_shopSelectCategory = ce_shopSelectCategory;
+window.ce_shopUpdateQty = ce_shopUpdateQty;
+window.ce_shopBuy = ce_shopBuy;
+window.ce_shopCancel = ce_shopCancel;
 
 document.addEventListener('fa-members-ready', async () => {
   EVENT = window.FA_NEXT_EVENT;
