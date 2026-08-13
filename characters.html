@@ -64,6 +64,7 @@ let CHARACTERS = [];
 let activeCharId = null;
 let remortByChar = {};
 let xpByChar = {};
+let showDatesLearned = false;
 
 const RACE_STATS = {
   'Curtainborn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 5, baseMe: 0 },
@@ -109,6 +110,16 @@ function chars_selectChar(id){
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fmtDate(d){
+  if(!d) return '-';
+  return new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function chars_toggleDatesLearned(){
+  showDatesLearned = !showDatesLearned;
+  render();
 }
 
 async function updateRegisterStatus(character){
@@ -175,14 +186,19 @@ function render(){
       <div class="stat-row"><span class="stat-label">XP Converted</span><span class="stat-value">${(conv.xpConvertedSp * conv.rate).toLocaleString()} / ${conv.xpBalance.toLocaleString()} Exp</span></div>
       <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${conv.rate}:1</span></div>
     </div>
-    <div class="table-scroll">
-    <table class="data-table">
-      <thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th></tr></thead>
-      <tbody>
-        ${c.skills.length ? c.skills.map(s => `<tr><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.type)}</td><td>${escapeHtml(s.focus)}</td><td>${s.level}</td><td>${s.sp}</td></tr>`).join('')
-          : `<tr><td colspan="5">No skills chosen yet.</td></tr>`}
-      </tbody>
-    </table>
+    <div>
+      <div style="margin-bottom:0.8rem;">
+        <button class="btn-outline" onclick="chars_toggleDatesLearned()">${showDatesLearned ? 'Hide' : 'Show'} Dates Learned</button>
+      </div>
+      <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th>${showDatesLearned ? '<th>Learned</th>' : ''}</tr></thead>
+        <tbody>
+          ${c.skills.length ? c.skills.map(s => `<tr><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.type)}</td><td>${escapeHtml(s.focus)}</td><td>${s.level}</td><td>${s.sp}</td>${showDatesLearned ? `<td>${fmtDate(s.learnedAt)}</td>` : ''}</tr>`).join('')
+            : `<tr><td colspan="${showDatesLearned ? 6 : 5}">No skills chosen yet.</td></tr>`}
+        </tbody>
+      </table>
+      </div>
     </div>
   `;
 }
@@ -236,7 +252,7 @@ async function loadCharacters(){
 
   const { data: skillRows } = await membersSupabase
     .from('character_skills')
-    .select('character_id, category, skill_name, focus, level, sp_cost')
+    .select('character_id, category, skill_name, focus, level, sp_cost, created_at')
     .eq('player_id', window.faCurrentUser.id);
 
   CHARACTERS = chars.map(ch => ({
@@ -249,7 +265,7 @@ async function loadCharacters(){
     socialClass: ch.social_class,
     skills: (skillRows || [])
       .filter(sk => sk.character_id === ch.id)
-      .map(sk => ({ name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, sp: sk.sp_cost }))
+      .map(sk => ({ name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, sp: sk.sp_cost, learnedAt: sk.created_at }))
   }));
 
   await Promise.all(CHARACTERS.map(async ch => {
@@ -265,6 +281,7 @@ async function loadCharacters(){
 
 window.chars_selectChar = chars_selectChar;
 window.chars_requestRemort = chars_requestRemort;
+window.chars_toggleDatesLearned = chars_toggleDatesLearned;
 
 document.addEventListener('fa-members-ready', async () => {
   await loadCharacters();
