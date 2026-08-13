@@ -75,6 +75,16 @@
 @media (max-width: 600px){
   .ce-stats{ grid-template-columns: 1fr; }
 }
+.ce-info-item{
+  border-bottom: 1px solid var(--line);
+  padding: 0.8rem 0;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 0.8rem;
+}
+.ce-info-item:last-child{ border-bottom: none; }
+.ce-info-item p{ margin: 0; white-space: pre-wrap; }
 </style>
 </head>
 <body>
@@ -106,11 +116,21 @@
 <script>
 (function(){
 let EVENT = null;
+let LOG_STATUS = null;
+let REG_CHECKED = false;
+let REG_ERROR = null;
 let REGISTERED_AS = null;
 let MY_CHARACTER = null;
 let OC_BALANCE = 0;
 let SPENT = { xp_spent: 0, copper_spent: 0 };
-let ACTIVE_TAB = 'oc';
+let ACTIVE_TAB = 'info';
+
+let INFO_LOADED = false;
+let INFO_ERROR = null;
+let INFO_ROSTER = [];
+let INFO_CAST_COUNT = 0;
+let INFO_ITEMS = [];
+let INFO_CAN_EDIT = false;
 
 let TRAIN_ALL_SKILLS = [];
 let TRAIN_CATEGORY = null;
@@ -157,34 +177,35 @@ function renderNoEvent(){
   document.getElementById('ce-content').innerHTML = `<div class="panel"><div class="panel-body">${emptyState('No upcoming event is scheduled yet.')}</div></div>`;
 }
 
-function renderLocked(status){
-  const label = status.state === 'not-open'
-    ? `The log for ${escapeHtml(EVENT.longLabel)} opens ${fmtDateTime(status.opensAt)}.`
-    : `The log for ${escapeHtml(EVENT.longLabel)} closed ${fmtDateTime(status.closesAt)}.`;
-  document.getElementById('ce-content').innerHTML = `
-    <div class="panel">
-      <div class="panel-head"><h2>${escapeHtml(EVENT.longLabel)}</h2></div>
-      <div class="panel-body">${emptyState(label)}</div>
-    </div>
-  `;
-}
+async function renderShell(){
+  LOG_STATUS = window.faLogStatus(EVENT);
 
-function renderNotRegistered(){
   document.getElementById('ce-content').innerHTML = `
     <div class="panel">
-      <div class="panel-head"><h2>${escapeHtml(EVENT.longLabel)}</h2></div>
-      <div class="panel-body">
-        ${emptyState("You're not registered for this event yet.")}
-        <a href="register.html"><button class="btn-gold">Register for This Event</button></a>
+      <div class="panel-head ce-event-head">
+        <h2>${escapeHtml(EVENT.longLabel)}</h2>
+        <span class="ce-logging-as" id="ce-logging-as"></span>
       </div>
+      <div class="panel-body" id="ce-header-stats">${renderHeaderStatsHtml()}</div>
     </div>
+    <div class="day-toggle" id="ce-tabs"></div>
+    <div id="ce-tab-body"></div>
   `;
+
+  renderTabBar();
+  await renderTabBody();
+
+  await loadRegistration();
 }
 
-async function checkRegistrationAndRender(){
-  const me = window.faCurrentUser;
-  document.getElementById('ce-content').innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Checking your registration&hellip;</p></div></div>`;
+async function loadRegistration(){
+  if(LOG_STATUS.state !== 'open'){
+    REG_CHECKED = true;
+    if(ACTIVE_TAB !== 'info') await renderTabBody();
+    return;
+  }
 
+  const me = window.faCurrentUser;
   let registrants;
   try{
     const res = await fetch(window.FA_REGISTRATION_ENDPOINT + '?action=list&event=' + encodeURIComponent(EVENT.label), { cache: 'no-store' });
@@ -192,25 +213,35 @@ async function checkRegistrationAndRender(){
     const data = await res.json();
     registrants = data.registrants || [];
   } catch(err){
-    document.getElementById('ce-content').innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-error-note">Couldn't check your registration: ${escapeHtml(err.message)}</p></div></div>`;
+    REG_ERROR = err.message;
+    REG_CHECKED = true;
+    if(ACTIVE_TAB !== 'info') await renderTabBody();
     return;
   }
 
   const mine = registrants.find(r => (r.email || '').trim().toLowerCase() === (me.email || '').trim().toLowerCase());
-  if(!mine){ renderNotRegistered(); return; }
-
-  REGISTERED_AS = mine.who;
+  REGISTERED_AS = mine ? mine.who : null;
   MY_CHARACTER = null;
 
-  if(mine.who === 'character'){
+  if(mine && mine.who === 'character'){
     const { data: chars } = await membersSupabase.from('characters').select('id, name, race').eq('player_id', me.id);
     MY_CHARACTER = (chars || []).find(c => c.name.trim().toLowerCase() === (mine.characterName || '').trim().toLowerCase()) || null;
   }
 
-  await renderOpen();
+  if(REGISTERED_AS) await loadOcAndTraining();
+
+  REG_CHECKED = true;
+
+  const loggingAsLabel = REGISTERED_AS === 'character' && MY_CHARACTER
+    ? MY_CHARACTER.name
+    : (REGISTERED_AS === 'cast' ? 'Cast' : '');
+  document.getElementById('ce-logging-as').textContent = loggingAsLabel ? `Logging as ${loggingAsLabel}` : '';
+
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+  if(ACTIVE_TAB !== 'info') await renderTabBody();
 }
 
-async function renderOpen(){
+async function loadOcAndTraining(){
   const tasks = [
     membersSupabase.from('oc_transactions').select('amount').eq('player_id', window.faCurrentUser.id),
     membersSupabase.rpc('event_log_oc_summary', { p_event_slug: EVENT.value })
@@ -224,25 +255,6 @@ async function renderOpen(){
 
   OC_BALANCE = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
   SPENT = summary || { xp_spent: 0, copper_spent: 0 };
-
-  const loggingAsLabel = REGISTERED_AS === 'character' && MY_CHARACTER
-    ? MY_CHARACTER.name
-    : (REGISTERED_AS === 'cast' ? 'Cast' : '');
-
-  document.getElementById('ce-content').innerHTML = `
-    <div class="panel">
-      <div class="panel-head ce-event-head">
-        <h2>${escapeHtml(EVENT.longLabel)}</h2>
-        ${loggingAsLabel ? `<span class="ce-logging-as">Logging as ${escapeHtml(loggingAsLabel)}</span>` : ''}
-      </div>
-      <div class="panel-body" id="ce-header-stats">${renderHeaderStatsHtml()}</div>
-    </div>
-    <div class="day-toggle" id="ce-tabs"></div>
-    <div id="ce-tab-body"></div>
-  `;
-
-  renderTabBar();
-  await renderTabBody();
 }
 
 function renderHeaderStatsHtml(){
@@ -261,6 +273,7 @@ function renderHeaderStatsHtml(){
 
 function renderTabBar(){
   document.getElementById('ce-tabs').innerHTML = `
+    <button class="${ACTIVE_TAB === 'info' ? 'active' : ''}" onclick="ce_selectTab('info')">Event Info</button>
     <button class="${ACTIVE_TAB === 'oc' ? 'active' : ''}" onclick="ce_selectTab('oc')">Spend OC</button>
     <button class="${ACTIVE_TAB === 'training' ? 'active' : ''}" onclick="ce_selectTab('training')">Training</button>
   `;
@@ -274,6 +287,41 @@ async function ce_selectTab(tab){
 
 async function renderTabBody(){
   const body = document.getElementById('ce-tab-body');
+
+  if(ACTIVE_TAB === 'info'){
+    await renderInfoBody();
+    return;
+  }
+
+  if(!REG_CHECKED){
+    body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Checking your registration&hellip;</p></div></div>`;
+    return;
+  }
+
+  if(REG_ERROR){
+    body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-error-note">Couldn't check your registration: ${escapeHtml(REG_ERROR)}</p></div></div>`;
+    return;
+  }
+
+  if(LOG_STATUS.state !== 'open'){
+    const label = LOG_STATUS.state === 'not-open'
+      ? `The log for ${escapeHtml(EVENT.longLabel)} opens ${fmtDateTime(LOG_STATUS.opensAt)}.`
+      : `The log for ${escapeHtml(EVENT.longLabel)} closed ${fmtDateTime(LOG_STATUS.closesAt)}.`;
+    body.innerHTML = `<div class="panel"><div class="panel-body">${emptyState(label)}</div></div>`;
+    return;
+  }
+
+  if(!REGISTERED_AS){
+    body.innerHTML = `
+      <div class="panel">
+        <div class="panel-body">
+          ${emptyState("You're not registered for this event yet.")}
+          <a href="register.html"><button class="btn-gold">Register for This Event</button></a>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   if(ACTIVE_TAB === 'oc'){
     body.innerHTML = renderOcHtml();
@@ -360,7 +408,7 @@ async function ce_updateXp(){
   });
   if(error){ select.value = SPENT.xp_spent; showError(errorEl, error.message); return; }
 
-  await renderOpen();
+  await refreshAfterOcChange();
 }
 
 async function ce_updateCopper(){
@@ -374,7 +422,131 @@ async function ce_updateCopper(){
   });
   if(error){ select.value = SPENT.copper_spent; showError(errorEl, error.message); return; }
 
-  await renderOpen();
+  await refreshAfterOcChange();
+}
+
+async function refreshAfterOcChange(){
+  await loadOcAndTraining();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+  await renderTabBody();
+}
+
+// --- Event Info tab ---
+
+async function renderInfoBody(){
+  const body = document.getElementById('ce-tab-body');
+  if(!INFO_LOADED){
+    body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Loading event info&hellip;</p></div></div>`;
+    await loadInfoData();
+  }
+  renderInfoHtml();
+}
+
+async function loadInfoData(){
+  INFO_ERROR = null;
+  try{
+    const [rosterRes, itemsResult, canEditResult] = await Promise.all([
+      fetch(window.FA_REGISTRATION_ENDPOINT + '?action=list&event=' + encodeURIComponent(EVENT.label), { cache: 'no-store' })
+        .then(res => { if(!res.ok) throw new Error('Roster check failed (' + res.status + ')'); return res.json(); }),
+      membersSupabase.from('event_info_items').select('id, body, created_at').eq('event_slug', EVENT.value).order('created_at', { ascending: false }),
+      membersSupabase.rpc('fa_is_plot_or_admin')
+    ]);
+
+    const registrants = rosterRes.registrants || [];
+    const characterNames = registrants.filter(r => r.who === 'character').map(r => r.characterName).filter(Boolean);
+    INFO_CAST_COUNT = registrants.filter(r => r.who === 'cast').length;
+
+    INFO_ROSTER = characterNames.length
+      ? (await membersSupabase.rpc('event_splash_roster', { p_character_names: characterNames })).data || []
+      : [];
+    INFO_ITEMS = itemsResult.data || [];
+    INFO_CAN_EDIT = !!canEditResult.data;
+  } catch(err){
+    INFO_ERROR = err.message;
+  }
+  INFO_LOADED = true;
+}
+
+function renderInfoHtml(){
+  const body = document.getElementById('ce-tab-body');
+
+  if(INFO_ERROR){
+    body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-error-note">Couldn't load event info: ${escapeHtml(INFO_ERROR)}</p></div></div>`;
+    return;
+  }
+
+  const rosterRows = INFO_ROSTER.map(r => {
+    const trades = r.trades || [];
+    const tradesLabel = trades.length
+      ? trades.map(t => `${escapeHtml(t.name)}${t.focus ? ' (' + escapeHtml(t.focus) + ')' : ''} - Level ${t.level}`).join(', ')
+      : (r.hide_trades ? 'Hidden' : 'None');
+    return `<tr><td>${escapeHtml(r.character_name)}</td><td>${tradesLabel}</td></tr>`;
+  }).join('');
+
+  const rosterSection = `
+    <div class="panel">
+      <div class="panel-head"><h2>Who's Coming</h2></div>
+      <div class="panel-body">
+        ${INFO_ROSTER.length ? `
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Character</th><th>Trades</th></tr></thead>
+              <tbody>${rosterRows}</tbody>
+            </table>
+          </div>
+        ` : emptyState('No one has registered for this event yet.')}
+        ${INFO_CAST_COUNT ? `<p class="page-subhead" style="margin-top:0.8rem;">Plus ${INFO_CAST_COUNT} Cast member${INFO_CAST_COUNT === 1 ? '' : 's'}.</p>` : ''}
+      </div>
+    </div>
+  `;
+
+  const itemsHtml = INFO_ITEMS.length ? INFO_ITEMS.map(item => `
+    <div class="ce-info-item">
+      <p>${escapeHtml(item.body)}</p>
+      ${INFO_CAN_EDIT ? `<button class="btn-outline" onclick="ce_infoDelete('${item.id}')">Delete</button>` : ''}
+    </div>
+  `).join('') : emptyState('No updates posted yet.');
+
+  const infoSection = `
+    <div class="panel">
+      <div class="panel-head"><h2>Event Updates</h2></div>
+      <div class="panel-body">
+        ${INFO_CAN_EDIT ? `
+          <div style="margin-bottom:1rem;">
+            <label class="field-label" for="ce-info-new-body">Post an Update</label>
+            <textarea id="ce-info-new-body" placeholder="Anything players should know about this event"></textarea>
+            <button class="btn-gold" style="margin-top:0.6rem;" onclick="ce_infoPost()">Post Update</button>
+            <p class="reg-error-note" id="ce-info-post-error" style="display:none; margin-top:0.6rem;"></p>
+          </div>
+        ` : ''}
+        <div id="ce-info-items">${itemsHtml}</div>
+      </div>
+    </div>
+  `;
+
+  body.innerHTML = `<div class="ce-cols">${rosterSection}${infoSection}</div>`;
+}
+
+async function ce_infoPost(){
+  const textarea = document.getElementById('ce-info-new-body');
+  const errorEl = document.getElementById('ce-info-post-error');
+  errorEl.style.display = 'none';
+  const body = textarea.value.trim();
+  if(!body){ showError(errorEl, 'Update cannot be empty.'); return; }
+
+  const { error } = await membersSupabase.rpc('event_info_post', { p_event_slug: EVENT.value, p_body: body });
+  if(error){ showError(errorEl, error.message); return; }
+
+  INFO_LOADED = false;
+  await renderInfoBody();
+}
+
+async function ce_infoDelete(id){
+  const { error } = await membersSupabase.rpc('event_info_delete', { p_id: id });
+  if(error){ alert(error.message); return; }
+
+  INFO_LOADED = false;
+  await renderInfoBody();
 }
 
 // --- Training tab ---
@@ -655,15 +827,14 @@ window.ce_trainSelectCategory = ce_trainSelectCategory;
 window.ce_trainUpdateFocus = ce_trainUpdateFocus;
 window.ce_trainAct = ce_trainAct;
 window.ce_trainCancel = ce_trainCancel;
+window.ce_infoPost = ce_infoPost;
+window.ce_infoDelete = ce_infoDelete;
 
 document.addEventListener('fa-members-ready', async () => {
   EVENT = window.FA_NEXT_EVENT;
   if(!EVENT){ renderNoEvent(); return; }
 
-  const status = window.faLogStatus(EVENT);
-  if(status.state !== 'open'){ renderLocked(status); return; }
-
-  await checkRegistrationAndRender();
+  await renderShell();
 });
 })();
 </script>
