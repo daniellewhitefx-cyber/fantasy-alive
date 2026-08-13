@@ -44,16 +44,30 @@ function hasKnownSkill(knownSkills, name, minLevel){
   return knownSkills.some(s => s.title.toLowerCase() === norm && s.level >= minLevel);
 }
 
-function evalAtomicPrereq(raw, knownSkills){
+// stats is the character's derived { lp, se, me } from faDeriveStats()
+// (js/character-stats.js). "N LP"/"N SE"/"N ME" prereqs check that
+// real stat -- which includes race base and stacked skill purchases --
+// rather than treating LP/SE/ME as a skill name to look up directly.
+// When stats is omitted, these checks pass permissively rather than
+// blocking on data we don't have.
+function evalAtomicPrereq(raw, knownSkills, stats){
   let part = raw.trim();
   if(!part) return true;
   part = part.replace(/^at least\s+/i, '');
   part = part.replace(/\([^)]*\)/g, '').trim();
   part = part.replace(/\s+for large shields$/i, '').replace(/\s+in ranged$/i, '').trim();
   if(!part) return true;
-  if(/^\d+\s*lp$/i.test(part)) return true;
 
-  let m = part.match(/^(\d+)\s+(.+)$/);
+  let m = part.match(/^(\d+)\s*lp$/i);
+  if(m) return !stats || stats.lp >= parseInt(m[1], 10);
+
+  m = part.match(/^(\d+)\s*se$/i);
+  if(m) return !stats || stats.se >= parseInt(m[1], 10);
+
+  m = part.match(/^(\d+)\s*me$/i);
+  if(m) return !stats || stats.me >= parseInt(m[1], 10);
+
+  m = part.match(/^(\d+)\s+(.+)$/);
   if(m) return hasKnownSkill(knownSkills, m[2], parseInt(m[1], 10));
 
   m = part.match(/^(.+?)\s+(\d+)(?:\s*\/\s*\d+)?$/);
@@ -62,21 +76,28 @@ function evalAtomicPrereq(raw, knownSkills){
   return hasKnownSkill(knownSkills, part, 1);
 }
 
-function evalClausePrereq(clause, knownSkills){
+// A leading count on an "or" clause (e.g. "10 SE or ME") applies to
+// every branch, not just the first -- "ME" alone here means "10 ME".
+function evalClausePrereq(clause, knownSkills, stats){
   clause = clause.trim();
   if(!clause) return true;
-  if(/\bor\b/i.test(clause)) return clause.split(/\s+or\s+/i).some(p => evalAtomicPrereq(p, knownSkills));
-  return evalAtomicPrereq(clause, knownSkills);
+  if(/\bor\b/i.test(clause)){
+    const leadingCount = clause.match(/^(\d+)\s+/);
+    return clause.split(/\s+or\s+/i).some(p => {
+      p = p.trim();
+      if(leadingCount && !/^\d/.test(p)) p = leadingCount[1] + ' ' + p;
+      return evalAtomicPrereq(p, knownSkills, stats);
+    });
+  }
+  return evalAtomicPrereq(clause, knownSkills, stats);
 }
 
-function isPrereqMet(text, knownSkills){
+function isPrereqMet(text, knownSkills, stats){
   const expanded = (text || '')
     .replace(/\bCI\b/g, 'Clerical Investment')
-    .replace(/\bSE\b/g, 'Spiritual Energy')
-    .replace(/\bME\b/g, 'Magical Energy')
     .trim();
   if(!expanded || expanded.toLowerCase() === 'none') return true;
-  return expanded.split(/[,&]/).every(clause => evalClausePrereq(clause, knownSkills));
+  return expanded.split(/[,&]/).every(clause => evalClausePrereq(clause, knownSkills, stats));
 }
 
 window.skillNameParts = skillNameParts;
