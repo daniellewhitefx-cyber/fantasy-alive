@@ -87,66 +87,51 @@
 .ce-info-item p{ margin: 0; white-space: pre-wrap; }
 .shop-grid{
   display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.6rem;
   margin-top: 1rem;
 }
 .shop-card{
   border: 2px solid var(--line);
   background: var(--row-b);
-  padding: 1rem;
+  padding: 0.55rem 0.65rem;
   display:flex;
   flex-direction: column;
-  gap: 0.7rem;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  gap: 0.35rem;
+  transition: border-color 0.15s ease;
 }
 .shop-card:hover{
-  transform: translateY(-3px);
   border-color: var(--gold-dark);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
-}
-.shop-card-head{
-  display:flex;
-  align-items:center;
-  gap: 0.6rem;
-}
-.shop-card-icon{
-  flex: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--gold-dark);
-  color: var(--ink);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: 1.15rem;
 }
 .shop-card-name{
   font-family: 'Cinzel', serif;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   color: var(--ink);
-  line-height: 1.25;
+  line-height: 1.2;
 }
 .shop-card-price{
   font-family: 'Cinzel', serif;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.72rem;
   color: var(--gold-dark);
   letter-spacing: 0.02em;
 }
 .shop-card-actions{
   display:flex;
   align-items:center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   margin-top: auto;
 }
 .shop-qty{
-  width: 54px;
+  width: 40px;
   text-align: center;
+  padding: 0.2rem;
+  font-size: 0.8rem;
+}
+.shop-card-actions .btn-outline{
+  font-size: 0.75rem;
+  padding: 0.3rem 0.5rem;
 }
 </style>
 </head>
@@ -730,11 +715,8 @@ function renderShopGrid(){
 
     return `
       <div class="shop-card">
-        <div class="shop-card-head">
-          <div class="shop-card-icon">${escapeHtml(item.name.charAt(0).toUpperCase())}</div>
-          <div class="shop-card-name">${escapeHtml(item.name)}</div>
-        </div>
-        <div class="shop-card-price">${item.costCopper} Copper each</div>
+        <div class="shop-card-name">${escapeHtml(item.name)}</div>
+        <div class="shop-card-price">${item.costCopper} Copper</div>
         <div class="shop-card-actions">
           <input type="number" min="1" value="${qty}" class="shop-qty" onchange="ce_shopUpdateQty('${keyEsc}', this.value)">
           <button class="btn-outline" style="flex:1;" ${canAfford ? '' : 'disabled'} onclick="ce_shopBuy('${item.category.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}', ${item.costCopper})">Buy (${total})</button>
