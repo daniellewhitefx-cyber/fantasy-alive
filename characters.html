@@ -47,6 +47,8 @@
 <div class="char-panel" id="chars-char-panel">Loading&hellip;</div>
 </div>
 
+<div id="chars-panel-extras" style="margin-top:1rem;"></div>
+
 <div class="reg-section" id="chars-remort-area" style="margin-top:2.4rem;"></div>
 
 </div>
@@ -120,7 +122,10 @@ function fmtDate(d){
 function chars_toggleDatesLearned(){
   showDatesLearned = !showDatesLearned;
   const c = CHARACTERS.find(ch => ch.id === activeCharId);
-  if(c) renderCharPanel(c);
+  if(!c) return;
+  renderCharPanel(c);
+  const btn = document.querySelector('#chars-panel-extras button');
+  if(btn) btn.textContent = `${showDatesLearned ? 'Hide' : 'Show'} Dates Learned`;
 }
 
 async function updateRegisterStatus(character){
@@ -162,6 +167,7 @@ function render(){
       <p class="page-subhead">You don't have a character yet.
       <a href="character-creator.html">Create one</a> to get started.</p>
     `;
+    document.getElementById('chars-panel-extras').innerHTML = '';
     document.getElementById('chars-remort-area').innerHTML = '';
     return;
   }
@@ -169,6 +175,7 @@ function render(){
   updateRegisterStatus(c);
   renderRemortArea(c);
   renderCharPanel(c);
+  renderPanelExtras(c);
 }
 
 function renderCharPanel(c){
@@ -202,23 +209,28 @@ function renderCharPanel(c){
         </tbody>
       </table>
       </div>
-      <div style="display:flex; justify-content:flex-end; margin-top:0.5rem;">
-        <button class="btn-outline" style="font-size:0.8rem; padding:0.35rem 0.7rem;" onclick="chars_toggleDatesLearned()">${showDatesLearned ? 'Hide' : 'Show'} Dates Learned</button>
-      </div>
-      <div class="reg-section" style="margin-top:1rem;">
-        <div class="reg-section-label">Event Splash Page Privacy</div>
-        <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem; cursor:pointer;">
-          <input type="checkbox" id="chars-privacy-anonymous" ${c.isAnonymous ? 'checked' : ''}>
-          Show me as Anonymous on the roster
-        </label>
-        <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; cursor:pointer;">
-          <input type="checkbox" id="chars-privacy-hide-trades" ${c.hideTrades ? 'checked' : ''}>
-          Hide my trades from the roster
-        </label>
-        <button class="btn-outline" style="margin-top:0.8rem;" onclick="chars_savePrivacy('${c.id}')">Save Privacy Settings</button>
-        <p class="reg-success-note" id="chars-privacy-success" style="display:none;"></p>
-        <p class="reg-error-note" id="chars-privacy-error" style="display:none;"></p>
-      </div>
+    </div>
+  `;
+}
+
+function renderPanelExtras(c){
+  document.getElementById('chars-panel-extras').innerHTML = `
+    <div style="display:flex; justify-content:flex-end;">
+      <button class="btn-outline" style="font-size:0.8rem; padding:0.35rem 0.7rem;" onclick="chars_toggleDatesLearned()">${showDatesLearned ? 'Hide' : 'Show'} Dates Learned</button>
+    </div>
+    <div class="reg-section" style="margin-top:1rem;">
+      <div class="reg-section-label">Event Splash Page Privacy</div>
+      <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem; cursor:pointer;">
+        <input type="checkbox" id="chars-privacy-anonymous" ${c.isAnonymous ? 'checked' : ''}>
+        Show me as Anonymous on the roster
+      </label>
+      <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; cursor:pointer;">
+        <input type="checkbox" id="chars-privacy-hide-trades" ${c.hideTrades ? 'checked' : ''}>
+        Hide my trades from the roster
+      </label>
+      <button class="btn-outline" style="margin-top:0.8rem;" onclick="chars_savePrivacy('${c.id}')">Save Privacy Settings</button>
+      <p class="reg-success-note" id="chars-privacy-success" style="display:none;"></p>
+      <p class="reg-error-note" id="chars-privacy-error" style="display:none;"></p>
     </div>
   `;
 }
