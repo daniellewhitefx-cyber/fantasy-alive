@@ -178,17 +178,33 @@ function renderCharPanel(c){
   const stats = deriveStats(c);
 
   document.getElementById('chars-char-panel').innerHTML = `
-    <div class="stat-panel">
-      <div class="stat-row"><span class="stat-label">Race</span><span class="stat-value">${escapeHtml(c.race)}</span></div>
-      <div class="stat-row"><span class="stat-label">Social Class</span><span class="stat-value">${c.socialClass ? escapeHtml(c.socialClass) : '-'}</span></div>
-      <div class="stat-row"><span class="stat-label">Birthday</span><span class="stat-value">${c.birthday ? escapeHtml(c.birthday) : '-'}</span></div>
-      <div class="stat-row"><span class="stat-label">Skill Points</span><span class="stat-value">${spent}/${conv.totalPool}</span></div>
-      <div class="stat-row"><span class="stat-label">LP</span><span class="stat-value">${stats.lp}</span></div>
-      <div class="stat-row"><span class="stat-label">SE/ME</span><span class="stat-value">${stats.se}/${stats.me}</span></div>
-      <div class="stat-row"><span class="stat-label">Resurrections Left</span><span class="stat-value">${stats.resurrectionsLeft}</span></div>
-      <div class="stat-row"><span class="stat-label">Experience</span><span class="stat-value">${conv.leftoverXp.toLocaleString()}</span></div>
-      <div class="stat-row"><span class="stat-label">XP Converted</span><span class="stat-value">${(conv.xpConvertedSp * conv.rate).toLocaleString()} / ${conv.xpBalance.toLocaleString()} Exp</span></div>
-      <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${conv.rate}:1</span></div>
+    <div>
+      <div class="stat-panel">
+        <div class="stat-row"><span class="stat-label">Race</span><span class="stat-value">${escapeHtml(c.race)}</span></div>
+        <div class="stat-row"><span class="stat-label">Social Class</span><span class="stat-value">${c.socialClass ? escapeHtml(c.socialClass) : '-'}</span></div>
+        <div class="stat-row"><span class="stat-label">Birthday</span><span class="stat-value">${c.birthday ? escapeHtml(c.birthday) : '-'}</span></div>
+        <div class="stat-row"><span class="stat-label">Skill Points</span><span class="stat-value">${spent}/${conv.totalPool}</span></div>
+        <div class="stat-row"><span class="stat-label">LP</span><span class="stat-value">${stats.lp}</span></div>
+        <div class="stat-row"><span class="stat-label">SE/ME</span><span class="stat-value">${stats.se}/${stats.me}</span></div>
+        <div class="stat-row"><span class="stat-label">Resurrections Left</span><span class="stat-value">${stats.resurrectionsLeft}</span></div>
+        <div class="stat-row"><span class="stat-label">Experience</span><span class="stat-value">${conv.leftoverXp.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">XP Converted</span><span class="stat-value">${(conv.xpConvertedSp * conv.rate).toLocaleString()} / ${conv.xpBalance.toLocaleString()} Exp</span></div>
+        <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${conv.rate}:1</span></div>
+      </div>
+      <div class="reg-section" style="margin-top:1rem;">
+        <div class="reg-section-label">Event Splash Page Privacy</div>
+        <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem; cursor:pointer;">
+          <input type="checkbox" id="chars-privacy-anonymous" ${c.isAnonymous ? 'checked' : ''}>
+          Show me as Anonymous on the roster
+        </label>
+        <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; cursor:pointer;">
+          <input type="checkbox" id="chars-privacy-hide-trades" ${c.hideTrades ? 'checked' : ''}>
+          Hide my trades from the roster
+        </label>
+        <button class="btn-outline" style="margin-top:0.8rem;" onclick="chars_savePrivacy('${c.id}')">Save Privacy Settings</button>
+        <p class="reg-success-note" id="chars-privacy-success" style="display:none;"></p>
+        <p class="reg-error-note" id="chars-privacy-error" style="display:none;"></p>
+      </div>
     </div>
     <div>
       <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
@@ -205,6 +221,27 @@ function renderCharPanel(c){
       </div>
     </div>
   `;
+}
+
+async function chars_savePrivacy(charId){
+  const successEl = document.getElementById('chars-privacy-success');
+  const errorEl = document.getElementById('chars-privacy-error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  const isAnonymous = document.getElementById('chars-privacy-anonymous').checked;
+  const hideTrades = document.getElementById('chars-privacy-hide-trades').checked;
+
+  const { error } = await membersSupabase.rpc('character_set_privacy', {
+    p_character_id: charId, p_is_anonymous: isAnonymous, p_hide_trades: hideTrades
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  const c = CHARACTERS.find(ch => ch.id === charId);
+  if(c){ c.isAnonymous = isAnonymous; c.hideTrades = hideTrades; }
+
+  successEl.textContent = 'Privacy settings saved.';
+  successEl.style.display = 'block';
 }
 
 function renderRemortArea(c){
@@ -245,7 +282,7 @@ async function loadRemortStatus(){
 async function loadCharacters(){
   const { data: chars, error } = await membersSupabase
     .from('characters')
-    .select('id, name, race, pronouns, birthday, starting_sp, social_class, created_at')
+    .select('id, name, race, pronouns, birthday, starting_sp, social_class, created_at, is_anonymous, hide_trades')
     .eq('player_id', window.faCurrentUser.id)
     .order('created_at', { ascending: true });
 
@@ -267,6 +304,8 @@ async function loadCharacters(){
     birthday: ch.birthday,
     startingSp: ch.starting_sp,
     socialClass: ch.social_class,
+    isAnonymous: !!ch.is_anonymous,
+    hideTrades: !!ch.hide_trades,
     skills: (skillRows || [])
       .filter(sk => sk.character_id === ch.id)
       .map(sk => ({ name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, sp: sk.sp_cost, learnedAt: sk.created_at }))
@@ -286,6 +325,7 @@ async function loadCharacters(){
 window.chars_selectChar = chars_selectChar;
 window.chars_requestRemort = chars_requestRemort;
 window.chars_toggleDatesLearned = chars_toggleDatesLearned;
+window.chars_savePrivacy = chars_savePrivacy;
 
 document.addEventListener('fa-members-ready', async () => {
   await loadCharacters();
