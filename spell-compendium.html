@@ -535,6 +535,14 @@ async function loadSpells(){
   } catch(err){
     loadError = err;
   }
+
+  const params = new URLSearchParams(location.search);
+  const openTitle = params.get('open');
+  if(openTitle && allSpells.some(s => s.title === openTitle)){
+    spell_selectSearchResult(params.get('cat') || activeLevel, openTitle);
+    return;
+  }
+
   renderSidebar();
   renderDisplay();
 }
