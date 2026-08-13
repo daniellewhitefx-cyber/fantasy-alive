@@ -1,5 +1,7 @@
 .git
 **/.git
+.github
+**/.github
 wrangler.jsonc
 _redirects
 .assetsignore

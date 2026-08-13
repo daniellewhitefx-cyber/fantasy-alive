@@ -1,0 +1,38 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Deploy from a clean git-archive export rather than the checked-out
+      # working tree, so .git history (and anything gitignored) never gets
+      # scanned or uploaded as a public asset -- .assetsignore alone isn't
+      # reliable for excluding .git.
+      - name: Build clean deploy directory
+        run: |
+          mkdir -p dist
+          git archive HEAD | tar -x -C dist
+          cp wrangler.jsonc _redirects .assetsignore dist/
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: dist
+          command: deploy
