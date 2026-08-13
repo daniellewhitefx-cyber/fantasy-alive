@@ -1,8 +1,9 @@
 function loadIncludes(){
   const targets = document.querySelectorAll('[data-include]');
+  const loads = [];
   targets.forEach(el => {
     const file = el.getAttribute('data-include');
-    fetch(file)
+    const load = fetch(file)
       .then(res => {
         if(!res.ok) throw new Error('Could not load ' + file + ' (' + res.status + ')');
         return res.text();
@@ -12,7 +13,19 @@ function loadIncludes(){
         console.error(err);
         el.innerHTML = '<p style="padding:1rem;color:#a33b2f;">Failed to load ' + file + '</p>';
       });
+    loads.push(load);
+    if(file === 'partials/header.html') load.then(injectSiteSearch);
   });
+}
+
+// partials/header.html is loaded via innerHTML, so any <script> tag inside
+// it never runs -- the site search module is injected as a real script
+// element here instead, once the header (and its search button) exists.
+function injectSiteSearch(){
+  if(document.querySelector('script[src="js/site-search.js"]')) return;
+  const script = document.createElement('script');
+  script.src = 'js/site-search.js';
+  document.body.appendChild(script);
 }
 
 if(document.readyState === 'loading'){

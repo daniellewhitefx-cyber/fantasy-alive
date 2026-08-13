@@ -337,6 +337,9 @@ async function init(){
   renderSidebar();
   renderDisplay();
 
+  const openTitle = new URLSearchParams(location.search).get('open');
+  if(openTitle) lore_goto(openTitle);
+
   let savedDark = false;
   try{ savedDark = localStorage.getItem('fa-lore-dark') === '1'; }catch(e){}
   if(savedDark){

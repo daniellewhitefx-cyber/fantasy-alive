@@ -342,6 +342,14 @@ async function loadRecipes(){
   } catch(err){
     loadError = err;
   }
+
+  const params = new URLSearchParams(location.search);
+  const openTitle = params.get('open');
+  if(openTitle && allRecipes.some(r => r.title === openTitle)){
+    recipe_selectSearchResult(params.get('cat') || activeCategory, openTitle);
+    return;
+  }
+
   renderSidebar();
   renderDisplay();
 }
