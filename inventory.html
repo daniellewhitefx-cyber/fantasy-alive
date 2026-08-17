@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Inventory - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/inventory.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Inventory - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.inv-qty{
+  width: 60px;
+  text-align: center;
+  padding: 0.25rem;
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<div class="char-switcher" id="inv-char-switcher"></div>
+
+<h1 class="page-title">Inventory</h1>
+
+<div id="inv-content"></div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let CHARACTERS = [];
+let activeCharId = null;
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
+
+function inv_selectChar(id){
+  activeCharId = id;
+  render();
+}
+
+function render(){
+  const switcher = document.getElementById('inv-char-switcher');
+  switcher.innerHTML = CHARACTERS.map(ch =>
+    `<button class="${ch.id===activeCharId?'active':''}" onclick="inv_selectChar('${ch.id}')">${escapeHtml(ch.name)}</button>`
+  ).join('');
+
+  const content = document.getElementById('inv-content');
+  const c = CHARACTERS.find(ch => ch.id === activeCharId);
+
+  if(!c){
+    content.innerHTML = `<div class="panel"><div class="panel-body">${emptyState('You have no characters yet.')}</div></div>`;
+    return;
+  }
+
+  if(!c.items.length){
+    content.innerHTML = `<div class="panel"><div class="panel-body">${emptyState('No inventory yet. Buy Material/Equipment items from the Shoppe or craft items during an event.')}</div></div>`;
+    return;
+  }
+
+  const nextEvent = window.FA_NEXT_EVENT;
+
+  const rows = c.items.map(item => {
+    const pending = c.requests.find(r => r.item_name.trim().toLowerCase() === item.material_name.trim().toLowerCase());
+    const nameEsc = item.material_name.replace(/'/g, "\\'");
+
+    let actionCell;
+    if(pending){
+      actionCell = `
+        <span class="reg-empty-note" style="display:inline;">Tag requested for ${escapeHtml(pending.event_slug)}</span>
+        <button class="btn-outline" onclick="inv_cancelRequest('${pending.id}')" title="Cancel this request">&times;</button>
+      `;
+    } else if(!nextEvent){
+      actionCell = `<span class="reg-empty-note">No upcoming event scheduled</span>`;
+    } else {
+      const key = c.id + '::' + item.material_name;
+      const inputId = 'inv-qty-' + key;
+      actionCell = `
+        <input type="number" min="1" max="${item.balance}" value="${item.balance}" class="inv-qty" id="${inputId}">
+        <button class="btn-outline" onclick="inv_requestTag('${c.id}', '${nameEsc}', '${inputId.replace(/'/g, "\\'")}')">Receive Tag at Next Event</button>
+      `;
+    }
+
+    return `
+      <tr>
+        <td>${escapeHtml(item.material_name)}</td>
+        <td>${item.balance}</td>
+        <td>${actionCell}</td>
+      </tr>
+    `;
+  }).join('');
+
+  content.innerHTML = `
+    <div class="panel">
+      <div class="panel-body">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Item</th><th>On Hand</th><th>Tag Status</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <p class="reg-error-note" id="inv-error" style="display:none; margin-top:0.6rem;"></p>
+      </div>
+    </div>
+  `;
+}
+
+async function inv_requestTag(characterId, itemName, qtyInputId){
+  const errorEl = document.getElementById('inv-error');
+  errorEl.style.display = 'none';
+  const qtyInput = document.getElementById(qtyInputId);
+  const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+  const nextEvent = window.FA_NEXT_EVENT;
+  if(!nextEvent) return;
+
+  const { error } = await membersSupabase.rpc('character_request_tag', {
+    p_character_id: characterId,
+    p_item_name: itemName,
+    p_quantity: qty,
+    p_event_slug: nextEvent.value
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  await loadCharacterInventory(characterId);
+  render();
+}
+
+async function inv_cancelRequest(requestId){
+  const { error } = await membersSupabase.rpc('character_cancel_tag_request', { p_request_id: requestId });
+  if(error){ alert(error.message); return; }
+
+  const c = CHARACTERS.find(ch => ch.id === activeCharId);
+  if(c) await loadCharacterInventory(c.id);
+  render();
+}
+
+async function loadCharacterInventory(characterId){
+  const c = CHARACTERS.find(ch => ch.id === characterId);
+  if(!c) return;
+
+  const [{ data: items }, { data: requests }] = await Promise.all([
+    membersSupabase.rpc('character_material_inventory', { p_character_id: characterId }),
+    membersSupabase.from('character_tag_requests').select('id, item_name, quantity, event_slug')
+      .eq('character_id', characterId).eq('status', 'pending')
+  ]);
+
+  c.items = items || [];
+  c.requests = requests || [];
+}
+
+async function loadCharacters(){
+  const me = window.faCurrentUser.id;
+
+  const { data: chars } = await membersSupabase
+    .from('characters')
+    .select('id, name')
+    .eq('player_id', me)
+    .order('created_at', { ascending: true });
+
+  CHARACTERS = (chars || []).map(ch => ({ id: ch.id, name: ch.name, items: [], requests: [] }));
+  activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
+
+  if(CHARACTERS.length){
+    await Promise.all(CHARACTERS.map(ch => loadCharacterInventory(ch.id)));
+  }
+
+  render();
+}
+
+window.inv_selectChar = inv_selectChar;
+window.inv_requestTag = inv_requestTag;
+window.inv_cancelRequest = inv_cancelRequest;
+document.addEventListener('fa-members-ready', loadCharacters);
+})();
+</script>
+
+</body>
+</html>
