@@ -195,6 +195,15 @@ body.members-ready .dashboard{ visibility:visible; }
 }
 .data-table tbody tr:nth-child(odd){ background: var(--row-b); }
 .data-table tbody tr:nth-child(even){ background: var(--row-a); }
+.data-table tbody tr.skill-row-locked{ opacity: 0.5; }
+.skill-missing-prereq{
+  display:block;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--bad);
+  margin-top: 0.2rem;
+}
 
 .skill-table-wrap-cc{ width:100%; overflow-x:auto; }
 .table-scroll{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }

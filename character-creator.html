@@ -90,7 +90,7 @@
 <div class="day-toggle" id="cc-cat-tabs"></div>
 <div class="skill-table-wrap-cc">
 <table class="data-table">
-<thead><tr><th>Skill</th><th>Cost</th><th>Prerequisite</th><th>Focus / Level</th><th></th></tr></thead>
+<thead><tr><th>Skill</th><th>Cost</th><th>Focus / Level</th><th></th></tr></thead>
 <tbody id="cc-browser-body"></tbody>
 </table>
 </div>
@@ -253,9 +253,10 @@ function renderBrowser(){
   const budget = startingSP();
   const remaining = budget - spentSP();
 
+  const stats = currentStats();
   const rows = allSkills
     .map((s, idx) => ({ s, idx }))
-    .filter(({ s }) => s.category === activeCategory && isPrereqMet(s.prereq, chosen, currentStats()));
+    .filter(({ s }) => s.category === activeCategory);
 
   document.getElementById('cc-browser-body').innerHTML = rows.map(({ s, idx }) => {
     const parts = skillNameParts(s.title);
@@ -263,6 +264,7 @@ function renderBrowser(){
     const state = browseState[key] || { level: 1, focus: '' };
     const isLeveled = isLeveledCost(s.cost);
     const cost = skillsParseCost(s.cost, state.level);
+    const missing = unmetPrereqText(s.prereq, chosen, stats);
 
     let focusCell = '-';
     if(parts.placeholder && isLeveled){
@@ -274,14 +276,14 @@ function renderBrowser(){
       focusCell = `Level <input type="number" min="1" value="${state.level}" oninput="cc_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
     }
 
-    const canAdd = race && cost !== null && cost <= remaining && !(parts.placeholder && !state.focus.trim());
+    const canAdd = !missing && race && cost !== null && cost <= remaining && !(parts.placeholder && !state.focus.trim());
     const costLabel = cost === null ? s.cost : cost + ' SP';
+    const nameCell = escapeHtml(parts.base) + (missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(missing)}</span>` : '');
 
     return `
-      <tr>
-        <td>${escapeHtml(parts.base)}</td>
+      <tr class="${missing ? 'skill-row-locked' : ''}">
+        <td>${nameCell}</td>
         <td id="cc-cost-${idx}">${escapeHtml(costLabel)}</td>
-        <td class="col-prereq">${escapeHtml(s.prereq)}</td>
         <td>${focusCell}</td>
         <td><button class="btn-outline" id="cc-add-${idx}" ${canAdd ? '' : 'disabled'} onclick="cc_addSkill(${idx})">+ Add</button></td>
       </tr>

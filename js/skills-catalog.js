@@ -100,9 +100,26 @@ function isPrereqMet(text, knownSkills, stats){
   return expanded.split(/[,&]/).every(clause => evalClausePrereq(clause, knownSkills, stats));
 }
 
+// Human-readable text for the clauses of a prerequisite that aren't met
+// yet (e.g. "Weapons Certification, 8 LP"), or null once every clause is
+// met. Reuses the same clause evaluation as isPrereqMet so the two can
+// never disagree on whether a skill is actually locked.
+function unmetPrereqText(text, knownSkills, stats){
+  const expanded = (text || '')
+    .replace(/\bCI\b/g, 'Clerical Investment')
+    .trim();
+  if(!expanded || expanded.toLowerCase() === 'none') return null;
+  const unmet = expanded
+    .split(/[,&]/)
+    .map(c => c.trim())
+    .filter(c => c && !evalClausePrereq(c, knownSkills, stats));
+  return unmet.length ? unmet.join(', ') : null;
+}
+
 window.skillNameParts = skillNameParts;
 window.skillKey = skillKey;
 window.isLeveledCost = isLeveledCost;
 window.focusOptionsFor = focusOptionsFor;
 window.hasKnownSkill = hasKnownSkill;
 window.isPrereqMet = isPrereqMet;
+window.unmetPrereqText = unmetPrereqText;

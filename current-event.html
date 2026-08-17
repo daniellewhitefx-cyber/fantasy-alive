@@ -847,7 +847,7 @@ function renderTrainingBody(){
         <div class="day-toggle" id="ce-train-cat-tabs"></div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Skill</th><th>Cost</th><th>Prerequisite</th><th>Focus / Level</th><th></th></tr></thead>
+            <thead><tr><th>Skill</th><th>Cost</th><th>Focus / Level</th><th></th></tr></thead>
             <tbody id="ce-train-browser-body"></tbody>
           </table>
         </div>
@@ -917,11 +917,12 @@ function ce_trainRowInfo(idx){
   const deltaSp = cost === null ? null : (isRelevel ? cost - known.spCost : cost);
   const deltaHours = deltaSp === null ? null : deltaSp * 5;
 
+  const missing = unmetPrereqText(s.prereq, TRAIN_KNOWN, TRAIN_STATS);
   const alreadyKnownFlat = !isLeveled && !!known;
-  const canAct = deltaSp !== null && deltaSp > 0 && deltaSp <= spendableSp && deltaHours <= hoursRemaining
+  const canAct = !missing && deltaSp !== null && deltaSp > 0 && deltaSp <= spendableSp && deltaHours <= hoursRemaining
     && !(parts.placeholder && !focusVal) && !alreadyKnownFlat;
 
-  return { s, parts, state, isLeveled, focusVal, known, isRelevel, level, cost, deltaSp, deltaHours, alreadyKnownFlat, canAct };
+  return { s, parts, state, isLeveled, focusVal, known, isRelevel, level, cost, deltaSp, deltaHours, missing, alreadyKnownFlat, canAct };
 }
 
 function trainCostLabel(info){
@@ -933,7 +934,7 @@ function trainCostLabel(info){
 function renderTrainBrowser(){
   const rows = TRAIN_ALL_SKILLS
     .map((s, idx) => ({ s, idx }))
-    .filter(({ s }) => s.category === TRAIN_CATEGORY && isPrereqMet(s.prereq, TRAIN_KNOWN, TRAIN_STATS))
+    .filter(({ s }) => s.category === TRAIN_CATEGORY)
     .filter(({ s }) => {
       const parts = skillNameParts(s.title);
       if(parts.placeholder || isLeveledCost(s.cost)) return true;
@@ -954,19 +955,19 @@ function renderTrainBrowser(){
     }
 
     const nameLabel = escapeHtml(parts.base)
-      + (info.isRelevel ? ` <span class="reg-empty-note" style="display:inline;">(currently level ${info.known.level})</span>` : '');
+      + (info.isRelevel ? ` <span class="reg-empty-note" style="display:inline;">(currently level ${info.known.level})</span>` : '')
+      + (info.missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(info.missing)}</span>` : '');
     const actionLabel = info.alreadyKnownFlat ? 'Known' : (info.isRelevel ? 'Level Up' : 'Learn');
 
     return `
-      <tr>
+      <tr class="${info.missing ? 'skill-row-locked' : ''}">
         <td>${nameLabel}</td>
         <td id="ce-train-cost-${idx}">${escapeHtml(trainCostLabel(info))}</td>
-        <td class="col-prereq">${escapeHtml(s.prereq)}</td>
         <td>${focusCell}</td>
         <td><button class="btn-outline" id="ce-train-learn-${idx}" ${info.canAct ? '' : 'disabled'} onclick="ce_trainAct(${idx})">${actionLabel}</button></td>
       </tr>
     `;
-  }).join('') : `<tr><td colspan="5">Nothing left to learn in this category.</td></tr>`;
+  }).join('') : `<tr><td colspan="4">Nothing left to learn in this category.</td></tr>`;
 }
 
 function ce_trainUpdateRowLive(idx){
