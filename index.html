@@ -168,6 +168,67 @@ line-height: 1.55;
 opacity: 0.92;
 }
 
+.schedule-section{
+padding: 3rem;
+text-align: center;
+}
+.schedule-section h2{
+font-family: 'Cinzel', serif;
+margin: 0 0 1.6rem;
+color: var(--brown);
+}
+.schedule-grid{
+display:flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 1.2rem;
+max-width: 1000px;
+margin: 0 auto;
+}
+.schedule-card{
+flex: 0 1 220px;
+border: 2px solid var(--gold-dark);
+border-radius: 8px;
+background: #fff;
+padding: 1.2rem 1rem;
+display:flex;
+flex-direction: column;
+align-items:center;
+gap: 0.5rem;
+}
+.schedule-card-date{
+font-family: 'Cinzel', serif;
+font-weight: 700;
+font-size: 1.15rem;
+color: var(--brown);
+letter-spacing: 0.02em;
+}
+.schedule-card-tag{
+font-family: 'Cinzel', serif;
+font-size: 0.65rem;
+font-weight: 700;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(--ink);
+background: var(--gold);
+padding: 0.2rem 0.55rem;
+border-radius: 3px;
+}
+.schedule-card-link{
+font-family: 'Cinzel', serif;
+font-size: 0.8rem;
+font-weight: 700;
+color: var(--gold-dark);
+text-decoration: underline;
+margin-top: 0.2rem;
+}
+.schedule-card-link:hover{ color: var(--brown); }
+.schedule-empty{
+font-family: 'EB Garamond', serif;
+color: var(--brown-dark);
+font-size: 1.05rem;
+}
+
 .feed-section{
 padding: 3rem;
 }
@@ -421,6 +482,11 @@ outline-offset: 2px;
 <a href="register.html" class="btn-gold">Register Here</a>
 </section>
 
+<section class="schedule-section">
+<h2>Upcoming Events</h2>
+<div class="schedule-grid" id="fa-schedule-grid"></div>
+</section>
+
 <section class="feed-section" id="home-feed-section" style="display:none;">
 <div class="feed-section-head">
 <h2>What's Happening</h2>
@@ -449,6 +515,27 @@ let feedNewImageUrl = null;
 function feedEscapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+function renderScheduleGrid(){
+  const wrap = document.getElementById('fa-schedule-grid');
+  if(!wrap) return;
+  const events = window.FA_EVENTS || [];
+
+  if(events.length === 0){
+    wrap.innerHTML = '<p class="schedule-empty">No upcoming events scheduled yet. Check back soon!</p>';
+    return;
+  }
+
+  wrap.innerHTML = events.map(e => `
+    <div class="schedule-card">
+      <span class="schedule-card-date">${feedEscapeHtml(e.label)}</span>
+      <span class="schedule-card-tag">${e.isDayEvent ? 'Day Event' : e.days.length + '-Day Event'}</span>
+      <a class="schedule-card-link" href="register.html?event=${encodeURIComponent(e.value)}">Register</a>
+    </div>
+  `).join('');
+}
+
+renderScheduleGrid();
 
 function homeFeedScroll(dir){
   const wrap = document.getElementById('home-feed-carousel');

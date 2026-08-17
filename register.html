@@ -135,13 +135,16 @@ const MEALS = [
   { id:'castmeal', name:'Cast Meal Plan', price:40, flavor:'Saturday Breakfast, Lunch, Dinner (including dessert!), and Breakfast Sunday.', slots:['Saturday Breakfast','Saturday Lunch','Saturday Dinner','Sunday Breakfast'], show: s => s.who === 'cast' }
 ];
 
+const requestedEventValue = new URLSearchParams(location.search).get('event');
+const requestedEvent = requestedEventValue ? EVENTS.find(e => e.value === requestedEventValue) : null;
+
 const state = {
   firstTime: ACCOUNT.firstTime,
   isCast: false,
   flexEvent: ACCOUNT.flexEventCredits,
   who: null,
   character: null,
-  event: EVENTS[0] || null
+  event: requestedEvent || EVENTS[0] || null
 };
 
 const PAYMENT_METHODS = [
