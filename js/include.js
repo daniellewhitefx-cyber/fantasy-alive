@@ -15,6 +15,7 @@ function loadIncludes(){
       });
     loads.push(load);
     if(file === 'partials/header.html') load.then(injectSiteSearch);
+    if(file === 'partials/footer.html') load.then(setFooterCopyrightYear);
   });
 }
 
@@ -26,6 +27,11 @@ function injectSiteSearch(){
   const script = document.createElement('script');
   script.src = 'js/site-search.js';
   document.body.appendChild(script);
+}
+
+function setFooterCopyrightYear(){
+  const el = document.getElementById('footer-copyright-year');
+  if(el) el.textContent = new Date().getFullYear();
 }
 
 if(document.readyState === 'loading'){
