@@ -60,6 +60,7 @@
 <script src="js/members-auth.js"></script>
 <script src="js/registration-status.js"></script>
 <script src="js/xp-convert.js"></script>
+<script src="js/character-stats.js"></script>
 <script>
 (function(){
 let CHARACTERS = [];
@@ -67,43 +68,6 @@ let activeCharId = null;
 let remortByChar = {};
 let xpByChar = {};
 let showDatesLearned = false;
-
-const RACE_STATS = {
-  'Curtainborn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 5, baseMe: 0 },
-  'D\'Shunn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 },
-  'Dwarf': { baseLp: 6, maxLp: 15, baseResurrections: 2, baseSe: 0, baseMe: 0 },
-  'Elf': { baseLp: 4, maxLp: 10, baseResurrections: 1, baseSe: 0, baseMe: 5 },
-  'Gnome': { baseLp: 4, maxLp: 8, baseResurrections: 2, baseSe: 0, baseMe: 0 },
-  'Goblin': { baseLp: 4, maxLp: 8, baseResurrections: 3, baseSe: 0, baseMe: 0 },
-  'Human': { baseLp: 5, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 },
-  'Lizardfolk': { baseLp: 6, maxLp: 15, baseResurrections: 2, baseSe: 0, baseMe: 0 },
-  'Malkin': { baseLp: 6, maxLp: 12, baseResurrections: 2, baseSe: 0, baseMe: 0 },
-  'Minotaur': { baseLp: 8, maxLp: 20, baseResurrections: 2, baseSe: 0, baseMe: 0 },
-  'Orc': { baseLp: 7, maxLp: 15, baseResurrections: 2, baseSe: 0, baseMe: 0 }
-};
-const MAX_RESURRECTIONS = 5;
-
-function skillLevelTotal(skills, name){
-  return skills
-    .filter(s => s.name.trim().toLowerCase() === name.toLowerCase())
-    .reduce((sum, s) => sum + (s.level || 0), 0);
-}
-
-function hasSkill(skills, name){
-  return skills.some(s => s.name.trim().toLowerCase() === name.toLowerCase());
-}
-
-function deriveStats(c){
-  const race = RACE_STATS[c.race] || { baseLp: 5, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 };
-  const skills = c.skills || [];
-
-  const lp = Math.min(race.baseLp + skillLevelTotal(skills, 'Physical Endurance'), race.maxLp);
-  const resurrectionsLeft = Math.min(race.baseResurrections + skillLevelTotal(skills, 'Spiritual Endurance'), MAX_RESURRECTIONS);
-  const se = race.baseSe + skillLevelTotal(skills, 'Spiritual Energy') + (hasSkill(skills, 'Theology') ? 1 : 0);
-  const me = race.baseMe + skillLevelTotal(skills, 'Magical Energy') + (hasSkill(skills, 'Magery') ? 1 : 0);
-
-  return { lp, se, me, resurrectionsLeft };
-}
 
 function chars_selectChar(id){
   activeCharId = id;
@@ -182,7 +146,7 @@ function renderCharPanel(c){
   const spent = c.skills.reduce((sum, s) => sum + s.sp, 0);
   const experience = xpByChar[c.id] || 0;
   const conv = faConvertXpToSp(experience, c.startingSp, spent);
-  const stats = deriveStats(c);
+  const stats = faDeriveStats(c.race, c.skills.map(s => ({ name: s.name, level: s.level })));
 
   document.getElementById('chars-char-panel').innerHTML = `
     <div>
