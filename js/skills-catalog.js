@@ -92,12 +92,25 @@ function evalClausePrereq(clause, knownSkills, stats){
   return evalAtomicPrereq(clause, knownSkills, stats);
 }
 
-function isPrereqMet(text, knownSkills, stats){
+// "Read & Write" is the one skill name in the catalog that legitimately
+// contains an ampersand, which collides with treating "&" as a separator
+// between multiple required clauses below -- protect it before splitting
+// so it survives as a single clause, matching the real skill title.
+const READ_WRITE_PLACEHOLDER = 'ReadWriteSkillPlaceholder';
+function splitPrereqClauses(text){
   const expanded = (text || '')
     .replace(/\bCI\b/g, 'Clerical Investment')
+    .replace(/Read & Write/gi, READ_WRITE_PLACEHOLDER)
     .trim();
-  if(!expanded || expanded.toLowerCase() === 'none') return true;
-  return expanded.split(/[,&]/).every(clause => evalClausePrereq(clause, knownSkills, stats));
+  if(!expanded || expanded.toLowerCase() === 'none') return [];
+  return expanded
+    .split(/[,&]/)
+    .map(c => c.trim().replace(READ_WRITE_PLACEHOLDER, 'Read & Write'))
+    .filter(c => c);
+}
+
+function isPrereqMet(text, knownSkills, stats){
+  return splitPrereqClauses(text).every(clause => evalClausePrereq(clause, knownSkills, stats));
 }
 
 // Human-readable text for the clauses of a prerequisite that aren't met
@@ -105,14 +118,7 @@ function isPrereqMet(text, knownSkills, stats){
 // met. Reuses the same clause evaluation as isPrereqMet so the two can
 // never disagree on whether a skill is actually locked.
 function unmetPrereqText(text, knownSkills, stats){
-  const expanded = (text || '')
-    .replace(/\bCI\b/g, 'Clerical Investment')
-    .trim();
-  if(!expanded || expanded.toLowerCase() === 'none') return null;
-  const unmet = expanded
-    .split(/[,&]/)
-    .map(c => c.trim())
-    .filter(c => c && !evalClausePrereq(c, knownSkills, stats));
+  const unmet = splitPrereqClauses(text).filter(c => !evalClausePrereq(c, knownSkills, stats));
   return unmet.length ? unmet.join(', ') : null;
 }
 
