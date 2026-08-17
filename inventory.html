@@ -83,6 +83,11 @@ function render(){
     return;
   }
 
+  if(c.loadError){
+    content.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-error-note">Couldn't load inventory: ${escapeHtml(c.loadError)}</p></div></div>`;
+    return;
+  }
+
   if(!c.items.length){
     content.innerHTML = `<div class="panel"><div class="panel-body">${emptyState('No inventory yet. Buy Material/Equipment items from the Shoppe or craft items during an event.')}</div></div>`;
     return;
@@ -168,14 +173,22 @@ async function loadCharacterInventory(characterId){
   const c = CHARACTERS.find(ch => ch.id === characterId);
   if(!c) return;
 
-  const [{ data: items }, { data: requests }] = await Promise.all([
-    membersSupabase.rpc('character_material_inventory', { p_character_id: characterId }),
-    membersSupabase.from('character_tag_requests').select('id, item_name, quantity, event_slug')
-      .eq('character_id', characterId).eq('status', 'pending')
-  ]);
-
-  c.items = items || [];
-  c.requests = requests || [];
+  c.loadError = null;
+  try{
+    const [invRes, reqRes] = await Promise.all([
+      membersSupabase.rpc('character_material_inventory', { p_character_id: characterId }),
+      membersSupabase.from('character_tag_requests').select('id, item_name, quantity, event_slug')
+        .eq('character_id', characterId).eq('status', 'pending')
+    ]);
+    if(invRes.error) throw new Error(invRes.error.message);
+    if(reqRes.error) throw new Error(reqRes.error.message);
+    c.items = invRes.data || [];
+    c.requests = reqRes.data || [];
+  } catch(err){
+    c.loadError = err.message;
+    c.items = [];
+    c.requests = [];
+  }
 }
 
 async function loadCharacters(){
@@ -187,7 +200,7 @@ async function loadCharacters(){
     .eq('player_id', me)
     .order('created_at', { ascending: true });
 
-  CHARACTERS = (chars || []).map(ch => ({ id: ch.id, name: ch.name, items: [], requests: [] }));
+  CHARACTERS = (chars || []).map(ch => ({ id: ch.id, name: ch.name, items: [], requests: [], loadError: null }));
   activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
 
   if(CHARACTERS.length){
