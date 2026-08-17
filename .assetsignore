@@ -8,3 +8,5 @@ _redirects
 .wrangler
 **/.wrangler
 node_modules
+supabase
+**/supabase
