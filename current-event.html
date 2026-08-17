@@ -880,10 +880,13 @@ function ce_trainRowState(idx){
   return { s, key, state: TRAIN_BROWSE_STATE[key] };
 }
 
-function trainFocusFieldHtml(idx, s, state, isLeveled){
+function trainFocusFieldHtml(idx, s, state, isLeveled, focusLocked){
   const parts = skillNameParts(s.title);
-  const options = focusOptionsFor(s, TRAIN_ALL_SKILLS, TRAIN_KNOWN);
   const widthStyle = `style="max-width:${isLeveled ? 140 : 180}px;display:inline-block;${isLeveled ? 'margin-right:0.5rem;' : ''}"`;
+
+  if(focusLocked) return `<span ${widthStyle}>${escapeHtml(focusLocked)}</span>`;
+
+  const options = focusOptionsFor(s, TRAIN_ALL_SKILLS, TRAIN_KNOWN);
 
   if(options){
     return `<select onchange="ce_trainUpdateFocus(${idx}, this.value)" ${widthStyle}>`
@@ -904,7 +907,11 @@ function ce_trainRowInfo(idx){
   const { s, state } = ce_trainRowState(idx);
   const parts = skillNameParts(s.title);
   const isLeveled = isLeveledCost(s.cost);
-  const focusVal = parts.placeholder ? state.focus.trim() : '';
+
+  const focusLocked = parts.base === 'Clerical Investment' ? clericalInvestmentLockedFocus(TRAIN_KNOWN) : null;
+  if(focusLocked) state.focus = focusLocked;
+  const focusVal = focusLocked || (parts.placeholder ? state.focus.trim() : '');
+
   const known = (parts.placeholder && !focusVal) ? null : ce_trainFindKnown(s.category, parts.base, focusVal);
   const isRelevel = isLeveled && !!known;
 
@@ -922,7 +929,7 @@ function ce_trainRowInfo(idx){
   const canAct = !missing && deltaSp !== null && deltaSp > 0 && deltaSp <= spendableSp && deltaHours <= hoursRemaining
     && !(parts.placeholder && !focusVal) && !alreadyKnownFlat;
 
-  return { s, parts, state, isLeveled, focusVal, known, isRelevel, level, cost, deltaSp, deltaHours, missing, alreadyKnownFlat, canAct };
+  return { s, parts, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, deltaSp, deltaHours, missing, alreadyKnownFlat, canAct };
 }
 
 function trainCostLabel(info){
@@ -947,9 +954,9 @@ function renderTrainBrowser(){
 
     let focusCell = '-';
     if(parts.placeholder && isLeveled){
-      focusCell = trainFocusFieldHtml(idx, s, state, true) + `<span style="margin-left:0.5rem;">Level ${info.level}</span>`;
+      focusCell = trainFocusFieldHtml(idx, s, state, true, info.focusLocked) + `<span style="margin-left:0.5rem;">Level ${info.level}</span>`;
     } else if(parts.placeholder){
-      focusCell = trainFocusFieldHtml(idx, s, state, false);
+      focusCell = trainFocusFieldHtml(idx, s, state, false, info.focusLocked);
     } else if(isLeveled){
       focusCell = `Level ${info.level}`;
     }
