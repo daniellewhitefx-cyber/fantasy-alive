@@ -2,6 +2,7 @@ const FA_REGISTRATION_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzDzyi
 
 const FA_EVENT_DEFS = [
   { start: '2026-09-11', end: '2026-09-13' },
+  { start: '2026-10-10', end: '2026-10-10' },
   { start: '2026-10-30', end: '2026-11-01' },
   { start: '2026-11-27', end: '2026-11-29' }
 ];
@@ -21,6 +22,9 @@ function faDateOnly(d){
 }
 
 function faShortRangeLabel(start, end){
+  if(start.getTime() === end.getTime()){
+    return FA_MONTH_SHORT[start.getMonth()] + ' ' + start.getDate();
+  }
   if(start.getMonth() === end.getMonth()){
     return FA_MONTH_SHORT[start.getMonth()] + ' ' + start.getDate() + '–' + end.getDate();
   }
@@ -28,6 +32,9 @@ function faShortRangeLabel(start, end){
 }
 
 function faLongRangeLabel(start, end){
+  if(start.getTime() === end.getTime()){
+    return FA_MONTH_LONG[start.getMonth()] + ' ' + start.getDate();
+  }
   if(start.getMonth() === end.getMonth()){
     return FA_MONTH_LONG[start.getMonth()] + ' ' + start.getDate() + ' to ' + end.getDate();
   }
@@ -36,6 +43,7 @@ function faLongRangeLabel(start, end){
 
 function faEventSlug(start, end){
   const prefix = FA_MONTH_SHORT[start.getMonth()].toLowerCase() + '-' + start.getDate();
+  if(start.getTime() === end.getTime()) return prefix;
   if(start.getMonth() === end.getMonth()) return prefix + '-' + end.getDate();
   return prefix + '-' + FA_MONTH_SHORT[end.getMonth()].toLowerCase() + '-' + end.getDate();
 }
@@ -60,6 +68,7 @@ function faBuildEvent(def){
     value: faEventSlug(start, end),
     label: faShortRangeLabel(start, end),
     longLabel: faLongRangeLabel(start, end),
+    isDayEvent: start.getTime() === end.getTime(),
     start: start,
     end: end,
     days: faDaysInRange(start, end)
