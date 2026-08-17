@@ -177,28 +177,36 @@ begin
     raise exception 'Not enough downtime hours left';
   end if;
 
-  for v_material in select * from jsonb_array_elements(coalesce(p_materials, '[]'::jsonb))
-  loop
-    v_name := v_material ->> 'name';
-    v_qty := (v_material ->> 'qty')::integer;
-    select coalesce(sum(delta), 0) into v_balance
-      from character_material_ledger(p_character_id)
-      where lower(material_name) = lower(v_name);
-    if v_balance < v_qty then
-      raise exception 'Not enough % on hand (have %, need %)', v_name, v_balance, v_qty;
-    end if;
-  end loop;
+  -- A checked "tag" means the player is promising to hand logistics
+  -- physical tags covering these materials at the start of the next
+  -- event, so the on-hand check (and the ledger deduction below) is
+  -- skipped entirely rather than blocking the craft.
+  if not coalesce(p_tag_turned_in, false) then
+    for v_material in select * from jsonb_array_elements(coalesce(p_materials, '[]'::jsonb))
+    loop
+      v_name := v_material ->> 'name';
+      v_qty := (v_material ->> 'qty')::integer;
+      select coalesce(sum(delta), 0) into v_balance
+        from character_material_ledger(p_character_id)
+        where lower(material_name) = lower(v_name);
+      if v_balance < v_qty then
+        raise exception 'Not enough % on hand (have %, need %)', v_name, v_balance, v_qty;
+      end if;
+    end loop;
+  end if;
 
   insert into crafting_log
     (player_id, character_id, event_slug, character_skill_id, skill_name, item_name, category, level_required, hours_spent, qty_produced, tag_turned_in)
     values (v_player, p_character_id, p_event_slug, p_character_skill_id, v_skill.skill_name, p_item_name, p_category, coalesce(p_level_required, 1), p_hours, p_qty_produced, coalesce(p_tag_turned_in, false))
     returning id into v_crafting_log_id;
 
-  for v_material in select * from jsonb_array_elements(coalesce(p_materials, '[]'::jsonb))
-  loop
-    insert into crafting_materials_consumed (crafting_log_id, material_name, quantity)
-      values (v_crafting_log_id, v_material ->> 'name', (v_material ->> 'qty')::integer);
-  end loop;
+  if not coalesce(p_tag_turned_in, false) then
+    for v_material in select * from jsonb_array_elements(coalesce(p_materials, '[]'::jsonb))
+    loop
+      insert into crafting_materials_consumed (crafting_log_id, material_name, quantity)
+        values (v_crafting_log_id, v_material ->> 'name', (v_material ->> 'qty')::integer);
+    end loop;
+  end if;
 
   return v_crafting_log_id;
 end;
