@@ -31,6 +31,7 @@ create or replace function shoppe_buy_item(
   p_character_id uuid,
   p_category text,
   p_item_name text,
+  p_availability_tier integer,
   p_unit_cost_copper integer,
   p_quantity integer
 )
@@ -39,12 +40,26 @@ declare
   v_player uuid := auth.uid();
   v_total integer;
   v_id uuid;
+  v_merchant_level integer;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
   if p_quantity is null or p_quantity < 1 then raise exception 'Quantity must be at least 1'; end if;
   if p_unit_cost_copper is null or p_unit_cost_copper < 0 then raise exception 'Invalid item cost'; end if;
   if p_character_id is not null and not exists (select 1 from characters where id = p_character_id and player_id = v_player) then
     raise exception 'Character not found';
+  end if;
+
+  -- Merchant level N unlocks buying items at Availability tier N. Only
+  -- enforced when shopping as a character (Cast purchases aren't tied to
+  -- a character's Trade Skills) and only for tiers above Common (1),
+  -- which anyone can buy without any Merchant training.
+  if p_character_id is not null and coalesce(p_availability_tier, 1) > 1 then
+    select coalesce(max(level), 0) into v_merchant_level
+      from character_skills
+      where character_id = p_character_id and category = 'Trade Skill' and lower(skill_name) = 'merchant';
+    if p_availability_tier > v_merchant_level then
+      raise exception 'Requires Merchant level % to buy this (this character has level %)', p_availability_tier, v_merchant_level;
+    end if;
   end if;
 
   v_total := p_unit_cost_copper * p_quantity;

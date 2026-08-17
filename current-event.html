@@ -85,53 +85,11 @@
 }
 .ce-info-item:last-child{ border-bottom: none; }
 .ce-info-item p{ margin: 0; white-space: pre-wrap; }
-.shop-grid{
-  display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 0.6rem;
-  margin-top: 1rem;
-}
-.shop-card{
-  border: 2px solid var(--line);
-  background: var(--row-b);
-  padding: 0.55rem 0.65rem;
-  display:flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  transition: border-color 0.15s ease;
-}
-.shop-card:hover{
-  border-color: var(--gold-dark);
-}
-.shop-card-name{
-  font-family: 'Cinzel', serif;
-  font-weight: 600;
-  font-size: 0.82rem;
-  color: var(--ink);
-  line-height: 1.2;
-}
-.shop-card-price{
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: 0.72rem;
-  color: var(--gold-dark);
-  letter-spacing: 0.02em;
-}
-.shop-card-actions{
-  display:flex;
-  align-items:center;
-  gap: 0.35rem;
-  margin-top: auto;
-}
+.shop-item-name{ text-align: left; }
 .shop-qty{
-  width: 40px;
+  width: 50px;
   text-align: center;
-  padding: 0.2rem;
-  font-size: 0.8rem;
-}
-.shop-card-actions .btn-outline{
-  font-size: 0.75rem;
-  padding: 0.3rem 0.5rem;
+  padding: 0.25rem;
 }
 </style>
 </head>
@@ -185,6 +143,7 @@ let SHOP_ALL_ITEMS = [];
 let SHOP_CATEGORY = null;
 let SHOP_QTY_STATE = {};
 let SHOP_BANK_BALANCE = 0;
+let SHOP_MERCHANT_LEVEL = 0;
 let SHOP_PURCHASES = [];
 let SHOP_LOAD_ERROR = null;
 
@@ -197,6 +156,9 @@ let TRAIN_SUMMARY = { spendable_sp: 0, hours_spent: 0 };
 let TRAIN_BUDGET = 0;
 let TRAIN_BROWSE_STATE = {};
 let TRAIN_LOAD_ERROR = null;
+
+let WORK_SESSIONS = [];
+let WORK_LOAD_ERROR = null;
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -332,6 +294,7 @@ function renderTabBar(){
     <button class="${ACTIVE_TAB === 'info' ? 'active' : ''}" onclick="ce_selectTab('info')">Event Info</button>
     <button class="${ACTIVE_TAB === 'oc' ? 'active' : ''}" onclick="ce_selectTab('oc')">Spend OC</button>
     <button class="${ACTIVE_TAB === 'training' ? 'active' : ''}" onclick="ce_selectTab('training')">Training</button>
+    <button class="${ACTIVE_TAB === 'work' ? 'active' : ''}" onclick="ce_selectTab('work')">Work</button>
     <button class="${ACTIVE_TAB === 'shoppe' ? 'active' : ''}" onclick="ce_selectTab('shoppe')">Shoppe</button>
   `;
 }
@@ -392,12 +355,20 @@ async function renderTabBody(){
     return;
   }
 
+  const tabLabel = ACTIVE_TAB === 'work' ? 'Work' : 'Training';
   if(REGISTERED_AS === 'cast'){
-    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>Training</h2></div><div class="panel-body">${emptyState("You're registered as Cast this event, so there's no character to train.")}</div></div>`;
+    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>${tabLabel}</h2></div><div class="panel-body">${emptyState(`You're registered as Cast this event, so there's no character to ${ACTIVE_TAB === 'work' ? 'work' : 'train'}.`)}</div></div>`;
     return;
   }
   if(REGISTERED_AS === 'character' && !MY_CHARACTER){
-    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>Training</h2></div><div class="panel-body">${emptyState('We could not match your registered character to one of your characters. Contact staff for help.')}</div></div>`;
+    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>${tabLabel}</h2></div><div class="panel-body">${emptyState('We could not match your registered character to one of your characters. Contact staff for help.')}</div></div>`;
+    return;
+  }
+
+  if(ACTIVE_TAB === 'work'){
+    body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Loading&hellip;</p></div></div>`;
+    await loadWorkData();
+    renderWorkHtml();
     return;
   }
 
@@ -623,13 +594,19 @@ async function loadShopData(){
       const categories = shoppeOrderedCategories(SHOP_ALL_ITEMS);
       SHOP_CATEGORY = categories.length ? categories[0] : null;
     }
-    const [{ data: balance }, { data: purchases }] = await Promise.all([
+    const tasks = [
       membersSupabase.rpc('bank_my_balance'),
       membersSupabase.from('shoppe_purchases').select('id, category, item_name, unit_cost_copper, quantity, total_cost_copper')
         .eq('player_id', window.faCurrentUser.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true })
-    ]);
+    ];
+    if(REGISTERED_AS === 'character' && MY_CHARACTER){
+      tasks.push(membersSupabase.from('character_skills').select('level')
+        .eq('character_id', MY_CHARACTER.id).eq('category', 'Trade Skill').ilike('skill_name', 'Merchant'));
+    }
+    const [{ data: balance }, { data: purchases }, merchantRes] = await Promise.all(tasks);
     SHOP_BANK_BALANCE = balance || 0;
     SHOP_PURCHASES = purchases || [];
+    SHOP_MERCHANT_LEVEL = merchantRes ? (merchantRes.data || []).reduce((max, r) => Math.max(max, r.level), 0) : 0;
   } catch(err){
     SHOP_LOAD_ERROR = err.message;
   }
@@ -679,7 +656,12 @@ function renderShopBody(){
       </div>
       <div class="panel-body">
         <div class="day-toggle" id="ce-shop-cat-tabs"></div>
-        <div class="shop-grid" id="ce-shop-grid"></div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th></th></tr></thead>
+            <tbody id="ce-shop-grid"></tbody>
+          </table>
+        </div>
         <p class="reg-error-note" id="ce-shop-error" style="display:none; margin-top:0.6rem;"></p>
       </div>
     </div>
@@ -704,6 +686,7 @@ function ce_shopSelectCategory(cat){
 
 function renderShopGrid(){
   const items = SHOP_ALL_ITEMS.filter(i => i.category === SHOP_CATEGORY);
+  const gated = REGISTERED_AS === 'character' && MY_CHARACTER;
 
   document.getElementById('ce-shop-grid').innerHTML = items.length ? items.map(item => {
     const key = item.category + '::' + item.name;
@@ -711,19 +694,18 @@ function renderShopGrid(){
     const qty = SHOP_QTY_STATE[key];
     const total = item.costCopper * qty;
     const canAfford = total <= SHOP_BANK_BALANCE;
+    const locked = gated && item.availabilityTier > SHOP_MERCHANT_LEVEL;
     const keyEsc = key.replace(/'/g, "\\'");
 
     return `
-      <div class="shop-card">
-        <div class="shop-card-name">${escapeHtml(item.name)}</div>
-        <div class="shop-card-price">${item.costCopper} Copper</div>
-        <div class="shop-card-actions">
-          <input type="number" min="1" value="${qty}" class="shop-qty" onchange="ce_shopUpdateQty('${keyEsc}', this.value)">
-          <button class="btn-outline" style="flex:1;" ${canAfford ? '' : 'disabled'} onclick="ce_shopBuy('${item.category.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}', ${item.costCopper})">Buy (${total})</button>
-        </div>
-      </div>
+      <tr class="${locked ? 'skill-row-locked' : ''}">
+        <td class="shop-item-name">${escapeHtml(item.name)}${locked ? `<span class="skill-missing-prereq">Requires Merchant ${item.availabilityTier}</span>` : ''}</td>
+        <td>${item.costCopper} Copper</td>
+        <td><input type="number" min="1" value="${qty}" class="shop-qty" onchange="ce_shopUpdateQty('${keyEsc}', this.value)"></td>
+        <td><button class="btn-outline" ${(canAfford && !locked) ? '' : 'disabled'} onclick="ce_shopBuy('${item.category.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}', ${item.costCopper}, ${item.availabilityTier})">Buy (${total})</button></td>
+      </tr>
     `;
-  }).join('') : `<p class="reg-empty-note">Nothing in this category yet.</p>`;
+  }).join('') : `<tr><td colspan="4">Nothing in this category yet.</td></tr>`;
 }
 
 function ce_shopUpdateQty(key, val){
@@ -733,7 +715,7 @@ function ce_shopUpdateQty(key, val){
   renderShopGrid();
 }
 
-async function ce_shopBuy(category, itemName, unitCost){
+async function ce_shopBuy(category, itemName, unitCost, availabilityTier){
   const errorEl = document.getElementById('ce-shop-error');
   errorEl.style.display = 'none';
   const key = category + '::' + itemName;
@@ -744,6 +726,7 @@ async function ce_shopBuy(category, itemName, unitCost){
     p_character_id: (REGISTERED_AS === 'character' && MY_CHARACTER) ? MY_CHARACTER.id : null,
     p_category: category,
     p_item_name: itemName,
+    p_availability_tier: availabilityTier,
     p_unit_cost_copper: unitCost,
     p_quantity: qty
   });
@@ -1041,6 +1024,127 @@ async function ce_trainCancel(purchaseId){
   renderTrainingBody();
 }
 
+// --- Work tab ---
+
+async function loadWorkData(){
+  WORK_LOAD_ERROR = null;
+  try{
+    await refreshTrainingState();
+    const { data: sessions } = await membersSupabase.from('event_log_working_sessions')
+      .select('id, skill_name, focus, level, hours_worked, copper_earned')
+      .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true });
+    WORK_SESSIONS = sessions || [];
+  } catch(err){
+    WORK_LOAD_ERROR = err.message;
+  }
+}
+
+function renderWorkHtml(){
+  const body = document.getElementById('ce-tab-body');
+
+  if(WORK_LOAD_ERROR){
+    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>Work</h2></div><div class="panel-body"><p class="reg-error-note">Couldn't load: ${escapeHtml(WORK_LOAD_ERROR)}</p></div></div>`;
+    return;
+  }
+
+  const tradeSkills = TRAIN_KNOWN.filter(k => k.category === 'Trade Skill');
+  const hoursRemaining = Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent);
+
+  const sessionsHtml = WORK_SESSIONS.length ? `
+    <div class="panel">
+      <div class="panel-head"><h2>Worked This Event</h2></div>
+      <div class="panel-body">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Trade Skill</th><th>Level</th><th>Hours</th><th>Copper Earned</th><th></th></tr></thead>
+            <tbody>${WORK_SESSIONS.map(s => `
+              <tr>
+                <td>${escapeHtml(s.skill_name)}${s.focus ? ' (' + escapeHtml(s.focus) + ')' : ''}</td>
+                <td>${s.level}</td>
+                <td>${s.hours_worked} hrs</td>
+                <td>${s.copper_earned} Copper</td>
+                <td><button class="btn-outline" onclick="ce_workCancel('${s.id}')" title="Undo this work session">&times;</button></td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  const formHtml = tradeSkills.length ? `
+    <div class="panel">
+      <div class="panel-head"><h2>Work for Copper</h2></div>
+      <div class="panel-body">
+        <p class="page-subhead">Every 8 hours worked earns 5 Copper per level of the Trade Skill used.</p>
+        <div class="ce-stats">
+          <div class="ce-stat"><div class="ce-stat-label">Hours Remaining</div><div class="ce-stat-value">${hoursRemaining} / ${TRAIN_BUDGET}</div></div>
+        </div>
+        <label class="field-label" for="ce-work-skill">Trade Skill</label>
+        <select id="ce-work-skill" onchange="ce_workUpdatePreview()">
+          ${tradeSkills.map(k => `<option value="${escapeHtml(k.id)}">${escapeHtml(k.title)}${k.focus ? ' (' + escapeHtml(k.focus) + ')' : ''} - Level ${k.level}</option>`).join('')}
+        </select>
+        <label class="field-label" for="ce-work-hours" style="margin-top:0.8rem;">Hours to Work</label>
+        <input type="number" id="ce-work-hours" min="8" step="8" value="8" oninput="ce_workUpdatePreview()">
+        <p class="page-subhead" id="ce-work-preview" style="margin-top:0.6rem;"></p>
+        <button class="btn-gold" onclick="ce_workSubmit()">Work</button>
+        <p class="reg-error-note" id="ce-work-error" style="display:none; margin-top:0.6rem;"></p>
+      </div>
+    </div>
+  ` : `
+    <div class="panel">
+      <div class="panel-head"><h2>Work for Copper</h2></div>
+      <div class="panel-body">${emptyState("This character doesn't know any Trade Skills yet.")}</div>
+    </div>
+  `;
+
+  body.innerHTML = sessionsHtml + formHtml;
+  if(tradeSkills.length) ce_workUpdatePreview();
+}
+
+function ce_workUpdatePreview(){
+  const hoursInput = document.getElementById('ce-work-hours');
+  let hours = Math.round((parseInt(hoursInput.value, 10) || 8) / 8) * 8;
+  if(hours < 8) hours = 8;
+  hoursInput.value = hours;
+
+  const skillId = document.getElementById('ce-work-skill').value;
+  const skill = TRAIN_KNOWN.find(k => k.id === skillId);
+  const copper = skill ? (hours / 8) * 5 * skill.level : 0;
+  document.getElementById('ce-work-preview').textContent = skill
+    ? `Working ${hours} hours as a level ${skill.level} ${skill.title} earns ${copper} Copper.`
+    : '';
+}
+
+async function ce_workSubmit(){
+  const errorEl = document.getElementById('ce-work-error');
+  errorEl.style.display = 'none';
+  const skillId = document.getElementById('ce-work-skill').value;
+  const hours = parseInt(document.getElementById('ce-work-hours').value, 10) || 8;
+
+  const { error } = await membersSupabase.rpc('event_log_work_for_copper', {
+    p_event_slug: EVENT.value,
+    p_character_id: MY_CHARACTER.id,
+    p_hours_budget: TRAIN_BUDGET,
+    p_character_skill_id: skillId,
+    p_hours: hours
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  await loadWorkData();
+  renderWorkHtml();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
+async function ce_workCancel(sessionId){
+  const { error } = await membersSupabase.rpc('event_log_cancel_working', { p_session_id: sessionId });
+  if(error){ alert(error.message); return; }
+
+  await loadWorkData();
+  renderWorkHtml();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
 window.ce_updateXp = ce_updateXp;
 window.ce_updateCopper = ce_updateCopper;
 window.ce_selectTab = ce_selectTab;
@@ -1048,6 +1152,9 @@ window.ce_trainSelectCategory = ce_trainSelectCategory;
 window.ce_trainUpdateFocus = ce_trainUpdateFocus;
 window.ce_trainAct = ce_trainAct;
 window.ce_trainCancel = ce_trainCancel;
+window.ce_workUpdatePreview = ce_workUpdatePreview;
+window.ce_workSubmit = ce_workSubmit;
+window.ce_workCancel = ce_workCancel;
 window.ce_infoPost = ce_infoPost;
 window.ce_infoDelete = ce_infoDelete;
 window.ce_shopSelectCategory = ce_shopSelectCategory;
