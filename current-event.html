@@ -1209,14 +1209,14 @@ function renderCraftHtml(){
       <div class="panel-body">
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Item</th><th>Trade</th><th>Hours</th><th>Made</th><th>Tag</th><th></th></tr></thead>
+            <thead><tr><th>Item</th><th>Trade</th><th>Hours</th><th>Made</th><th>Materials</th><th></th></tr></thead>
             <tbody>${CRAFT_LOG.map(l => `
               <tr>
                 <td>${escapeHtml(l.item_name)}</td>
                 <td>${escapeHtml(l.skill_name)}</td>
                 <td>${l.hours_spent} hrs</td>
                 <td>${l.qty_produced}</td>
-                <td>${l.tag_turned_in ? 'Tag turned in' : 'Tracked only'}</td>
+                <td>${l.tag_turned_in ? 'Tag owed at next event' : 'From inventory'}</td>
                 <td><button class="btn-outline" onclick="ce_craftCancel('${l.id}')" title="Undo this craft">&times;</button></td>
               </tr>
             `).join('')}</tbody>
@@ -1254,7 +1254,7 @@ function renderCraftHtml(){
         <div class="day-toggle" id="ce-craft-trade-tabs"></div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Item</th><th>Category</th><th>Level</th><th>Hours</th><th>Materials</th><th>Makes</th><th>Tag</th><th></th></tr></thead>
+            <thead><tr><th>Item</th><th>Category</th><th>Level</th><th>Hours</th><th>Materials</th><th>Makes</th><th title="Check this to craft now even if you're missing materials on hand -- you're promising to give logistics tags covering them at the start of the next event.">Cover w/ Tags?</th><th></th></tr></thead>
             <tbody id="ce-craft-grid"></tbody>
           </table>
         </div>
@@ -1291,7 +1291,7 @@ function renderCraftGrid(){
     const tagChecked = !!CRAFT_TAG_STATE[key];
 
     const levelOk = !!knownSkill && knownSkill.level >= item.levelRequired;
-    const missingMaterials = item.materials.filter(m => craftInventoryBalance(m.name) < m.qty);
+    const missingMaterials = tagChecked ? [] : item.materials.filter(m => craftInventoryBalance(m.name) < m.qty);
     const hoursKnown = item.hours !== null;
     const hoursOk = hoursKnown && item.hours <= hoursRemaining;
     const locked = !levelOk;
@@ -1303,7 +1303,7 @@ function renderCraftGrid(){
 
     const materialsNote = missingMaterials.length
       ? `<span class="skill-missing-prereq">Missing: ${missingMaterials.map(m => `${m.qty} ${escapeHtml(m.name)}`).join(', ')}</span>`
-      : '';
+      : (tagChecked ? `<span class="reg-empty-note" style="display:inline;">Materials covered by tags owed next event</span>` : '');
 
     const hoursLabel = hoursKnown ? `${item.hours} hrs` : `<span class="skill-missing-prereq">TBD</span>`;
 
@@ -1324,6 +1324,7 @@ function renderCraftGrid(){
 
 function ce_craftToggleTag(key, checked){
   CRAFT_TAG_STATE[key] = checked;
+  renderCraftGrid();
 }
 
 async function ce_craftMake(trade, itemName){
