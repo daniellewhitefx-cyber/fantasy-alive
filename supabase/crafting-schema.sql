@@ -74,6 +74,11 @@ $$;
 
 revoke execute on function character_material_ledger(uuid) from public, authenticated, anon;
 
+-- Only returns materials the character actually has on hand (balance >
+-- 0). A tag-covered craft can drive a material negative in the ledger,
+-- but that's a debt, not inventory -- it's surfaced separately on the
+-- Event Info tab's "Tags Owed to Logistics" box instead of showing up
+-- here as a confusing negative quantity.
 create or replace function character_material_inventory(p_character_id uuid)
 returns table(material_name text, balance integer) language plpgsql stable security definer as $$
 begin
@@ -84,7 +89,7 @@ begin
     select l.material_name, sum(l.delta)::integer as balance
     from character_material_ledger(p_character_id) l
     group by l.material_name
-    having sum(l.delta) != 0
+    having sum(l.delta) > 0
     order by l.material_name;
 end;
 $$;
