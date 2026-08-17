@@ -179,8 +179,10 @@ begin
 
   -- A checked "tag" means the player is promising to hand logistics
   -- physical tags covering these materials at the start of the next
-  -- event, so the on-hand check (and the ledger deduction below) is
-  -- skipped entirely rather than blocking the craft.
+  -- event, so the on-hand check is skipped entirely rather than
+  -- blocking the craft. The materials are still recorded as consumed
+  -- below either way, so the ledger reflects what's actually owed
+  -- (surfaced on the Event Info tab's "Tags Owed to Logistics" box).
   if not coalesce(p_tag_turned_in, false) then
     for v_material in select * from jsonb_array_elements(coalesce(p_materials, '[]'::jsonb))
     loop
@@ -200,13 +202,11 @@ begin
     values (v_player, p_character_id, p_event_slug, p_character_skill_id, v_skill.skill_name, p_item_name, p_category, coalesce(p_level_required, 1), p_hours, p_qty_produced, coalesce(p_tag_turned_in, false))
     returning id into v_crafting_log_id;
 
-  if not coalesce(p_tag_turned_in, false) then
-    for v_material in select * from jsonb_array_elements(coalesce(p_materials, '[]'::jsonb))
-    loop
-      insert into crafting_materials_consumed (crafting_log_id, material_name, quantity)
-        values (v_crafting_log_id, v_material ->> 'name', (v_material ->> 'qty')::integer);
-    end loop;
-  end if;
+  for v_material in select * from jsonb_array_elements(coalesce(p_materials, '[]'::jsonb))
+  loop
+    insert into crafting_materials_consumed (crafting_log_id, material_name, quantity)
+      values (v_crafting_log_id, v_material ->> 'name', (v_material ->> 'qty')::integer);
+  end loop;
 
   return v_crafting_log_id;
 end;
