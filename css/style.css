@@ -135,7 +135,6 @@ a{ color:inherit; text-decoration:none; }
 .footer-logo img{ width: 60px; height: auto; display:block; }
 .footer-policies{ text-decoration: underline; font-size: 0.9rem; }
 .footer-copyright{
-  margin-left: auto;
   font-size: 0.78rem;
   font-weight: 400;
   color: var(--brown-dark);
