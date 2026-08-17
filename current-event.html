@@ -1173,13 +1173,15 @@ async function loadCraftData(){
       CRAFT_TRADE = trades.length ? trades[0] : null;
     }
     await refreshTrainingState();
-    const [{ data: log }, { data: inventory }] = await Promise.all([
+    const [logRes, invRes] = await Promise.all([
       membersSupabase.from('crafting_log').select('id, skill_name, item_name, category, level_required, hours_spent, qty_produced, tag_turned_in')
         .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true }),
       membersSupabase.rpc('character_material_inventory', { p_character_id: MY_CHARACTER.id })
     ]);
-    CRAFT_LOG = log || [];
-    CRAFT_INVENTORY = inventory || [];
+    if(logRes.error) throw new Error(logRes.error.message);
+    if(invRes.error) throw new Error(invRes.error.message);
+    CRAFT_LOG = logRes.data || [];
+    CRAFT_INVENTORY = invRes.data || [];
   } catch(err){
     CRAFT_LOAD_ERROR = err.message;
   }
