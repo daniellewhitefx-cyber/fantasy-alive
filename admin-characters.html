@@ -214,6 +214,8 @@ let selected = null;
 const SCHOOLS_OF_MAGIC = ['Armour','Body','Creation','Death','Detection','Divine','Elemental','Healing','Infliction','Magic','Mind','Summoning'];
 const DEITIES = ['Alejandero','Alwyn','Anajaream','Apenca','Arkady','Astrid','Atha','Balaxa','Bard','Beldon','Blythe','Brack','Callis','Clovis','Elieff','Fiona','Hemulis','Iccula','Jerroh','Kazzok','Kell','Marius','Sasha','Stasa','Strega'];
 const ENERGY_TYPES = ['Magical Energy','Spiritual Energy'];
+const CRAFTSMAN_TYPES = ['Seamstress / Tailor','Jeweler','Blacksmith','Tanner','Weaver','Sawyer','Carpenter','Mason','Herb Gardener','Ingredient Extractor'];
+const LABOURER_TYPES = ['Farmer','Hunter','Miner','Lumberjack','Shepherd'];
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -242,6 +244,8 @@ function focusOptionsFor(s){
   if(parts.base === 'Channel Spell') return ENERGY_TYPES;
   if(parts.base === 'Clerical Investment') return DEITIES;
   if(parts.base === 'Arcane Research') return SCHOOLS_OF_MAGIC;
+  if(parts.base === 'Craftsman') return CRAFTSMAN_TYPES;
+  if(parts.base === 'Labourer') return LABOURER_TYPES;
   return null;
 }
 

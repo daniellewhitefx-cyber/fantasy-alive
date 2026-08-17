@@ -6,6 +6,8 @@
 const SCHOOLS_OF_MAGIC = ['Armour','Body','Creation','Death','Detection','Divine','Elemental','Healing','Infliction','Magic','Mind','Summoning'];
 const DEITIES = ['Alejandero','Alwyn','Anajaream','Apenca','Arkady','Astrid','Atha','Balaxa','Bard','Beldon','Blythe','Brack','Callis','Clovis','Elieff','Fiona','Hemulis','Iccula','Jerroh','Kazzok','Kell','Marius','Sasha','Stasa','Strega'];
 const ENERGY_TYPES = ['Magical Energy','Spiritual Energy'];
+const CRAFTSMAN_TYPES = ['Seamstress / Tailor','Jeweler','Blacksmith','Tanner','Weaver','Sawyer','Carpenter','Mason','Herb Gardener','Ingredient Extractor'];
+const LABOURER_TYPES = ['Farmer','Hunter','Miner','Lumberjack','Shepherd'];
 
 function skillNameParts(title){
   const m = title.match(/^(.*?)\s*[\[\(]([^\]\)]+)[\]\)]\s*$/);
@@ -33,7 +35,21 @@ function focusOptionsFor(s, allSkills, knownSkills){
   if(parts.base === 'Channel Spell') return ENERGY_TYPES;
   if(parts.base === 'Clerical Investment') return DEITIES;
   if(parts.base === 'Arcane Research') return SCHOOLS_OF_MAGIC;
+  if(parts.base === 'Craftsman') return CRAFTSMAN_TYPES;
+  if(parts.base === 'Labourer') return LABOURER_TYPES;
   return null;
+}
+
+// Clerical Investment locks a character to one deity: "A character may
+// not be invested with more than 1 deity at any time and switching
+// religions means losing all spells and abilities gained from the
+// previous investment" (rulebook). Once already invested, players should
+// just be releveling their existing god, not re-picking one -- changing
+// which god it's locked to is left to staff via the admin tool, which has
+// its own unrestricted focus picker.
+function clericalInvestmentLockedFocus(knownSkills){
+  const existing = (knownSkills || []).find(s => s.title === 'Clerical Investment' && s.focus);
+  return existing ? existing.focus : null;
 }
 
 // knownSkills entries look like { category, title, level }.
@@ -129,3 +145,4 @@ window.focusOptionsFor = focusOptionsFor;
 window.hasKnownSkill = hasKnownSkill;
 window.isPrereqMet = isPrereqMet;
 window.unmetPrereqText = unmetPrereqText;
+window.clericalInvestmentLockedFocus = clericalInvestmentLockedFocus;
