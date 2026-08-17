@@ -5,13 +5,14 @@
 
 const SCHOOLS_OF_MAGIC = ['Armour','Body','Creation','Death','Detection','Divine','Elemental','Healing','Infliction','Magic','Mind','Summoning'];
 const DEITIES = ['Alejandero','Alwyn','Anajaream','Apenca','Arkady','Astrid','Atha','Balaxa','Bard','Beldon','Blythe','Brack','Callis','Clovis','Elieff','Fiona','Hemulis','Iccula','Jerroh','Kazzok','Kell','Marius','Sasha','Stasa','Strega'];
-const WRITTEN_LANGUAGES = ['Harodonian Common','High Elven','Dwarven Runes','Gnomish Script',"D'shunn Writings",'Lizardfolk Glyphs','Goblin Sigil','Orcsign','High and Low Minotaur','Giant Runes','Ancient Alexandrian','Imperial Lannean','Deep Writings','Arcane Script','Celestial Script','Infernal Script'];
 const ENERGY_TYPES = ['Magical Energy','Spiritual Energy'];
 
 function skillNameParts(title){
   const m = title.match(/^(.*?)\s*[\[\(]([^\]\)]+)[\]\)]\s*$/);
-  if(m) return { base: m[1].trim(), placeholder: m[2].trim() };
-  return { base: title.trim(), placeholder: null };
+  if(!m) return { base: title.trim(), placeholder: null };
+  const base = m[1].trim();
+  if(base === 'Read & Write') return { base, placeholder: null };
+  return { base, placeholder: m[2].trim() };
 }
 
 function skillKey(s){ return s.category + '::' + s.title; }
@@ -32,7 +33,6 @@ function focusOptionsFor(s, allSkills, knownSkills){
   if(parts.base === 'Channel Spell') return ENERGY_TYPES;
   if(parts.base === 'Clerical Investment') return DEITIES;
   if(parts.base === 'Arcane Research') return SCHOOLS_OF_MAGIC;
-  if(parts.base === 'Read & Write') return WRITTEN_LANGUAGES;
   return null;
 }
 
