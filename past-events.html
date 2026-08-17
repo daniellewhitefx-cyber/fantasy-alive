@@ -65,14 +65,45 @@ document.addEventListener('fa-members-ready', async () => {
     return;
   }
 
-  const summaries = await Promise.all(events.map(e =>
-    membersSupabase.rpc('event_log_oc_summary', { p_event_slug: e.value }).then(r => r.data)
-  ));
+  const me = window.faCurrentUser;
+
+  const details = await Promise.all(events.map(async e => {
+    const [ocRes, trainingRes, shopRes] = await Promise.all([
+      membersSupabase.rpc('event_log_oc_summary', { p_event_slug: e.value }),
+      membersSupabase.from('event_log_training_purchases').select('skill_name, focus, level, is_relevel, prev_level')
+        .eq('player_id', me.id).eq('event_slug', e.value).order('created_at', { ascending: true }),
+      membersSupabase.from('shoppe_purchases').select('item_name, quantity')
+        .eq('player_id', me.id).eq('event_slug', e.value).order('created_at', { ascending: true })
+    ]);
+    return {
+      oc: ocRes.data || { xp_spent: 0, copper_spent: 0 },
+      training: trainingRes.data || [],
+      shop: shopRes.data || []
+    };
+  }));
 
   list.innerHTML = events.map((e, i) => {
-    const s = summaries[i] || { xp_spent: 0, copper_spent: 0 };
-    const noSpend = !s.xp_spent && !s.copper_spent;
-    return `<div class="submitted-item"><div class="who">${escapeHtml(e.longLabel)}</div>${noSpend ? 'No OC spent this event.' : `${s.xp_spent} OC spent on XP, ${s.copper_spent} OC spent on Copper.`}</div>`;
+    const d = details[i];
+    const noSpend = !d.oc.xp_spent && !d.oc.copper_spent;
+    const ocLine = noSpend ? 'No OC spent this event.' : `${d.oc.xp_spent} OC spent on XP, ${d.oc.copper_spent} OC spent on Copper.`;
+
+    const trainingLine = d.training.length ? 'Trained: ' + d.training.map(t => {
+      const name = escapeHtml(t.skill_name) + (t.focus ? ' (' + escapeHtml(t.focus) + ')' : '');
+      return t.is_relevel ? `${name} ${t.prev_level} &rarr; ${t.level}` : `${name} (new)`;
+    }).join(', ') : '';
+
+    const shopLine = d.shop.length
+      ? 'Bought: ' + d.shop.map(p => `${p.quantity}x ${escapeHtml(p.item_name)}`).join(', ')
+      : '';
+
+    return `
+      <div class="submitted-item">
+        <div class="who">${escapeHtml(e.longLabel)}</div>
+        <div>${ocLine}</div>
+        ${trainingLine ? `<div>${trainingLine}</div>` : ''}
+        ${shopLine ? `<div>${shopLine}</div>` : ''}
+      </div>
+    `;
   }).join('');
 });
 })();
