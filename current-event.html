@@ -120,6 +120,7 @@
 <script src="js/skills-catalog.js"></script>
 <script src="js/character-stats.js"></script>
 <script src="js/shoppe-data.js"></script>
+<script src="js/crafting-data.js"></script>
 <script>
 (function(){
 let EVENT = null;
@@ -159,6 +160,13 @@ let TRAIN_LOAD_ERROR = null;
 
 let WORK_SESSIONS = [];
 let WORK_LOAD_ERROR = null;
+
+let CRAFT_ALL_ITEMS = [];
+let CRAFT_TRADE = null;
+let CRAFT_LOG = [];
+let CRAFT_INVENTORY = [];
+let CRAFT_TAG_STATE = {};
+let CRAFT_LOAD_ERROR = null;
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -295,6 +303,7 @@ function renderTabBar(){
     <button class="${ACTIVE_TAB === 'oc' ? 'active' : ''}" onclick="ce_selectTab('oc')">Spend OC</button>
     <button class="${ACTIVE_TAB === 'training' ? 'active' : ''}" onclick="ce_selectTab('training')">Training</button>
     <button class="${ACTIVE_TAB === 'work' ? 'active' : ''}" onclick="ce_selectTab('work')">Work</button>
+    <button class="${ACTIVE_TAB === 'crafting' ? 'active' : ''}" onclick="ce_selectTab('crafting')">Crafting</button>
     <button class="${ACTIVE_TAB === 'shoppe' ? 'active' : ''}" onclick="ce_selectTab('shoppe')">Shoppe</button>
   `;
 }
@@ -355,9 +364,10 @@ async function renderTabBody(){
     return;
   }
 
-  const tabLabel = ACTIVE_TAB === 'work' ? 'Work' : 'Training';
+  const tabLabel = ACTIVE_TAB === 'work' ? 'Work' : (ACTIVE_TAB === 'crafting' ? 'Crafting' : 'Training');
+  const tabVerb = ACTIVE_TAB === 'work' ? 'work' : (ACTIVE_TAB === 'crafting' ? 'craft' : 'train');
   if(REGISTERED_AS === 'cast'){
-    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>${tabLabel}</h2></div><div class="panel-body">${emptyState(`You're registered as Cast this event, so there's no character to ${ACTIVE_TAB === 'work' ? 'work' : 'train'}.`)}</div></div>`;
+    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>${tabLabel}</h2></div><div class="panel-body">${emptyState(`You're registered as Cast this event, so there's no character to ${tabVerb}.`)}</div></div>`;
     return;
   }
   if(REGISTERED_AS === 'character' && !MY_CHARACTER){
@@ -369,6 +379,13 @@ async function renderTabBody(){
     body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Loading&hellip;</p></div></div>`;
     await loadWorkData();
     renderWorkHtml();
+    return;
+  }
+
+  if(ACTIVE_TAB === 'crafting'){
+    body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Loading&hellip;</p></div></div>`;
+    await loadCraftData();
+    renderCraftHtml();
     return;
   }
 
@@ -1145,6 +1162,207 @@ async function ce_workCancel(sessionId){
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
 }
 
+// --- Crafting tab ---
+
+async function loadCraftData(){
+  CRAFT_LOAD_ERROR = null;
+  try{
+    if(!CRAFT_ALL_ITEMS.length){
+      CRAFT_ALL_ITEMS = await craftingLoadFromSheet();
+      const trades = craftingOrderedTrades(CRAFT_ALL_ITEMS);
+      CRAFT_TRADE = trades.length ? trades[0] : null;
+    }
+    await refreshTrainingState();
+    const [{ data: log }, { data: inventory }] = await Promise.all([
+      membersSupabase.from('crafting_log').select('id, skill_name, item_name, category, level_required, hours_spent, qty_produced, tag_turned_in')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true }),
+      membersSupabase.rpc('character_material_inventory', { p_character_id: MY_CHARACTER.id })
+    ]);
+    CRAFT_LOG = log || [];
+    CRAFT_INVENTORY = inventory || [];
+  } catch(err){
+    CRAFT_LOAD_ERROR = err.message;
+  }
+}
+
+function craftInventoryBalance(name){
+  const norm = (name || '').trim().toLowerCase();
+  const row = CRAFT_INVENTORY.find(r => (r.material_name || '').trim().toLowerCase() === norm);
+  return row ? row.balance : 0;
+}
+
+function renderCraftHtml(){
+  const body = document.getElementById('ce-tab-body');
+
+  if(CRAFT_LOAD_ERROR){
+    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>Crafting</h2></div><div class="panel-body"><p class="reg-error-note">Couldn't load: ${escapeHtml(CRAFT_LOAD_ERROR)}</p></div></div>`;
+    return;
+  }
+
+  const hoursRemaining = Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent);
+
+  const logHtml = CRAFT_LOG.length ? `
+    <div class="panel">
+      <div class="panel-head"><h2>Crafted This Event</h2></div>
+      <div class="panel-body">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Item</th><th>Trade</th><th>Hours</th><th>Made</th><th>Tag</th><th></th></tr></thead>
+            <tbody>${CRAFT_LOG.map(l => `
+              <tr>
+                <td>${escapeHtml(l.item_name)}</td>
+                <td>${escapeHtml(l.skill_name)}</td>
+                <td>${l.hours_spent} hrs</td>
+                <td>${l.qty_produced}</td>
+                <td>${l.tag_turned_in ? 'Tag turned in' : 'Tracked only'}</td>
+                <td><button class="btn-outline" onclick="ce_craftCancel('${l.id}')" title="Undo this craft">&times;</button></td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  const inventoryHtml = `
+    <div class="panel">
+      <div class="panel-head"><h2>Your Materials</h2></div>
+      <div class="panel-body">
+        ${CRAFT_INVENTORY.length ? `
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Material</th><th>On Hand</th></tr></thead>
+              <tbody>${CRAFT_INVENTORY.map(r => `<tr><td>${escapeHtml(r.material_name)}</td><td>${r.balance}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+        ` : emptyState('No tracked materials yet. Buy Material/Equipment items from the Shoppe or craft your own.')}
+      </div>
+    </div>
+  `;
+
+  body.innerHTML = `
+    ${logHtml}
+    ${inventoryHtml}
+    <div class="panel">
+      <div class="panel-head ce-event-head">
+        <h2>Production List</h2>
+        <span class="ce-logging-as">Hours Remaining: ${hoursRemaining} / ${TRAIN_BUDGET}</span>
+      </div>
+      <div class="panel-body">
+        <div class="day-toggle" id="ce-craft-trade-tabs"></div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Item</th><th>Category</th><th>Level</th><th>Hours</th><th>Materials</th><th>Makes</th><th>Tag</th><th></th></tr></thead>
+            <tbody id="ce-craft-grid"></tbody>
+          </table>
+        </div>
+        <p class="reg-error-note" id="ce-craft-error" style="display:none; margin-top:0.6rem;"></p>
+      </div>
+    </div>
+  `;
+
+  renderCraftTradeTabs();
+  renderCraftGrid();
+}
+
+function renderCraftTradeTabs(){
+  const trades = craftingOrderedTrades(CRAFT_ALL_ITEMS);
+  document.getElementById('ce-craft-trade-tabs').innerHTML = trades.map(t =>
+    `<button class="${t === CRAFT_TRADE ? 'active' : ''}" onclick="ce_craftSelectTrade('${t.replace(/'/g, "\\'")}')">${escapeHtml(t)}</button>`
+  ).join('');
+}
+
+function ce_craftSelectTrade(trade){
+  CRAFT_TRADE = trade;
+  renderCraftTradeTabs();
+  renderCraftGrid();
+}
+
+function renderCraftGrid(){
+  const items = CRAFT_ALL_ITEMS.filter(i => i.trade === CRAFT_TRADE);
+  const hoursRemaining = Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent);
+  const knownSkill = TRAIN_KNOWN.find(k => k.category === 'Trade Skill' && k.title.trim().toLowerCase() === (CRAFT_TRADE || '').trim().toLowerCase());
+
+  document.getElementById('ce-craft-grid').innerHTML = items.length ? items.map(item => {
+    const key = item.trade + '::' + item.name;
+    const keyEsc = key.replace(/'/g, "\\'");
+    const tagChecked = !!CRAFT_TAG_STATE[key];
+
+    const levelOk = !!knownSkill && knownSkill.level >= item.levelRequired;
+    const missingMaterials = item.materials.filter(m => craftInventoryBalance(m.name) < m.qty);
+    const hoursKnown = item.hours !== null;
+    const hoursOk = hoursKnown && item.hours <= hoursRemaining;
+    const locked = !levelOk;
+    const canCraft = levelOk && hoursKnown && hoursOk && missingMaterials.length === 0;
+
+    let lockedNote = '';
+    if(!knownSkill) lockedNote = `Requires ${escapeHtml(item.trade)}`;
+    else if(!levelOk) lockedNote = `Requires ${escapeHtml(item.trade)} level ${item.levelRequired} (this character has level ${knownSkill.level})`;
+
+    const materialsNote = missingMaterials.length
+      ? `<span class="skill-missing-prereq">Missing: ${missingMaterials.map(m => `${m.qty} ${escapeHtml(m.name)}`).join(', ')}</span>`
+      : '';
+
+    const hoursLabel = hoursKnown ? `${item.hours} hrs` : `<span class="skill-missing-prereq">TBD</span>`;
+
+    return `
+      <tr class="${locked ? 'skill-row-locked' : ''}">
+        <td class="shop-item-name">${escapeHtml(item.name)}${lockedNote ? `<span class="skill-missing-prereq">${lockedNote}</span>` : ''}${materialsNote}</td>
+        <td>${escapeHtml(item.category)}</td>
+        <td>${item.levelRequired}</td>
+        <td>${hoursLabel}</td>
+        <td>${escapeHtml(item.materialsText || 'none')}</td>
+        <td>${item.qtyProduced}</td>
+        <td><input type="checkbox" ${tagChecked ? 'checked' : ''} onchange="ce_craftToggleTag('${keyEsc}', this.checked)"></td>
+        <td><button class="btn-outline" ${canCraft ? '' : 'disabled'} onclick="ce_craftMake('${item.trade.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')">Craft</button></td>
+      </tr>
+    `;
+  }).join('') : `<tr><td colspan="8">Nothing in this trade yet.</td></tr>`;
+}
+
+function ce_craftToggleTag(key, checked){
+  CRAFT_TAG_STATE[key] = checked;
+}
+
+async function ce_craftMake(trade, itemName){
+  const errorEl = document.getElementById('ce-craft-error');
+  errorEl.style.display = 'none';
+  const item = CRAFT_ALL_ITEMS.find(i => i.trade === trade && i.name === itemName);
+  if(!item) return;
+  const knownSkill = TRAIN_KNOWN.find(k => k.category === 'Trade Skill' && k.title.trim().toLowerCase() === trade.trim().toLowerCase());
+  if(!knownSkill) return;
+  const key = trade + '::' + itemName;
+
+  const { error } = await membersSupabase.rpc('craft_item', {
+    p_event_slug: EVENT.value,
+    p_character_id: MY_CHARACTER.id,
+    p_hours_budget: TRAIN_BUDGET,
+    p_character_skill_id: knownSkill.id,
+    p_item_name: item.name,
+    p_category: item.category,
+    p_level_required: item.levelRequired,
+    p_hours: item.hours,
+    p_qty_produced: item.qtyProduced,
+    p_materials: item.materials.map(m => ({ name: m.name, qty: m.qty })),
+    p_tag_turned_in: !!CRAFT_TAG_STATE[key]
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  delete CRAFT_TAG_STATE[key];
+  await loadCraftData();
+  renderCraftHtml();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
+async function ce_craftCancel(logId){
+  const { error } = await membersSupabase.rpc('cancel_craft', { p_crafting_log_id: logId });
+  if(error){ alert(error.message); return; }
+
+  await loadCraftData();
+  renderCraftHtml();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
 window.ce_updateXp = ce_updateXp;
 window.ce_updateCopper = ce_updateCopper;
 window.ce_selectTab = ce_selectTab;
@@ -1161,6 +1379,10 @@ window.ce_shopSelectCategory = ce_shopSelectCategory;
 window.ce_shopUpdateQty = ce_shopUpdateQty;
 window.ce_shopBuy = ce_shopBuy;
 window.ce_shopCancel = ce_shopCancel;
+window.ce_craftSelectTrade = ce_craftSelectTrade;
+window.ce_craftToggleTag = ce_craftToggleTag;
+window.ce_craftMake = ce_craftMake;
+window.ce_craftCancel = ce_craftCancel;
 
 document.addEventListener('fa-members-ready', async () => {
   EVENT = window.FA_NEXT_EVENT;
