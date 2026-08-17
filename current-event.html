@@ -139,6 +139,8 @@ let INFO_ROSTER = [];
 let INFO_CAST_COUNT = 0;
 let INFO_ITEMS = [];
 let INFO_CAN_EDIT = false;
+let INFO_TAGS_OWED = [];
+let INFO_TAGS_RECEIVING = [];
 
 let SHOP_ALL_ITEMS = [];
 let SHOP_CATEGORY = null;
@@ -264,7 +266,12 @@ async function loadRegistration(){
   document.getElementById('ce-logging-as').textContent = loggingAsLabel ? `Logging as ${loggingAsLabel}` : '';
 
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
-  if(ACTIVE_TAB !== 'info') await renderTabBody();
+  if(ACTIVE_TAB !== 'info'){
+    await renderTabBody();
+  } else if(REGISTERED_AS === 'character' && MY_CHARACTER){
+    await loadEventInfoTags();
+    renderInfoHtml();
+  }
 }
 
 async function loadOcAndTraining(){
@@ -516,7 +523,57 @@ async function loadInfoData(){
   } catch(err){
     INFO_ERROR = err.message;
   }
+  await loadEventInfoTags();
   INFO_LOADED = true;
+}
+
+// Tags Owed to Logistics: materials consumed by crafts this event where
+// the player promised to cover them with physical tags instead of
+// having them on hand (see craft_item's p_tag_turned_in). Tags You'll
+// Receive: every item crafted this event (each needs a freshly printed
+// tag) plus anything explicitly requested via the Inventory page for
+// this event.
+async function loadEventInfoTags(){
+  INFO_TAGS_OWED = [];
+  INFO_TAGS_RECEIVING = [];
+  if(!(REGISTERED_AS === 'character' && MY_CHARACTER)) return;
+
+  try{
+    const { data: craftRows } = await membersSupabase.from('crafting_log')
+      .select('id, item_name, qty_produced, tag_turned_in')
+      .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value);
+
+    const rows = craftRows || [];
+    const owedCraftIds = rows.filter(r => r.tag_turned_in).map(r => r.id);
+
+    const [consumedRes, requestRes] = await Promise.all([
+      owedCraftIds.length
+        ? membersSupabase.from('crafting_materials_consumed').select('material_name, quantity').in('crafting_log_id', owedCraftIds)
+        : Promise.resolve({ data: [] }),
+      membersSupabase.from('character_tag_requests').select('item_name, quantity')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).eq('status', 'pending')
+    ]);
+
+    const owedMap = {};
+    (consumedRes.data || []).forEach(r => {
+      const key = r.material_name.trim();
+      owedMap[key] = (owedMap[key] || 0) + r.quantity;
+    });
+    INFO_TAGS_OWED = Object.entries(owedMap).map(([name, qty]) => ({ name, qty })).sort((a, b) => a.name.localeCompare(b.name));
+
+    const receivingMap = {};
+    rows.forEach(r => {
+      const key = r.item_name.trim();
+      receivingMap[key] = (receivingMap[key] || 0) + r.qty_produced;
+    });
+    (requestRes.data || []).forEach(r => {
+      const key = r.item_name.trim();
+      receivingMap[key] = (receivingMap[key] || 0) + r.quantity;
+    });
+    INFO_TAGS_RECEIVING = Object.entries(receivingMap).map(([name, qty]) => ({ name, qty })).sort((a, b) => a.name.localeCompare(b.name));
+  } catch(err){
+    // Fail soft -- the tags boxes just stay empty rather than breaking the whole Info tab.
+  }
 }
 
 function renderInfoHtml(){
@@ -576,7 +633,38 @@ function renderInfoHtml(){
     </div>
   `;
 
-  body.innerHTML = `<div class="ce-cols">${rosterSection}${infoSection}</div>`;
+  const tagsSection = (REGISTERED_AS === 'character' && MY_CHARACTER) ? `
+    <div class="ce-cols">
+      <div class="panel">
+        <div class="panel-head"><h2>Tags Owed to Logistics</h2></div>
+        <div class="panel-body">
+          ${INFO_TAGS_OWED.length ? `
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead><tr><th>Material</th><th>Qty</th></tr></thead>
+                <tbody>${INFO_TAGS_OWED.map(t => `<tr><td>${escapeHtml(t.name)}</td><td>${t.qty}</td></tr>`).join('')}</tbody>
+              </table>
+            </div>
+          ` : emptyState('Nothing owed. Every craft this event was covered by materials on hand.')}
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Tags You'll Receive</h2></div>
+        <div class="panel-body">
+          ${INFO_TAGS_RECEIVING.length ? `
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+                <tbody>${INFO_TAGS_RECEIVING.map(t => `<tr><td>${escapeHtml(t.name)}</td><td>${t.qty}</td></tr>`).join('')}</tbody>
+              </table>
+            </div>
+          ` : emptyState('Nothing pending for this event.')}
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  body.innerHTML = `<div class="ce-cols">${rosterSection}${infoSection}</div>${tagsSection}`;
 }
 
 async function ce_infoPost(){
@@ -1352,6 +1440,7 @@ async function ce_craftMake(trade, itemName){
   if(error){ showError(errorEl, error.message); return; }
 
   delete CRAFT_TAG_STATE[key];
+  INFO_LOADED = false;
   await loadCraftData();
   renderCraftHtml();
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
@@ -1361,6 +1450,7 @@ async function ce_craftCancel(logId){
   const { error } = await membersSupabase.rpc('cancel_craft', { p_crafting_log_id: logId });
   if(error){ alert(error.message); return; }
 
+  INFO_LOADED = false;
   await loadCraftData();
   renderCraftHtml();
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
