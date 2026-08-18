@@ -7,7 +7,9 @@
 -- a profile while this was broken.
 
 create or replace function handle_new_user()
-returns trigger language plpgsql security definer as $$
+returns trigger language plpgsql security definer
+set search_path = public
+as $$
 begin
   begin
     insert into profiles (id, display_name)

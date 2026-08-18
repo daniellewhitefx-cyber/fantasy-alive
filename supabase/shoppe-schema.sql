@@ -35,7 +35,9 @@ create or replace function shoppe_buy_item(
   p_unit_cost_copper integer,
   p_quantity integer
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_total integer;
@@ -81,7 +83,9 @@ end;
 $$;
 
 create or replace function shoppe_cancel_purchase(p_purchase_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_purchase shoppe_purchases%rowtype;

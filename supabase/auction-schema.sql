@@ -54,7 +54,9 @@ create or replace function auction_create_item(
   p_min_increment numeric,
   p_ends_at timestamptz default null
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
   v_name text := trim(coalesce(p_name, ''));
@@ -77,7 +79,9 @@ end;
 $$;
 
 create or replace function auction_go_live(p_item_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
@@ -95,7 +99,9 @@ end;
 $$;
 
 create or replace function auction_close(p_item_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_top auction_bids;
   v_item auction_items;
@@ -124,7 +130,9 @@ end;
 $$;
 
 create or replace function auction_place_bid(p_item_id uuid, p_amount numeric)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_item auction_items;
@@ -157,7 +165,9 @@ end;
 $$;
 
 create or replace function auction_staff_mark_paid(p_item_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
@@ -171,7 +181,9 @@ end;
 $$;
 
 create or replace function auction_winner_mark_pay_at_event(p_item_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin
@@ -185,7 +197,9 @@ end;
 $$;
 
 create or replace function auction_winner_mark_paid_online(p_item_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin

@@ -31,7 +31,9 @@ create or replace function liability_waiver_sign(
   p_signature_name text,
   p_guardian_signature_name text
 )
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin

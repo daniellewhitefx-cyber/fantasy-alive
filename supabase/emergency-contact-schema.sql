@@ -54,7 +54,9 @@ create or replace function emergency_contact_save(
   p_other_notes text,
   p_signature_name text
 )
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin

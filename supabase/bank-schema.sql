@@ -13,7 +13,9 @@ create policy "Profiles are publicly readable"
   using (true);
 
 create or replace function handle_new_user()
-returns trigger language plpgsql security definer as $$
+returns trigger language plpgsql security definer
+set search_path = public
+as $$
 begin
   begin
     insert into profiles (id, display_name)
@@ -36,7 +38,9 @@ select id, coalesce(raw_user_meta_data ->> 'display_name', email) from auth.user
 on conflict (id) do nothing;
 
 create or replace function bank_set_auto_bank_preference(p_enabled boolean)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
   update profiles set auto_bank_log_coin = p_enabled where id = auth.uid();
@@ -71,7 +75,9 @@ create policy "Players see their own transactions"
   );
 
 create or replace function bank_balance(p_player uuid)
-returns numeric language sql stable security definer as $$
+returns numeric language sql stable security definer
+set search_path = public
+as $$
   select coalesce(sum(
     case
       when type in ('deposit', 'transfer_in', 'bill_payment_in', 'log_bank') then amount
@@ -86,12 +92,16 @@ $$;
 revoke execute on function bank_balance(uuid) from public, authenticated, anon;
 
 create or replace function bank_my_balance()
-returns numeric language sql stable security definer as $$
+returns numeric language sql stable security definer
+set search_path = public
+as $$
   select bank_balance(auth.uid());
 $$;
 
 create or replace function bank_staff_player_balance(p_player uuid)
-returns numeric language plpgsql stable security definer as $$
+returns numeric language plpgsql stable security definer
+set search_path = public
+as $$
 begin
   if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
@@ -101,7 +111,9 @@ end;
 $$;
 
 create or replace function bank_send_coin(p_recipient uuid, p_amount numeric, p_note text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_sender uuid := auth.uid();
 begin
@@ -139,7 +151,9 @@ create policy "Bills are visible to both parties"
   using (from_player_id = auth.uid() or to_player_id = auth.uid());
 
 create or replace function bank_request_bill(p_target uuid, p_amount numeric, p_note text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_from uuid := auth.uid();
 begin
@@ -156,7 +170,9 @@ end;
 $$;
 
 create or replace function bank_pay_bill(p_bill_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_bill bank_bills;
   v_payer uuid := auth.uid();
@@ -177,7 +193,9 @@ end;
 $$;
 
 create or replace function bank_decline_bill(p_bill_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_bill bank_bills;
 begin
@@ -190,7 +208,9 @@ end;
 $$;
 
 create or replace function bank_cancel_bill(p_bill_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_bill bank_bills;
 begin
@@ -230,7 +250,9 @@ create policy "Players create their own withdrawal requests"
   with check (player_id = auth.uid());
 
 create or replace function bank_request_withdrawal(p_amount numeric, p_note text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin
@@ -242,7 +264,9 @@ end;
 $$;
 
 create or replace function bank_cancel_withdrawal(p_request_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_req bank_withdrawal_requests;
 begin
@@ -255,7 +279,9 @@ end;
 $$;
 
 create or replace function bank_staff_fulfill_withdrawal(p_request_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_req bank_withdrawal_requests;
   v_staff uuid := auth.uid();
@@ -281,7 +307,9 @@ end;
 $$;
 
 create or replace function bank_staff_deposit(p_player uuid, p_amount numeric, p_note text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
 begin

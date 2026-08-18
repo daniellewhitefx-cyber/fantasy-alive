@@ -32,7 +32,9 @@ create or replace function character_request_tag(
   p_quantity integer,
   p_event_slug text
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_id uuid;
@@ -62,7 +64,9 @@ end;
 $$;
 
 create or replace function character_cancel_tag_request(p_request_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin

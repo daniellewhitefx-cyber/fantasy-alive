@@ -16,7 +16,9 @@ create policy "Players see their own department memberships"
 -- predate profiles being reliably backfilled on signup (see
 -- fix-signup-error.sql) and would otherwise be missing from the list.
 create or replace function admin_list_players()
-returns table(id uuid, display_name text) language plpgsql security definer as $$
+returns table(id uuid, display_name text) language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not fa_is_site_admin() then
     raise exception 'Only site admins can list players';
@@ -31,7 +33,9 @@ end;
 $$;
 
 create or replace function admin_get_player_flags(p_player_id uuid)
-returns jsonb language plpgsql security definer as $$
+returns jsonb language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_meta jsonb;
 begin
@@ -45,7 +49,9 @@ end;
 $$;
 
 create or replace function admin_set_staff_flag(p_player_id uuid, p_flag text, p_enabled boolean)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not fa_is_site_admin() then
     raise exception 'Only site admins can change player permissions';
@@ -69,7 +75,9 @@ end;
 $$;
 
 create or replace function admin_set_role(p_player_id uuid, p_role text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not fa_is_site_admin() then
     raise exception 'Only site admins can change player permissions';
@@ -89,7 +97,9 @@ end;
 $$;
 
 create or replace function admin_set_department_member(p_player_id uuid, p_department_id uuid, p_enabled boolean)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not fa_is_site_admin() then
     raise exception 'Only site admins can change department memberships';

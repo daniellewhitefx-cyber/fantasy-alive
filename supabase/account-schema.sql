@@ -19,7 +19,9 @@ create policy "Members see only their own private notes"
 -- members area calls this on every page load so a player's display name
 -- never silently shows as "Unknown player" if that trigger ever misses.
 create or replace function ensure_profile()
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_name text;
   v_email text;
@@ -36,7 +38,9 @@ end;
 $$;
 
 create or replace function account_set_display_name(p_display_name text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
   if p_display_name is null or length(trim(p_display_name)) = 0 then
@@ -47,7 +51,9 @@ end;
 $$;
 
 create or replace function account_set_pronouns(p_pronouns text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
   update profiles set pronouns = nullif(trim(coalesce(p_pronouns, '')), '') where id = auth.uid();
@@ -55,7 +61,9 @@ end;
 $$;
 
 create or replace function account_set_allergy_notes(p_notes text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
   insert into member_private_notes (id, allergy_notes)
@@ -66,7 +74,9 @@ end;
 $$;
 
 create or replace function account_set_disability_notes(p_notes text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
   insert into member_private_notes (id, disability_notes)

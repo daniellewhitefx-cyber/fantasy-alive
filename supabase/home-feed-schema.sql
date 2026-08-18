@@ -27,7 +27,9 @@ create or replace function home_feed_create(
   p_badge text,
   p_sort_order integer
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_title text := trim(coalesce(p_title, ''));
   v_id uuid;
@@ -61,7 +63,9 @@ create or replace function home_feed_update(
   p_badge text,
   p_sort_order integer
 )
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_title text := trim(coalesce(p_title, ''));
 begin
@@ -83,7 +87,9 @@ end;
 $$;
 
 create or replace function home_feed_delete(p_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not fa_is_site_admin() then raise exception 'Staff only'; end if;
 
