@@ -232,10 +232,8 @@
 <div class="panel-body">
 <p class="page-subhead">Every pending tag a player has requested from their Inventory, grouped by player so everyone's tags stay together.</p>
 <div id="ptr-summary"></div>
-<div id="ptr-list"></div>
-<div style="margin-top:1rem; display:flex; gap:0.6rem; flex-wrap:wrap;">
+<div style="margin-top:1rem;">
 <button class="btn-gold" id="ptr-print-btn" onclick="ptr_print()" disabled>Print All Tags</button>
-<button class="btn-outline" id="ptr-fulfill-btn" onclick="ptr_markFulfilled()" disabled>Mark All as Fulfilled</button>
 </div>
 </div>
 </div>
@@ -590,13 +588,9 @@ let PENDING_REQUESTS = [];
 
 async function ptr_load(){
   const summaryEl = document.getElementById('ptr-summary');
-  const listEl = document.getElementById('ptr-list');
   const printBtn = document.getElementById('ptr-print-btn');
-  const fulfillBtn = document.getElementById('ptr-fulfill-btn');
   printBtn.disabled = true;
-  fulfillBtn.disabled = true;
   summaryEl.innerHTML = '<p class="reg-empty-note">Loading pending tag requests&hellip;</p>';
-  listEl.innerHTML = '';
 
   const { data, error } = await membersSupabase.rpc('logistics_list_pending_tag_requests');
   if(error){
@@ -605,35 +599,13 @@ async function ptr_load(){
   }
   PENDING_REQUESTS = data || [];
   if(PENDING_REQUESTS.length === 0){
-    summaryEl.innerHTML = '';
-    listEl.innerHTML = emptyState('No pending tag requests right now.');
+    summaryEl.innerHTML = emptyState('No pending tag requests right now.');
     return;
   }
-  summaryEl.innerHTML = `<p><strong>${PENDING_REQUESTS.length}</strong> pending tag request${PENDING_REQUESTS.length === 1 ? '' : 's'}.</p>`;
-
-  const groups = [];
-  PENDING_REQUESTS.forEach(r => {
-    let g = groups[groups.length - 1];
-    if(!g || g.player !== r.player_display_name){
-      g = { player: r.player_display_name, rows: [] };
-      groups.push(g);
-    }
-    g.rows.push(r);
-  });
-
-  listEl.innerHTML = groups.map(g => `
-    <div class="reg-section">
-      <div class="reg-section-label">${escapeHtml(g.player)}</div>
-      ${g.rows.map(r => `
-        <div style="padding:0.3rem 0; border-bottom:1px solid var(--line);">
-          ${escapeHtml(r.item_name)} &times;${r.quantity} <span style="color:var(--brown-dark); font-size:0.85rem;">(${escapeHtml(r.character_name)}, ${escapeHtml(r.event_slug)})</span>
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
+  const playerCount = new Set(PENDING_REQUESTS.map(r => r.player_display_name)).size;
+  summaryEl.innerHTML = `<p><strong>${PENDING_REQUESTS.length}</strong> pending tag request${PENDING_REQUESTS.length === 1 ? '' : 's'} across <strong>${playerCount}</strong> player${playerCount === 1 ? '' : 's'}.</p>`;
 
   printBtn.disabled = false;
-  fulfillBtn.disabled = false;
 }
 
 function ptr_print(){
@@ -657,16 +629,6 @@ function ptr_print(){
     </div>
   `;
   ps_doPrint(html);
-}
-
-async function ptr_markFulfilled(){
-  if(!PENDING_REQUESTS.length){ alert('No pending tag requests to mark fulfilled.'); return; }
-  if(!confirm(`Mark all ${PENDING_REQUESTS.length} pending tag request${PENDING_REQUESTS.length === 1 ? '' : 's'} as fulfilled? This removes them from this list.`)) return;
-
-  for(const r of PENDING_REQUESTS){
-    await membersSupabase.rpc('logistics_fulfill_tag_request', { p_request_id: r.id });
-  }
-  await ptr_load();
 }
 
 /* ---------- custom / loot tags ---------- */
@@ -787,7 +749,6 @@ window.ps_printAll = ps_printAll;
 window.ps_printMeals = ps_printMeals;
 window.ps_printDietary = ps_printDietary;
 window.ptr_print = ptr_print;
-window.ptr_markFulfilled = ptr_markFulfilled;
 window.ct_onNameInput = ct_onNameInput;
 window.ct_onModifierChange = ct_onModifierChange;
 window.ct_addToBatch = ct_addToBatch;
