@@ -1374,3 +1374,50 @@ select.reg-date-select{
 }
 .tut-btn-skip:hover{ background: transparent; color: var(--gold); }
 .tut-btn-back.tut-hidden{ visibility: hidden; }
+
+#fa-waiver-renewal-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20,18,15,0.7);
+  padding: 1.2rem;
+}
+.fa-waiver-renewal-modal{
+  max-width: 420px;
+  width: 100%;
+  background: var(--cream);
+  border: 3px solid var(--gold);
+  box-shadow: 10px 10px 0 0 var(--gold);
+  padding: 1.6rem 1.8rem;
+  font-family: 'EB Garamond', serif;
+  color: var(--brown);
+}
+.fa-waiver-renewal-modal h3{
+  font-family: 'Cinzel', serif;
+  color: var(--brown-dark);
+  margin: 0 0 0.8rem;
+}
+.fa-waiver-renewal-modal p{ margin: 0 0 0.8rem; line-height: 1.5; }
+.fa-waiver-renewal-modal ul{ margin: 0 0 0.8rem; padding-left: 1.4rem; }
+.fa-waiver-renewal-modal li{ margin-bottom: 0.3rem; }
+.fa-waiver-renewal-actions{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+.fa-waiver-renewal-dismiss{
+  background: none;
+  border: none;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  text-decoration: underline;
+  color: var(--brown-dark);
+  cursor: pointer;
+  padding: 0;
+}
+.fa-waiver-renewal-go{ text-decoration: none; }
