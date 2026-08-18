@@ -37,7 +37,10 @@ async function membersSignOut(){
 
 async function needsCharacterCreation(playerId){
   const current = location.pathname.split('/').pop();
-  if(current === 'character-creator.html') return false;
+  // Also skip on the two waiver pages themselves, or a player with zero
+  // characters gets bounced to character-creator.html while still in the
+  // middle of the waiver gate, which bounces them right back, forever.
+  if(current === 'character-creator.html' || current === 'liability-waiver.html' || current === 'emergency-contact.html') return false;
 
   const { count } = await membersSupabase
     .from('characters')
