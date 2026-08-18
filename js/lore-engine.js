@@ -11,9 +11,10 @@ let editorUser = null;
 
 async function loadAllArticles(){
   const rows = await loreLoadEntries();
+  const allTitles = rows.map(row => row.title);
   articles = rows.map(row => ({
     ...row,
-    html: loreParseMarkup(row.body),
+    html: loreParseMarkup(row.body, row.title, allTitles),
     key: row.id
   }));
 }
