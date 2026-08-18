@@ -79,9 +79,10 @@ function loreIsSafeUrl(url){
 
 function loreInline(escapedText){
   let out = escapedText;
-  out = out.replace(/\[\[([^\]]+)\]\]/g, (m, title) => {
-    const clean = title.trim();
-    return `<a href="#" onclick="return lore_goto('${clean.replace(/'/g, "\\'")}')">${clean}</a>`;
+  out = out.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, target, display) => {
+    const cleanTarget = target.trim();
+    const cleanDisplay = (display || target).trim();
+    return `<a href="#" onclick="return lore_goto('${cleanTarget.replace(/'/g, "\\'")}')">${cleanDisplay}</a>`;
   });
   out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
     const cleanUrl = url.trim();
