@@ -307,6 +307,21 @@ font-family: 'EB Garamond', serif;
 color: var(--brown-dark);
 font-size: 1.05rem;
 }
+.schedule-card.is-past{
+background: var(--cream-deep);
+opacity: 0.7;
+}
+.schedule-card.is-past .schedule-card-tag{
+background: var(--brown);
+color: var(--cream);
+}
+.schedule-card-status{
+font-family: 'Cinzel', serif;
+font-size: 0.8rem;
+font-weight: 700;
+color: var(--brown-dark);
+margin-top: 0.2rem;
+}
 
 .feed-section{
 padding: 3rem;
@@ -584,7 +599,7 @@ outline-offset: 2px;
 </section>
 
 <section class="schedule-section">
-<h2>Upcoming Events</h2>
+<h2>2026 Events</h2>
 <div class="schedule-grid" id="fa-schedule-grid"></div>
 </section>
 
@@ -620,18 +635,20 @@ function feedEscapeHtml(str){
 function renderScheduleGrid(){
   const wrap = document.getElementById('fa-schedule-grid');
   if(!wrap) return;
-  const events = window.FA_EVENTS || [];
+  const events = window.FA_ALL_EVENTS || [];
 
   if(events.length === 0){
-    wrap.innerHTML = '<p class="schedule-empty">No upcoming events scheduled yet. Check back soon!</p>';
+    wrap.innerHTML = '<p class="schedule-empty">No events scheduled yet. Check back soon!</p>';
     return;
   }
 
   wrap.innerHTML = events.map(e => `
-    <div class="schedule-card">
+    <div class="schedule-card${e.isPast ? ' is-past' : ''}">
       <span class="schedule-card-date">${feedEscapeHtml(e.label)}</span>
       <span class="schedule-card-tag">${e.isDayEvent ? 'Day Event' : e.days.length + '-Day Event'}</span>
-      <a class="schedule-card-link" href="register.html?event=${encodeURIComponent(e.value)}">Register</a>
+      ${e.isPast
+        ? '<span class="schedule-card-status">Event Passed</span>'
+        : `<a class="schedule-card-link" href="register.html?event=${encodeURIComponent(e.value)}">Register</a>`}
     </div>
   `).join('');
 }
