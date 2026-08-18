@@ -57,6 +57,7 @@
 <button class="bank-tab" data-tab="skills" onclick="ac_switchTab('skills')">Skills</button>
 <button class="bank-tab" data-tab="xp" onclick="ac_switchTab('xp')">XP</button>
 <button class="bank-tab" data-tab="oc" onclick="ac_switchTab('oc')">OC</button>
+<button class="bank-tab" data-tab="inventory" onclick="ac_switchTab('inventory')">Inventory</button>
 </div>
 
 <div class="bank-tab-panel" data-panel="details">
@@ -189,6 +190,36 @@
 
 </div>
 
+<div class="bank-tab-panel" data-panel="inventory" style="display:none;">
+
+<div class="reg-section">
+<div class="reg-section-label">Give an Item</div>
+<p class="page-subhead">Grants an item straight into this character's inventory, alongside anything from the Shoppe or crafted in play.</p>
+<div class="bank-form-grid">
+<div>
+<label class="field-label" for="ac-item-name">Item Name</label>
+<input type="text" id="ac-item-name" placeholder="e.g. Iron Ingot">
+</div>
+<div>
+<label class="field-label" for="ac-item-qty">Quantity</label>
+<input type="number" id="ac-item-qty" step="1" value="1">
+</div>
+<div>
+<label class="field-label" for="ac-item-note">Note</label>
+<input type="text" id="ac-item-note" placeholder="What's this for?">
+</div>
+</div>
+<button class="btn-gold" onclick="ac_grantItem()">Give Item</button>
+<p class="reg-error-note" id="ac-item-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Current Inventory</div>
+<div id="ac-inventory-list"></div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -316,7 +347,7 @@ async function ac_selectCharacter(charId){
   document.getElementById('ac-social-class').value = char.social_class || '';
   document.getElementById('ac-starting-sp').value = char.starting_sp;
 
-  await Promise.all([loadSkills(), loadXp(), loadOc()]);
+  await Promise.all([loadSkills(), loadXp(), loadOc(), loadInventory()]);
   renderTabs();
   renderBrowser();
 }
@@ -422,6 +453,39 @@ async function ac_adjustOc(){
   document.getElementById('ac-oc-amount').value = '';
   document.getElementById('ac-oc-note').value = '';
   await loadOc();
+}
+
+async function loadInventory(){
+  const { data: items } = await membersSupabase.rpc('character_staff_material_inventory', { p_character_id: selected.id });
+
+  const target = document.getElementById('ac-inventory-list');
+  target.innerHTML = (items && items.length) ? items.map(i => `
+    <div class="bank-bill-card">
+      <strong>${escapeHtml(i.material_name)}</strong> <span class="bank-request-date">&times;${i.balance}</span>
+    </div>
+  `).join('') : emptyState('No items on hand.');
+}
+
+async function ac_grantItem(){
+  const errorEl = document.getElementById('ac-item-error');
+  errorEl.style.display = 'none';
+
+  const itemName = document.getElementById('ac-item-name').value.trim();
+  const qty = parseInt(document.getElementById('ac-item-qty').value, 10);
+  const note = document.getElementById('ac-item-note').value.trim();
+
+  if(!itemName){ errorEl.textContent = 'Enter an item name.'; errorEl.style.display = 'block'; return; }
+  if(!qty){ errorEl.textContent = 'Enter a non-zero quantity.'; errorEl.style.display = 'block'; return; }
+
+  const { error } = await membersSupabase.rpc('character_staff_grant_item', {
+    p_character_id: selected.id, p_item_name: itemName, p_quantity: qty, p_note: note || null
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  document.getElementById('ac-item-name').value = '';
+  document.getElementById('ac-item-qty').value = '1';
+  document.getElementById('ac-item-note').value = '';
+  await loadInventory();
 }
 
 async function ac_saveDetails(){
