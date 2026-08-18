@@ -78,6 +78,66 @@ async function needsWaiverCompletion(playerId){
   return null;
 }
 
+// Waivers don't expire outright, but a year on, we want players nudged to
+// confirm their liability waiver and emergency contact info are still
+// accurate rather than silently relying on year-old details. This is a
+// soft reminder (dismissible, shown at most once a day), not a hard gate
+// like needsWaiverCompletion above.
+const WAIVER_RENEWAL_DAYS = 365;
+
+async function checkWaiverExpiry(playerId){
+  const current = location.pathname.split('/').pop();
+  if(current === 'liability-waiver.html' || current === 'emergency-contact.html') return [];
+
+  const cutoff = new Date(Date.now() - WAIVER_RENEWAL_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const stale = [];
+
+  const { data: waiver } = await membersSupabase
+    .from('liability_waivers')
+    .select('signed_at')
+    .eq('player_id', playerId)
+    .maybeSingle();
+  if(waiver && waiver.signed_at && waiver.signed_at < cutoff){
+    stale.push({ label: 'Liability Waiver', href: 'liability-waiver.html' });
+  }
+
+  const { data: contact } = await membersSupabase
+    .from('emergency_contact_forms')
+    .select('updated_at')
+    .eq('player_id', playerId)
+    .maybeSingle();
+  if(contact && contact.updated_at && contact.updated_at < cutoff){
+    stale.push({ label: 'Emergency Contact Form', href: 'emergency-contact.html' });
+  }
+
+  return stale;
+}
+
+function showWaiverRenewalPrompt(items){
+  const today = new Date().toISOString().slice(0, 10);
+  try{
+    if(localStorage.getItem('fa-waiver-renewal-prompt-date') === today) return;
+    localStorage.setItem('fa-waiver-renewal-prompt-date', today);
+  } catch(err){}
+
+  const overlay = document.createElement('div');
+  overlay.id = 'fa-waiver-renewal-overlay';
+  overlay.innerHTML = `
+    <div class="fa-waiver-renewal-modal">
+      <h3>Time for a quick check-in</h3>
+      <p>It's been about a year since you last confirmed the following, so they're due for a fresh look:</p>
+      <ul>${items.map(i => `<li>${i.label}</li>`).join('')}</ul>
+      <p>Please review and resign whenever it's convenient.</p>
+      <div class="fa-waiver-renewal-actions">
+        <button class="fa-waiver-renewal-dismiss" type="button">Remind Me Later</button>
+        <a class="fa-waiver-renewal-go btn-gold" href="${items[0].href}">Review Now</a>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.fa-waiver-renewal-dismiss').addEventListener('click', () => overlay.remove());
+}
+
 async function refreshNotifBadge(){
   const badge = document.getElementById('member-notif-badge');
   if(!badge) return;
@@ -147,6 +207,10 @@ async function initMembersPage(){
     window.location.href = 'character-creator.html';
     return;
   }
+
+  checkWaiverExpiry(data.session.user.id).then(stale => {
+    if(stale.length) showWaiverRenewalPrompt(stale);
+  });
 
   await waitForSidebar();
 
