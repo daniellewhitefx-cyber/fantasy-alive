@@ -246,6 +246,7 @@ function lore_openEditor(key){
   modal.style.display = 'block';
 
   const richEditor = document.getElementById('lore-edit-body-rich');
+  richEditor.querySelectorAll('img').forEach(img => { img.draggable = false; });
   richEditor.addEventListener('dragover', lore_richDragOver);
   richEditor.addEventListener('drop', lore_richDrop);
   richEditor.addEventListener('paste', lore_richPaste);
@@ -313,7 +314,7 @@ async function lore_richInsertImageFile(file){
     const url = await loreUploadImage(file);
     const richEditor = document.getElementById('lore-edit-body-rich');
     richEditor.focus();
-    document.execCommand('insertHTML', false, `<img src="${loreEscapeHtml(url)}" alt="" style="width: 100%;">`);
+    document.execCommand('insertHTML', false, `<img src="${loreEscapeHtml(url)}" alt="" draggable="false" style="width: 100%;">`);
     status.textContent = '';
   } catch(err){
     status.textContent = 'Image upload failed. Try again.';
