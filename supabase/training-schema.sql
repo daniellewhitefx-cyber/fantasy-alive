@@ -11,7 +11,9 @@
 -- Mirrors js/xp-convert.js's faXpPerSp(): the XP cost of the next SP
 -- gets worse as a character invests more Skill Points overall.
 create or replace function fa_xp_per_sp(p_invested_sp integer)
-returns integer language sql immutable as $$
+returns integer language sql immutable
+set search_path = public
+as $$
   select case
     when p_invested_sp <= 40 then 10
     when p_invested_sp <= 80 then 15

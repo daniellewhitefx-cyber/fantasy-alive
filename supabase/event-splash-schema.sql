@@ -54,7 +54,9 @@ $$;
 -- The Event Info feed (per-event Plot updates) is scoped to the Plot
 -- department + site admins, the same shape as fa_is_logistics_or_admin().
 create or replace function fa_is_plot_or_admin()
-returns boolean language sql stable as $$
+returns boolean language sql stable
+set search_path = public
+as $$
   select fa_is_site_admin() or exists (
     select 1 from department_members dm
     join departments d on d.id = dm.department_id
