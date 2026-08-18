@@ -169,6 +169,8 @@ async function initMembersPage(){
   const { data: acctProfile } = await membersSupabase.from('profiles').select('is_cast, is_townsperson, has_seen_tutorial').eq('id', user.id).maybeSingle();
   const isCastOnly = !hasCharacters && !!(acctProfile && acctProfile.is_cast);
   const isTownspersonOnly = !hasCharacters && !!(acctProfile && acctProfile.is_townsperson);
+  window.faIsCastOnly = isCastOnly;
+  window.faIsTownspersonOnly = isTownspersonOnly;
 
   function hideNavLinks(ids){
     ids.forEach(id => {
@@ -184,9 +186,13 @@ async function initMembersPage(){
   }
 
   if(isTownspersonOnly){
-    hideNavLinks(['member-bank-link', 'member-auction-link', 'member-oc-submission-link', 'member-xp-oc-log-link']);
+    hideNavLinks(['member-bank-link', 'member-auction-link', 'member-oc-submission-link', 'member-xp-oc-log-link', 'member-inventory-link', 'member-friends-link', 'member-teachable-skills-link']);
+    // Every item in the Progress group is hidden for a Townsperson, so
+    // hide the now-empty group heading too, the same way Events is hidden.
     const eventsGroup = document.getElementById('member-events-group');
     if(eventsGroup) eventsGroup.style.display = 'none';
+    const progressGroup = document.getElementById('member-progress-group');
+    if(progressGroup) progressGroup.style.display = 'none';
   }
 
   const meta = user.app_metadata || {};

@@ -162,11 +162,11 @@
 </div>
 
 <div class="home-kpis">
-  <div class="home-kpi">
+  <div class="home-kpi" id="home-kpi-bank-card">
     <div class="home-kpi-label">Bank</div>
     <div class="home-kpi-value" id="home-kpi-bank">&hellip;</div>
   </div>
-  <div class="home-kpi">
+  <div class="home-kpi" id="home-kpi-oc-card">
     <div class="home-kpi-label">Ogre Chips</div>
     <div class="home-kpi-value" id="home-kpi-oc">&hellip;</div>
   </div>
@@ -284,7 +284,7 @@ async function loadHero(){
 
   const char = chars && chars[0];
   if(!char){
-    const { data: profile } = await membersSupabase.from('profiles').select('is_cast').eq('id', me).maybeSingle();
+    const { data: profile } = await membersSupabase.from('profiles').select('is_cast, is_townsperson').eq('id', me).maybeSingle();
     if(profile && profile.is_cast){
       hero.innerHTML = `
         <div class="home-hero-body">
@@ -298,6 +298,21 @@ async function loadHero(){
         </div>
       `;
       updateRegisterCta('cast', 'Cast');
+      return;
+    }
+    if(profile && profile.is_townsperson){
+      hero.innerHTML = `
+        <div class="home-hero-body">
+          <div class="home-hero-eyebrow">Welcome back</div>
+          <div class="home-hero-name">Townsperson</div>
+          <p class="home-hero-tagline">You're set up as a Townsperson. Create a player character any time from the Characters page.</p>
+        </div>
+        <div class="home-hero-cta">
+          <a href="character-creator.html"><button class="btn-gold">Create Character</button></a>
+          <div id="home-register-cta"><a href="register.html"><button class="btn-gold">Register for Next Event</button></a></div>
+        </div>
+      `;
+      updateRegisterCta('townsperson', 'Townsperson');
       return;
     }
     hero.innerHTML = `
@@ -361,14 +376,21 @@ async function updateRegisterCta(who, characterName){
 async function loadKpis(){
   const me = window.faCurrentUser.id;
 
-  const bankEl = document.getElementById('home-kpi-bank');
-  const { data: balance, error: balanceErr } = await membersSupabase.rpc('bank_my_balance');
-  bankEl.textContent = balanceErr ? 'Unavailable' : fmtAmount(balance) + ' cp';
+  if(window.faIsTownspersonOnly){
+    const bankCard = document.getElementById('home-kpi-bank-card');
+    if(bankCard) bankCard.style.display = 'none';
+    const ocCard = document.getElementById('home-kpi-oc-card');
+    if(ocCard) ocCard.style.display = 'none';
+  } else {
+    const bankEl = document.getElementById('home-kpi-bank');
+    const { data: balance, error: balanceErr } = await membersSupabase.rpc('bank_my_balance');
+    bankEl.textContent = balanceErr ? 'Unavailable' : fmtAmount(balance) + ' cp';
 
-  const ocEl = document.getElementById('home-kpi-oc');
-  const { data: ocRows } = await membersSupabase.from('oc_transactions').select('amount').eq('player_id', me);
-  const ocTotal = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
-  ocEl.textContent = fmtAmount(ocTotal) + ' OC';
+    const ocEl = document.getElementById('home-kpi-oc');
+    const { data: ocRows } = await membersSupabase.from('oc_transactions').select('amount').eq('player_id', me);
+    const ocTotal = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    ocEl.textContent = fmtAmount(ocTotal) + ' OC';
+  }
 
   const messagesEl = document.getElementById('home-kpi-messages');
   const { data: unread } = await membersSupabase.rpc('message_unread_count');
