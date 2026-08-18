@@ -274,6 +274,17 @@
   margin-top: 0.4rem;
   color: var(--gold-dark);
 }
+.lore-article blockquote{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--brown-dark);
+  border-left: 3px solid var(--gold);
+  padding: 0.4rem 0 0.4rem 1.1rem;
+  margin: 0 0 1.6rem;
+}
+.lore-article blockquote p{ margin: 0 0 0.4rem; }
+.lore-article blockquote p:last-child{ margin-bottom: 0; }
 .lore-article p{
   font-family: 'EB Garamond', serif;
   font-size: 1.12rem;
@@ -442,6 +453,9 @@
   color: var(--lore-dtext-soft);
 }
 .lore-page.lore-dark .lore-article .lore-quote{
+  color: var(--lore-dtext);
+}
+.lore-page.lore-dark .lore-article blockquote{
   color: var(--lore-dtext);
 }
 .lore-page.lore-dark .lore-article a{
@@ -628,12 +642,20 @@
 .lore-rich-editor h4{ font-family: 'Cinzel', serif; color: var(--gold-dark); margin: 1rem 0 0.5rem; }
 .lore-rich-editor ul, .lore-rich-editor ol{ margin: 0 0 0.9rem; padding-left: 1.4rem; }
 .lore-rich-editor li{ margin-bottom: 0.3rem; }
-.lore-rich-editor blockquote{
+.lore-rich-editor blockquote,
+.lore-rich-editor .lore-quote{
   font-style: italic;
   border-left: 3px solid var(--gold);
   padding: 0.3rem 0 0.3rem 1rem;
   margin: 0 0 0.9rem;
   color: var(--brown-dark);
+}
+.lore-rich-editor .lore-quote cite{
+  display:block;
+  font-style: normal;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  color: var(--gold-dark);
 }
 .lore-rich-editor table{ border-collapse: collapse; width:100%; margin: 0 0 0.9rem; }
 .lore-rich-editor th, .lore-rich-editor td{ border: 1px solid var(--gold-dark); padding: 0.4rem 0.6rem; text-align:left; }
