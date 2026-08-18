@@ -159,7 +159,7 @@ const LORE_HTML_ALLOWED_TAGS = {
   IMG: ['src', 'alt', 'style'],
   FIGURE: ['style'], FIGCAPTION: [],
   A: ['href', 'target', 'rel', 'onclick'],
-  DIV: ['style'], SPAN: ['style']
+  DIV: ['style', 'class'], SPAN: ['style']
 };
 
 const LORE_SAFE_STYLE_PROPS = new Set([
@@ -195,6 +195,10 @@ function loreSanitizeElement(node){
     const name = attr.name.toLowerCase();
     if(!allowedAttrs.includes(name)){
       node.removeAttribute(attr.name);
+      return;
+    }
+    if(name === 'class' && tag === 'DIV' && attr.value !== 'lore-quote'){
+      node.removeAttribute('class');
       return;
     }
     if((name === 'href' || name === 'src') && !loreIsSafeUrl(attr.value)){
