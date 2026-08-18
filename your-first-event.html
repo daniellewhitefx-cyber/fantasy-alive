@@ -33,7 +33,7 @@
 .page-hero h1{
   font-family: 'EB Garamond', serif;
   font-weight: 500;
-  font-size: 3rem;
+  font-size: 2.8rem;
   margin: 0.5rem 0 0;
   color: var(--brown);
   text-align: center;
@@ -58,29 +58,162 @@
 }
 .photo-slot svg{ width:34px; height:34px; opacity:0.55; }
 .photo-slot.hero-slot{ height:100%; min-height:320px; border-radius:0; }
-.coming-soon{
-  max-width: 700px;
+
+.fe-intro{
+  max-width: 900px;
   margin: 0 auto;
-  padding: 3.5rem 2rem 4.5rem;
+  padding: 3rem 2rem 1rem;
+}
+.fe-intro p{
+  font-family:'EB Garamond', serif;
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: #2e2415;
+  margin: 0;
   text-align:center;
 }
-.coming-soon h2{
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0 0 1rem;
-  color: var(--brown-dark);
+
+.fe-jump{
+  display:flex;
+  justify-content:center;
+  gap: 0.8rem;
+  flex-wrap:wrap;
+  max-width: 900px;
+  margin: 2rem auto 2.5rem;
+  padding: 0 2rem;
 }
-.coming-soon p{
+.fe-jump a{
+  background: var(--ink);
+  color: var(--gold);
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  font-size: 0.8rem;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  padding: 0.55rem 1.1rem;
+  border: 2px solid var(--gold);
+}
+.fe-jump a:hover{ background: var(--gold); color: var(--ink); }
+
+.fe-section{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  border-top: 3px solid var(--gold);
+  scroll-margin-top: 1.5rem;
+}
+.fe-section:first-of-type{ border-top:none; }
+.fe-section h2{
+  font-family: 'Cinzel', serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin: 0 0 1.2rem;
+  color: var(--brown-dark);
+  text-align:center;
+}
+.fe-section > p{
   font-family:'EB Garamond', serif;
-  font-size: 1.08rem;
+  font-size: 1.06rem;
+  line-height: 1.65;
+  color: #2e2415;
+  margin: 0 0 1rem;
+}
+.fe-section a{ color: var(--gold-dark); font-weight:600; }
+.fe-section a:hover{ color: var(--brown-dark); }
+
+.fe-checklist{
+  display:flex;
+  flex-direction:column;
+  margin: 1.5rem 0 0;
+}
+.fe-checklist-item{
+  display:flex;
+  gap:1rem;
+  align-items:flex-start;
+  padding: 1.1rem 0;
+  border-bottom: 1px dotted var(--line);
+}
+.fe-checklist-item:last-child{ border-bottom:none; }
+.fe-checklist-icon{
+  flex-shrink:0;
+  width:26px;
+  height:26px;
+  border: 2px solid var(--gold-dark);
+  border-radius:4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: var(--gold-dark);
+  margin-top:0.2rem;
+}
+.fe-checklist-icon svg{ width:14px; height:14px; }
+.fe-checklist-body{ flex:1; }
+.fe-checklist-body p{
+  font-family:'EB Garamond', serif;
+  font-size: 1.02rem;
   line-height: 1.6;
   color: #2e2415;
+  margin: 0 0 0.6rem;
 }
+.fe-checklist-body p:last-child{ margin-bottom:0; }
+
+.fe-caution{
+  border-left: 4px solid var(--bad);
+  background: var(--row-b);
+  padding: 1.1rem 1.4rem;
+  margin-top: 1.6rem;
+  font-family:'EB Garamond', serif;
+  font-size: 1.02rem;
+  line-height:1.6;
+  color: #2e2415;
+}
+.fe-caution strong{ color: var(--bad); }
+
+.fe-next-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.4rem;
+  margin-top: 1.6rem;
+}
+.fe-next-card{
+  background: var(--cream-deep);
+  border: 2px solid var(--gold-dark);
+  box-shadow: 8px 8px 0 0 var(--gold);
+  padding: 1.3rem 1.5rem;
+}
+.fe-next-card h3{
+  font-family:'Cinzel', serif;
+  font-size:1.08rem;
+  font-weight:700;
+  color: var(--brown-dark);
+  margin:0 0 0.6rem;
+}
+.fe-next-card p{
+  font-family:'EB Garamond', serif;
+  font-size:0.98rem;
+  line-height:1.55;
+  color:#2e2415;
+  margin:0;
+}
+
+.fe-closing{
+  font-family:'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--brown-dark);
+  text-align:center;
+  max-width: 700px;
+  margin: 2rem auto 0;
+}
+
 @media (max-width: 900px){
   .page-hero{ grid-template-columns: 1fr; height:auto; }
   .page-hero-content{ padding: 1.5rem 1rem; }
-  .page-hero h1{ font-size: 2.2rem; }
+  .page-hero h1{ font-size: 2.1rem; }
   .photo-slot.hero-slot{ height:180px; min-height:180px; }
+  .fe-section{ padding: 2rem 1.2rem; }
+  .fe-next-grid{ grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -99,9 +232,157 @@ Add a photo
 </div>
 </section>
 
-<section class="coming-soon">
-<h2>Coming Soon</h2>
-<p>We're still writing this guide to what to expect at your first event. Check back soon, or reach out on Discord if you have questions in the meantime.</p>
+<div class="fe-intro">
+<p>Starting at a new LARP can be complicated, and there are some things that a new LARPer should know in order to get off to a good start. Here are a few things that can help you get started with Fantasy Alive!</p>
+</div>
+
+<nav class="fe-jump">
+<a href="#paperwork">Handling the Paperwork</a>
+<a href="#fees">Event Fees</a>
+<a href="#packing">Packing For Your First Event</a>
+<a href="#next-steps">Next Steps</a>
+</nav>
+
+<section class="fe-section" id="paperwork">
+<h2>Handling the Paperwork</h2>
+<p>Before your first event, try to get as many of these steps done as possible. This will help you get into game and into the action even faster! Fantasy Alive is a weekend-long &lsquo;boffer&rsquo; LARP with simulated combat, which means we have some required paperwork in order to get you going as quickly as possible.</p>
+
+<div class="fe-checklist">
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Read over our <a href="policies.html">policies</a>, especially our <a href="policies.html#policy-code-of-conduct">Code of Conduct</a> and our <a href="policies.html#policy-health-care">Health and Care of Player Policy</a>. Everyone has fun when we enter into game from a position of mutual respect.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Read and sign the <a href="policies.html#policy-consent-liability">Consent to Participate in EAO Games and Release From Liability Form</a>.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Read and fill out the Emergency Contact Form. This helps us to keep you safe in the event of an emergency.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="fe-section" id="fees">
+<h2>Event Fees</h2>
+<p>Your first event at Fantasy Alive is free! Nevertheless, choosing the &lsquo;First-Time Free Weekend Event&rsquo; in our <a href="https://endlessadventures.ca/collections/event-passes" target="_blank" rel="noopener">storefront</a> helps us to plan for how many people to expect. As well, you can sign up for our meal plan, a healthy and tasty meal provided by the game to ensure that our players are set up for success.</p>
+</section>
+
+<section class="fe-section" id="packing">
+<h2>Packing For Your First Event</h2>
+<p>Not sure what to bring? Here's a checklist to help you get ready.</p>
+
+<div class="fe-checklist">
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Bring suitable changes of clothing appropriate to the anticipated weather. While you will generally be wearing a costume, having fresh underclothes can help you to feel your best, especially in wet weather. If the weather is expected to be cold, bring gloves and other gear suitable to cold weather. It's better to be warm than to look cool, and we want everyone to be safe.</p>
+<p>Remember that the temperature may vary considerably between day and night, and pack accordingly.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Bring any medication that you will need or may need over the duration of the event. As we are in nature, this may include allergy medication, as there may notably be insects or pollen in the environment.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Bring any costume pieces that you wish to use at event. In general, Fantasy Alive is a medieval or early renaissance fantasy LARP, and costuming that you might see at a Medieval or Renaissance Faire is appropriate. If you can, choose props and costumes that you think support your character idea!</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Bring any makeup or prosthetics that you wish to use at event. This is mainly for the case of people playing non-human characters, and may range from elf ears, to dwarven facial hair, to full makeup for an orc or a minotaur.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Bring any boffer safe weapons you wish to use at the event. Fantasy Alive accepts the use of latex weapons sourced from LARP vendors, or you can make your own following one of numerous guides online. Fantasy Alive reserves the right to inspect any weapons to be used in game and deny the use of unsafe weapons. (If you don't have anything suitable, we can provide you with the use of a weapon for your event.)</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>If you are not participating in our Meal Plan, consider bringing food suitable to the duration of the event. Our current venue is not especially close to takeaway restaurants, so you may wish to plan out the food you wish to bring in advance. LARP can be physically exerting, so pack some snacks as well.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Consider bringing hydrating beverages to consume at event. LARP can be physically exerting, and dehydration will mean you don't have the best time at event. While water is available on site, it is most important that you consume fluids, and you may benefit from some having electrolytes.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>If you are staying overnight, bring equipment suitable for sleeping, such as a sleeping bag and pillows. If you are camping, bring camping equipment, such as a camping mattress and tent.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Bring a hygiene kit, including a washcloth, soap, toothbrush, toothpaste, shaving equipment if appropriate, and so forth. We have a bathroom with hot water on site, and keeping clean helps you to have your best event.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Bring footwear appropriate to dirt roads and fields. Due to concern about ticks, it may be suitable to ensure that your legs and ankles are covered. It is often wise to bring a few extra pairs of socks; wet feet can be most unpleasant.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Bring sunscreen and insect spray. A lot of LARP takes place outdoors, and that is where both the sun and biting insects live.</p>
+</div>
+</div>
+<div class="fe-checklist-item">
+<div class="fe-checklist-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+<div class="fe-checklist-body">
+<p>Consider bringing clear tape, to affix item tags (small slips of paper indicating valuable objects) to your props. This helps anyone who finds such items to know what they are looking at right away.</p>
+</div>
+</div>
+</div>
+
+<div class="fe-caution">
+<strong>Leave behind</strong> any restricted substances not in the form of prescription medication, including alcohol and cannabis. Tobacco use is permitted, but only near fire pits.
+</div>
+</section>
+
+<section class="fe-section" id="next-steps">
+<h2>Next Steps</h2>
+<p>It can be a lot to take in, but we have a few tools that can help you get your feet under you.</p>
+
+<div class="fe-next-grid">
+<div class="fe-next-card">
+<h3>Build Your Character</h3>
+<p>Check out our <a href="building-your-character.html">Building a Character</a> page for more information on creating your character!</p>
+</div>
+<div class="fe-next-card">
+<h3>Join the Community</h3>
+<p>Join our <a href="https://discord.gg/PpDg8XvjvB" target="_blank" rel="noopener">Discord</a>, to meet other players, and to chat with our New Player Liaisons, who may be able to answer your questions!</p>
+</div>
+<div class="fe-next-card">
+<h3>Read the Rulebook</h3>
+<p>Read over our <a href="https://fantasyalivelrp.com/wp-content/uploads/2024/03/Fantasy-Alive-Manual-v13.1.1.pdf" target="_blank" rel="noopener">Rulebook</a>! While you don't have to have everything memorized, being at least somewhat familiar with the rules of play can help you to get into game faster!</p>
+</div>
+<div class="fe-next-card">
+<h3>Ask a Question</h3>
+<p>If you have any questions, you can reach out to our <a href="mailto:new.player.reps@fantasyalivelrp.com">New Player Reps</a> or <a href="mailto:logistics@fantasyalivelrp.com">Logistics</a> teams.</p>
+</div>
+</div>
+
+<p class="fe-closing">We can't wait to see you in the field. Don't be afraid to live more than once!</p>
 </section>
 
 <div data-include="partials/footer.html"></div>
