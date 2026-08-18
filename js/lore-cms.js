@@ -145,7 +145,7 @@ function loreInline(escapedText, ownTitle, allTitles, linkedSoFar){
   out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
     const cleanUrl = url.trim();
     if(!loreIsSafeUrl(cleanUrl)) return text;
-    return `<a href="${loreEscapeHtml(cleanUrl)}" target="_blank" rel="noopener">${text}</a>`;
+    return `<a href="${cleanUrl}" target="_blank" rel="noopener">${text}</a>`;
   });
   return out;
 }
