@@ -197,7 +197,8 @@ function lore_openEditor(key){
       <label class="lore-field-label" for="lore-edit-body">Content</label>
       <div class="lore-editor-help">
         Blank line = new paragraph &bull; <code>## Heading</code> &bull; <code>&gt; quote</code> then <code>&gt; -- who said it</code> &bull;
-        <code>[[Other Article]]</code> to link another entry &bull; <code>[text](url)</code> for a link &bull;
+        <code>[[Other Article]]</code> to link another entry (or <code>[[Other Article|display text]]</code> to show
+        different text) &bull; <code>[text](url)</code> for a link &bull;
         <code>![alt](image url)</code> for an image &bull; <code>~ credit line</code><br>
         Image layout: add <code>float-left</code>, <code>float-right</code>, or <code>small</code> after the image url (and after
         the caption, if there is one) to make it smaller and sit beside the text instead of full-width, e.g.

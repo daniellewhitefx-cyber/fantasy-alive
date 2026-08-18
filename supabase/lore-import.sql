@@ -5,7 +5,7 @@ insert into lore_entries (slug, title, category, body) values
 
 - Twytt’s Peerage (1992 A.T.)
 
-The barony of Adder’s Point in the Duchy of Gelrich, in the kingdom of Harodom, is nestled along the banks of the Ire, a large saltwater body that divides Harodom from the nations of Detter, Michian, and Darkwood. The seat of the barony is the prosperous port city of the same name, although the barony also includes the towns of Mirrorpond, Dreeg’s Mill, Fasterwood, Roper’s Walk, Fort Wolf, and Stargazer Abbey, a religious community of Clovis worshippers. The barony technically lays claim to lands held by the [[Goblins]] settlements of Eyetooth and Lost Chicken, which are primarily (but not exclusively) populated by goblins.
+The barony of Adder’s Point in the Duchy of Gelrich, in the kingdom of Harodom, is nestled along the banks of the Ire, a large saltwater body that divides Harodom from the nations of Detter, Michian, and Darkwood. The seat of the barony is the prosperous port city of the same name, although the barony also includes the towns of Mirrorpond, Dreeg’s Mill, Fasterwood, Roper’s Walk, Fort Wolf, and Stargazer Abbey, a religious community of [[Clovis]] worshippers. The barony technically lays claim to lands held by the [[Goblins]] settlements of Eyetooth and Lost Chicken, which are primarily (but not exclusively) populated by goblins.
 
 ## Governance
 
@@ -35,7 +35,7 @@ Apart from foodstuffs, Adder’s Point exports timber, lumber, furs, leather goo
 
 Adder’s Point shares some of the strengths that [[Stelton]] enjoys, as a port city that doesn’t have the scrutiny of being the capital of the country. This freedom is something of a double-edged sword however; with large shipments coming and going from the port weekly, it can be harder to keep track of all of the goods – and people – that enter and exit the port.
 
-As a result, smuggling through Adder’s Point remains a constant issue, and it is believed that chapters of both of Harodom’s “Silent Guilds” – representing the Thieves and Assassins – exist within the City. As recently as 2021, agents of Baron Black unearthed a cult of Kazzok that had grown in the municipal sewers, and while a fairly definitive example was made of the cultists, this has raised the question as to whether other such cults may lurk within the Barony.
+As a result, smuggling through Adder’s Point remains a constant issue, and it is believed that chapters of both of Harodom’s “Silent Guilds” – representing the Thieves and Assassins – exist within the City. As recently as 2021, agents of Baron Black unearthed a cult of [[Kazzok]] that had grown in the municipal sewers, and while a fairly definitive example was made of the cultists, this has raised the question as to whether other such cults may lurk within the Barony.
 
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body1$),
 ('alejandero', 'Alejandero', 'Deities', $body2$The Eternal Lovers The Order of Alejandero Alejandero is an inspiration to lovers everywhere, and any who have been touched by love mutter a silent thanks to the Poet King. Followers of Alejandero are diverse both in their heritage as well as their philosophy of worship. The prominent ideology of Alejandro’s church discusses love as divided into seven aspects: romantic love, friendship, playful and flirtatious love, familial love, love of self, enduring love, and empathetic love for all.
@@ -83,7 +83,7 @@ Principle Holiday: April 1st – Fates Devotion – Gambling Spell incants are p
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-3.png)$body4$),
 ('apenca', 'Apenca', 'Deities', $body5$Womb Children Followers of Apenca
 
-“The first child of Atha and Beldon, the lady Apenca looked upon of her mother and cried. For while the earth was lush, green and beautiful beyond measure, it was at the same time static and sterile. Nothing stirred, save the waves crashing against the shores. It was then that Apenca, the Life Mother, opened her soul to the world and life streamed forth.” Foundations 2:13
+“The first child of [[Atha]] and [[Beldon]], the lady Apenca looked upon of her mother and cried. For while the earth was lush, green and beautiful beyond measure, it was at the same time static and sterile. Nothing stirred, save the waves crashing against the shores. It was then that Apenca, the Life Mother, opened her soul to the world and life streamed forth.” Foundations 2:13
 
 Often called the Breath Giver, Life Mother, and Great Matron, Apenca created all life. She is the most widely and openly worshiped of all the gods. All races pay homage to her temples, which are known as safe havens everywhere. While her followers are predominantly female, no one is ever turned away. Believing all life is sacred, Apenca’s followers are true pacifists, knowing violence is naught but a disease. Temples of the Life Mother can be found in nearly every town; even small rural villages will have some form of chapel erected for the sick and weak to ask for the lady’s grace. The priestesses of Apenca will rarely if ever deny healing to those in need and are known on occasion to even aid the darker races that threaten to inhabit the lands. Their temples are invariably run by the highestranking female in attendance.
 
@@ -113,7 +113,7 @@ Principle Holiday: October 15th – Harvest Song Devotion – Primping Spell inc
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-5.png)$body6$),
 ('astrid', 'Astrid', 'Deities', $body7$The Unseen Hand The Followers of Astrid
 
-Son of Brack and Balaxa, Astrid lived much of his early life in the realms of man, where he became the notorious ruler of an underground organization of thieves. Most thieves whisper his name to this day when attempting a particularly difficult or impressive act. Followers of Astrid truly believe that they perform a valuable service to society by teaching people to better defend their possessions.
+Son of Brack and [[Balaxa]], Astrid lived much of his early life in the realms of man, where he became the notorious ruler of an underground organization of thieves. Most thieves whisper his name to this day when attempting a particularly difficult or impressive act. Followers of Astrid truly believe that they perform a valuable service to society by teaching people to better defend their possessions.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145314-378x1024.jpg float-left)
 
@@ -128,7 +128,7 @@ Principle Holiday: July 10th – Hand’s Day Devotion – Making traps or locks
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-6.png)$body7$),
 ('atha', 'Atha', 'Deities', $body8$The Stone Ones The Followers of Atha
 
-The Great Mother or Earth Mother, as the lady Atha is sometimes called, is one of the first of Elieff’s children. Her domain encompasses the very earth itself and every plant that springs forth from it. Every farming community will invariably contain one or more shrines to the goddess Atha, as the workers of the land pay homage and beg for a bountiful year. The teachings of Atha are greatly respected, all life’s existence dependant on her in one fashion or another.
+The Great Mother or Earth Mother, as the lady Atha is sometimes called, is one of the first of [[Elieff]]’s children. Her domain encompasses the very earth itself and every plant that springs forth from it. Every farming community will invariably contain one or more shrines to the goddess Atha, as the workers of the land pay homage and beg for a bountiful year. The teachings of Atha are greatly respected, all life’s existence dependant on her in one fashion or another.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145329-435x1024.jpg float-left)
 
@@ -143,7 +143,7 @@ Principle Holiday: June 12th – Mother’s Blessing Devotion – Tending a gard
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-7.png)$body8$),
 ('balaxa', 'Balaxa', 'Deities', $body9$The Frozen Ones The Followers of Balaxa
 
-The daughter of Fiona and Beldon, the goddess Balaxa grew bitter as her father left Fiona to return to Atha’s embrace. Jealous of the relationship between Beldon and her brother Alwyn, her rage grew. With the malice of a woman scorned Balaxa blew across the earth and sea, freezing all she passed with her icy stare. Known as the Ice Queen or the Lost Daughter, Balaxa, goddess of winter, turns her rage upon the sea and earth each year.
+The daughter of [[Fiona]] and [[Beldon]], the goddess Balaxa grew bitter as her father left Fiona to return to [[Atha]]’s embrace. Jealous of the relationship between Beldon and her brother Alwyn, her rage grew. With the malice of a woman scorned Balaxa blew across the earth and sea, freezing all she passed with her icy stare. Known as the Ice Queen or the Lost Daughter, Balaxa, goddess of winter, turns her rage upon the sea and earth each year.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145344-426x1024.jpg float-left)
 
@@ -158,10 +158,10 @@ Principle Holiday: December 23rd – Frost’s Sacrifice Devotion – Writing in
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-8.png)$body9$),
 ('bard', 'Bard', 'Deities', $body10$The Dreamers The Followers of Bard
 
-> “And under the skies strode forth the storyteller, and she wore a thousand faces. Everywhere that she went, she told the tales of heroes and villains, of the divine and the infernal, of the world that was seen, and that which was beyond seeing. And as she strode forth, telling these tales, the world that Elieff had made seemed somehow more real, for that which had once been abstract was now relatable, for Bard knew that it was through stories that the world was understood.
+> “And under the skies strode forth the storyteller, and she wore a thousand faces. Everywhere that she went, she told the tales of heroes and villains, of the divine and the infernal, of the world that was seen, and that which was beyond seeing. And as she strode forth, telling these tales, the world that [[Elieff]] had made seemed somehow more real, for that which had once been abstract was now relatable, for Bard knew that it was through stories that the world was understood.
 > “What she could not know however was that her words that made the divine seem more relatable were binding the deities to their fates – that the tales that she told, even of those great powers, were forming beliefs that such beings began to conform to. And so, the gods came to Bard, and put her to sleep, to dream for all of time. “But there is no dream so deep that the dreamer will not someday awake…” -Source Unknown
 
-The child of Fiona and Anajaream, Bard’s tales were the foundations of many of the stories now told of the gods. Awoken from her eternal slumber by the people of Yorik, she has remained the god of dreams, and now protects dreamers and storytellers alike, although her faith is not widespread due to her legends being stricken from the world.
+The child of Fiona and [[Anajaream]], Bard’s tales were the foundations of many of the stories now told of the gods. Awoken from her eternal slumber by the people of [[Yorik]], she has remained the god of dreams, and now protects dreamers and storytellers alike, although her faith is not widespread due to her legends being stricken from the world.
 
 The symbols of Bard are a horse’s head (such as a chess piece), a closed book and quill, an owl, or a hearth.
 
@@ -170,7 +170,7 @@ Principle Holiday: October 6 – Dreamers Wake Devotion – Telling stories Spel
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-9.png)$body10$),
 ('beldon', 'Beldon', 'Deities', $body11$The Wave Riders The Followers of Beldon
 
-One of Elieff’s children, the High God Beldon rules the seas. Bound to Atha, the earth, he controls water in every form. Portside villages are assured to contain at least one temple paying homage to Beldon, called the Sea Father or Prince of Tides. Flowing as his mood suits him, Beldon is neither definitively good nor evil. His followers learning to control water’s powers of life as well as its powers of destruction. It is said in times of great evil Beldon’s waters flood the lands, washing them clean of taint.
+One of [[Elieff]]’s children, the High God Beldon rules the seas. Bound to Atha, the earth, he controls water in every form. Portside villages are assured to contain at least one temple paying homage to Beldon, called the Sea Father or Prince of Tides. Flowing as his mood suits him, Beldon is neither definitively good nor evil. His followers learning to control water’s powers of life as well as its powers of destruction. It is said in times of great evil Beldon’s waters flood the lands, washing them clean of taint.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145447-428x1024.jpg float-left)
 
@@ -185,7 +185,7 @@ Principle Holiday: March 3rd – Festival of Sails Devotion – Fishing Spell in
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-10.png)$body11$),
 ('blythe', 'Blythe', 'Deities', $body12$The Bile Walkers The Followers of Blythe
 
-> “The progeny of Stasa and Anajaream, Blythe took quickly after his mother’s influence, though his methods differed greatly. Unlike his mother Blythe cared nothing for the thrill of the chase but preferred to wait and watch his work slowly overcome his victims. So, it was then that Blythe sow the seeds of sickness, disease, and poison across the land; carefully baited traps, to catch the unaware, and bring them to their grave.”
+> “The progeny of [[Stasa]] and [[Anajaream]], Blythe took quickly after his mother’s influence, though his methods differed greatly. Unlike his mother Blythe cared nothing for the thrill of the chase but preferred to wait and watch his work slowly overcome his victims. So, it was then that Blythe sow the seeds of sickness, disease, and poison across the land; carefully baited traps, to catch the unaware, and bring them to their grave.”
 > -- Mortalis 13:3
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145450-395x1024.jpg float-right)
@@ -212,7 +212,7 @@ Principle Holiday: May 9th – Order’s March Devotion – Partaking in a trial
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-12.png)$body13$),
 ('building-your-character', 'Building Your Character', 'Getting Started', $body14$Almost every story is based around one central question: ‘who am I?’ With the added corollary of ‘and who might I become, given a chance?’
 
-- Antiguides of Bard, Upon Writings of Narrative (2017)
+- Antiguides of [[Bard]], Upon Writings of Narrative (2017)
 
 The world of Fantasy Alive is rich with adventure, excitement, discovery, and magic – but the thing that brings them to life is you! To build your character, it can help to start out with an idea, and build out from there.
 
@@ -325,7 +325,7 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 > “With fiery passion they flock to the flame and the sun beats down upon the earth, scorching the wicked, and warming the pure.”
 > -- Unknown Author
 
-High God and one of Elieff’s children, Callis, often called Lord of Light, the Sun’s Grace or the Flame Bringer, shines down upon the lands, casting his light to warm us. Acknowledged by all, the god Callis is particularly revered by the Dwarves, who believe the Callis’ very own fire burns within their forges, lending divine direction to their works.
+High God and one of [[Elieff]]’s children, Callis, often called Lord of Light, the Sun’s Grace or the Flame Bringer, shines down upon the lands, casting his light to warm us. Acknowledged by all, the god Callis is particularly revered by the [[Dwarves (blurb)|Dwarves]], who believe the Callis’ very own fire burns within their forges, lending divine direction to their works.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_145907-416x1024.jpg float-left)
 
@@ -426,9 +426,9 @@ In the fullness of time, it may come to pass that a cleric finds that their voca
 A lesser cleric simply choosing not to exercise their power through a lack of faith may find that their power simply withers on the vine. Those wishing to change to another devotion – or destroy their existing connection with their god – will often find the process difficult, and may have to undertake more drastic actions in order to truly sever their connection. Each instance is at least a little different, as much as faith varies from person to person, but true loss of faith is often dramatic, and requires great effort and sacrifice to enact.
 
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body18$),
-('clovis', 'Clovis', 'Deities', $body19$The Curtain Guards The Followers of Clovis
+('clovis', 'Clovis', 'Deities', $body19$[[The Curtain]] Guards The Followers of Clovis
 
-> “Enamored he was of his sister Fiona, but Clovis could not compete with her insane jealousy over Beldon, nor the radiant light his brother Callis shone upon her. So, to gain her attentions Clovis drew his blade, a sabre long and sleek, and cut the holes in the curtain between this realm and the void beyond. Through the holes light flared, like a thousand burning candles suspended in the night sky. Thus, the stars were formed, to light Fiona’s way whenever the sun was not near.”
+> “Enamored he was of his sister [[Fiona]], but Clovis could not compete with her insane jealousy over [[Beldon]], nor the radiant light his brother [[Callis]] shone upon her. So, to gain her attentions Clovis drew his blade, a sabre long and sleek, and cut the holes in the curtain between this realm and the void beyond. Through the holes light flared, like a thousand burning candles suspended in the night sky. Thus, the stars were formed, to light Fiona’s way whenever the sun was not near.”
 > -- Foundations 3:1
 
 “The mistake was realized too late, for through the weakened curtain all manner of horrors appeared. Clovis left the side of Fiona and bore his new duty, to heal the damage he’d done and guard this realm from the terror he unleashed from beyond.” Foundations 3:6
@@ -501,7 +501,7 @@ Ogres are sapient giants, often with sallow skin and enormous frames. Although s
 
 Trolls are enormous green-skinned giantkin famous for their ability to recover from almost any injury. Functionally impervious to most forms of physical violence, scholars suggest that many trolls believe themselves to be immortal, beyond judgment or threat of reprisal. Many is the errant adventurer who has fallen prey to a troll, and ended up in the larder.
 
-## The Undead
+## The [[Undead]]
 
 Undead are the walking bodies or tormented souls of the living, re-animated by magic, some grave injustice, or a magically rich area. In the majority of cases, undead are compelled by an overwhelming hatred of the living. There are likely as many distinct subspecies of undead as there have been innovative necromancers, but a few are common enough that they are easily recognizable. Zombies are full shambling corpses, compelled by magic to walk even after death, with a hatred for the living, often wearing the tattered rags that were their clothes in life. Skeletons are often similar in gait, but their bare bones rattle as they walk, and they are more likely to be proficient in the use of weapons.
 
@@ -511,7 +511,7 @@ More powerful undead certainly exist, but are not commonly seen… by those who 
 
 ## Infernals
 
-Called forth from the Outside, often with magic, infernals are as varied in their motivations as any mortal, but will often seek to carve out their own area of domain, a small fiefdom where they (or their masters) are the dominant power. Sometimes called ‘demons’, infernals most often follow the god of fear and demons, Kazzok, but infernals in service to most other gods have been reported, as have infernals with no allegiance at all to any divine power. Although some are more brawn than brains, most infernals possess some innate magics.
+Called forth from the Outside, often with magic, infernals are as varied in their motivations as any mortal, but will often seek to carve out their own area of domain, a small fiefdom where they (or their masters) are the dominant power. Sometimes called ‘demons’, infernals most often follow the god of fear and demons, [[Kazzok]], but infernals in service to most other gods have been reported, as have infernals with no allegiance at all to any divine power. Although some are more brawn than brains, most infernals possess some innate magics.
 
 Hellspawn is a generic catch-all term for shambling infernals called forth through the Curtain with magic, who clearly did not have the best of times with the journey. Rarely seen working any complex magics, hellspawn are very tough and will strike with great force. Imps are similarly low-powered infernals, sometimes called forth by magic users to advise on complex workings. Their innate charm makes their suggestions sound very sensible indeed – and one of their first suggestions is often the conjuration of more powerful infernals.
 
@@ -745,7 +745,7 @@ Below is a list of generalized cultural views on Curtainborn children born into 
 
 [[D’Shunn]] The natural talents of the Curtainborn are most in line with the talents of the D’Shunn, and as well as looking physically the most similar they are the least likely of any race to be treated differently for their heritage.
 
-[[Elves]]: Elven Curtainborn are the most likely to be given over to a church to raise, though not because Elven parents reject their child. Recognized as clearly divine, most Elves would view this as giving the child the highest chance to succeed in the highly competitive Elvish culture, and many families would remain in contact. Because of this approach many Elven Curtainborn would be dedicated to one of the major Elven gods regardless of divine parentage, primarily Apenca.
+[[Elves]]: Elven Curtainborn are the most likely to be given over to a church to raise, though not because Elven parents reject their child. Recognized as clearly divine, most Elves would view this as giving the child the highest chance to succeed in the highly competitive Elvish culture, and many families would remain in contact. Because of this approach many Elven Curtainborn would be dedicated to one of the major Elven gods regardless of divine parentage, primarily [[Apenca]].
 
 [[Gnomes]]: Gnomes tend towards an individualistic approach. They value trade skills that Curtainborn lack proficiency in, but they are talented in other ways and a Gnome can respect that. Plus Gnomes are already brightly coloured.
 
@@ -763,7 +763,7 @@ Below is a list of generalized cultural views on Curtainborn children born into 
 
 ### History
 
-The only historical note relevant to all Curtainborn is the birth of the first known curtainborn.  A Human-born Curtainborn named Jonathan Hargrave was born in the Kingdom of Harodom in the year 1976 AT. His parents, unsure of what he was but fearing he was cursed, brought Hargrave to the church of Fiona to study and learn about what he was, abandoning him there. Hargrave was raised by the church and became an invested cleric at an astonishingly young age. While his parents had thought him cursed, his natural talent had him rising through the ranks of the church as a prodigy where his quick wit and inquisitive mind had many calling him a gift from Fiona herself.
+The only historical note relevant to all Curtainborn is the birth of the first known curtainborn.  A Human-born Curtainborn named Jonathan Hargrave was born in the Kingdom of Harodom in the year 1976 AT. His parents, unsure of what he was but fearing he was cursed, brought Hargrave to the church of [[Fiona]] to study and learn about what he was, abandoning him there. Hargrave was raised by the church and became an invested cleric at an astonishingly young age. While his parents had thought him cursed, his natural talent had him rising through the ranks of the church as a prodigy where his quick wit and inquisitive mind had many calling him a gift from Fiona herself.
 
 It wasn’t long before more reports of such children began cropping up across Ariel, and many scholars began researching in earnest. These children were named Curtainborn as their births were clearly influenced by powers from beyond the Curtain. Many such children, hearing of Hargrave, would travel to Harodom seeking answers, though they would likely be disappointed to find that no such answers exist.
 
@@ -843,13 +843,13 @@ With powerful magic, even age is malleable however. Some speak of powerful magic
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body25$),
 ('divination', 'Divination', 'Magic', $body26$There is a moment between can and can’t. The moment where you go from seeing seemingly random arrays of dice, of cards, of stars, of tea leaves – and then you look past that, and see the shape of the world, written not in an order you can immediately comprehend, but still written large in bold letters. It’s not a second sight – it’s a second breath. The first one comes when you’re born.
 
-Cleo of Fiona, Ruminations on the Art of Divination (1914)
+Cleo of [[Fiona]], Ruminations on the Art of Divination (1914)
 
 Diviners, seers, soothsayers, and fortune tellers all have the potential to have very real magic behind them: the art of divination is subtle and nuanced, but situationally extremely potent. Some perform their art in tea houses or on the street, hawking answers to complex questions to whatever passersby can spare a scrap of silver. Others perform at the pleasure of lords and kings, to whom the near future is an extremely pressing concern. Still others all but withdraw from society, seeking answers obscured to an eye clouded by the travails of the everyday world.
 
 ## Astrology
 
-It is said that after Clovis pierced the veil with his mighty blade Skyrender, and demons issued forth through the holes in the curtain known to us as stars, he taught his followers and mortal servants to predict the shape of the future by seeing the patterns that these holes took in the sky, that they might better protect the world from the demons issuing forth. For this reason, Clovis is the god of stargazers and astrologers alike.
+It is said that after [[Clovis]] pierced the veil with his mighty blade Skyrender, and demons issued forth through the holes in the curtain known to us as stars, he taught his followers and mortal servants to predict the shape of the future by seeing the patterns that these holes took in the sky, that they might better protect the world from the demons issuing forth. For this reason, Clovis is the god of stargazers and astrologers alike.
 
 Astrology is one of the most traditional forms of fortune telling in the Lakes Region, but not the only one. A skilled reader of tea leavings, a rune caster, or a cartomancer might all gain that obscured insight into the near future. While not as potent as some of the techniques available to the most advanced masters of divination, the fortune telling that falls under the broad heading of “astrology” in the Lakes Region will offer enigmatic glimpses of the future, best pieced together with a good understanding of what’s already transpired. For this reason, on particularly portentious nights, fortune tellers will often band together to compare notes and see what details their combined insights may glean.
 
@@ -871,7 +871,7 @@ People who are considering a major life decision will often consult a diviner be
 
 Divination spells are also useful to guards and constables of the watch. Diviners may be able to see the last moments of a corpse, perhaps revealing the killer, or to question a spirit as to what befell them. Some divination spells compel those subject to them to speak only truth, although the risk of abuse of this ability on behalf of the guard has led to laws that allow suspects and witnesses to decline this option.
 
-The Guild Arcane is known to employ divination techniques, often performed by wizards that have decided to add an additional string to their bows. The ability to identify the mystical properties of artifacts, as well as to detect for curses, have helped the Guild in past to avoid deadly mistakes, as well as to save on costly components.
+[[The Guild Arcane]] is known to employ divination techniques, often performed by wizards that have decided to add an additional string to their bows. The ability to identify the mystical properties of artifacts, as well as to detect for curses, have helped the Guild in past to avoid deadly mistakes, as well as to save on costly components.
 
 Some rare diviners even make it into the courts of the landed nobility, offering their wisdom and mystical insight to the gentry in exchange for a stipend, hot meals, and a warm bed in which to sleep.
 
@@ -879,7 +879,7 @@ Some rare diviners even make it into the courts of the landed nobility, offering
 
 Many diviners begin their studies as apprentices to more senior practitioners of the art. More than a few towns have a wise person, often older, who may have at least studied some basic fortune-telling; from this, many diviners get their start, before seeking more experienced tutelage. The search for teachers – and ultimately, for truth – is the start of a lifelong journey for some diviners, whose curiosity drives them ever onward.
 
-Some faiths encourage the pursuit of the art. Clovisis the god of astrologers, and some of his temples will offer rudimentary instruction into this discipline. Fiona, goddess of knowledge, is also the goddess of diviners; her disciples may teach those that they deem worthy. It is even possible that Kell, god of secrets, may smile upon the occasional seer, provided that they keep what they learn to themselves… but for obvious reasons, if or how often this occurs is impossible to know.
+Some faiths encourage the pursuit of the art. Clovisis the god of astrologers, and some of his temples will offer rudimentary instruction into this discipline. Fiona, goddess of knowledge, is also the goddess of diviners; her disciples may teach those that they deem worthy. It is even possible that [[Kell]], god of secrets, may smile upon the occasional seer, provided that they keep what they learn to themselves… but for obvious reasons, if or how often this occurs is impossible to know.
 
 Finally, some learn the art of divination through self-study. Although more difficult, it is possible to enter the correct mindset through careful reflection and meditation. Whether they are prepared for what they see when they reach that mindset is another question altogether.
 
@@ -947,7 +947,7 @@ Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adv
 
 ### Existence Of Dragons
 
-Dragons are either as old as the mortal plane, or nearly as old as Fae, no one knows for certain. Nevertheless they are amongst the oldest known beings on Ariel, renowned for their ability to fly, size, and raw, innate power. The sheer strength and powerful nature of dragons may explain the lengthy and resilient incubation time required for dragon eggs to hatch their children, the shell of the egg similar to the scales of the dragons themselves.
+Dragons are either as old as the mortal plane, or nearly as old as [[Fae]], no one knows for certain. Nevertheless they are amongst the oldest known beings on Ariel, renowned for their ability to fly, size, and raw, innate power. The sheer strength and powerful nature of dragons may explain the lengthy and resilient incubation time required for dragon eggs to hatch their children, the shell of the egg similar to the scales of the dragons themselves.
 
 ### Dragon Variations
 
@@ -1068,7 +1068,7 @@ The D’Shunn are the primary mortal residents of [[The Deeps]], a vast and cave
 
 - Serozarran is among the most reclusive of the D’Shunn caverns; while both Felhaven and Mythostar have built something of a reputation for war and raiding on neighbouring surface settlements, Serozarran is aloof, famous for following its own path. Perhaps most tellingly, the cavern contains a massive node, capable of fuelling mages for several city blocks within the heart of the capital of Serozarran (which shares its name with the Cavern), and the mages of the nation are powerful and distant. Although accessible by travellers of the Deep Roads, anyone trying to enter – or exit – the Cavern through the surface access point in the far northwest of Ariel is subject to search and extreme scrutiny by guards famous for their lack of a sense of humour.
 
-- Mythostar is infamous for the sack of Darkwood, and the destruction of the Guild Arcane, at the start of the Age of Blood (1135 A.T.). Although D’Shunn forces worked in concert to coordinate attacks on surface nations, Mythostar’s night-hunters were among the fiercest and most daring – a fact that has coloured the Cavern’s reputation with surface nations since. Although some claim it foolish for the elves of Darkwood and Eldersire to maintain a grudge for almost a thousand years, others note that Mythostar did provide troops to the forces of Estovic, when they undertook a campaign of war against the nations to the east of Ariel, pointing to this as proof that Mythostar is not to be trusted. Whatever the case, Mythostar’s ruling families have a disproportionate number of Kazzok and Iccula worshippers; while not everyone who resides beneath the banner of Mythostar approves of this, it has had a distinct impact on the nation’s foreign policies.
+- Mythostar is infamous for the sack of Darkwood, and the destruction of the Guild Arcane, at the start of the Age of Blood (1135 A.T.). Although D’Shunn forces worked in concert to coordinate attacks on surface nations, Mythostar’s night-hunters were among the fiercest and most daring – a fact that has coloured the Cavern’s reputation with surface nations since. Although some claim it foolish for the elves of Darkwood and Eldersire to maintain a grudge for almost a thousand years, others note that Mythostar did provide troops to the forces of Estovic, when they undertook a campaign of war against the nations to the east of Ariel, pointing to this as proof that Mythostar is not to be trusted. Whatever the case, Mythostar’s ruling families have a disproportionate number of Kazzok and [[Iccula]] worshippers; while not everyone who resides beneath the banner of Mythostar approves of this, it has had a distinct impact on the nation’s foreign policies.
 
 Other, smaller Caverns exist as well – some as nation states in their own right, and others as subsidiaries to the larger nations, farming what crops and livestock can be raised in the twilight of the Deeps as tribute, that they might benefit from the defence provided by the aegis of the Great Caverns, when those nations deign to provide it.
 
@@ -1366,7 +1366,7 @@ Ancient Elven texts make reference to the first Elves being created under the ni
 
 The Golden Age:  It is impossible to determine how long before the Tear the Elven race was formed. With the ancient texts giving no reference to dates prior to this, it could have been as little as a few centuries to several millennia or more. Little is known about this time, though it is recorded that Elves, Dwarves, Humans and Gnomes across the continent were all united under the great Elven King Alexander. The Elves refer to this time as the Golden Age and laud it as an age of enlightenment and philosophy, an age that produced the greatest works of Elven minds in both reason and art. Many philosophical truths attributed to Golden Age Elves are still taught and quoted today, though the names of their original authors have long been lost to the passage of time. Regardless of the details of Alexander’s empire, it is thought to have been a time of great peace and prosperity for all those within its borders.
 
-The Tear:  All that is recorded about how the empire of Alexander and the Golden Age itself came to an end is that there was a great catastrophe known only as the Tear. If any detailed accounts of this catastrophe ever existed, they have since been lost to time. Many Elven historians have attributed this calamity to the Dwarves’ extensive mining of mithril, which disrupted the leylines and caused a tidal wave of magical flux to shake all of Ariel. The Dwarves, incorrectly, place the blame squarely on Elven arcaners losing control of some great, magical ritual.
+[[The Tear]]:  All that is recorded about how the empire of Alexander and the Golden Age itself came to an end is that there was a great catastrophe known only as the Tear. If any detailed accounts of this catastrophe ever existed, they have since been lost to time. Many Elven historians have attributed this calamity to the Dwarves’ extensive mining of mithril, which disrupted the leylines and caused a tidal wave of magical flux to shake all of Ariel. The Dwarves, incorrectly, place the blame squarely on Elven arcaners losing control of some great, magical ritual.
 
 The Elven Calendar:  Regardless of the cause, the empire of Alexander did fall. Though it is uncertain how dates were recorded before this catastrophe, a new Elven calendar was established and marks it as year 0, or simply The Tear (T.T.). Approximate dates before this are recorded as the number of years Before the Tear (B.T.) and dates after it as After the Tear (A.T.). With the notable exception of the Dwarven Clans, nearly every other nation on Ariel has since adopted this calendar.
 
@@ -1422,11 +1422,11 @@ The fae are rumoured to only be able to cross between the worlds in places where
 The magic of fairies is enormous, but they seem to be repelled by weapons and artifice made of [[Crafting Resources]]. Why precisely this is, is a matter of hot contention, with some suggesting that mortal artifice is a bane to the ephemeral fairy folk, and others suggesting that something about the metal disrupts their substantially magical form on the plane of Ariel. Perhaps more telling is that while they dread the touch of iron and steel, fairies actively flee bared [[Special Materials]], unquestionably because their magic cannot survive the weight of the mage-bane.
 
 Authored by: Jared Hindle Fantasy Alive Lore Team 2021 Copyright © Endless Adventures Ontario Revised by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body33$),
-('faith-in-the-lakes-region', 'Faith in the Lakes Region', 'Deities', $body34$“I am sometimes asked: ‘Why is it that Elieff decided that somethingness was preferable to nothingness?’ and I am forced to answer that I do not know, that attempting to answer to the motivations of a god is the height and very definition of hubris, and that I can only be grateful that he did so. But, caught on a reflective sort of day, I will confess that I have sometimes speculated, and my speculation is generally thus: ‘We may not always be wise, kind, pious, good, or virtuous, but to the Great Watcher, who sees all from a perspective we cannot begin to comprehend, we must surely be entertaining.”
+('faith-in-the-lakes-region', 'Faith in the Lakes Region', 'Deities', $body34$“I am sometimes asked: ‘Why is it that [[Elieff]] decided that somethingness was preferable to nothingness?’ and I am forced to answer that I do not know, that attempting to answer to the motivations of a god is the height and very definition of hubris, and that I can only be grateful that he did so. But, caught on a reflective sort of day, I will confess that I have sometimes speculated, and my speculation is generally thus: ‘We may not always be wise, kind, pious, good, or virtuous, but to the Great Watcher, who sees all from a perspective we cannot begin to comprehend, we must surely be entertaining.”
 
 - Candlebearer Mikrahm, Questions I Have Been Asked (1958)
 
-If you were to ask a denizen of the Lakes Region what god they worshipped, they might reasonably give you a short list, often dependent on their trade, or perhaps where they lived. A smith might wake, thank Bard for their dreams, be grateful to Alejandro for being in a loving relationship, thankAtha for the ore that they work, Callis for the fire that heats it, and Marius that they sell the fruits of their craft for an equitable price. Many parts of everyday life have a focus that is the domain of a god, and while not every person going about their day will keep the gods at the forefront of their mind throughout it, the pious do not need to be choosy to find a god to whom to give thanks, if they are so inclined.
+If you were to ask a denizen of the Lakes Region what god they worshipped, they might reasonably give you a short list, often dependent on their trade, or perhaps where they lived. A smith might wake, thank [[Bard]] for their dreams, be grateful to Alejandro for being in a loving relationship, thankAtha for the ore that they work, [[Callis]] for the fire that heats it, and [[Marius]] that they sell the fruits of their craft for an equitable price. Many parts of everyday life have a focus that is the domain of a god, and while not every person going about their day will keep the gods at the forefront of their mind throughout it, the pious do not need to be choosy to find a god to whom to give thanks, if they are so inclined.
 
 Devoted clerics, whose studies have brought them into a closer relationship with a god, are similarly not required to ignore the contributions that the combined [[The Pantheon]]bring to their lives, but their focus is naturally more limited. They may acknowledge the contributions of all of the gods, but by the nature of their relationship, choose their god’s priorities over and above all others, where those priorities differ. Failing to do so may sour their relationship with their god, for clerical investment is at least in part an affirmation of priorities – and stating that the god they serve best reflects their priorities.
 
@@ -1434,9 +1434,9 @@ Devoted clerics, whose studies have brought them into a closer relationship with
 
 While different nations in the Lakes Region recognize different gods as lawful and unlawful to worship, it is generally the case that even if a faith is lawful, not all possible actions that could be construed as acts of worship are similarly lawful. A Callis priest might argue, and persuasively, that the lighting ablaze of buildings, heretics, and sacred incenses are all equal acts of devotion to the god of flame – but of the three, the first is still arson, the second is still murder, and the third most likely permitted, provided that the flames are not allowed to spread.
 
-In more permissive states, this tends to be the metric against which acts of faith are judged; the faithful may believe whatever pleases them best, but may face sharp censure for their actions. Some exceptions are made for acts of faith that might better serve the interests of the state, such as a priest of Jerroh, god of orderly burial and natural death, studying tenets of necromancy to better do battle with their traditional foe. Nevertheless, this is very much the exception, rather than any reflection upon the rule.
+In more permissive states, this tends to be the metric against which acts of faith are judged; the faithful may believe whatever pleases them best, but may face sharp censure for their actions. Some exceptions are made for acts of faith that might better serve the interests of the state, such as a priest of [[Jerroh]], god of orderly burial and natural death, studying tenets of necromancy to better do battle with their traditional foe. Nevertheless, this is very much the exception, rather than any reflection upon the rule.
 
-As far as whichgods fall within and without the boundaries of law (or which may face significant restriction, as the case may be), the line is generally set at what a government believes it may allow, without undermining its own rule. Although some nations may recognize Iccula, the goddess of pain, as a cruel necessity of maintaining their rule, few nations that acknowledge any property rights can suffer to tolerate the actions of Astrid, god of thieves – and Astrid, in turn, may appreciate this. What is a thief, after all, in a land where there is nothing that can be deemed ‘stolen’?
+As far as whichgods fall within and without the boundaries of law (or which may face significant restriction, as the case may be), the line is generally set at what a government believes it may allow, without undermining its own rule. Although some nations may recognize [[Iccula]], the goddess of pain, as a cruel necessity of maintaining their rule, few nations that acknowledge any property rights can suffer to tolerate the actions of [[Astrid]], god of thieves – and Astrid, in turn, may appreciate this. What is a thief, after all, in a land where there is nothing that can be deemed ‘stolen’?
 
 ## Divine Intervention
 
@@ -1456,7 +1456,7 @@ As a cleric grows in power, so too grow the responsibilities that a god may plac
 
 ## Other Powers
 
-Some whisper that the known gods are not unique in their ability to grant power. Both Strega and Bard were hidden from common knowledge, until they made their debuts upon the world’s stage. Perhaps more concerning, rumours speak of cultists following powerful infernals, faerie regents, and even the ruinous powers that were the Twins – and receiving spell casting abilities in exchange for this devotion. Whatever the case, the gods guard their primacy jealously… and for now, the rumours remain unconfirmed.
+Some whisper that the known gods are not unique in their ability to grant power. Both [[Strega]] and Bard were hidden from common knowledge, until they made their debuts upon the world’s stage. Perhaps more concerning, rumours speak of cultists following powerful infernals, faerie regents, and even the ruinous powers that were the Twins – and receiving spell casting abilities in exchange for this devotion. Whatever the case, the gods guard their primacy jealously… and for now, the rumours remain unconfirmed.
 
 ## Learn More About
 
@@ -1469,7 +1469,7 @@ Holidays of Ariel
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body34$),
 ('fiona', 'Fiona', 'Deities', $body35$The Spies of the Sky Queen The Followers of Fiona
 
-High God and one of Elieff’s children, Fiona’s story has never been a happy one. Jealous of the love and eternal companionship between her siblings Atha and Beldon, the earth and the sea, she has circled them, lonely and bitter. Fiona, the Sky Queen or Night Beacon, as she is sometimes called, has always been the object of attention from each of her brothers Callis and Clovis, yet the Jealous Sister could not tear her gaze from Beldon, her true desire.
+High God and one of [[Elieff]]’s children, Fiona’s story has never been a happy one. Jealous of the love and eternal companionship between her siblings [[Atha]] and [[Beldon]], the earth and the sea, she has circled them, lonely and bitter. Fiona, the Sky Queen or Night Beacon, as she is sometimes called, has always been the object of attention from each of her brothers [[Callis]] and [[Clovis]], yet the Jealous Sister could not tear her gaze from Beldon, her true desire.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150248-395x1024.jpg float-right)
 
@@ -1581,7 +1581,7 @@ Strictly speaking, the idea of a ‘Goblin Market’ is not unique to [[Goblins]
 
 The term ‘Goblin Market’ stems from the goblin traditions of hospitality; a guest who bears neither malice nor weapon, who seeks shelter and aid in earnest, and who can be trusted (however this is calculated), should be offered whatever foodstuffs are available to the host. Often, this means scrambling, especially if guests were not expected, to put together a meal suitable for said guests, and pantries and cellars are raided – sometimes, even the host’s own.
 
-Legend says that the first so-called Goblin Market occurred when the goblin Ciscus of Marius was asked what wares she had for an earnest customer while she was heading to the local tavern to eat. Not wanting to risk her reputation as a merchant, and not wanting to betray the tradition of hospitality, she asked for a few minutes to lay out her merchandise, and then spent those minutes frantically knocking on nearby doors, offering to clean out unattended cellars and sheds, and quite literally horse trading, until she had a large array of seemingly unrelated goods. As she lay them out for the buyer, each item had a story that… may have been true, and ought to have been true. The bemused customer ended up richer a great deal of merchandise that Ciscus had not possessed before she had been asked for it, and poorer a measure of coin.
+Legend says that the first so-called Goblin Market occurred when the goblin Ciscus of [[Marius]] was asked what wares she had for an earnest customer while she was heading to the local tavern to eat. Not wanting to risk her reputation as a merchant, and not wanting to betray the tradition of hospitality, she asked for a few minutes to lay out her merchandise, and then spent those minutes frantically knocking on nearby doors, offering to clean out unattended cellars and sheds, and quite literally horse trading, until she had a large array of seemingly unrelated goods. As she lay them out for the buyer, each item had a story that… may have been true, and ought to have been true. The bemused customer ended up richer a great deal of merchandise that Ciscus had not possessed before she had been asked for it, and poorer a measure of coin.
 
 In this tradition, in Harodom, Michian, and a few of the other Lakes Region nations, a ‘Goblin Market’ now refers to the sale of many goods, perhaps with no real relationship between them; some old, some new, and some storied indeed. In place of one seller, the modern goblin market has many; on clement days, entire communities may turn out to exchange their goods for other goods, or more often, for coin, with the goal that each seller might not return home with most anything that they left it with.
 
@@ -1654,7 +1654,7 @@ Although goblins have few lands in which they are the primary residents by numbe
 
 - Candipae is far to the north of Harodom, and perhaps it is the cold climates that have inspired the resilient goblins there in their studies of alchemy, herbal remedies, and medicine. Whatever the cause, the goblins of Candipae are said to be thoughtful and curious, and many of them gifted physicians, if eccentric in their ways. The Candipae goblins are appreciated by their neighbours, as mining and logging are perilous crafts, and the goblins are always happy to help stitch up a wound or re-attach an arm, never asking for help – but if the goblins seek aid afterward and are refused, it may be a generation or so before they return again. What goes around, comes around.
 
-- Bordowl is one of the smallest ‘great’ nations of goblins, located near the Dwarves of Coralchipper. Skilled fishers and trappers, the goblins will often hire dwarven boats, taking them to small islands off of the coast, where the fishing is good, or to conduct trades with small communities that live there. Although the sailors of Coralchipper keep excellent maps, it is said that the goblins of Bordowl navigate by dead reckoning, using strange tools and reading the stars to know where they’re at – and where they need to go.
+- Bordowl is one of the smallest ‘great’ nations of goblins, located near the [[Dwarves (blurb)|Dwarves]] of Coralchipper. Skilled fishers and trappers, the goblins will often hire dwarven boats, taking them to small islands off of the coast, where the fishing is good, or to conduct trades with small communities that live there. Although the sailors of Coralchipper keep excellent maps, it is said that the goblins of Bordowl navigate by dead reckoning, using strange tools and reading the stars to know where they’re at – and where they need to go.
 
 ## History
 
@@ -1738,7 +1738,7 @@ Bittermourn is a lichen that grows in dark places; pale green-grey, it can appea
 
 Blackroot derives its name from its appropriately coloured roots; a perennial herb with wooly hair-like stems, the leaves appear as wings running down the sides of the stems. Bitter to the taste, some villages use it as a specific for gallstones and constipation, but warn that it should be used carefully if at all, as it can cause liver damage in excess amounts. Blackroot is an herbal ingredient in Intoxicant, Minor Illness, Creeping Death, and Disease mixtures.
 
-Bloodmoss is said to have sprung up in those places in the world where Hemulis bled when he was a mortal man; the incarnadine colour of this dense moss supports the story. Used by some healers to pack wounds, it is clearly best used for external use only; the consumption of blood moss can cause vivid nightmares, even before it is mixed with other ingredients. Bloodmoss appears in Healing Balm, Slow Death, Illness, and Euphoric mixtures.
+Bloodmoss is said to have sprung up in those places in the world where [[Hemulis]] bled when he was a mortal man; the incarnadine colour of this dense moss supports the story. Used by some healers to pack wounds, it is clearly best used for external use only; the consumption of blood moss can cause vivid nightmares, even before it is mixed with other ingredients. Bloodmoss appears in Healing Balm, Slow Death, Illness, and Euphoric mixtures.
 
 Bullrushis a large, wetland, grass-like plant; although the term is used to describe a number of similar plants, herbalists prize the Grand Bullrush above all others for the creeping rootstalks that are best harvested in late summer through to the first snow. The oils of these rhizomes have different effects based on their preparation and how the oil is extracted, mostly used as a stimulant. Bullrush appears in Adrenal Rush, Timber Oil, Tongue Bind, and Hero’s Last Stand mixtures.
 
@@ -1799,7 +1799,7 @@ Wolvesbane or aconite, monkshod, or devil’s helmet, is an extremely poisonous 
 Woodrose refers to a parasitic tuber with strong psychoactive properties; it is sometimes called the ‘Flower of the Underworld’. Found in ailing trees, the tree often responds to the presence of the tuber by forming a structure that resembles a wooden rose (hence the name). Consuming the Woodrose is considered a rite of passage in some divination traditions, as consuming it can cause potent disturbing visions, but this can cause considerable harm. Woodrose appears in Intoxicant, Cure All, Hallucinogen, and Immunity mixtures.
 
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body40$),
-('hoggsport', 'Hoggsport', 'Towns & Settlements', $body41$Hoggsport, the capital of the Kingdom of Harodom, and the seat of power for the Monarch, is a port city on the banks of Lake Haro. Even today, a great deal of the meat exports – including the barrels of salted pork that once gave the city its name – flow through the port and along the coastline, bringing both fresh and preserved food to the coastal towns of Harodom and beyond. This might well serve as a fitting metaphor for the rule of King Francis Alexander of the line of Haro, for along with the foodstuffs that nourish the kingdom, so too flow royal decrees and guidance to the nation and its peoples.
+('hoggsport', 'Hoggsport', 'Towns & Settlements', $body41$Hoggsport, the capital of the [[Kingdom of Harodom]], and the seat of power for the Monarch, is a port city on the banks of Lake Haro. Even today, a great deal of the meat exports – including the barrels of salted pork that once gave the city its name – flow through the port and along the coastline, bringing both fresh and preserved food to the coastal towns of Harodom and beyond. This might well serve as a fitting metaphor for the rule of King Francis Alexander of the line of Haro, for along with the foodstuffs that nourish the kingdom, so too flow royal decrees and guidance to the nation and its peoples.
 
 ## Ruling House of Hoggsport
 
@@ -1825,7 +1825,7 @@ Castle Haro, while still impressive to gaze upon, was built first as a fortifica
 
 The gates of Hoggsport open to the North, East, and West, allowing many to enjoy the freedom of the city. The gates are not watched by the City Guard, but as a duty of King Haro’s private regiment of soldiers, many of whom are more than happy to offer friendly but curt advice and directions. The gates are never closed in peace time, and experience varied traffic depending on the day; the East Gate Market draws in many from within and without the city, with the allure of exotic wares, the heady scents of spices and baked and cooked goods, and even musical performances on an open stage on Mondays, Wednesdays, Fridays, and Saturdays, serving to clog this major artery into the city.
 
-Although shrines and small churches to any number of the gods dot the residential and commercial districts, the majority of larger institutions of faith are particularly placed to the domain that they serve; the Palace of Penance serves the faithful of [[Brack]], the Library of Hoggsport holds a church of Fiona, the Merchant Square has a prominent church of [[Marius]], the Necropolis has a well-established contingent of [[Jerroh]] priests, and so forth.
+Although shrines and small churches to any number of the gods dot the residential and commercial districts, the majority of larger institutions of faith are particularly placed to the domain that they serve; the Palace of Penance serves the faithful of [[Brack]], the Library of Hoggsport holds a church of [[Fiona]], the Merchant Square has a prominent church of [[Marius]], the Necropolis has a well-established contingent of [[Jerroh]] priests, and so forth.
 
 The West Gate district holds the College of Hoggsport, as well as the city’s largest node, and the local branch of the [[The Guild Arcane]]. Scholars and wizards flock to this part of the city, as well as seers and diviners, who will often travel some distance to confer with one another at Madam Olga’s Tea House, a fixture in the region and famed gathering point for [[Divination]].
 
@@ -1850,7 +1850,7 @@ An unpublished [Visitor’s Guide](https://fantasyalivelrp.com/wp-content/upload
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body41$),
 ('how-to-use-this-resource', 'How to Use This Resource', 'Getting Started', $body42$Reading a book is like having a one-sided conversation with a dead person across centuries. Well, I say one-sided, but honestly, sometimes I shout at them.
 
-- Cleric Macklewheat of Fiona, Goddess of Knowledge, Remarks on the Book of Foundations (1939 A.T.)
+- Cleric Macklewheat of [[Fiona]], Goddess of Knowledge, Remarks on the Book of Foundations (1939 A.T.)
 
 Welcome to the Fantasy Alive Wiki!
 
@@ -1927,9 +1927,9 @@ Maximum Age: Upon reaching the age indicated in “Max. Age” the character is 
 
 ## Nations and Lands
 
-Near Lands to the Lakes Region
+[[Near Lands]] to the Lakes Region
 
-- Kingdom of Harodom – Founded in
+- [[Kingdom of Harodom]] – Founded in
 
 - City-state of Portnos
 
@@ -1937,10 +1937,10 @@ Near Lands to the Lakes Region
 
 - New Fowler
 
-- The Broken Reach*$body43$),
+- [[The Broken Reach]]*$body43$),
 ('iccula', 'Iccula', 'Deities', $body44$The Scream Bringers The Followers of Iccula
 
-It is whispered that there is a fine line between pleasure and pain. For the sadistic followers of the Maiden of Pain, this line does not exist. Daughter of Kell and Balaxa, Iccula lives for the torment of other souls and nothing else. Seldom killing their victims, followers of the Screaming Crone prefer to keep their prey, human or otherwise, alive for days, weeks and even years, extending their torture and relishing the screams.
+It is whispered that there is a fine line between pleasure and pain. For the sadistic followers of the Maiden of Pain, this line does not exist. Daughter of [[Kell]] and [[Balaxa]], Iccula lives for the torment of other souls and nothing else. Seldom killing their victims, followers of the Screaming Crone prefer to keep their prey, human or otherwise, alive for days, weeks and even years, extending their torture and relishing the screams.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/11-1-381x1024.jpg float-left)
 
@@ -1958,7 +1958,7 @@ Principle Holiday: January 13th – The Loving Lash Devotion – Torturing, inte
 > “Jerroh looked out upon the earth and wept. Apenca’s creatures great and small thrived and multiplied until every surface of the land and sea was choked with their presence. With somber resolve Jerroh strode across the land and began the harvest. With sickle and scythe, he collected the old, the weak, and the sick, carefully escorting each spirit to the world beyond the void.”
 > -- Twins 4:1
 
-Jerroh and Stasa are the twin children of Atha and Beldon. Known as the Death Guide or Spirit Escort, Jerroh has a following in nearly every civilized establishment. Despite being the god of death, Jerroh is seldom feared, gently taking only those whose time has come. The followers of Jerroh often take residence as the caretakers of graveyards and catacombs, assisting the spirits of the dead find their way across the void and protecting the land from the spirits that have gone astray.
+Jerroh and Stasa are the twin children of [[Atha]] and [[Beldon]]. Known as the Death Guide or Spirit Escort, Jerroh has a following in nearly every civilized establishment. Despite being the god of death, Jerroh is seldom feared, gently taking only those whose time has come. The followers of Jerroh often take residence as the caretakers of graveyards and catacombs, assisting the spirits of the dead find their way across the void and protecting the land from the spirits that have gone astray.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150402-406x1024.jpg float-left)
 
@@ -1966,17 +1966,17 @@ Jerroh and Stasa are the twin children of Atha and Beldon. Known as the Death Gu
 
 The symbols of Jerroh are a tombstone, coffin, and mysterious cloaked figure.
 
-Principle Holiday: January 1st – Year’s End Devotion – Maintaining a graveyard Spell incants are prefixed by “With deaths embrace” At Will spells: 6th – Detect Undead, 9th – Rebuke Undead Shared Domains: [[Clovis]], [[Apenca]] Opposed Domain: [[Stasa]]
+Principle Holiday: January 1st – Year’s End Devotion – Maintaining a graveyard Spell incants are prefixed by “With deaths embrace” At Will spells: 6th – Detect [[Undead]], 9th – Rebuke Undead Shared Domains: [[Clovis]], [[Apenca]] Opposed Domain: [[Stasa]]
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-19.png)$body45$),
 ('kazzok', 'Kazzok', 'Deities', $body46$The Terror Bringers The Followers of Kazzok
 
 > “… And with a scream that echoed across time itself he fell upon his knees. Rage filled him and evil and terror burst forth from him. For his grief he vowed to ravish the lands and minds of those upon it. Reaching to the sky’s starry curtain he brought forth every imaginable terror.”
-> -- The Book of Elves 12:3
+> -- The Book of [[Elves]] 12:3
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150410-381x1024.jpg float-right)
 
-Perhaps one of the most feared of all the deities, Kazzok, god of nightmares and terror, is known by many names: Evil’s Gift, Screambringer, and Elf Slayer. Son of Fiona and Anajaream, it is said that Kazzok turned to the terrors beyond the curtain when his love was slain. Followers of Kazzok are often sadists and madmen, gaining pleasure from exposing the world to the worst of the void’s terrors. Temples of Kazzok are rare, as worship of the Screambringer is illegal in nearly all lands. When followers of Kazzok gather it is often whoever can inspire the most fear and power who wrests control of the group.
+Perhaps one of the most feared of all the deities, Kazzok, god of nightmares and terror, is known by many names: Evil’s Gift, Screambringer, and Elf Slayer. Son of [[Fiona]] and [[Anajaream]], it is said that Kazzok turned to the terrors beyond the curtain when his love was slain. Followers of Kazzok are often sadists and madmen, gaining pleasure from exposing the world to the worst of the void’s terrors. Temples of Kazzok are rare, as worship of the Screambringer is illegal in nearly all lands. When followers of Kazzok gather it is often whoever can inspire the most fear and power who wrests control of the group.
 
 The symbols of Kazzok are a face locked in a scream, a hand reaching up through the ground, and all manner of demonic creatures.
 
@@ -1990,7 +1990,7 @@ Principle Holiday: October 31st – Terror’s Breach Devotion – Creating frig
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150413-362x1024.jpg float-right)
 
-Little is known about the god Kell, son of Fiona and Clovis. Mystery seems to pool about the Prince of Night much like the darkness he represents. Known as the Eyeblighter and the Bringer of Darkness, Kell is said to be behind every clandestine meeting and secret society. While it is assumed that followers of Kell must exist, there has never been any evidence of their existence.
+Little is known about the god Kell, son of Fiona and [[Clovis]]. Mystery seems to pool about the Prince of Night much like the darkness he represents. Known as the Eyeblighter and the Bringer of Darkness, Kell is said to be behind every clandestine meeting and secret society. While it is assumed that followers of Kell must exist, there has never been any evidence of their existence.
 
 The symbols of Kell include obsidian, jet, a lantern, and torch.
 
@@ -2029,7 +2029,7 @@ This land is controlled by the Royal Family and falls under their direct allegia
 
 Cities in Crown Land
 
-Hoggsport Stelton Great Falls
+Hoggsport [[Stelton]] Great Falls
 
 The Duchy of Gelrich; the Western Duchy
 
@@ -2257,7 +2257,7 @@ Over the next few years the friendship with the Empire of Michian would be teste
 
 As part of Harodom’s promises in the Treaty of Three, King Francis Anthony Haro married a member of the Imperial Family of Michian, Drusilla Lapsonus to strengthen ties.
 
-The landscape of Harodom was forever changed with the Duchy of Portnos seceding and becoming the sovereign City-State of Portnos. The Duchy of O’Shea all but disappeared due to ravages of war, and an inexplicable consumption by forest and nature. The Duchy of O’shea still exists, though greatly weakened in size and power, and the remainder of their former territory now simply referred to as ‘The Broken Reach’. Many of its people were scattered across the kingdom.$body48$),
+The landscape of Harodom was forever changed with the Duchy of Portnos seceding and becoming the sovereign City-State of Portnos. The Duchy of O’Shea all but disappeared due to ravages of war, and an inexplicable consumption by forest and nature. The Duchy of O’shea still exists, though greatly weakened in size and power, and the remainder of their former territory now simply referred to as ‘[[The Broken Reach]]’. Many of its people were scattered across the kingdom.$body48$),
 ('libraries-of-ariel', 'Libraries of Ariel', 'Culture & Society', $body49$“Some say that the greatest adventures begin in a library. I’ve had one too many scrawled treasure maps thrust into my hand by old acquaintances as they succumbed to a mysterious curse, or whispered words of a fearful informant shortly before they were felled by a Stasan cult to believe that, but it’s true that the written words of dead people can be useful.”
 
 - Elijah Stick, Gentleman Adventurer, On Adventure! (1887 A.T.)
@@ -2274,7 +2274,7 @@ Before the fall of Deepwood, the College of Darkwood’s library was available t
 
 ## Private Libraries and Collections
 
-Some libraries in Ariel are quite extensive indeed – if you can get in. It is well known that many temples of Fiona double as repositories of knowledge for the servants of the Sky Queen, but access to the works within is reserved for the faithful, who may elect to share that knowledge… or not. In a similar vein, several private groups, like the Royal Archivists, the Scrollfire Minotaurs, or the Keepers of the Eternal Song will allow access to rare works or answers to members, or occasionally those with a good referral, a good argument, or in some cases, an excellent bribe.
+Some libraries in Ariel are quite extensive indeed – if you can get in. It is well known that many temples of Fiona double as repositories of knowledge for the servants of the Sky Queen, but access to the works within is reserved for the faithful, who may elect to share that knowledge… or not. In a similar vein, several private groups, like the Royal Archivists, the Scrollfire [[Minotaurs]], or the Keepers of the Eternal Song will allow access to rare works or answers to members, or occasionally those with a good referral, a good argument, or in some cases, an excellent bribe.
 
 More accessible are the private collections of the well-to-do. There’s nothing stopping a person of means or affluence from amassing a large collection, and several dusty-but-technically-maintained libraries exist on the estates of wealthy aristocrats the region over, collected over centuries in service to needs and the whims of practical leaders and moneyed dilettantes. Even those aristocrats who are not scholars are still aware that knowledge is power, and power has value; access to these collections may be only possible in exchange for a favour, either immediately in service to a problem the library owner has, or to be specified at a later date. The ones who ask for very little immediately are often the most expensive overall.
 
@@ -2284,9 +2284,9 @@ It is said… that when the War of the Twins overtook Darkwood, the college fill
 
 It is said… that beneath the light of a Blue Moon, in the woods and wild places of the Lakes Region, the light from the moon will sometimes, just sometimes, catch the trees just so, and reveal a path, marked in moonlight, that leads to a cave. Following the path leads to a tunnel of many traps, and beyond, a hundred hundred works, and a mythical librarian, who has read each and every one.
 
-It is said… that in the Great Bazaar of Marius, there is Nemis’tal the Bookbinder, whose mystical book press can turn any blank book into any tome that has ever been bought or sold. What Nemis’tal asks for such a service varies from supplicant to supplicant, but as a celestial of the god of trade, they never get the worse of such an exchange.
+It is said… that in the Great Bazaar of [[Marius]], there is Nemis’tal the Bookbinder, whose mystical book press can turn any blank book into any tome that has ever been bought or sold. What Nemis’tal asks for such a service varies from supplicant to supplicant, but as a celestial of the god of trade, they never get the worse of such an exchange.
 
-It is said… that the faithful of Balaxa are sometimes shown the hiding place of the Book of the Winter’s Night, which holds a library’s worth of knowledge, for within its covers is every secret known only to a soul that has died from exposure in midwinter.
+It is said… that the faithful of [[Balaxa]] are sometimes shown the hiding place of the Book of the Winter’s Night, which holds a library’s worth of knowledge, for within its covers is every secret known only to a soul that has died from exposure in midwinter.
 
 But then seeker… many things are said.$body49$),
 ('lizardfolk-blurb', 'Lizardfolk', 'Mortal Races', $body50$> “All life begins and ends with the tribe. Loyalty to your family is everything.” – Shaman Salazar Trueblood
@@ -2527,7 +2527,7 @@ Circle Magicis the common term for spells that cannot simply be cast as battle m
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body53$),
 ('making-items', 'Making Items', 'Crafting & Trade', $body54$Look around! You might find that there’s more of worth in your surroundings than you think. To the artisan’s eye, there is potential in everything, and realizing it is an important first step in the world becoming… well, your mollusc of choice!
 
-- Steadman the Wright, Address to the Crafters Guild of Stelton (2020)
+- Steadman the Wright, Address to the Crafters Guild of [[Stelton]] (2020)
 
 Although coin is king in most transactions, it simply stands in as a representation of value – and most people will agree that it makes poor armour, doesn’t swing well as a weapon, and that you can’t eat it. Most items, from jewellery to weapons and armour, to treasure chests, traps, and locks, are crafted by tradespeople – and while specific designs may vary between cultures, nations, and individual craftspeople, the results are recognizably the same.
 
@@ -2716,15 +2716,15 @@ Although any archetype of warrior might emerge from any species, most races of m
 
 - Gnomishheroic traditions are less inclined toward martial prowess, but much hay has been made of Colonel Runcible Boson and his Grenadiers. Inclined toward mixing up increasingly terrifying herbal and alchemical concoctions, the Grenadiers wore heavily padded gambeson, fighting in close combat with saps and trench blades, sometimes setting off alchemical explosions and herbal gas attacks on their own persons, trusting their nimbleness and resilience to toxins to see them clear of the consequences.
 
-- Curtainborn are, as a species, too rare to have a cultural ‘ideal’ of a hero, with most curtainborn only having been born within the last forty years. Such martial figures as have arisen that were, or were probably curtainborn in the course of history tended to be deeply invested members of a faith, typically favouring heavy armour to forestall injury that is somewhat harder for them to withstand or heal.
+- [[Curtainborn]] are, as a species, too rare to have a cultural ‘ideal’ of a hero, with most curtainborn only having been born within the last forty years. Such martial figures as have arisen that were, or were probably curtainborn in the course of history tended to be deeply invested members of a faith, typically favouring heavy armour to forestall injury that is somewhat harder for them to withstand or heal.
 
-- D’Shunn caverns are often found in rich biomes filled with perilous ambush predators; D’shunn martial heroes tend to be nimble and lightly armoured, favouring crossbows or longbows and short blades, using their excellent night vision to outmanoeuvre larger or more perilous foes. D’shunn histories also celebrate the careful use of poisons in tackling deadly foes; Keskin the Titanslayer is a cultural hero famous for the use of poisoned baits and blades allowing them to take down a Behemoth in the Dark-Below.
+- [[D’Shunn]] caverns are often found in rich biomes filled with perilous ambush predators; D’shunn martial heroes tend to be nimble and lightly armoured, favouring crossbows or longbows and short blades, using their excellent night vision to outmanoeuvre larger or more perilous foes. D’shunn histories also celebrate the careful use of poisons in tackling deadly foes; Keskin the Titanslayer is a cultural hero famous for the use of poisoned baits and blades allowing them to take down a Behemoth in the Dark-Below.
 
 - Goblin histories do have the occasional war leader or immensely skilled solo fighter (although with a strong tradition of clandestine strikes from the shadows, many of these heroes are unnamed, even in goblin tales), but most interestingly, many tales of heroic goblin warriors speak of them in teams of three. Goblin Juggling Teams such as the famous Akon-Shakshur-Fow trio classically wear little or no armour, but rely on natural grace and an ability to find an opening wherever one presents itself. With their numbers, they can keep foes off-balance, with skilled teams keeping one another safe while bringing the hurt to more resilient enemies.
 
-- Lizardfolk heroes famously use their terrain to advantage; the resilient Lizardfolk using their ability to move through dense swamps and foliage, and to heal quickly from incidental injury, in order to mire less rugged and capable enemies where they can be more readily dealt with. The Lizardfolk Pathfinder Ixthiss is said to have used a capable ear for mimicry and a resilient temperament in order to lead an entire ogre battalion astray deep into the Fever Mire, where she then dealt them a death by a thousand small blows.
+- [[Lizardfolk]] heroes famously use their terrain to advantage; the resilient Lizardfolk using their ability to move through dense swamps and foliage, and to heal quickly from incidental injury, in order to mire less rugged and capable enemies where they can be more readily dealt with. The Lizardfolk Pathfinder Ixthiss is said to have used a capable ear for mimicry and a resilient temperament in order to lead an entire ogre battalion astray deep into the Fever Mire, where she then dealt them a death by a thousand small blows.
 
-- Malkin may not have been their own people for long, but their history stretches back at least seven hundred years; famous Malkin Magehunters stand in the strongest tradition of Malkin martial prowess, shrugging off magical spells and effects, in order to bring sharp, decisive blows to bear. The Malkin heroic archetype seems weapon agnostic, but many speak of those capable of using a variety of weapons, suitable to the circumstance. Plate and leather – and the ability, if not mandated necessity of using a shield – along with a hammer and sword, were the favoured weapons of the Kargath magehunter Phynneas.
+- [[Malkin]] may not have been their own people for long, but their history stretches back at least seven hundred years; famous Malkin Magehunters stand in the strongest tradition of Malkin martial prowess, shrugging off magical spells and effects, in order to bring sharp, decisive blows to bear. The Malkin heroic archetype seems weapon agnostic, but many speak of those capable of using a variety of weapons, suitable to the circumstance. Plate and leather – and the ability, if not mandated necessity of using a shield – along with a hammer and sword, were the favoured weapons of the Kargath magehunter Phynneas.
 
 - Minotaur loresingers of the Skrulmiter Walk tell of the Minotaur Siegebreaker, unburdened by layers of heavy plate and chain, with the famed Tosten of the Broken-Walker Clan standing as a cultural shorthand for martial might. Often favouring two-handed weapons, Minotaur martial heroes tend to emphasize strength, unbreakable will, and physical resilience; taking the challenges of the world head-on, and sending foes and impediments flying with their charges and the force of their blows.
 
@@ -2812,7 +2812,7 @@ Minotaur tales state that rather than slaying those thrown into the dungeon, Ast
 
 Asterius was parent to twelve offspring, each of which pursued differing fields and interests. Several of the existing major kindred groups trace their lineage back to the children of Asterius – and of those that came after, they built upon the knowledge and examples set by those that came before. The Trueblood kindred claim that only their line can trace an unbroken path to the blood of Asterius, and that they are ennobled by this line of descent. How true this is, speculation fails to answer.
 
-In more modern times, minotaurs from multiple continents and across history. In the Lakes Region, it is said that the stone that built the walls of Hoggsport was quarried by minotaur miners… but that minotaur raiders and mercenaries have joined forces with some of the most aggressive attacks on other nations within the Continental Trade Agreement.
+In more modern times, minotaurs from multiple continents and across history. In the Lakes Region, it is said that the stone that built the walls of [[Hoggsport]] was quarried by minotaur miners… but that minotaur raiders and mercenaries have joined forces with some of the most aggressive attacks on other nations within the Continental Trade Agreement.
 
 ## Factions
 
@@ -2834,7 +2834,7 @@ Ringforger: “We craft the wings that will give us flight.” The most recent k
 
 Soulfire: “The fire that burns within will drive you or burn you up – the difference is you.” Rumoured to have been started by a minotaur priest of [[Callis]] centuries ago, the kindred group Soulfire is small but well renowned, even outside of minotaur-controlled lands. Trained to be protectors and guardians from a very young age, they are most often seen guarding particularly wealthy merchants, or as personal bodyguards. The members of clan Soulfire are bound by honour nurtured from their cradle, and most would rather fight to the death than abandon their ward. Soulfire minotaurs will not throw away their lives needlessly however, as it would prevent them from protecting their ward – or avenging them. Iconography: A flaming shield.
 
-Steelfist: “Death before dishonour.” One of the oldest surviving of the minotaur kindred groups, Steelfist is respected as a group of capable warriors by leaders both within the minotaur kindreds as well as by military leaders external to minotaur society. Followers of Hemulis all, bound by strict codes of honour, it is said that Hemulis himself formed this kindred group to honour the strength and valour that the minotaurs had shown. Steelfist is said to have the power to sway the balance of a war with their military precision and deadly skill. Iconography: A gauntlet closed into a fist.
+Steelfist: “Death before dishonour.” One of the oldest surviving of the minotaur kindred groups, Steelfist is respected as a group of capable warriors by leaders both within the minotaur kindreds as well as by military leaders external to minotaur society. Followers of [[Hemulis]] all, bound by strict codes of honour, it is said that Hemulis himself formed this kindred group to honour the strength and valour that the minotaurs had shown. Steelfist is said to have the power to sway the balance of a war with their military precision and deadly skill. Iconography: A gauntlet closed into a fist.
 
 Trueblood: “Ennobled by heritage.” Known among all other species – and, indeed, among many other minotaurs – as troublemakers and minotaur supremacists, the Trueblood believe that minotaurs, with such great strength, should never bend the knee to any other species. Claiming a direct descent from Asterius the First Minotaur, it is at least implied that the Trueblood also think themselves the superior of other minotaurs as well. Instigators of strife between minotaurs and their neighbours, the Trueblood will use shows of strength, persuasion, and threats of violence to stir up discord in a constant attempt to prove minotaur superiority – and their own. Iconography: A drop of blood over dark horns.
 
@@ -2843,9 +2843,9 @@ These factions are the largest among the minotaur kindred groupings, and hold th
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body59$),
 ('near-lands', 'Near Lands', 'Kingdoms & Regions', $body60$In the time of Haro I, careful negotiation and diplomacy formed a continental trade agreement, known in Michian as the Pax Mortalis. There have been periods in the subsequent centuries, where the free flowing of trade has meant that travellers have required little more than some basic paperwork to visit and trade in lands not their own. Sadly, as history too often recounts, peace is so very often simply the time after the last war when you’re busily preparing for the next one…
 
-- Cleo of Fiona, A History of the Continental Trade Agreement (2001 A.T.)
+- Cleo of [[Fiona]], A History of the Continental Trade Agreement (2001 A.T.)
 
-Recent history has been marked by remarkable occurrences taking place in the town of Yorik in Harodom, and Scarsinvale, an area once in Harodom, now part of the no-man’s-land between Harodom and Eldersire known as the Broken Reach. Following the conclusion of the troubles of the town of Yorik, new issues have begun to emerge in a new, as-yet unnamed settlement near the banks of the Ire.
+Recent history has been marked by remarkable occurrences taking place in the town of [[Yorik]] in Harodom, and Scarsinvale, an area once in Harodom, now part of the no-man’s-land between Harodom and Eldersire known as the Broken Reach. Following the conclusion of the troubles of the town of Yorik, new issues have begun to emerge in a new, as-yet unnamed settlement near the banks of the Ire.
 
 These lands, and the other lands and territories surrounding the Lakes Region, are frequently the sources of adventures. Harodom, Eldersire, and the Broken Reach are just a few of the lands in this region, and this document will briefly touch on these and several others. Other documents in this wiki will go into more detail about each.
 
@@ -2855,11 +2855,11 @@ These lands, and the other lands and territories surrounding the Lakes Region, a
 
 The Kingdom of [[Kingdom of Harodom]] was founded by king Haro the First in 1705 A.T., bringing together several independent lands in an initially fragile agreement, wherein they would acknowledge the primacy of the throne in [[Hoggsport]], and would become the Duchies of Harodom. The Duchies of Gelrich, Dwadain, and O’Sheamake up modern-day Harodom, with the Duchy of Portnos having been broken off during the recent war with the neighbouring country of Eldersire. Harodom is a human kingdom, with a feudal monarchy that is rapidly becoming more egalitarian.
 
-Harodom’s current king is King Francis Alexander Haro, who has enacted sweeping social changes following his coronation. Under King Francis Alexander, slavery has been outlawed in its entirety within Harodom, with serfdom slowly being phased out. As well, while primarily a human kingdom, Harodom has become more egalitarian. Humans still remain the dominant socio-economic species, but merchant traders, travellers, refugees, and people seeking lives of peace or adventure have come to lend their hand to the “Harodonian Experiment”.
+Harodom’s current king is King Francis Alexander Haro, who has enacted sweeping social changes following his coronation. Under King Francis Alexander, slavery has been outlawed in its entirety within Harodom, with serfdom slowly being phased out. As well, while primarily a human kingdom, Harodom has become more egalitarian. [[Humans]] still remain the dominant socio-economic species, but merchant traders, travellers, refugees, and people seeking lives of peace or adventure have come to lend their hand to the “Harodonian Experiment”.
 
 The tongue spoken in Harodom has become the common trade tongue in the Lakes Region, and most every traveller through the area can speak it with some fluency. Harodom is famous for its mines and rich farms, both of which have historically made its armies strong and some of its people very affluent indeed.
 
-## The Broken Reach
+## [[The Broken Reach]]
 
 The majority of the lands currently known as the Broken Reach were once a part of Harodom, with some lands once held by Eldersire making up the balance. Wracked first by war, and then by natural – or supernatural – disasters, the Broken Reach is by treaty a no-man’s land between the two belligerent nations, declared so by the Treaty of Sashkissed (2018). The dead of the war that were not able to be repatriated have proven ample fodder for those necromantic forces that the earthquakes and opportunistic treasure hunters have unearthed.
 
@@ -2873,7 +2873,7 @@ Eldersire’s primary faith is [[Apenca]], although [[Sasha]]is well represented
 
 ## Michian (Human)
 
-The empire of Michian is a close neighbour and recently valued ally of Harodom. The core of Michian is the rule of law, with worship of Brack the Lawbringer as the state religion. The empire has several provinces, each reporting to the Imperial Throne, and while the representatives of these provinces within the Imperial Senate are not given carte blanche to rule without oversight from the Imperial Manse, it is with the guidance of these senators that law is made and maintained within the Empire.
+The empire of Michian is a close neighbour and recently valued ally of Harodom. The core of Michian is the rule of law, with worship of [[Brack]] the Lawbringer as the state religion. The empire has several provinces, each reporting to the Imperial Throne, and while the representatives of these provinces within the Imperial Senate are not given carte blanche to rule without oversight from the Imperial Manse, it is with the guidance of these senators that law is made and maintained within the Empire.
 
 The war between Michian and Harodom began in 2007, and ended with the appearance of a mighty demon that routed the Michian centurion forces. Michian was briefly absorbed into Harodom as ‘New Harodom’, but was returned to its status as an independent nation following the conflict with a nation known as Estovic, with Harodom no longer able to maintain enough troop presence to occupy Michian. A political wedding between the Royal Family of Harodom and the Imperial Family of Michian has led to a stable and positive alliance ever since.
 
@@ -2881,7 +2881,7 @@ Michian is a predominantly human nation, and maintains fairly strict immigration
 
 ## Hammerfrost Hold (Dwarf)
 
-With the explosive growth of the Broken Reach, Hammerfrost Hold no longer borders Harodom. Nevertheless, Hammerfrost dwarves can be found throughout the Lakes Region, as Hammerfrost Hold has fallen, as recently as 2019. Undead, springing up from the Hold’s cavernous necropolis and catacombs, overcame the Hold’s main defences at the incitement of a powerful revenant claiming to be a long-forgotten king of the Hold.
+With the explosive growth of the Broken Reach, Hammerfrost Hold no longer borders Harodom. Nevertheless, Hammerfrost dwarves can be found throughout the Lakes Region, as Hammerfrost Hold has fallen, as recently as 2019. [[Undead]], springing up from the Hold’s cavernous necropolis and catacombs, overcame the Hold’s main defences at the incitement of a powerful revenant claiming to be a long-forgotten king of the Hold.
 
 While many dwarves now hold the Hold under siege, and the efforts of a dwarven paragon known as the Frostbreaker have broken the legendary Walls of Hammerfrost, the war to retake the hold is ongoing, and supplies head north from everywhere that Hammerfrost dwarves have made their home to support the siege camps. After all – the living still need food, drink, and some measures of comfort, the better to maintain their vigil.
 
@@ -2926,7 +2926,7 @@ There are many Harodonian citizens who resent Portnos for their lack of support 
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body60$),
 ('newspapers', 'Newspapers', 'Culture & Society', $body61$I like to think that there’s something for everyone in a newspaper. For those in need of information, there’s the headlines. For those in need of something to think about, there’s the editorials. For those who are caught short, the newsprint is softer than most of the broad-leafed plants you can find hereabouts.
 
-- Oren D’vann, Newspaper Editor, Opening Remarks of a Short Lecture on Publishing at Hoggsport University (June 9th, 2021 A.T.)
+- Oren D’vann, Newspaper Editor, Opening Remarks of a Short Lecture on Publishing at [[Hoggsport]] University (June 9th, 2021 A.T.)
 
 Although not universal, newspapers and broadsheets are a familiar sight in the world of Fantasy Alive. Movable print engines are familiar technology on Ariel, and although expensive to build and maintain, many locales, including the larger cities, have dailies or periodicals that help the artisan classes to keep abreast of what they should variously be infuriated about or afraid of, the aristocracy to maintain a finger on the pulse of the society, and the poor to line their boots when winter comes.
 
@@ -2983,7 +2983,7 @@ Most nodes represent a deposit or vein of mithril in the earth, drawing in and n
 
 People seeking to strike it rich by mining a node will often come into conflict with the Guild of the Arcane. In Harodom, as well as a number of the other nations in the Lakes Region, the Guild has claim to at least one node per settlement that has them, and guards them jealously. Other node users, including some creatures that are naturally drawn to concentrated magical energy, may also have an opinion on such efforts, which are dangerous, difficult, and time consuming in any event.
 
-Some nodes, especially those that have been disrupted in some way, will produce only a fraction of the organized energy that they would normally. The Guild Arcane refers to these nodes as needing ‘tuning’. Tuning a node requires study, planning, and a great deal of magical energy, and the process is complex. Once tuned, a node will often return to its ideal output.
+Some nodes, especially those that have been disrupted in some way, will produce only a fraction of the organized energy that they would normally. [[The Guild Arcane]] refers to these nodes as needing ‘tuning’. Tuning a node requires study, planning, and a great deal of magical energy, and the process is complex. Once tuned, a node will often return to its ideal output.
 
 ## Unusual Nodes
 
@@ -3056,7 +3056,7 @@ Below are the seven Great Ranges – large territories that the orcs largely hav
 
 - Fann Korra – The keepers of Fann Korra are said to bear within them the spirits of great birds that once roamed the plains in the middle of Ariel. Whether this is true or not, the orcs of Fann Korra move swiftly, crossing the vast distances between settled parts of their Reach in short order, owing in part to their adoption of riding lizards. On the opposite side of the Necropolis of An’xar from Whistlewind, Fann Korra’s secular leaders maintain a tremulous truce between those orcs who would see the undead that issue forth from the necropolis put down in battle – and those that would try to wrest control of the undead.
 
-- Enging Roz – Now much diminished by a great sickness that overcame the Range in the 1980’s, Enging Roz was once known for its scholars and physicians, so great was its bounty that it could support schools for those who would make these softer lines their life’s work. On the West Coast of Ariel, the scholars and physicians of Enging Roz are still extant, but the College of Enging is but a fraction of its once proud size, and worshippers of Kazzok on the Range have made several credible bids for dominance, swelling the nation’s forces with demons.
+- Enging Roz – Now much diminished by a great sickness that overcame the Range in the 1980’s, Enging Roz was once known for its scholars and physicians, so great was its bounty that it could support schools for those who would make these softer lines their life’s work. On the West Coast of Ariel, the scholars and physicians of Enging Roz are still extant, but the College of Enging is but a fraction of its once proud size, and worshippers of [[Kazzok]] on the Range have made several credible bids for dominance, swelling the nation’s forces with demons.
 
 - Kan Vizek – Kan Vizek is famous for its sailors, although others might say for its pirates. On the East Coast of Ariel is the Range of Kan Vizek, which claims territory up to thirty miles from the coastline. The capable privateers of the range charge ‘tolls’ to any passing ships, and are more than capable of handling aggression from those who have difficulty with the question of ‘Your money or your life?’. The orcs of Kan Vizek are capable fisherfolk as well, and tend to be among the most prosperous of the Ranges – owing in no small part to the Banner of Tears privateers that sail their seas.
 
@@ -3086,7 +3086,7 @@ The Banner of Dust are necromancers. The closest thing to an ideology that they 
 
 It is said that before the Tear, when many orcs lived in (relative) harmony with the rest of the Golden Empire, they were made stewards of vast lands of otherwise unoccupied wilderness, to keep the peace, hunt fugitives from justice, and maintain a balance between the forces of civilization and the forces of nature. Many of the orc Reaches today can point to monuments or ruins dating back from this age as signs that their heritage on such lands is an ancient one.
 
-In the years following the Tear, orc warriors leveraged their great strength and ability to whip themselves up into a fury to great advantage, creating a well-earned reputation for domination upon the battlefield. Sometimes conquerors, sometimes mercenaries, and sometimes defending their own Reaches against aggressors, orc forces have participated in at least ten of the fifteen Wars of Understone. In the mid 19th century, orc forces from Vell Bardik and Fann Korra joined forces with large contingents of trolls and ogres as well as a smaller number of true giants, sweeping across the plains before eventually meeting a unified force of the Dwarves of Understone at the edge of Jagari Bay.
+In the years following the Tear, orc warriors leveraged their great strength and ability to whip themselves up into a fury to great advantage, creating a well-earned reputation for domination upon the battlefield. Sometimes conquerors, sometimes mercenaries, and sometimes defending their own Reaches against aggressors, orc forces have participated in at least ten of the fifteen Wars of Understone. In the mid 19th century, orc forces from Vell Bardik and Fann Korra joined forces with large contingents of trolls and ogres as well as a smaller number of true giants, sweeping across the plains before eventually meeting a unified force of the [[Dwarves (blurb)|Dwarves]] of Understone at the edge of Jagari Bay.
 
 While some orc warriors of Sorr Bukra joined up with the forces of Estovic during the Estovic Wars (2009-2011 A.T.), there has not been significant war between any of the major Reaches and nations of the Lakes Region in the past fifty years. Regional raiding notwithstanding, many of the Reaches have opened up trade relationships with nearby nations under the Continental Trade Agreement, although as with any nations, such agreements are fragile and subject to change when conditions become extreme.
 
@@ -3103,9 +3103,9 @@ In most of the Reaches, leadership arises through acclaim, and leaders remain in
 It is said that one of the Great Reaches was cursed by the gods – although tales differ as to where it was originally, and whichgods were so offended. Some claim that it was swallowed up in storms and earthquakes, and that ancestral treasures of the orcs still lie beneath. This lost Reach, called Venn Gargath, is thought by even many orcs to be a metaphor; telling of the necessity of piety, and care in dealings with powerful entities.
 
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body63$),
-('peoples-of-the-lakes-region', 'Peoples of the Lakes Region', 'Getting Started', $body64$When first I came to Hoggsport, I had expected – I’m not sure. To see people mostly like the people that I had met in my home village, but more of them, perhaps. Instead, on a busy market day, I was almost overwhelmed by the sheer variety of people; big, small, thin, fat, some with pointed ears, some with thick beards, some with fur or scale, or emerald skin. And perhaps most interesting of all, none of them remarked upon this wonder of diversity, each most engaged with their own business, making their purchases or perhaps commenting upon the unusually clement weather.
+('peoples-of-the-lakes-region', 'Peoples of the Lakes Region', 'Getting Started', $body64$When first I came to [[Hoggsport]], I had expected – I’m not sure. To see people mostly like the people that I had met in my home village, but more of them, perhaps. Instead, on a busy market day, I was almost overwhelmed by the sheer variety of people; big, small, thin, fat, some with pointed ears, some with thick beards, some with fur or scale, or emerald skin. And perhaps most interesting of all, none of them remarked upon this wonder of diversity, each most engaged with their own business, making their purchases or perhaps commenting upon the unusually clement weather.
 
-- Sandvig of Marius The World As a Market Stall (2014)
+- Sandvig of [[Marius]] The World As a Market Stall (2014)
 
 The people of the Lakes Region come in many shapes and sizes. Although most of the various nations dotting the area around the region have a race that far outnumbers the others within that nation, who tend to predominate positions of authority, exceptions often prove the rule, and what may be ‘elven lands’ or ‘gnomish territory’ are often a mosaic of different people from different species who make up the majority of the populace. Not for nothing, kingdoms such as Harodom have noticed that making room for people to bring expertise and wealth that originated in other lands, have helped to make those more inclusive nations stronger. Not everyone may agree, but it is with cause that some tout the coronation of Francis Alexander as the dawn of a new Age of Reason.
 
@@ -3113,7 +3113,7 @@ This is all to say that while some stereotypes may exist about a given species, 
 
 ## Humans
 
-Humans are among the most adaptable of the peoples of the Lakes Region, and are in roles of leadership in the Kingdom of Harodom and the Empire of Michian. Both nations owe some of their traditions, as well as their common trade language to the Empire of Lannick, the first of the great human Empires in this part of the world. Although not restricted or limited in their practice of any of the arts of magic, martial prowess, or trades, humans also do not specifically excel in any either.
+Humans are among the most adaptable of the peoples of the Lakes Region, and are in roles of leadership in the [[Kingdom of Harodom]] and the Empire of Michian. Both nations owe some of their traditions, as well as their common trade language to the Empire of Lannick, the first of the great human Empires in this part of the world. Although not restricted or limited in their practice of any of the arts of magic, martial prowess, or trades, humans also do not specifically excel in any either.
 
 [[Humans]]
 
@@ -3161,7 +3161,7 @@ If there are large, truly permanent Lizardfolk settlements, they are in location
 
 ## Malkin
 
-Refugees from the magically-rich empire of Magedom, the malkin were created as servants to the wizards of that distant land. When a civil war broke out between the powerful wizards, a large population of the malkin fled rather than be embroiled in the conflict, taking the fleet of ships capable of crossing the ocean, and heading to the continent of Ariel. Those malkin that made the long overland journey to the Lakes Region have settled predominantly in Harodom, where they were offered citizen status in exchange for assistance in the war with Eldersire. Seeking a new cultural identity, there are malkin of all walks of life trying new experiences, or relying on the skills that they acquired through a life of forced service.
+Refugees from the magically-rich empire of [[Magedom]], the malkin were created as servants to the wizards of that distant land. When a civil war broke out between the powerful wizards, a large population of the malkin fled rather than be embroiled in the conflict, taking the fleet of ships capable of crossing the ocean, and heading to the continent of Ariel. Those malkin that made the long overland journey to the Lakes Region have settled predominantly in Harodom, where they were offered citizen status in exchange for assistance in the war with Eldersire. Seeking a new cultural identity, there are malkin of all walks of life trying new experiences, or relying on the skills that they acquired through a life of forced service.
 
 [[Malkin]]
 
@@ -3289,7 +3289,7 @@ In the Lakes Region, a vast majority of kereste grows only in Michian; this is b
 
 ## Adamantine
 
-Named for an ancient word for ‘diamond’, stories differ about the original origin of adamantine. Some claim that it is the bones of long-buried titans, being so vast that their bones needed to be unbreakable to support them; others, that Atha wished to prove her will unbreakable, and created the mineral as proof. Whatever the case, mining for adamant ore is painstaking, dangerous if done incautiously, and quite lucrative, because adamantine does not break once forged.
+Named for an ancient word for ‘diamond’, stories differ about the original origin of adamantine. Some claim that it is the bones of long-buried titans, being so vast that their bones needed to be unbreakable to support them; others, that [[Atha]] wished to prove her will unbreakable, and created the mineral as proof. Whatever the case, mining for adamant ore is painstaking, dangerous if done incautiously, and quite lucrative, because adamantine does not break once forged.
 
 As much due to happy coincidence as any dedicated plan, adamantine, which often runs in seams alongside iron, is most commonly found in Harodom within the Lakes Region. Even there, it is difficult to come by; while several mines in Harodom produce it, excess rarely stays on the market for long, and it is believed that the House of Haro retains a strategic supply against future need. Relics made of adamantine are occasionally found in ruins in the region, in roughly the same condition as the day that they were made. While the Harodonian merchant house Toth does not have exclusive license to deal in the material, they do have a supply available at usurious rates.
 
@@ -3297,7 +3297,7 @@ As much due to happy coincidence as any dedicated plan, adamantine, which often 
 
 Otherwise known as mage-bane, mithril bypasses any magic, and cannot be enchanted. In other applications, mithril has been known to neutralize magic, or adjust how it flows, making mithril invaluable to those who wish to affect magical dweomers, to protect themselves against hostile magic, or to assassinate spellcasters who would use magic to protect themselves. Powdered mithril, in minute quantities, is a powerful alchemical reagent in mixtures that banish or store magic, the metal interacting with other ingredients to create differing effects.
 
-Mithril deposits exist in much of the known world, but mining is dangerous, and for obvious reasons, magic that can assist in other mining endeavours cannot be used to prospect for or locate useful veins of ore. As well, the Guild Arcane has a claim to at least some mithril deposits in the various nations of the Lakes Region, and jealously watches for those who would dig up this potent anti-magic mineral, for obvious reasons. Even small mithril articles can fetch hundreds of gold pieces on the open market; when the newly created mining town of Yorik was founded, the celebratory tournament had a mithril maille coif and hauberk as its grand prize. The winner, it is said, was never seen again, presumably having retired in luxury on the strength of the sudden wealth that they had chanced into.
+Mithril deposits exist in much of the known world, but mining is dangerous, and for obvious reasons, magic that can assist in other mining endeavours cannot be used to prospect for or locate useful veins of ore. As well, the Guild Arcane has a claim to at least some mithril deposits in the various nations of the Lakes Region, and jealously watches for those who would dig up this potent anti-magic mineral, for obvious reasons. Even small mithril articles can fetch hundreds of gold pieces on the open market; when the newly created mining town of [[Yorik]] was founded, the celebratory tournament had a mithril maille coif and hauberk as its grand prize. The winner, it is said, was never seen again, presumably having retired in luxury on the strength of the sudden wealth that they had chanced into.
 
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body68$),
 ('stasa', 'Stasa', 'Deities', $body69$The Vengeful Reapers The Followers of Stasa
@@ -3365,7 +3365,7 @@ Principle Holiday: April 21st – Dragon’s Feast Devotion – Overseeing Under
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-25.png)$body71$),
 ('the-broken-reach', 'The Broken Reach', 'Kingdoms & Regions', $body72$The Breaking of the Reach was a cataclysmic event that occurred so close to the end of the Eldersire-Harodom War that it was difficult to believe that the two events were unrelated. Almost overnight, towers fell, towns dissolved, the earth beneath our feet shook, and great noxious gases emerged from holes in the ground, poisoning the earth and causing what grew there thereafter to be strange or sickly or both. It is possible that the denials of the belligerent forces are true – or indeed, that whoever caused the Breaking is now so thoroughly dead from having done so that we might as well treat the event as a force majeure.
 
-- Omaria of Fiona, Some Comments on the Breaking of the Rift (2022 A.T.)
+- Omaria of [[Fiona]], Some Comments on the Breaking of the Rift (2022 A.T.)
 
 Although it was not the cause of the end of the Eldersire-Harodom war, the Breaking of the Reach in 2020 provided a useful tool for those drawing out new lines following the war. With much of the population of the affected area unable to effectively remain there in numbers sufficient for the area to be considered settled by either Harodom or Eldersire, the newly declared no-man’s land had firm rules put into place preventing a military build-up.
 
@@ -3412,7 +3412,7 @@ This means that – among other things – a number of individuals and forces th
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body72$),
 ('the-curtain', 'The Curtain', 'Cosmology & Planes', $body73$What should happen if the Curtain fell? Cataclysm, no doubt, for it is not a barrier as we would envision a wall or a literal curtain, but a very principle of reality that states that two things don’t exist in the same place at the same time. It also keeps demons out, which is, you know… handy.
 
-- The Senior Lecturer on Planar Studies at Hoggsport University, On Stupid Questions (1976 A.T.)
+- The Senior Lecturer on Planar Studies at [[Hoggsport]] University, On Stupid Questions (1976 A.T.)
 
 It is said when the god [[Clovis]] observed the moon-goddess [[Fiona]]‘s transit across the night sky, that he took his sword and cut holes in the Curtain, the barrier that covered all of Ariel and kept it separate from the lands Beyond. But as he did so, a horde of demons spilled forth from these new stars, and so Clovis set his hand to an eternal vigil, stopping the transgress through the curtain. The Outside were bright lands, that illuminated the sky – but the holes were portals.
 
@@ -3473,7 +3473,7 @@ There are some that argue that the Middle Depths deserve to be broken down into 
 
 Real enough wonders and monsters exist to populate the Middle Depths that many have scant patience for such stories. In some regards, the Middle Depths are beautiful; vast caverns of stone, some wet as a rainforest, some dry as a desert, heated by deep geothermal vents, and illuminated by glowing fungi and insects that dot the sky like stars. In places where D’shunn make their homes, magical lighting is not uncommon, for while they can see quite well in the dark, fine detail work is still benefited by having some light.
 
-Here reside the flesh-eating mushrooms and lightning serpents, and creatures more terrible still. It is said that when Kazzok turned his wrath upon the D’shunn, he filled the Middle Reaches with terrors from the night, and from beyond the curtain. Infernals are not uncommon in the Middle Reaches, of many unusual shapes and sizes. Too, there are great insects; the Bullwark Beetle is said to have pincers that can sever a human’s torso with a single blow, and a carapace that can only be pierced from directly behind the beast. The magical field surrounding the shell of the flail snail repels all magic, and the Lethe Moss is a carnivorous plant that encourages slumber upon itself from which sleepers never awake. The [[Undead]] too walk the Middle Reaches, survivors of slain necromancers, or simply unfortunates reanimated by the potent magics of the realm.
+Here reside the flesh-eating mushrooms and lightning serpents, and creatures more terrible still. It is said that when [[Kazzok]] turned his wrath upon the D’shunn, he filled the Middle Reaches with terrors from the night, and from beyond the curtain. Infernals are not uncommon in the Middle Reaches, of many unusual shapes and sizes. Too, there are great insects; the Bullwark Beetle is said to have pincers that can sever a human’s torso with a single blow, and a carapace that can only be pierced from directly behind the beast. The magical field surrounding the shell of the flail snail repels all magic, and the Lethe Moss is a carnivorous plant that encourages slumber upon itself from which sleepers never awake. The [[Undead]] too walk the Middle Reaches, survivors of slain necromancers, or simply unfortunates reanimated by the potent magics of the realm.
 
 Nevertheless, adventurers from the surface sometimes find their way down to the Middle Depths. Apart from treating with the D’Shunn, some of the vast fungal ecoscape of the Depths contain rare materials or components, useful in the creation of strange artifice, or working of powerful magics. Still others seek archaeological finds – among the ruins nestled in the darkest parts of the Depths are said to be the lost Hall of Understone, the throne of the Dwarven Emperor, said to be filled only when all dwarves must go to war as one.
 
@@ -3488,7 +3488,7 @@ Such creatures as can survive here are all but unrecognizable extremophiles, and
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body74$),
 ('the-guild-arcane', 'The Guild Arcane', 'Magic', $body75$Magic, it is said, is a precious resource. Not for its rarity – indeed, there seems no end to those able to work magic though one means or another – but because of itsutility. Those able to call forth light from darkness, make the poisoned waters drinkable, and mend broken tools with a few nonsensical words and a mystical pass could surely command respect and their weight in treasure. In that regard, it is perhaps understandable that a great Guild was formed, such that all of that political and financial power might be better organized…
 
-Cleo of Fiona, A Few Thoughts on the History of the Guild Arcane (written 1903, listed as expurgated by the Guild Arcane, 1904.)
+Cleo of [[Fiona]], A Few Thoughts on the History of the Guild Arcane (written 1903, listed as expurgated by the Guild Arcane, 1904.)
 
 ## The First Grand Guild of the Arcane
 
@@ -3527,7 +3527,7 @@ As Harodom broke from the Guild, other nations where Eldersire’s influence had
 Now, there are Guilds Arcane in most every nation in the Lakes Region, but it may be safely said that the Grand Guild is – for now, and once again – finished. If its authority could be re-established as a truly independent organization, it may once more flourish in the lands of the Lakes, but trust once broken is difficult to rebuild.
 
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body75$),
-('the-history-of-ariel', 'The History of Ariel', 'History', $body76$### The Book Of Foundations – Before The Tear (B.T.)
+('the-history-of-ariel', 'The History of Ariel', 'History', $body76$### The Book Of Foundations – Before [[The Tear]] (B.T.)
 
 The Book of Foundations tells of the creation of the plane of Ariel, the mortal plane. It is unknown when the Book of Foundations was created, who wrote it, or how it was compiled. There are pages that have been found since After the Tear, scattered across Ariel and peppered throughout time. Many have been proven to be forgeries, while others surface only to again disappear for decades or centuries at a time. The length of the Book of Foundations is unknown so it is difficult to surmise if and when someone would have the complete collection, or if such a collection is possible. It is agreed upon, particularly from the few verified pages that have surfaced, that it includes the part each god had played in the creation of Ariel; what is of great curiosity is if there are mentions of any other gods from the beginning that are unknown today.
 
@@ -3560,7 +3560,7 @@ Authored by: Jared Hindle Fantasy Alive Lore Team 2022 Copyright © Endless Adve
 
 ## FIRST AMONG THE GODS
 
-First among the gods, Elieff emerged from the veil precisely when they were meant to; only they know when or if they will return to it. With their far reaching divinity they used their mastery of light and dark power to craft the High Gods from the very fabric of the Veil, first of their children and heirs to their throne. The gods created are complicated, harnessing both light and darkness within them as a result. Thus began the true formation of the pantheon.
+First among the gods, [[Elieff]] emerged from the veil precisely when they were meant to; only they know when or if they will return to it. With their far reaching divinity they used their mastery of light and dark power to craft the High Gods from the very fabric of the Veil, first of their children and heirs to their throne. The gods created are complicated, harnessing both light and darkness within them as a result. Thus began the true formation of the pantheon.
 
 ## HIGH GODS
 
@@ -3586,7 +3586,7 @@ The Mortal Gods, also sometimes called Patrons, are [[Astrid]], [[Brack]], [[Hem
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/IMG_5190-1024x768.jpg float-right)
 
-The Church of All Gods in the Herodom town of Yorik famously acknowledges all of the gods and their place in the pantheon. While those gods whos worship is illegal are still present, their status as banned is represented by black banners where their legal counterparts are white. This church also recognizes gods, or godlike beings, who cannot truly be worshiped, at least not by most people.
+The Church of All Gods in the Herodom town of [[Yorik]] famously acknowledges all of the gods and their place in the pantheon. While those gods whos worship is illegal are still present, their status as banned is represented by black banners where their legal counterparts are white. This church also recognizes gods, or godlike beings, who cannot truly be worshiped, at least not by most people.
 
 ![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/11/20231028_150201-1024x700.jpg)
 
@@ -3609,7 +3609,7 @@ Authored by: Jared Hindle and Shoshana Watson Fantasy Alive Lore Team 2023 Copyr
 
 ## EXISTENCE OF PLANES
 
-Planes exist in all forms and manners, each exemplifying a particular aspect. Most every plane has creatures indigenous to it that embody that aspect of the plane they belong to. Though interconnected these realms appear to exist in unison with one another and portals or other magics are required to go from one to another. These planes are all separated by what is called The Veil, also referred to as The Curtain. Whichever plane a creature is indigenous to, referred to as anchored, is where they will return if killed while in another plane; however when killed on another plane a person’s body and spirit will return to their anchored plane, not their items or other inanimate objects.
+Planes exist in all forms and manners, each exemplifying a particular aspect. Most every plane has creatures indigenous to it that embody that aspect of the plane they belong to. Though interconnected these realms appear to exist in unison with one another and portals or other magics are required to go from one to another. These planes are all separated by what is called The Veil, also referred to as [[The Curtain]]. Whichever plane a creature is indigenous to, referred to as anchored, is where they will return if killed while in another plane; however when killed on another plane a person’s body and spirit will return to their anchored plane, not their items or other inanimate objects.
 
 ## DOMAINS IN PLANES
 
@@ -3625,7 +3625,7 @@ The elemental planes are all linked to its appropriate, corresponding god. Summo
 
 ## THE FAE PLANE
 
-Home to the Fae, this plane is said to have been first created by the gods, much like the Mortal Plane, while simultaneously claimed by the Fae it has always existed without the gods. The inhabitants of this plane are imbued with magics that work extremely differently than other beings and whose properties appear entirely foreign in concept. Immortal beings themselves, the Fae Realm appears to have some sort of connection to the Mortal Realm, but the exact manner of which is unknown.
+Home to the [[Fae]], this plane is said to have been first created by the gods, much like the Mortal Plane, while simultaneously claimed by the Fae it has always existed without the gods. The inhabitants of this plane are imbued with magics that work extremely differently than other beings and whose properties appear entirely foreign in concept. Immortal beings themselves, the Fae Realm appears to have some sort of connection to the Mortal Realm, but the exact manner of which is unknown.
 
 ## THE MORTAL PLANE- ARIEL
 
@@ -3702,7 +3702,7 @@ The school of Mind magic is concerned with spells that target a person’s thoug
 
 Summoning
 
-The school of Summoning studies the permeability of The Curtain and uses magic to shunt beings from one side to the other. This school lacks the diversity of spells the other schools  enjoy but enables the caster to pull greater and more powerful entities though under their command.
+The school of Summoning studies the permeability of [[The Curtain]] and uses magic to shunt beings from one side to the other. This school lacks the diversity of spells the other schools  enjoy but enables the caster to pull greater and more powerful entities though under their command.
 
 Each school of magic has a variety of spells associated with it, and Arcane Researchers are capable of specializing in areas of research. Each school of magic also has an opposite school of magic whose magical energies are somewhat contradictory to each other. if a Researcher specializes in one area of research, they often find it harder to fully understand the opposite area of study. Below is a chart of the schools of magic and their opposite schools.
 
@@ -3796,7 +3796,7 @@ In truth, this is not one nation at all, but a number of them. They are the Sout
 
 ## Geography
 
-The Southern Kingdoms are bordered to the north by the Atair Desert, a large but navigable desert in the rain shadow of the Great Range of Atha, a mountain range that stretches most of the way up to Splishenfellow. Although the desert doesn’t follow the mountain range all the way north, it is broad enough to prevent northern aggression against the necromantic lands. To the south of the Southern Kingdoms, a gulf provides free range of the seas for several tropical nations who maintain their borders against the necromancers jealously. Further south even than this, thick jungle prevents the ingress even of the undead – the locals know how to navigate the jungle’s perils, but the shock troops of an ambitious necromancer have no such knowledge.
+The Southern Kingdoms are bordered to the north by the Atair Desert, a large but navigable desert in the rain shadow of the Great Range of [[Atha]], a mountain range that stretches most of the way up to Splishenfellow. Although the desert doesn’t follow the mountain range all the way north, it is broad enough to prevent northern aggression against the necromantic lands. To the south of the Southern Kingdoms, a gulf provides free range of the seas for several tropical nations who maintain their borders against the necromancers jealously. Further south even than this, thick jungle prevents the ingress even of the undead – the locals know how to navigate the jungle’s perils, but the shock troops of an ambitious necromancer have no such knowledge.
 
 The Eastern Ocean hems the final border of the Southern Kingdoms neatly. Some of the kingdoms, which maintain trade with other nations, employ living sailors to carry trade goods and foodstuffs along the coastline. Although ships flying the flag of this bloc of nations are treated with suspicion, the quantity and quality of the goods exported is sufficient that ‘suspicion’ is the upper limit to the aggression that such nations show to these vessels. In turn, the Southern Kingdoms import foods and luxury goods that help to keep their living populations appeased.
 
@@ -3820,7 +3820,7 @@ The Southern Kingdoms are, in order of size of controlled lands:
 
 ## Culture
 
-Although it would be reductive to claim that all of the bloc of Southern Kingdoms shared a single set of cultural touchstones, there are some commonalities between them. Within the region, worship of [[Jerroh]] is restricted, and worship of [[Stasa]] encouraged. Most of the other gods have their advocates and detractors, although Astrid, as the demigod of thieves, is still quite strictly forbidden (as even the necromancers like to retain all of their possessions, and guard some of them quite jealously).
+Although it would be reductive to claim that all of the bloc of Southern Kingdoms shared a single set of cultural touchstones, there are some commonalities between them. Within the region, worship of [[Jerroh]] is restricted, and worship of [[Stasa]] encouraged. Most of the other gods have their advocates and detractors, although [[Astrid]], as the demigod of thieves, is still quite strictly forbidden (as even the necromancers like to retain all of their possessions, and guard some of them quite jealously).
 
 Art that emerges from the Southern Kingdoms tends to be highly classical in nature, with accurate and literal depictions of objects and scenery. Music seems to come in two groups; the more ‘cultured’ appreciating carefully paced numbers evoking a Golden Age aesthetic of order and control, and the music of the people, which seems more vibrant, chaotic, and desperate to prove its life. Perhaps fittingly, there is a popular underground movement that has arisen in the last twenty years or so, celebrating ‘The Grinning Fox’, a folk hero whose deeds have inspired others to stand up to the undead and their masters.
 
@@ -3833,7 +3833,7 @@ The Southern Kingdom is fairly diverse in terms of species, although they have f
 Perhaps more unusual, something about the Southern Kingdoms has created an unusual effect in a portion of its population; a tendency toward yellow irises. This trait shows up most often in those with a natural predisposition toward spirit sense, and, at least within continental Ariel, seems to be unique to something about the Southern Kingdoms, as only people from that location have this trait with any regularity.
 
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body81$),
-('the-tear', 'The Tear', 'Kingdoms & Regions', $body82$“What do we know of the Tear? Well, if all of the speculation, contrivance, blue-sky guessing, and assumptions that have been made about the Tear were an ocean, we would have approximately a thimble of knowledge.” – Calbrixi of Fiona, The Tear (1997 A.T.)
+('the-tear', 'The Tear', 'Kingdoms & Regions', $body82$“What do we know of the Tear? Well, if all of the speculation, contrivance, blue-sky guessing, and assumptions that have been made about the Tear were an ocean, we would have approximately a thimble of knowledge.” – Calbrixi of [[Fiona]], The Tear (1997 A.T.)
 
 Although there have been many events in the history of the world of Fantasy Alive that have rocked the world, perhaps the most consequential that can be recalled is the Tear. A magical and natural cataclysm of unmatched proportions, the cause of this event – and its exact nature – are much disputed. What records survived the Tear and the era of warring survivors that followed conflict, and contain little technical detail.
 
@@ -3878,7 +3878,7 @@ Where nations had fallen, new nations – some claiming a lineage from their pre
 
 ## The End of the Twins
 
-In 1999 A.T., explorers, prospectors, and scouts from the Kingdom of Harodom found substantial iron deposits in the area that would become known as the town of [[Yorik]]. Simultaneously, they found something else: a massive city, ancient by the standards of humans, haunted by potent undead and infernal forces. Within, the Twins still dwelt, Sarna having become a Lich, and Tivolous, a magically enhanced wraith. In order to justify a garrison, mines were built in the region, in accord with minotaur nomads who had also found the area rich ground for mining.
+In 1999 A.T., explorers, prospectors, and scouts from the [[Kingdom of Harodom]] found substantial iron deposits in the area that would become known as the town of [[Yorik]]. Simultaneously, they found something else: a massive city, ancient by the standards of humans, haunted by potent undead and infernal forces. Within, the Twins still dwelt, Sarna having become a Lich, and Tivolous, a magically enhanced wraith. In order to justify a garrison, mines were built in the region, in accord with minotaur nomads who had also found the area rich ground for mining.
 
 Over the next twenty years, the Twins, able to send occasional emissaries or manifestations to the surface, battled one another and the adventurers that settled in Yorik. In 2022, these battles finally came to a head, with both Sarna and Tivolous being finally defeated using enormously powerful magic called upon by the Adventurers of Yorik, and it is suspected, the direct intervention of at least one god.
 
@@ -3971,7 +3971,7 @@ Some rare creatures can also be sources for [[Components]], although collecting 
 Authored by: Andrew Dunlop Fantasy Alive Lore Team 2026 Copyright © Endless Adventures Ontario$body85$),
 ('undead', 'Undead', 'Other Beings', $body86$They must have been very surprised, they who first saw the dead rise and walk again, not living anew, but still visibly deceased. To those whom the idea has merely been described, it is – disquieting, perhaps, but the shock of seeing bones, absent skin and muscle, tendon and flesh, puppeted by strange magics… it does not convey through words alone. Yes, they must have been very surprised indeed.
 
-- Antioch of Jerroh, Sermon on the Scourge of Undeath (1745 A.T.)
+- Antioch of [[Jerroh]], Sermon on the Scourge of Undeath (1745 A.T.)
 
 Though not seen everywhere, Undead are a common threat to the living throughout the Lakes Region. Animated corpses given motion and some agency through magic that moves them like puppets, and trapped and tormented spirits, the undead may be found anywhere that the dead lie. Although most undead are made from bipedal humanoids, there is no theoretical limit.
 
@@ -4059,13 +4059,13 @@ Those encountering a written language that they do not understand can magically 
 
 - D’shunn Writings use the High Elven alphabet, but include accents as well as an interesting use of punctuation, which helps them stretch nuance and subtlety into what in the base script would be plain speech. Truly formal D’shunn calligraphy requires the use of inks which are only visible in differing light conditions.
 
-- Lizardfolk Glyphsare used only by those Lizardfolk who pursue academic paths, such as alchemists, sorcerers, or theologians. More resembling hieroglyphics than a phonetic script, explorers have come away from trade negotiations with bemused Lizardfolk thinking that they have just purchased an artwork, instead of an ingredients list for a favourite dinner.
+- [[Lizardfolk]] Glyphsare used only by those Lizardfolk who pursue academic paths, such as alchemists, sorcerers, or theologians. More resembling hieroglyphics than a phonetic script, explorers have come away from trade negotiations with bemused Lizardfolk thinking that they have just purchased an artwork, instead of an ingredients list for a favourite dinner.
 
 - Goblin Sigil is a complex written language usually read from right to left. A spidery phonetic language, much of the body of Goblin writings rely heavily on cultural idiom, and it is not uncommon for sentences that (to the writer) clearly allude to a cultural touchstone to go unfinished, as the writer assumes that anyone with any business reading them will understand.
 
 - Orcsign is a non-serifed script with simple, non-mirroring characters, with words and lines of text well-spaced. Orc scouts will often learn some basic orcsign, as a few basic words can inform those that follow of nearby dangers or possible opportunities – and most who assume that orcs do little writing of their own will overlook that information, to their detriment.
 
-- The Malkin settlers who have come to the Lakes Region have a higher-than-average literacy rate, but tend to be able to either read and write Harodonian Common, or a seemingly antiquated dialect of Elvish apparently more common in Magedom.
+- The [[Malkin]] settlers who have come to the Lakes Region have a higher-than-average literacy rate, but tend to be able to either read and write Harodonian Common, or a seemingly antiquated dialect of Elvish apparently more common in [[Magedom]].
 
 - High and Low Minotaur are a paired language, given a great deal of weight by artists and poets among the minotaurs. The High language uses a different but related script from the Low, and High Minotaur is traditionally only used for matters of great import – the discussions of scholars, or declarations of leaders. Low Minotaur is far more commonly learned, and deigns to be used for grocery lists and common conversation.
 
@@ -4120,7 +4120,7 @@ Although listing all of the stories of adventure that occurred in Yorik would ta
 
 - A rebellion against the crown in 2005 A.T. was soundly defeated by the efforts of irregular forces residing in the Yorik region.
 
-- For reasons not entirely clear, the gods Stasa and Callis briefly experienced a considerable loss of power. Rumours whisper that efforts by Yorik inhabitants somehow reversed this.
+- For reasons not entirely clear, the gods [[Stasa]] and [[Callis]] briefly experienced a considerable loss of power. Rumours whisper that efforts by Yorik inhabitants somehow reversed this.
 
 - Cultists of the Greater Infernal Malabaskamakar were discovered in great numbers in the Yorik region, working to call forth their infernal patron.
 
@@ -4130,31 +4130,31 @@ Although listing all of the stories of adventure that occurred in Yorik would ta
 
 - Following the end of the Michian War, heroes from Yorik were involved in early skirmishes with the Bear Men of Estovic.
 
-- Yorik hosted the first contingent of ambassadors from the far-off island nation of Magedom to Harodom.
+- Yorik hosted the first contingent of ambassadors from the far-off island nation of [[Magedom]] to Harodom.
 
-- Yorik forces found and liberated the demigod Hemulis from imprisonment by forces of Estovic; the god takes vengeance upon his former captors, effectively ending the Estovic War.
+- Yorik forces found and liberated the demigod [[Hemulis]] from imprisonment by forces of Estovic; the god takes vengeance upon his former captors, effectively ending the Estovic War.
 
 - Former Duke Jagari of Gelrich is stripped of his noble titles and sentenced to finishment by execution within Yorik. Baron Gregory Hayden of Yorik is named the new Duke of Gelrich.
 
 - A powerful dragon named Timnaeousappears in the areas in and around Yorik.
 
-- The god Bard was awoken from slumber by heroes of Yorik, to prevent the ascension of the godling Marowit who sought to gain power by consuming her in her sleep.
+- The god [[Bard]] was awoken from slumber by heroes of Yorik, to prevent the ascension of the godling Marowit who sought to gain power by consuming her in her sleep.
 
 - Yorik was once again at the centre of a major conflict with a wrathful Greater Being known as the Wilder: through the unleashing of powerful magic, the Wilder is undone.
 
 - A contingent of Harodom forces led by a noble party from Yorik headed to Michian to fight an escaped lich.
 
-- Rumours of a plague, centred around the area of Yorik, effectively throttled major trade routes between Stelton and Hoggsport.
+- Rumours of a plague, centred around the area of Yorik, effectively throttled major trade routes between [[Stelton]] and [[Hoggsport]].
 
 - Forces from Yorik did battle with Valikar the Immortal-Killer, who sought to dethrone the gods, and murdered countless Harodom regular forces. They were triumphant, and Valikar disappeared, with the appearance of a being known as the Guardian.
 
 - Hemulite faithful railed against Yorik, seeking to impart some dire message to its inhabitants.
 
-- Powerful spellcasting infernals in service to Sasha appearing and acting around Yorik, made their presence known at the same time as a Spell Plague which threatened all casters. The demons slew many of the leaders of the Guild Arcane.
+- Powerful spellcasting infernals in service to [[Sasha]] appearing and acting around Yorik, made their presence known at the same time as a Spell Plague which threatened all casters. The demons slew many of the leaders of the Guild Arcane.
 
 - The Twins, Sarna and Tivolous, threatened escape from their underground Undercity prison. The forces of Yorik were able to fight them back, and ultimately defeated both of the ancient horrors. The Undercity remained a perilous place, filled with undead and monsters, but the tale of the Twins came to an end.
 
-- The unearthing of an Undead Dracolych, a powerful life-stealing monster, led to a flight of dragon sightings in the area of Yorik, as dragons and mortals alike battled the ancient undead.
+- The unearthing of an [[Undead]] Dracolych, a powerful life-stealing monster, led to a flight of dragon sightings in the area of Yorik, as dragons and mortals alike battled the ancient undead.
 
 - Massive earthquakeswracked the area around Yorik, as ancient Kazzokian forces representing primordial fears threatened to bring about an end to civilized life within the Lakes Region.
 
