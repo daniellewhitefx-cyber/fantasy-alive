@@ -7,7 +7,7 @@ const LORE_IMAGE_BUCKET = 'lore-images';
 async function loreLoadEntries(){
   const { data, error } = await loreSupabase
     .from('lore_entries')
-    .select('id, slug, title, category, body, updated_at')
+    .select('id, slug, title, category, body, body_format, updated_at')
     .order('title', { ascending: true });
   if(error) throw error;
   return data || [];
@@ -28,7 +28,7 @@ function loreSlugify(title){
     .slice(0, 80) || 'entry';
 }
 
-async function loreCreateEntry({ title, category, body }){
+async function loreCreateEntry({ title, category, body, body_format }){
   const baseSlug = loreSlugify(title);
   let slug = baseSlug;
   let attempt = 1;
@@ -41,16 +41,16 @@ async function loreCreateEntry({ title, category, body }){
   }
   const { data: session } = await loreSupabase.auth.getSession();
   const { error: insertError } = await loreSupabase.from('lore_entries').insert({
-    slug, title, category, body,
+    slug, title, category, body, body_format: body_format || 'markdown',
     created_by: session.session ? session.session.user.id : null
   });
   if(insertError) throw insertError;
 }
 
-async function loreUpdateEntry(id, { title, category, body }){
+async function loreUpdateEntry(id, { title, category, body, body_format }){
   const { error } = await loreSupabase
     .from('lore_entries')
-    .update({ title, category, body, updated_at: new Date().toISOString() })
+    .update({ title, category, body, body_format: body_format || 'markdown', updated_at: new Date().toISOString() })
     .eq('id', id);
   if(error) throw error;
 }
@@ -148,6 +148,148 @@ function loreInline(escapedText, ownTitle, allTitles, linkedSoFar){
     return `<a href="${cleanUrl}" target="_blank" rel="noopener">${text}</a>`;
   });
   return out;
+}
+
+const LORE_HTML_ALLOWED_TAGS = {
+  P: [], BR: [], B: [], STRONG: [], I: [], EM: [], U: [],
+  H2: [], H3: [], H4: [],
+  UL: [], OL: [], LI: [],
+  BLOCKQUOTE: [], CITE: [],
+  TABLE: [], THEAD: [], TBODY: [], TR: [], TH: [], TD: [],
+  IMG: ['src', 'alt', 'style'],
+  FIGURE: ['style'], FIGCAPTION: [],
+  A: ['href', 'target', 'rel', 'onclick'],
+  DIV: ['style'], SPAN: ['style']
+};
+
+const LORE_SAFE_STYLE_PROPS = new Set([
+  'width', 'max-width', 'height', 'float', 'text-align',
+  'margin', 'margin-left', 'margin-right', 'margin-top', 'margin-bottom'
+]);
+
+function loreSanitizeStyle(styleText){
+  const out = [];
+  String(styleText || '').split(';').forEach(decl => {
+    const idx = decl.indexOf(':');
+    if(idx === -1) return;
+    const prop = decl.slice(0, idx).trim().toLowerCase();
+    const value = decl.slice(idx + 1).trim();
+    if(!LORE_SAFE_STYLE_PROPS.has(prop)) return;
+    if(!/^[a-zA-Z0-9%.\-\s]+$/.test(value)) return;
+    out.push(`${prop}: ${value}`);
+  });
+  return out.join('; ');
+}
+
+function loreSanitizeElement(node){
+  const tag = node.tagName;
+  const allowedAttrs = LORE_HTML_ALLOWED_TAGS[tag];
+  if(allowedAttrs === undefined){
+    const parent = node.parentNode;
+    if(!parent) return;
+    while(node.firstChild) parent.insertBefore(node.firstChild, node);
+    parent.removeChild(node);
+    return;
+  }
+  Array.from(node.attributes).forEach(attr => {
+    const name = attr.name.toLowerCase();
+    if(!allowedAttrs.includes(name)){
+      node.removeAttribute(attr.name);
+      return;
+    }
+    if((name === 'href' || name === 'src') && !loreIsSafeUrl(attr.value)){
+      node.removeAttribute(attr.name);
+      return;
+    }
+    if(name === 'style'){
+      node.setAttribute('style', loreSanitizeStyle(attr.value));
+    }
+    if(name === 'onclick' && !/^return lore_goto\('[^']*'\)$/.test(attr.value)){
+      node.removeAttribute('onclick');
+    }
+  });
+  if(tag === 'A'){
+    node.setAttribute('rel', 'noopener');
+    const href = node.getAttribute('href');
+    if(href && href !== '#') node.setAttribute('target', '_blank');
+  }
+}
+
+function loreSanitizeHtml(html){
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = String(html || '');
+  Array.from(wrapper.querySelectorAll('*')).forEach(loreSanitizeElement);
+  return wrapper.innerHTML;
+}
+
+function loreAutoLinkHtmlNode(root, ownTitle, allTitles){
+  if(!ownTitle || !allTitles || !allTitles.length) return;
+
+  const linked = new Set();
+  root.querySelectorAll('a[onclick^="return lore_goto"]').forEach(a => {
+    const m = a.getAttribute('onclick').match(/lore_goto\('([^']*)'\)/);
+    if(m) linked.add(m[1].toLowerCase());
+  });
+
+  const candidates = allTitles
+    .filter(t => t && t.toLowerCase() !== ownTitle.toLowerCase())
+    .map(t => ({ title: t, term: loreAutoLinkTerm(t) }))
+    .filter(c => c.term)
+    .sort((a, b) => b.term.length - a.term.length);
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(n){
+      let p = n.parentNode;
+      while(p && p !== root){
+        if(p.nodeName === 'A') return NodeFilter.FILTER_REJECT;
+        p = p.parentNode;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const textNodes = [];
+  let walked;
+  while((walked = walker.nextNode())) textNodes.push(walked);
+
+  textNodes.forEach(startNode => {
+    let textNode = startNode;
+    for(const { title, term } of candidates){
+      if(linked.has(title.toLowerCase())) continue;
+      const text = textNode.nodeValue;
+      if(!text || !text.trim()) continue;
+      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const match = new RegExp(escapedTerm).exec(text);
+      if(!match) continue;
+      const start = match.index;
+      const end = start + match[0].length;
+      const before = start > 0 ? text[start - 1] : ' ';
+      const after = end < text.length ? text[end] : ' ';
+      if(/[a-z0-9]/i.test(before) || /[a-z0-9]/i.test(after)) continue;
+
+      const parent = textNode.parentNode;
+      if(!parent) continue;
+      const afterNode = document.createTextNode(text.slice(end));
+      const link = document.createElement('a');
+      link.setAttribute('href', '#');
+      link.setAttribute('onclick', `return lore_goto('${title.replace(/'/g, "\\'")}')`);
+      link.textContent = text.slice(start, end);
+
+      parent.insertBefore(document.createTextNode(text.slice(0, start)), textNode);
+      parent.insertBefore(link, textNode);
+      parent.insertBefore(afterNode, textNode);
+      parent.removeChild(textNode);
+
+      linked.add(title.toLowerCase());
+      textNode = afterNode;
+    }
+  });
+}
+
+function loreRenderHtmlBody(html, ownTitle, allTitles){
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = loreSanitizeHtml(html);
+  loreAutoLinkHtmlNode(wrapper, ownTitle, allTitles);
+  return wrapper.innerHTML;
 }
 
 function loreParseImageLine(line){
@@ -253,3 +395,5 @@ window.loreDeleteEntry = loreDeleteEntry;
 window.loreUploadImage = loreUploadImage;
 window.loreParseMarkup = loreParseMarkup;
 window.loreEscapeHtml = loreEscapeHtml;
+window.loreSanitizeHtml = loreSanitizeHtml;
+window.loreRenderHtmlBody = loreRenderHtmlBody;

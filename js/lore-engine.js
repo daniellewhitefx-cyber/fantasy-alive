@@ -14,7 +14,9 @@ async function loadAllArticles(){
   const allTitles = rows.map(row => row.title);
   articles = rows.map(row => ({
     ...row,
-    html: loreParseMarkup(row.body, row.title, allTitles),
+    html: row.body_format === 'html'
+      ? loreRenderHtmlBody(row.body, row.title, allTitles)
+      : loreParseMarkup(row.body, row.title, allTitles),
     key: row.id
   }));
 }
@@ -175,15 +177,27 @@ function renderAddButton(){
     : '';
 }
 
+let richSelectedImage = null;
+let richHandleEl = null;
+let richImgToolbarEl = null;
+let richResizeStart = null;
+
 function lore_openEditor(key){
   const existing = key ? articles.find(a => a.key === key) : null;
   const modal = document.getElementById('lore-editor-modal');
 
   const categories = [...new Set([...CATEGORY_ORDER, ...articles.map(a => a.category)])];
 
+  let seedHtml = '';
+  if(existing){
+    seedHtml = existing.body_format === 'html'
+      ? loreSanitizeHtml(existing.body)
+      : loreParseMarkup(existing.body, existing.title, articles.map(a => a.title));
+  }
+
   modal.innerHTML = `
     <div class="lore-modal-backdrop" onclick="lore_closeEditor()"></div>
-    <div class="lore-modal">
+    <div class="lore-modal lore-modal-wide">
       <h3>${existing ? 'Edit Entry' : 'Add Entry'}</h3>
 
       <label class="lore-field-label" for="lore-edit-title">Title</label>
@@ -195,29 +209,31 @@ function lore_openEditor(key){
         ${categories.map(c => `<option value="${loreEscapeHtml(c)}">`).join('')}
       </datalist>
 
-      <label class="lore-field-label" for="lore-edit-body">Content</label>
+      <label class="lore-field-label">Content</label>
+      <div class="lore-rich-toolbar">
+        <button type="button" class="lore-rich-btn" title="Bold" onmousedown="event.preventDefault()" onclick="lore_richExec('bold')"><b>B</b></button>
+        <button type="button" class="lore-rich-btn" title="Italic" onmousedown="event.preventDefault()" onclick="lore_richExec('italic')"><i>I</i></button>
+        <span class="lore-rich-sep"></span>
+        <button type="button" class="lore-rich-btn" title="Heading" onmousedown="event.preventDefault()" onclick="lore_richExec('formatBlock', 'H3')">H3</button>
+        <button type="button" class="lore-rich-btn" title="Subheading" onmousedown="event.preventDefault()" onclick="lore_richExec('formatBlock', 'H4')">H4</button>
+        <button type="button" class="lore-rich-btn" title="Paragraph text" onmousedown="event.preventDefault()" onclick="lore_richExec('formatBlock', 'P')">&para;</button>
+        <span class="lore-rich-sep"></span>
+        <button type="button" class="lore-rich-btn" title="Bullet list" onmousedown="event.preventDefault()" onclick="lore_richExec('insertUnorderedList')">&bull; List</button>
+        <button type="button" class="lore-rich-btn" title="Numbered list" onmousedown="event.preventDefault()" onclick="lore_richExec('insertOrderedList')">1. List</button>
+        <button type="button" class="lore-rich-btn" title="Quote" onmousedown="event.preventDefault()" onclick="lore_richExec('formatBlock', 'BLOCKQUOTE')">&ldquo;Quote&rdquo;</button>
+        <span class="lore-rich-sep"></span>
+        <button type="button" class="lore-rich-btn" title="Insert table" onmousedown="event.preventDefault()" onclick="lore_richInsertTable()">Table</button>
+        <button type="button" class="lore-rich-btn" title="Insert link" onmousedown="event.preventDefault()" onclick="lore_richInsertLink()">Link</button>
+        <button type="button" class="lore-rich-btn" title="Insert image" onmousedown="event.preventDefault()" onclick="document.getElementById('lore-edit-image-file').click()">Image</button>
+        <input type="file" id="lore-edit-image-file" accept="image/*" style="display:none" onchange="lore_richHandleFileInput(this)">
+      </div>
       <div class="lore-editor-help">
-        Blank line = new paragraph &bull; <code>## Heading</code> &bull; <code>&gt; quote</code> then <code>&gt; -- who said it</code> &bull;
-        <code>[[Other Article]]</code> to link another entry (or <code>[[Other Article|display text]]</code> to show
-        different text) &bull; <code>[text](url)</code> for a link &bull;
-        <code>![alt](image url)</code> for an image &bull; <code>~ credit line</code><br>
-        Image layout: add <code>float-left</code>, <code>float-right</code>, or <code>small</code> after the image url (and after
-        the caption, if there is one) to make it smaller and sit beside the text instead of full-width, e.g.
-        <code>![alt](image url float-left)</code>
+        Type like a normal document &bull; drag and drop or paste an image straight into the box &bull;
+        click an image to resize it (drag the corner handle) or change how text wraps around it &bull;
+        mentioning another lore article by name links it automatically, no need to do anything special.
       </div>
-      <textarea id="lore-edit-body" rows="14">${existing ? loreEscapeHtml(existing.body) : ''}</textarea>
-
-      <div class="lore-editor-image-row">
-        <input type="file" id="lore-edit-image-file" accept="image/*">
-        <select id="lore-edit-image-layout">
-          <option value="">Full width</option>
-          <option value="float-left">Float left (small)</option>
-          <option value="float-right">Float right (small)</option>
-          <option value="small">Small, centered</option>
-        </select>
-        <button class="lore-editor-btn" onclick="lore_uploadImageIntoBody()">Upload Image</button>
-        <span id="lore-edit-image-status"></span>
-      </div>
+      <div id="lore-edit-body-rich" class="lore-rich-editor" contenteditable="true">${seedHtml}</div>
+      <span id="lore-edit-image-status"></span>
 
       <p class="lore-editor-error" id="lore-edit-error" style="display:none;"></p>
 
@@ -228,41 +244,227 @@ function lore_openEditor(key){
     </div>
   `;
   modal.style.display = 'block';
+
+  const richEditor = document.getElementById('lore-edit-body-rich');
+  richEditor.addEventListener('dragover', lore_richDragOver);
+  richEditor.addEventListener('drop', lore_richDrop);
+  richEditor.addEventListener('paste', lore_richPaste);
+  richEditor.addEventListener('click', lore_richEditorClick);
+  document.addEventListener('scroll', lore_richRepositionHandle, true);
+  window.addEventListener('resize', lore_richRepositionHandle);
 }
 
 function lore_closeEditor(){
+  lore_richDeselectImage();
+  if(richHandleEl){ richHandleEl.remove(); richHandleEl = null; }
+  if(richImgToolbarEl){ richImgToolbarEl.remove(); richImgToolbarEl = null; }
+  document.removeEventListener('scroll', lore_richRepositionHandle, true);
+  window.removeEventListener('resize', lore_richRepositionHandle);
   const modal = document.getElementById('lore-editor-modal');
   modal.style.display = 'none';
   modal.innerHTML = '';
 }
 
-async function lore_uploadImageIntoBody(){
-  const fileInput = document.getElementById('lore-edit-image-file');
-  const status = document.getElementById('lore-edit-image-status');
-  const file = fileInput.files[0];
-  if(!file){
-    status.textContent = 'Choose a file first.';
+function lore_richExec(cmd, value){
+  document.getElementById('lore-edit-body-rich').focus();
+  document.execCommand(cmd, false, value || null);
+}
+
+function lore_richInsertTable(){
+  const rows = parseInt(prompt('How many rows?', '2'), 10);
+  if(!rows || rows < 1) return;
+  const cols = parseInt(prompt('How many columns?', '2'), 10);
+  if(!cols || cols < 1) return;
+  let html = '<table><thead><tr>';
+  for(let c = 0; c < cols; c++) html += '<th>Header</th>';
+  html += '</tr></thead><tbody>';
+  for(let r = 0; r < rows; r++){
+    html += '<tr>';
+    for(let c = 0; c < cols; c++) html += '<td>&nbsp;</td>';
+    html += '</tr>';
+  }
+  html += '</tbody></table><p><br></p>';
+  document.getElementById('lore-edit-body-rich').focus();
+  document.execCommand('insertHTML', false, html);
+}
+
+function lore_richInsertLink(){
+  const url = (prompt('Link URL (https://...)') || '').trim();
+  if(!url) return;
+  if(!loreIsSafeUrl(url)){
+    alert("That URL isn't allowed.");
     return;
   }
-  status.textContent = 'Uploading...';
+  const richEditor = document.getElementById('lore-edit-body-rich');
+  richEditor.focus();
+  const sel = document.getSelection();
+  if(sel && sel.toString().trim()){
+    document.execCommand('createLink', false, url);
+  } else {
+    document.execCommand('insertHTML', false, `<a href="${loreEscapeHtml(url)}">${loreEscapeHtml(url)}</a>`);
+  }
+}
+
+async function lore_richInsertImageFile(file){
+  const status = document.getElementById('lore-edit-image-status');
+  if(!file || !file.type || !file.type.startsWith('image/')) return;
+  status.textContent = 'Uploading image...';
   try{
     const url = await loreUploadImage(file);
-    const layout = document.getElementById('lore-edit-image-layout').value;
-    const textarea = document.getElementById('lore-edit-body');
-    const markup = `![${file.name.replace(/\.[^.]+$/, '')}](${url}${layout ? ' ' + layout : ''})`;
-    const pos = textarea.selectionStart || textarea.value.length;
-    textarea.value = textarea.value.slice(0, pos) + '\n\n' + markup + '\n\n' + textarea.value.slice(pos);
-    status.textContent = 'Image added below - move the line if you want it elsewhere.';
-    fileInput.value = '';
+    const richEditor = document.getElementById('lore-edit-body-rich');
+    richEditor.focus();
+    document.execCommand('insertHTML', false, `<img src="${loreEscapeHtml(url)}" alt="" style="width: 100%;">`);
+    status.textContent = '';
   } catch(err){
-    status.textContent = 'Upload failed. Try again.';
+    status.textContent = 'Image upload failed. Try again.';
   }
+}
+
+function lore_richHandleFileInput(input){
+  const file = input.files[0];
+  input.value = '';
+  if(file) lore_richInsertImageFile(file);
+}
+
+function lore_richDragOver(e){
+  e.preventDefault();
+}
+
+function lore_richDrop(e){
+  if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length){
+    e.preventDefault();
+    lore_richInsertImageFile(e.dataTransfer.files[0]);
+    return;
+  }
+  if(e.dataTransfer){
+    e.preventDefault();
+    const text = e.dataTransfer.getData('text/plain');
+    if(text) document.execCommand('insertText', false, text);
+  }
+}
+
+function lore_richPaste(e){
+  const items = e.clipboardData && e.clipboardData.items;
+  if(items){
+    for(const item of items){
+      if(item.type && item.type.startsWith('image/')){
+        e.preventDefault();
+        lore_richInsertImageFile(item.getAsFile());
+        return;
+      }
+    }
+  }
+  const text = e.clipboardData ? e.clipboardData.getData('text/plain') : '';
+  if(text){
+    e.preventDefault();
+    document.execCommand('insertText', false, text);
+  }
+}
+
+function lore_richEditorClick(e){
+  if(e.target.tagName === 'IMG'){
+    lore_richSelectImage(e.target);
+  } else {
+    lore_richDeselectImage();
+  }
+}
+
+function lore_richSelectImage(img){
+  richSelectedImage = img;
+  img.classList.add('lore-rich-img-selected');
+  if(!richHandleEl){
+    richHandleEl = document.createElement('div');
+    richHandleEl.className = 'lore-rich-img-handle';
+    richHandleEl.addEventListener('mousedown', lore_richResizeStart);
+    document.body.appendChild(richHandleEl);
+  }
+  if(!richImgToolbarEl){
+    richImgToolbarEl = document.createElement('div');
+    richImgToolbarEl.className = 'lore-rich-img-toolbar';
+    richImgToolbarEl.innerHTML = `
+      <button type="button" onmousedown="event.preventDefault()" onclick="lore_richSetImageAlign('none')">Full width</button>
+      <button type="button" onmousedown="event.preventDefault()" onclick="lore_richSetImageAlign('left')">Float left</button>
+      <button type="button" onmousedown="event.preventDefault()" onclick="lore_richSetImageAlign('right')">Float right</button>
+      <button type="button" class="lore-rich-img-remove" onmousedown="event.preventDefault()" onclick="lore_richRemoveImage()">Remove</button>
+    `;
+    document.body.appendChild(richImgToolbarEl);
+  }
+  richHandleEl.style.display = 'block';
+  richImgToolbarEl.style.display = 'flex';
+  lore_richRepositionHandle();
+}
+
+function lore_richDeselectImage(){
+  if(richSelectedImage) richSelectedImage.classList.remove('lore-rich-img-selected');
+  richSelectedImage = null;
+  if(richHandleEl) richHandleEl.style.display = 'none';
+  if(richImgToolbarEl) richImgToolbarEl.style.display = 'none';
+}
+
+function lore_richRepositionHandle(){
+  if(!richSelectedImage || !richHandleEl) return;
+  const rect = richSelectedImage.getBoundingClientRect();
+  richHandleEl.style.left = (rect.right - 8) + 'px';
+  richHandleEl.style.top = (rect.bottom - 8) + 'px';
+  richImgToolbarEl.style.left = Math.max(4, rect.left) + 'px';
+  richImgToolbarEl.style.top = Math.max(4, rect.top - 42) + 'px';
+}
+
+function lore_richResizeStart(e){
+  if(!richSelectedImage) return;
+  e.preventDefault();
+  const rect = richSelectedImage.getBoundingClientRect();
+  richResizeStart = { x: e.clientX, width: rect.width };
+  document.addEventListener('mousemove', lore_richResizeMove);
+  document.addEventListener('mouseup', lore_richResizeEnd);
+}
+
+function lore_richResizeMove(e){
+  if(!richSelectedImage || !richResizeStart) return;
+  const dx = e.clientX - richResizeStart.x;
+  const newWidth = Math.max(40, Math.round(richResizeStart.width + dx));
+  richSelectedImage.style.width = newWidth + 'px';
+  richSelectedImage.style.height = 'auto';
+  richSelectedImage.dataset.richResized = '1';
+  lore_richRepositionHandle();
+}
+
+function lore_richResizeEnd(){
+  document.removeEventListener('mousemove', lore_richResizeMove);
+  document.removeEventListener('mouseup', lore_richResizeEnd);
+  richResizeStart = null;
+}
+
+function lore_richSetImageAlign(align){
+  if(!richSelectedImage) return;
+  const alreadyResized = richSelectedImage.dataset.richResized === '1';
+  if(align === 'left'){
+    richSelectedImage.style.float = 'left';
+    richSelectedImage.style.margin = '0.3rem 1.6rem 1rem 0';
+    if(!alreadyResized) richSelectedImage.style.width = '45%';
+  } else if(align === 'right'){
+    richSelectedImage.style.float = 'right';
+    richSelectedImage.style.margin = '0.3rem 0 1rem 1.6rem';
+    if(!alreadyResized) richSelectedImage.style.width = '45%';
+  } else {
+    richSelectedImage.style.float = 'none';
+    richSelectedImage.style.margin = '1rem auto';
+    if(!alreadyResized) richSelectedImage.style.width = '100%';
+  }
+  lore_richRepositionHandle();
+}
+
+function lore_richRemoveImage(){
+  if(!richSelectedImage) return;
+  richSelectedImage.remove();
+  lore_richDeselectImage();
 }
 
 async function lore_saveEditor(key){
   const title = document.getElementById('lore-edit-title').value.trim();
   const category = document.getElementById('lore-edit-category').value.trim();
-  const body = document.getElementById('lore-edit-body').value.trim();
+  lore_richDeselectImage();
+  const body = loreSanitizeHtml(document.getElementById('lore-edit-body-rich').innerHTML).trim();
   const errorEl = document.getElementById('lore-edit-error');
   const saveBtn = document.getElementById('lore-edit-save-btn');
   errorEl.style.display = 'none';
@@ -277,9 +479,9 @@ async function lore_saveEditor(key){
   saveBtn.textContent = 'Saving...';
   try{
     if(key){
-      await loreUpdateEntry(key, { title, category, body });
+      await loreUpdateEntry(key, { title, category, body, body_format: 'html' });
     } else {
-      await loreCreateEntry({ title, category, body });
+      await loreCreateEntry({ title, category, body, body_format: 'html' });
     }
     lore_closeEditor();
     await loadAllArticles();
@@ -321,9 +523,14 @@ window.lore_goto = lore_goto;
 window.lore_toggleDark = lore_toggleDark;
 window.lore_openEditor = lore_openEditor;
 window.lore_closeEditor = lore_closeEditor;
-window.lore_uploadImageIntoBody = lore_uploadImageIntoBody;
 window.lore_saveEditor = lore_saveEditor;
 window.lore_confirmDelete = lore_confirmDelete;
+window.lore_richExec = lore_richExec;
+window.lore_richInsertTable = lore_richInsertTable;
+window.lore_richInsertLink = lore_richInsertLink;
+window.lore_richHandleFileInput = lore_richHandleFileInput;
+window.lore_richSetImageAlign = lore_richSetImageAlign;
+window.lore_richRemoveImage = lore_richRemoveImage;
 
 async function init(){
   document.getElementById('lore-sidebar-content').innerHTML = '<p class="lore-empty" style="padding:1rem;">Loading&hellip;</p>';
