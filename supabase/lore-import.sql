@@ -50,7 +50,17 @@ The symbols of Alejandero include the heart, harp, and two people embracing. Occ
 
 Principle Holiday: February 14th – Lover’s Dance Festival Devotion – Writing/reciting poetry Spell incants are prefixed by “In love’s name” At Will spells: 6th – Bravery, 9th – Charm Shared Domains: [[Apenca]], [[Arkady]] Opposed Domain: [[Iccula]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-1.png)$body2$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Bravery](spell-compendium.html?open=Bravery&cat=1st%20Level), [Lend Health](spell-compendium.html?open=Lend%20Health&cat=1st%20Level), [Mystic Robes](spell-compendium.html?open=Mystic%20Robes&cat=1st%20Level) |
+| 2nd Level | [Empower](spell-compendium.html?open=Empower&cat=2nd%20Level), [Grant Health](spell-compendium.html?open=Grant%20Health&cat=2nd%20Level), [Resist Frost](spell-compendium.html?open=Resist%20Frost&cat=2nd%20Level) |
+| 3rd Level | [Charm](spell-compendium.html?open=Charm&cat=3rd%20Level), [Resurrect](spell-compendium.html?open=Resurrect&cat=3rd%20Level), [Strength](spell-compendium.html?open=Strength&cat=3rd%20Level) |
+| 4th Level | [Champion](spell-compendium.html?open=Champion&cat=4th%20Level), [Truth](spell-compendium.html?open=Truth&cat=4th%20Level) |
+| 5th Level | [Life](spell-compendium.html?open=Life&cat=5th%20Level) |
+| 6th Level | [Greater Charm](spell-compendium.html?open=Greater%20Charm&cat=6th%20Level) |
+| 7th Level | [Remove Curse](spell-compendium.html?open=Remove%20Curse&cat=7th%20Level) |
+| 8th Level | [Holy Aura](spell-compendium.html?open=Holy%20Aura&cat=8th%20Level), [True Charm](spell-compendium.html?open=True%20Charm&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Quest](spell-compendium.html?open=Quest&cat=9th%20Level) |$body2$),
 ('alwyn', 'Alwyn', 'Deities', $body3$The Storm Walkers The Disciples of Alwyn
 
 Son of the moon and sea, Alwyn the god of weather has many names: Storm Bringer, Thunder God, Skywalker. Revered by the farmers and sailors that depend on his fickle moods, temples to Alwyn can be found in nearly every farming and portside village. Calm and gentle one moment and filled with unimaginable wrath the next, Alwyn is difficult to predict. His followers seem to follow suit; they are generally serene yet passionate people capable of uncontrollable tantrums when angered. The importance of Alwyn’s temples to the common folk and the subsequent tithes that they bring in has managed to form this group of chaotic souls into a somewhat organized hierarchy.
@@ -65,7 +75,17 @@ The symbols of Alwyn include a bolt of lightning, the clouds, and a whirlwind.
 
 Principle Holiday: April 23rd – Alwyn’s Thunder Devotion – Performing a rain dance Spell incants are prefixed by “With wind and rain” At Will spells: 6th – Spark, 9th – Wind Message Shared Domains: [[Beldon]], [[Callis]] Opposed Domain:[[Atha]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-2.png)$body3$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Air Shield](spell-compendium.html?open=Air%20Shield&cat=1st%20Level), [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Extinguish](spell-compendium.html?open=Extinguish&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level), [Spark](spell-compendium.html?open=Spark&cat=1st%20Level) |
+| 2nd Level | [Aura of Protection](spell-compendium.html?open=Aura%20of%20Protection&cat=2nd%20Level), [Grant Health](spell-compendium.html?open=Grant%20Health&cat=2nd%20Level), [Wind Message](spell-compendium.html?open=Wind%20Message&cat=2nd%20Level) |
+| 3rd Level | [Aura of Resistance](spell-compendium.html?open=Aura%20of%20Resistance&cat=3rd%20Level), [Stun](spell-compendium.html?open=Stun&cat=3rd%20Level) |
+| 4th Level | [Blink](spell-compendium.html?open=Blink&cat=4th%20Level), [Hail Storm](spell-compendium.html?open=Hail%20Storm&cat=4th%20Level), [Lightning Bolt](spell-compendium.html?open=Lightning%20Bolt&cat=4th%20Level) |
+| 5th Level | [Chain Lightning](spell-compendium.html?open=Chain%20Lightning&cat=5th%20Level) |
+| 6th Level | [Blink Walk](spell-compendium.html?open=Blink%20Walk&cat=6th%20Level) |
+| 7th Level | [Conjure <Air> Elemental](spell-compendium.html?open=Conjure%20Elemental&cat=7th%20Level) |
+| 8th Level | [Black Wind](spell-compendium.html?open=Black%20Wind&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Maelstrom](spell-compendium.html?open=Maelstrom&cat=9th%20Level) |$body3$),
 ('anajaream', 'Anajaream', 'Deities', $body4$The Jesters of Chaos The Sect of Anajaream
 
 Very little is known about Anajaream, perhaps because there is very little too know. Created by Elieff as one of the High Gods, Anajaream quickly disappeared into the void, only to appear briefly at crucial moments. He is known as the essence of chaos or chance. When impossible tragedies or miracles appear, it is he who is responsible. Often called the Luck Monger, Bastard of Fate or, by some, Elieff’s One Joke, Anajaream seems to show even less concern for the affairs of man than the rest of the already aloof High Gods. He is often called upon by gamblers, lunatics and fools, but seldom worshiped in any consistent form.
@@ -80,7 +100,17 @@ The symbols of Anajaream include rolling dice, playing cards, and the jester, an
 
 Principle Holiday: April 1st – Fates Devotion – Gambling Spell incants are prefixed with “By way of chance” At Will spells: 6th –Disarm, 9th – Berserk Shared Domains: [[Elieff]], [[Sasha]] Opposed Domain: [[Brack]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-3.png)$body4$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Disarm](spell-compendium.html?open=Disarm&cat=1st%20Level), [Extinguish](spell-compendium.html?open=Extinguish&cat=1st%20Level), [Magic Stone](spell-compendium.html?open=Magic%20Stone&cat=1st%20Level) |
+| 2nd Level | [Fear](spell-compendium.html?open=Fear&cat=2nd%20Level), [Open Lesser Lock](spell-compendium.html?open=Open%20Lesser%20Lock&cat=2nd%20Level), [Web](spell-compendium.html?open=Web&cat=2nd%20Level) |
+| 3rd Level | [Berserk](spell-compendium.html?open=Berserk&cat=3rd%20Level), [Holy Smite](spell-compendium.html?open=Holy%20Smite&cat=3rd%20Level), [Open Lock](spell-compendium.html?open=Open%20Lock&cat=3rd%20Level), [Shatter](spell-compendium.html?open=Shatter&cat=3rd%20Level), [Stun](spell-compendium.html?open=Stun&cat=3rd%20Level), [Unholy Smite](spell-compendium.html?open=Unholy%20Smite&cat=3rd%20Level) |
+| 4th Level | [Battle Rage](spell-compendium.html?open=Battle%20Rage&cat=4th%20Level), [Dispel](spell-compendium.html?open=Dispel&cat=4th%20Level), [Feeble Mind](spell-compendium.html?open=Feeble%20Mind&cat=4th%20Level) |
+| 5th Level | [Brittle Walls](spell-compendium.html?open=Brittle%20Walls&cat=5th%20Level), [Erase](spell-compendium.html?open=Erase&cat=5th%20Level) |
+| 6th Level | [Free Action](spell-compendium.html?open=Free%20Action&cat=6th%20Level) |
+| 7th Level | [Anti-Magic Shell](spell-compendium.html?open=Anti-Magic%20Shell&cat=7th%20Level), [Regression](spell-compendium.html?open=Regression&cat=7th%20Level) |
+| 8th Level | [Mind Wipe](spell-compendium.html?open=Mind%20Wipe&cat=8th%20Level) |
+| 9th Level | [Destroy](spell-compendium.html?open=Destroy&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Fate](spell-compendium.html?open=Fate&cat=9th%20Level) |$body4$),
 ('apenca', 'Apenca', 'Deities', $body5$Womb Children Followers of Apenca
 
 “The first child of [[Atha]] and [[Beldon]], the lady Apenca looked upon of her mother and cried. For while the earth was lush, green and beautiful beyond measure, it was at the same time static and sterile. Nothing stirred, save the waves crashing against the shores. It was then that Apenca, the Life Mother, opened her soul to the world and life streamed forth.” Foundations 2:13
@@ -95,7 +125,17 @@ Apenca’s symbols include babies and children of all kinds, as well as mother f
 
 Principle Holiday: March 21st – Spring’s Birth Devotion – Healing/tending to wounds Spell incants are prefixed by “With love of life” At Will spells: 6th – Lend Health, 9th – Resurrect Shared Domains: [[Arkady]], [[Alejandero]] Opposed Domain: [[Stasa]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-4.png)$body5$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Detect Curse](spell-compendium.html?open=Detect%20Curse&cat=1st%20Level), [Detect Poison](spell-compendium.html?open=Detect%20Poison&cat=1st%20Level), [Lend Health](spell-compendium.html?open=Lend%20Health&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level) |
+| 2nd Level | [Grant Health](spell-compendium.html?open=Grant%20Health&cat=2nd%20Level), [Purify](spell-compendium.html?open=Purify&cat=2nd%20Level) |
+| 3rd Level | [Cure Blindness](spell-compendium.html?open=Cure%20Blindness&cat=3rd%20Level), [Heal](spell-compendium.html?open=Heal&cat=3rd%20Level), [Remove Disease](spell-compendium.html?open=Remove%20Disease&cat=3rd%20Level), [Remove Poison](spell-compendium.html?open=Remove%20Poison&cat=3rd%20Level), [Restore Strength](spell-compendium.html?open=Restore%20Strength&cat=3rd%20Level), [Remove Paralysis](spell-compendium.html?open=Remove%20Paralysis&cat=3rd%20Level), [Resurrect](spell-compendium.html?open=Resurrect&cat=3rd%20Level), [Speak to Dead](spell-compendium.html?open=Speak%20to%20Dead&cat=3rd%20Level) |
+| 4th Level | [Mend Body](spell-compendium.html?open=Mend%20body&cat=4th%20Level), [Restore Limb](spell-compendium.html?open=Restore%20Limb&cat=4th%20Level) |
+| 5th Level | [Life](spell-compendium.html?open=Life&cat=5th%20Level) |
+| 6th Level | [Restore Body](spell-compendium.html?open=Restore%20Body&cat=6th%20Level) |
+| 7th Level | [Greater Cure](spell-compendium.html?open=Greater%20Cure&cat=7th%20Level), [Remove Curse](spell-compendium.html?open=Remove%20Curse&cat=7th%20Level) |
+| 8th Level | [Holy Aura](spell-compendium.html?open=Holy%20Aura&cat=8th%20Level) |
+| 9th Level | [Cleanse](spell-compendium.html?open=Cleanse&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level) |$body5$),
 ('arkady', 'Arkady', 'Deities', $body6$The Hands of Beauty The Followers of Arkady
 
 Sometimes called the Lady of Wonders or Innocent Sister, Arkady is the embodiment of beauty. It is said that any mortal man who lay eyes on her shall be forever entranced and blinded by her radiance.
@@ -110,7 +150,17 @@ The symbols of Arkady include the mirror, rose, and pearl.
 
 Principle Holiday: October 15th – Harvest Song Devotion – Primping Spell incants are prefixed by “With beauty and grace” At Will spells: 6th – Bless, 9th – Stun Shared Domains: [[Alejandero]], [[Apenca]] Opposed Domain: [[Blythe]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-5.png)$body6$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Disarm](spell-compendium.html?open=Disarm&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level) |
+| 2nd Level | [Bladeturn](spell-compendium.html?open=Bladeturn&cat=2nd%20Level), [Grant Health](spell-compendium.html?open=Grant%20Health&cat=2nd%20Level), [Remove Charm](spell-compendium.html?open=Remove%20Charm&cat=2nd%20Level) |
+| 3rd Level | [Barrier](spell-compendium.html?open=Barrier&cat=3rd%20Level), [Charm](spell-compendium.html?open=Charm&cat=3rd%20Level), [Heal](spell-compendium.html?open=Heal&cat=3rd%20Level), [Resurrect](spell-compendium.html?open=Resurrect&cat=3rd%20Level), [Stun](spell-compendium.html?open=Stun&cat=3rd%20Level), [Remove Disease](spell-compendium.html?open=Remove%20Disease&cat=3rd%20Level) |
+| 4th Level | [Blindness](spell-compendium.html?open=Blindness&cat=4th%20Level), [Command](spell-compendium.html?open=Command&cat=4th%20Level), [Sleep](spell-compendium.html?open=Sleep&cat=4th%20Level) |
+| 5th Level | [Life](spell-compendium.html?open=Life&cat=5th%20Level) |
+| 6th Level | [Greater Charm](spell-compendium.html?open=Greater%20Charm&cat=6th%20Level) |
+| 7th Level | [Youth](spell-compendium.html?open=Youth&cat=7th%20Level) |
+| 8th Level | [True Charm](spell-compendium.html?open=True%20Charm&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Flesh to Stone](spell-compendium.html?open=Flesh%20to%20Stone&cat=9th%20Level), [Quest](spell-compendium.html?open=Quest&cat=9th%20Level) |$body6$),
 ('astrid', 'Astrid', 'Deities', $body7$The Unseen Hand The Followers of Astrid
 
 Son of Brack and [[Balaxa]], Astrid lived much of his early life in the realms of man, where he became the notorious ruler of an underground organization of thieves. Most thieves whisper his name to this day when attempting a particularly difficult or impressive act. Followers of Astrid truly believe that they perform a valuable service to society by teaching people to better defend their possessions.
@@ -125,7 +175,14 @@ The symbols of Astrid are a key, a purse, a sack/chest of gold, and a set of loc
 
 Principle Holiday: July 10th – Hand’s Day Devotion – Making traps or locks Spell incants are prefixed by “While you sleep” At Will spells: 6th – Open Portal, 9th – Open Greater Lock Shared Domains: [[Kell]], [[Marius]] Opposed Domain: [[Brack]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-6.png)$body7$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Detect Poison](spell-compendium.html?open=Detect%20Poison&cat=1st%20Level), [Disarm](spell-compendium.html?open=Disarm&cat=1st%20Level), [Extinguish](spell-compendium.html?open=Extinguish&cat=1st%20Level), [Mystic Robes](spell-compendium.html?open=Mystic%20Robes&cat=1st%20Level) |
+| 2nd Level | [Arcane Lore](spell-compendium.html?open=Arcane%20Lore&cat=2nd%20Level), [Open Lesser Lock](spell-compendium.html?open=Open%20Lesser%20Lock&cat=2nd%20Level), [Pull](spell-compendium.html?open=Pull&cat=2nd%20Level) |
+| 3rd Level | [Open Lock](spell-compendium.html?open=Open%20Lock&cat=3rd%20Level), [Open Portal](spell-compendium.html?open=Open%20Portal&cat=3rd%20Level), [Stun](spell-compendium.html?open=Stun&cat=3rd%20Level) |
+| 4th Level | [Blindness](spell-compendium.html?open=Blindness&cat=4th%20Level), [Blink](spell-compendium.html?open=Blink&cat=4th%20Level), [Dispel](spell-compendium.html?open=Dispel&cat=4th%20Level), [Fortunes of War](spell-compendium.html?open=Fortunes%20of%20War&cat=4th%20Level), [Open Greater Lock](spell-compendium.html?open=Open%20Greater%20Lock&cat=4th%20Level), [Sleep](spell-compendium.html?open=Sleep&cat=4th%20Level) |
+| 5th Level | [Passwall](spell-compendium.html?open=Passwall&cat=5th%20Level) |
+| 6th Level | [Free Action](spell-compendium.html?open=Free%20Action&cat=6th%20Level), [Zone of Silence](spell-compendium.html?open=Zone%20of%20Silence&cat=6th%20Level) |$body7$),
 ('atha', 'Atha', 'Deities', $body8$The Stone Ones The Followers of Atha
 
 The Great Mother or Earth Mother, as the lady Atha is sometimes called, is one of the first of [[Elieff]]’s children. Her domain encompasses the very earth itself and every plant that springs forth from it. Every farming community will invariably contain one or more shrines to the goddess Atha, as the workers of the land pay homage and beg for a bountiful year. The teachings of Atha are greatly respected, all life’s existence dependant on her in one fashion or another.
@@ -140,7 +197,17 @@ The symbols of Atha are a mountain range or peak, a fern, and oak.
 
 Principle Holiday: June 12th – Mother’s Blessing Devotion – Tending a garden Spell incants are prefixed by “With earthen patience” At Will spells: 6th – Thorn Staff, 9th – Mystic Leather Shared Domains: [[Callis]], [[Beldon]] Opposed Domain: [[Alwyn]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-7.png)$body8$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Lend Health](spell-compendium.html?open=Lend%20Health&cat=1st%20Level), [Magic Stone](spell-compendium.html?open=Magic%20Stone&cat=1st%20Level), [Pin](spell-compendium.html?open=Pin&cat=1st%20Level), [Thorn Staff](spell-compendium.html?open=Thorn%20Staff&cat=1st%20Level) |
+| 2nd Level | [Barrier Pit](spell-compendium.html?open=Barrier%20Pit&cat=2nd%20Level), [Mystic Hide](spell-compendium.html?open=Mystic%20Hide&cat=2nd%20Level) |
+| 3rd Level | [Aura of Resistance](spell-compendium.html?open=Aura%20of%20Resistance&cat=3rd%20Level), [Bramble Wall](spell-compendium.html?open=Bramble%20Wall&cat=3rd%20Level), [Mystic Leather](spell-compendium.html?open=Mystic%20Leather&cat=3rd%20Level) |
+| 4th Level | [Corrode](spell-compendium.html?open=Corrode&cat=4th%20Level), [Forbiddance](spell-compendium.html?open=Forbiddance&cat=4th%20Level), [Fortify](spell-compendium.html?open=Fortify&cat=4th%20Level) |
+| 5th Level | [Brittle Walls](spell-compendium.html?open=Brittle%20Walls&cat=5th%20Level), [Fool's Adamant](spell-compendium.html?open=Fool’s%20Adamant&cat=5th%20Level) |
+| 6th Level | [Floor of Binding](spell-compendium.html?open=Floor%20of%20Binding&cat=6th%20Level) |
+| 7th Level | [Conjure <Earth> Elemental](spell-compendium.html?open=Conjure%20Elemental&cat=7th%20Level), [Stone Skin](spell-compendium.html?open=Stone%20Skin&cat=7th%20Level) |
+| 8th Level | [Holy Aura](spell-compendium.html?open=Holy%20Aura&cat=8th%20Level) |
+| 9th Level | [Animate Statue](spell-compendium.html?open=Animate%20Statue&cat=9th%20Level), [Cleanse](spell-compendium.html?open=Cleanse&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Flesh to Stone](spell-compendium.html?open=Flesh%20to%20Stone&cat=9th%20Level) |$body8$),
 ('balaxa', 'Balaxa', 'Deities', $body9$The Frozen Ones The Followers of Balaxa
 
 The daughter of [[Fiona]] and [[Beldon]], the goddess Balaxa grew bitter as her father left Fiona to return to [[Atha]]’s embrace. Jealous of the relationship between Beldon and her brother Alwyn, her rage grew. With the malice of a woman scorned Balaxa blew across the earth and sea, freezing all she passed with her icy stare. Known as the Ice Queen or the Lost Daughter, Balaxa, goddess of winter, turns her rage upon the sea and earth each year.
@@ -155,7 +222,17 @@ The symbols of Balaxa are an icicle, snowflakes, and a dagger made of ice or gla
 
 Principle Holiday: December 23rd – Frost’s Sacrifice Devotion – Writing in a journal Spell incants are prefixed by “With frozen resolve” At Will spells: 6th – Frost Dart, 9th – Protection from Frost Shared Domains: [[Alwyn]], [[Kell]] Opposed Domain: [[Callis]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-8.png)$body9$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Aid](spell-compendium.html?open=Aid&cat=1st%20Level), [Frost Dart](spell-compendium.html?open=Frost%20Dart&cat=1st%20Level), [Pin](spell-compendium.html?open=Pin&cat=1st%20Level) |
+| 2nd Level | [Bolt of Frost](spell-compendium.html?open=Bolt%20of%20Frost&cat=2nd%20Level), [Frost Blade](spell-compendium.html?open=Frost%20Blade&cat=2nd%20Level), [Resist Frost](spell-compendium.html?open=Resist%20Frost&cat=2nd%20Level), [Unholy Bolt](spell-compendium.html?open=Unholy%20Bolt&cat=2nd%20Level) |
+| 3rd Level | [Ball of Frost](spell-compendium.html?open=Ball%20of%20Frost&cat=3rd%20Level), [Confine](spell-compendium.html?open=Confine&cat=3rd%20Level), [Magic Vestment](spell-compendium.html?open=Magic%20Vestment&cat=3rd%20Level), [Protection from Frost](spell-compendium.html?open=Protection%20from%20Frost&cat=3rd%20Level) |
+| 4th Level | [Hail Storm](spell-compendium.html?open=Hail%20Storm&cat=4th%20Level), [Reflect](spell-compendium.html?open=Reflect&cat=4th%20Level) |
+| 5th Level | [Brittle Walls](spell-compendium.html?open=Brittle%20Walls&cat=5th%20Level) |
+| 6th Level | [Curse](spell-compendium.html?open=Curse&cat=6th%20Level), [Frost Weapon](spell-compendium.html?open=Frost%20Weapon&cat=6th%20Level) |
+| 7th Level | [Frost Ward](spell-compendium.html?open=Frost%20Ward&cat=7th%20Level), [Remove Curse](spell-compendium.html?open=Remove%20Curse&cat=7th%20Level), [Conjure <Ice> Elemental](spell-compendium.html?open=Conjure%20Elemental&cat=7th%20Level) |
+| 8th Level | [Black Wind](spell-compendium.html?open=Black%20Wind&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Maelstrom](spell-compendium.html?open=Maelstrom&cat=9th%20Level) |$body9$),
 ('bard', 'Bard', 'Deities', $body10$The Dreamers The Followers of Bard
 
 > “And under the skies strode forth the storyteller, and she wore a thousand faces. Everywhere that she went, she told the tales of heroes and villains, of the divine and the infernal, of the world that was seen, and that which was beyond seeing. And as she strode forth, telling these tales, the world that [[Elieff]] had made seemed somehow more real, for that which had once been abstract was now relatable, for Bard knew that it was through stories that the world was understood.
@@ -167,7 +244,17 @@ The symbols of Bard are a horse’s head (such as a chess piece), a closed book 
 
 Principle Holiday: October 6 – Dreamers Wake Devotion – Telling stories Spell incants are prefixed with: “In tales and dreams” At Will spells: 6th – Translate, 9th – Sleep Shared Domains: [[Kell]], [[Fiona]] Opposed Domains: [[Kazzok]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-9.png)$body10$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Aid](spell-compendium.html?open=Aid&cat=1st%20Level), [Bravery](spell-compendium.html?open=Bravery&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level), [Magic Script](spell-compendium.html?open=Magic%20Script&cat=1st%20Level) |
+| 2nd Level | [Arcane Lore](spell-compendium.html?open=Arcane%20Lore&cat=2nd%20Level), [Death's Delving](spell-compendium.html?open=Death's%20Delving&cat=2nd%20Level), [Empower](spell-compendium.html?open=Empower&cat=2nd%20Level), [Unbind](spell-compendium.html?open=Unbind&cat=2nd%20Level), [Translate](spell-compendium.html?open=Translate&cat=2nd%20Level) |
+| 3rd Level | [Cure Blindness](spell-compendium.html?open=Cure%20Blindness&cat=3rd%20Level), [Heal](spell-compendium.html?open=Heal&cat=3rd%20Level), [Open Portal](spell-compendium.html?open=Open%20Portal&cat=3rd%20Level) |
+| 4th Level | [Champion](spell-compendium.html?open=Champion&cat=4th%20Level), [False Eye](spell-compendium.html?open=False%20Eye&cat=4th%20Level), [Sleep](spell-compendium.html?open=Sleep&cat=4th%20Level) |
+| 5th Level | [Erase](spell-compendium.html?open=Erase&cat=5th%20Level), [Identify](spell-compendium.html?open=Identify&cat=5th%20Level) |
+| 6th Level | [Contingency](spell-compendium.html?open=Contingency&cat=6th%20Level), [Enchant Armour](spell-compendium.html?open=Enchant%20Armour&cat=6th%20Level), [Legend](spell-compendium.html?open=Legend&cat=6th%20Level) |
+| 7th Level | [Regression](spell-compendium.html?open=Regression&cat=7th%20Level), [Sacrifice](spell-compendium.html?open=Sacrifice&cat=7th%20Level) |
+| 8th Level | [Mind Wipe](spell-compendium.html?open=Mind%20Wipe&cat=8th%20Level) |
+| 9th Level | [Destroy](spell-compendium.html?open=Destroy&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Fate](spell-compendium.html?open=Fate&cat=9th%20Level) |$body10$),
 ('beldon', 'Beldon', 'Deities', $body11$The Wave Riders The Followers of Beldon
 
 One of [[Elieff]]’s children, the High God Beldon rules the seas. Bound to Atha, the earth, he controls water in every form. Portside villages are assured to contain at least one temple paying homage to Beldon, called the Sea Father or Prince of Tides. Flowing as his mood suits him, Beldon is neither definitively good nor evil. His followers learning to control water’s powers of life as well as its powers of destruction. It is said in times of great evil Beldon’s waters flood the lands, washing them clean of taint.
@@ -182,7 +269,17 @@ The symbols of Beldon are a breaking wave, a water drop, and a school of fish.
 
 Principle Holiday: March 3rd – Festival of Sails Devotion – Fishing Spell incants are prefixed by “With water’s might” At Will spells: 6th – Purify, 9th – Remove Poison Shared Domains: [[Atha]], [[Alwyn]] Opposed Domain: [[Callis]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-10.png)$body11$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Bravery](spell-compendium.html?open=Bravery&cat=1st%20Level), [Disarm](spell-compendium.html?open=Disarm&cat=1st%20Level), [Extinguish](spell-compendium.html?open=Extinguish&cat=1st%20Level), [Lend Health](spell-compendium.html?open=Lend%20Health&cat=1st%20Level) |
+| 2nd Level | [Empower](spell-compendium.html?open=Empower&cat=2nd%20Level), [Purify](spell-compendium.html?open=Purify&cat=2nd%20Level), [Resist Fire](spell-compendium.html?open=Resist%20Fire&cat=2nd%20Level), [Resist Frost](spell-compendium.html?open=Resist%20Frost&cat=2nd%20Level) |
+| 3rd Level | [Cure Blindness](spell-compendium.html?open=Cure%20Blindness&cat=3rd%20Level), [Protection from Fire](spell-compendium.html?open=Protection%20from%20Fire&cat=3rd%20Level), [Protection from Frost](spell-compendium.html?open=Protection%20from%20Frost&cat=3rd%20Level), [Remove Poison](spell-compendium.html?open=Remove%20Poison&cat=3rd%20Level), [Resurrect](spell-compendium.html?open=Resurrect&cat=3rd%20Level), [Remove Disease](spell-compendium.html?open=Remove%20Disease&cat=3rd%20Level) |
+| 4th Level | [Ogre Strength](spell-compendium.html?open=Ogre%20Strength&cat=4th%20Level) |
+| 5th Level | [Giant Strength](spell-compendium.html?open=Giant%20Strength&cat=5th%20Level), [Life](spell-compendium.html?open=Life&cat=5th%20Level) |
+| 6th Level | [Free Action](spell-compendium.html?open=Free%20Action&cat=6th%20Level) |
+| 7th Level | [Conjure <Water> Elemental](spell-compendium.html?open=Conjure%20Elemental&cat=7th%20Level) |
+| 8th Level | [Holy Aura](spell-compendium.html?open=Holy%20Aura&cat=8th%20Level) |
+| 9th Level | [Cleanse](spell-compendium.html?open=Cleanse&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level) |$body11$),
 ('blythe', 'Blythe', 'Deities', $body12$The Bile Walkers The Followers of Blythe
 
 > “The progeny of [[Stasa]] and [[Anajaream]], Blythe took quickly after his mother’s influence, though his methods differed greatly. Unlike his mother Blythe cared nothing for the thrill of the chase but preferred to wait and watch his work slowly overcome his victims. So, it was then that Blythe sow the seeds of sickness, disease, and poison across the land; carefully baited traps, to catch the unaware, and bring them to their grave.”
@@ -196,7 +293,17 @@ The symbols of Blythe include the rat, the vulture, and the fly.
 
 Principle Holiday: August 8th – The Mushroom Feast Devotion – Tending poisonous plants Spell incants are prefixed by “With carrion hands” At Will spells: 6th – Detect Poison, 9th – Disease Shared Domains: [[Kazzok]], [[Iccula]] Opposed Domain: [[Apenca]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-11.png)$body12$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Detect Poison](spell-compendium.html?open=Detect%20Poison&cat=1st%20Level), [Disarm](spell-compendium.html?open=Disarm&cat=1st%20Level), [Pin](spell-compendium.html?open=Pin&cat=1st%20Level) |
+| 2nd Level | [Bind](spell-compendium.html?open=Bind&cat=2nd%20Level), [Fear](spell-compendium.html?open=Fear&cat=2nd%20Level), [Web](spell-compendium.html?open=Web&cat=2nd%20Level) |
+| 3rd Level | [Disease](spell-compendium.html?open=Disease&cat=3rd%20Level), [Enfeeble](spell-compendium.html?open=Enfeeble&cat=3rd%20Level), [Poison Strike](spell-compendium.html?open=Poison%20Strike&cat=3rd%20Level) |
+| 4th Level | [Corrode](spell-compendium.html?open=Corrode&cat=4th%20Level), [Feeble Mind](spell-compendium.html?open=Feeble%20Mind&cat=4th%20Level), [Venom Script](spell-compendium.html?open=Venom%20Script&cat=4th%20Level) |
+| 5th Level | [Wither Limb](spell-compendium.html?open=Wither%20Limb&cat=5th%20Level) |
+| 6th Level | [Age](spell-compendium.html?open=Age&cat=6th%20Level), [Curse](spell-compendium.html?open=Curse&cat=6th%20Level) |
+| 7th Level | [Affliction](spell-compendium.html?open=Affliction&cat=7th%20Level) |
+| 8th Level | [Drain Life](spell-compendium.html?open=Drain%20Life&cat=8th%20Level), [Rotting Flesh](spell-compendium.html?open=Rotting%20Flesh&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Plague](spell-compendium.html?open=Plague&cat=9th%20Level), [Steal Life](spell-compendium.html?open=Steal%20Life&cat=9th%20Level) |$body12$),
 ('brack', 'Brack', 'Deities', $body13$The Order The Followers of Brack
 
 The only of the lesser gods to have divine Children of his own, Brack is the steadfast god of law and order. His temples often intertwine with the quarters of guards, soldiers and watchmen everywhere. Followers of Brack follow a strict hierarchy of status within the church, each rank controlling those of the ranks beneath them. Unwavering in their belief in law and order, the followers of Brack bring punishment swiftly to those who fail to adhere.
@@ -209,7 +316,14 @@ The symbols of Brack are the gavel, the scale and an arrow.
 
 Principle Holiday: May 9th – Order’s March Devotion – Partaking in a trial Spell incants are prefixed by “In the name of the law” At Will spells: 6th – Aid, 9th – Aura of Resistance Shared Domains: [[Clovis]], [[Fiona]] Opposed Domain: [[Anajaream]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-12.png)$body13$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Aid](spell-compendium.html?open=Aid&cat=1st%20Level), [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Mystic Robes](spell-compendium.html?open=Mystic%20Robes&cat=1st%20Level) |
+| 2nd Level | [Aura of Protection](spell-compendium.html?open=Aura%20of%20Protection&cat=2nd%20Level), [Holy Bolt](spell-compendium.html?open=Holy%20Bolt&cat=2nd%20Level), [Mystic Hide](spell-compendium.html?open=Mystic%20Hide&cat=2nd%20Level), [Pull](spell-compendium.html?open=Pull&cat=2nd%20Level), [Bind](spell-compendium.html?open=Bind&cat=2nd%20Level) |
+| 3rd Level | [Aura of Resistance](spell-compendium.html?open=Aura%20of%20Resistance&cat=3rd%20Level), [Mystic Leather](spell-compendium.html?open=Mystic%20Leather&cat=3rd%20Level) |
+| 4th Level | [Find Things](spell-compendium.html?open=Find%20Things&cat=4th%20Level), [Forbiddance](spell-compendium.html?open=Forbiddance&cat=4th%20Level), [Fortify](spell-compendium.html?open=Fortify&cat=4th%20Level), [Mystic Chain](spell-compendium.html?open=Mystic%20Chain&cat=4th%20Level), [Truth](spell-compendium.html?open=Truth&cat=4th%20Level) |
+| 5th Level | [Mystic Plate](spell-compendium.html?open=Mystic%20Plate&cat=5th%20Level) |
+| 6th Level | [Holy Weapon](spell-compendium.html?open=Holy%20Weapon&cat=6th%20Level), [Interrogation](spell-compendium.html?open=Interrogation&cat=6th%20Level), [Mystic Armour](spell-compendium.html?open=Mystic%20Armour&cat=6th%20Level) |$body13$),
 ('building-your-character', 'Building Your Character', 'Getting Started', $body14$Almost every story is based around one central question: ‘who am I?’ With the added corollary of ‘and who might I become, given a chance?’
 
 - Antiguides of [[Bard]], Upon Writings of Narrative (2017)
@@ -337,7 +451,17 @@ The symbols of Callis are the sun or an open hand holding a flame.
 
 Principle Holiday: Summer Solstice – Sun Shower Devotion – Forging or tending a fire Spell incants are prefixed by “With flame and fury” At Will spells: 6th – Flame Blade, 9th – Protection from Fire Shared Domains: [[Atha]], [[Alwyn]] Opposed Domain: [[Beldon]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-13.png)$body16$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Bravery](spell-compendium.html?open=Bravery&cat=1st%20Level), [Fire Dart](spell-compendium.html?open=Fire%20Dart&cat=1st%20Level), [Flame Blade](spell-compendium.html?open=Flame%20Blade&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level) |
+| 2nd Level | [Fire Bolt](spell-compendium.html?open=Fire%20Bolt&cat=2nd%20Level), [Purify](spell-compendium.html?open=Purify&cat=2nd%20Level), [Resist Fire](spell-compendium.html?open=Resist%20Fire&cat=2nd%20Level) |
+| 3rd Level | [Aura of Resistance](spell-compendium.html?open=Aura%20of%20Resistance&cat=3rd%20Level), [Fireball](spell-compendium.html?open=Fire%20Ball&cat=3rd%20Level), [Protection from Fire](spell-compendium.html?open=Protection%20from%20Fire&cat=3rd%20Level) |
+| 4th Level | [Champion](spell-compendium.html?open=Champion&cat=4th%20Level), [Flame Script](spell-compendium.html?open=Flame%20Script&cat=4th%20Level), [Fire Storm](spell-compendium.html?open=Fire%20Storm&cat=4th%20Level) |
+| 5th Level | [Fool's Adamant](spell-compendium.html?open=Fool’s%20Adamant&cat=5th%20Level), [Life](spell-compendium.html?open=Life&cat=5th%20Level) |
+| 6th Level | [Fire Weapon](spell-compendium.html?open=Fire%20Weapon&cat=6th%20Level), [Interrogation](spell-compendium.html?open=Interrogation&cat=6th%20Level), [Legend](spell-compendium.html?open=Legend&cat=6th%20Level) |
+| 7th Level | [Conjure <Fire> Elemental](spell-compendium.html?open=Conjure%20Elemental&cat=7th%20Level), [Fire Ward](spell-compendium.html?open=Fire%20Ward&cat=7th%20Level) |
+| 8th Level | [Holy Aura](spell-compendium.html?open=Holy%20Aura&cat=8th%20Level), [True Charm](spell-compendium.html?open=True%20Charm&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Maelstrom](spell-compendium.html?open=Maelstrom&cat=9th%20Level), [Soldier's Blessing](spell-compendium.html?open=Soldiers%20Blessing&cat=9th%20Level) |$body16$),
 ('celestials-and-infernals', 'Celestials and Infernals', 'Other Beings', $body17$A glimpse – a merest glimpse – into the realms from whence sprang both celestial hosts and infernal hordes may be enough to drive the mortal mind to distraction. Not for their nature, for some parts of both are much alike to our world, but for their scope. Their skies go on forever, their world so vivid, that the material and the real seem but pale shadow cast from them.
 
 - Inquisitor Weale of Clovis, Debriefing of Crusader <Redacted>, ~1880 A.T.
@@ -443,7 +567,17 @@ The symbols of Clovis are a star or stars, a ray of energy rebounding from a shi
 
 Principle Holiday: November 5th – Curtain’s Watch Devotion – Stargazing Spell incants are prefixed by “In defense of all” At Will spells: 6th – Holy Dart, 9th – Detect Infernal Shared Domains: [[Jerroh]], [[Brack]] Opposed Domain:[[Kazzok]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-14.png)$body19$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Air Shield](spell-compendium.html?open=Air%20Shield&cat=1st%20Level), [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Bravery](spell-compendium.html?open=Bravery&cat=1st%20Level), [Holy Dart](spell-compendium.html?open=Holy%20Dart&cat=1st%20Level), [Lend Health](spell-compendium.html?open=Lend%20Health&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level) |
+| 2nd Level | [Detect Infernal](spell-compendium.html?open=Detect%20Infernal&cat=2nd%20Level), [Grant Health](spell-compendium.html?open=Grant%20Health&cat=2nd%20Level), [Holy Bolt](spell-compendium.html?open=Holy%20Bolt&cat=2nd%20Level) |
+| 3rd Level | [Holy Smite](spell-compendium.html?open=Holy%20Smite&cat=3rd%20Level), [Magic Vestment](spell-compendium.html?open=Magic%20Vestment&cat=3rd%20Level) |
+| 4th Level | [Champion](spell-compendium.html?open=Champion&cat=4th%20Level) |
+| 5th Level | [Giant Strength](spell-compendium.html?open=Giant%20Strength&cat=5th%20Level) |
+| 6th Level | [Hero's Feast](spell-compendium.html?open=Heroes%20Feast&cat=6th%20Level), [Holy Weapon](spell-compendium.html?open=Holy%20Weapon&cat=6th%20Level), [Legend](spell-compendium.html?open=Legend&cat=6th%20Level) |
+| 7th Level | [Banishment](spell-compendium.html?open=Banishment&cat=7th%20Level), [Remove Curse](spell-compendium.html?open=Remove%20Curse&cat=7th%20Level) |
+| 8th Level | [Enchant Item](spell-compendium.html?open=Enchant%20Item&cat=8th%20Level), [Holy Aura](spell-compendium.html?open=Holy%20Aura&cat=8th%20Level) |
+| 9th Level | [Anchor Infernal](spell-compendium.html?open=Anchor%20Infernal&cat=9th%20Level), [Cleanse](spell-compendium.html?open=Cleanse&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Fate](spell-compendium.html?open=Fate&cat=9th%20Level) |$body19$),
 ('coins-and-currency', 'Coins and Currency', 'Culture & Society', $body20$“Once, loyalty was considered the coin of the realm. These days, perhaps unsurprisingly, the coin of the realm is… coin.”
 
 - Antonio, ‘Tis a Pity She’s a Minotaur,Act 2, Scene 1
@@ -1118,7 +1252,17 @@ The symbols of Elieff include a melting candle, an hourglass, and a sundial.
 
 Principle Holiday: February 29th – Times Paradox Devotion – Watching an hourglass Spell incants are prefixed by “With time’s patience” At Will spells: 6th – Death’s Delving, 9th – Barrier Shared Domains: None Opposed Domains: [[Anajaream]], [[Atha]], [[Beldon]], [[Fiona]], [[Callis]], [[Clovis]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-15.png)$body31$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Aid](spell-compendium.html?open=Aid&cat=1st%20Level), [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level) |
+| 2nd Level | [Arcane Lore](spell-compendium.html?open=Arcane%20Lore&cat=2nd%20Level), [Bladeturn](spell-compendium.html?open=Bladeturn&cat=2nd%20Level), [Death's Delving](spell-compendium.html?open=Death's%20Delving&cat=2nd%20Level) |
+| 3rd Level | [Barrier](spell-compendium.html?open=Barrier&cat=3rd%20Level), [Enfeeble](spell-compendium.html?open=Enfeeble&cat=3rd%20Level) |
+| 4th Level | [Corrode](spell-compendium.html?open=Corrode&cat=4th%20Level), [Paralyze](spell-compendium.html?open=Paralyze&cat=4th%20Level), [Sleep](spell-compendium.html?open=Sleep&cat=4th%20Level) |
+| 5th Level | [Brittle Walls](spell-compendium.html?open=Brittle%20Walls&cat=5th%20Level), [Wither Limb](spell-compendium.html?open=Wither%20Limb&cat=5th%20Level) |
+| 6th Level | [Age](spell-compendium.html?open=Age&cat=6th%20Level), [Zone of Silence](spell-compendium.html?open=Zone%20of%20Silence&cat=6th%20Level) |
+| 7th Level | [Regression](spell-compendium.html?open=Regression&cat=7th%20Level), [Youth](spell-compendium.html?open=Youth&cat=7th%20Level) |
+| 8th Level | [Mind Wipe](spell-compendium.html?open=Mind%20Wipe&cat=8th%20Level) |
+| 9th Level | [Destroy](spell-compendium.html?open=Destroy&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Fate](spell-compendium.html?open=Fate&cat=9th%20Level), [Undying](spell-compendium.html?open=Undying&cat=9th%20Level) |$body31$),
 ('elves', 'Elves', 'Mortal Races', $body32$## Overview
 
 > Elves take to magic like a fish takes to water; as easy as breathing.
@@ -1479,7 +1623,17 @@ The symbols of Fiona include the moon in its various forms and an all-seeing eye
 
 Principle Holiday: Blue Moon – Second Rising Devotion – Appraising or divining Spell incants are prefixed by “In search of knowledge” At Will spells: 6th – Arcane Lore, 9th – Detect Enemies Shared Domains: [[Alwyn]],[[Balaxa]] Opposed Domain: [[Kell]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-16.png)$body35$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Detect Curse](spell-compendium.html?open=Detect%20Curse&cat=1st%20Level), [Detect Magic](spell-compendium.html?open=Detect%20Magic&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level) |
+| 2nd Level | [Arcane Lore](spell-compendium.html?open=Arcane%20Lore&cat=2nd%20Level), [Detect Celestial](spell-compendium.html?open=Detect%20Celestial&cat=2nd%20Level), [Detect Infernal](spell-compendium.html?open=Detect%20Infernal&cat=2nd%20Level), [Detect Undead](spell-compendium.html?open=Detect%20Undead&cat=2nd%20Level), [Remove Charm](spell-compendium.html?open=Remove%20Charm&cat=2nd%20Level) |
+| 3rd Level | [Detect Enemies](spell-compendium.html?open=Detect%20Enemies&cat=3rd%20Level), [Magic Vestment](spell-compendium.html?open=Magic%20Vestment&cat=3rd%20Level), [Stun](spell-compendium.html?open=Stun&cat=3rd%20Level) |
+| 4th Level | [False Eye](spell-compendium.html?open=False%20Eye&cat=4th%20Level), [Feeble Mind](spell-compendium.html?open=Feeble%20Mind&cat=4th%20Level), [Find Things](spell-compendium.html?open=Find%20Things&cat=4th%20Level), [Fortunes of War](spell-compendium.html?open=Fortunes%20of%20War&cat=4th%20Level), [Truth](spell-compendium.html?open=Truth&cat=4th%20Level) |
+| 5th Level | [Erase](spell-compendium.html?open=Erase&cat=5th%20Level), [Explosive Runes](spell-compendium.html?open=Explosive%20Runes&cat=5th%20Level), [Identify](spell-compendium.html?open=Identify&cat=5th%20Level) |
+| 6th Level | [Legend](spell-compendium.html?open=Legend&cat=6th%20Level) |
+| 7th Level | [Regression](spell-compendium.html?open=Regression&cat=7th%20Level), [Zone of Truth](spell-compendium.html?open=Zone%20of%20Truth&cat=7th%20Level) |
+| 8th Level | [Holy Aura](spell-compendium.html?open=Holy%20Aura&cat=8th%20Level), [Mind Wipe](spell-compendium.html?open=Mind%20Wipe&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Fate](spell-compendium.html?open=Fate&cat=9th%20Level), [Quest](spell-compendium.html?open=Quest&cat=9th%20Level) |$body35$),
 ('gnomes-blurd', 'Gnomes', 'Mortal Races', $body36$> “Hey! If I put some of those yellow leaves in this potion it starts making a loud whistling sound … Oooh, look at the light!” – Last words of Tborren F’Norn, Gnomish Alchemist
 
 ## Description
@@ -1709,7 +1863,14 @@ The symbols of Hemulis include the sword, a fist and the helm.
 
 Principle Holiday: September 18th – Day of the Blade Devotion – Sparring or training Spell incants are prefixed by “With steel and blood” At Will spells: 6th – Empower, 9th – Strength Shared Domains: [[Brack]], [[Marius]] Opposed Domain: None
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-17.png)$body39$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Aid](spell-compendium.html?open=Aid&cat=1st%20Level), [Air Shield](spell-compendium.html?open=Air%20Shield&cat=1st%20Level), [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Bravery](spell-compendium.html?open=Bravery&cat=1st%20Level) |
+| 2nd Level | [Aura of Protection](spell-compendium.html?open=Aura%20of%20Protection&cat=2nd%20Level), [Empower](spell-compendium.html?open=Empower&cat=2nd%20Level), [Grant Health](spell-compendium.html?open=Grant%20Health&cat=2nd%20Level), [Pull](spell-compendium.html?open=Pull&cat=2nd%20Level) |
+| 3rd Level | [Aura of Resistance](spell-compendium.html?open=Aura%20of%20Resistance&cat=3rd%20Level), [Strength](spell-compendium.html?open=Strength&cat=3rd%20Level) |
+| 4th Level | [Battle Rage](spell-compendium.html?open=Battle%20Rage&cat=4th%20Level), [Champion](spell-compendium.html?open=Champion&cat=4th%20Level), [Ogre Strength](spell-compendium.html?open=Ogre%20Strength&cat=4th%20Level) |
+| 5th Level | [Fool's Adamant](spell-compendium.html?open=Fool’s%20Adamant&cat=5th%20Level), [Giant Strength](spell-compendium.html?open=Giant%20Strength&cat=5th%20Level), [Mystic Plate](spell-compendium.html?open=Mystic%20Plate&cat=5th%20Level) |
+| 6th Level | [Enchant Weapon](spell-compendium.html?open=Enchant%20Weapon&cat=6th%20Level), [Hero's Feast](spell-compendium.html?open=Heroes%20Feast&cat=6th%20Level) |$body39$),
 ('herbal-ingredients', 'Herbal Ingredients', 'Crafting & Trade', $body40$“These three herbs are virtually identical in appearance, but the careful herbalist can tell the difference at a glance. One makes pasta taste pretty good, the second makes you see beautiful colours and walk funny, and the third has enough lethal toxins in it to kill twelve men, if that’s how you like to spend your Saturday nights.”
 
 - From the introduction to Bestock’s Herbal (1891 A.T.)
@@ -1952,7 +2113,17 @@ The symbols of Iccula are a body impaled on a spike or any type of whip.
 
 Principle Holiday: January 13th – The Loving Lash Devotion – Torturing, interrogation, or self-mutilation Spell incants are prefixed by “Amid screams and pain” At Will spells: 6th – Pin, 9th – Command Shared Domains: [[Blythe]], [[Kazzok]] Opposed Domain: [[Arkady]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-18.png)$body44$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Disarm](spell-compendium.html?open=Disarm&cat=1st%20Level), [Pin](spell-compendium.html?open=Pin&cat=1st%20Level), [Repulse](spell-compendium.html?open=Repulse&cat=1st%20Level) |
+| 2nd Level | [Bind](spell-compendium.html?open=Bind&cat=2nd%20Level), [Fear](spell-compendium.html?open=Fear&cat=2nd%20Level), [Lesser Mage Lock](spell-compendium.html?open=Lesser%20Mage%20Lock&cat=2nd%20Level), [Pull](spell-compendium.html?open=Pull&cat=2nd%20Level), [Web](spell-compendium.html?open=Web&cat=2nd%20Level) |
+| 3rd Level | [Barrier](spell-compendium.html?open=Barrier&cat=3rd%20Level), [Confine](spell-compendium.html?open=Confine&cat=3rd%20Level), [Question](spell-compendium.html?open=Question&cat=3rd%20Level) |
+| 4th Level | [Blindness](spell-compendium.html?open=Blindness&cat=4th%20Level), [Command](spell-compendium.html?open=Command&cat=4th%20Level) |
+| 5th Level | [Mass Fear](spell-compendium.html?open=Mass%20Fear&cat=5th%20Level), [Wither Limb](spell-compendium.html?open=Wither%20Limb&cat=5th%20Level) |
+| 6th Level | [Curse](spell-compendium.html?open=Curse&cat=6th%20Level), [Interrogation](spell-compendium.html?open=Interrogation&cat=6th%20Level) |
+| 7th Level | [Death Curse](spell-compendium.html?open=Death%20Curse&cat=7th%20Level), [Sacrifice](spell-compendium.html?open=Sacrifice&cat=7th%20Level) |
+| 8th Level | [Drain Life](spell-compendium.html?open=Drain%20Life&cat=8th%20Level), [Rotting Flesh](spell-compendium.html?open=Rotting%20Flesh&cat=8th%20Level), [Trap Spirit](spell-compendium.html?open=Trap%20Spirit&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Steal Life](spell-compendium.html?open=Steal%20Life&cat=9th%20Level) |$body44$),
 ('jerroh', 'Jerroh', 'Deities', $body45$The Harvesters The Followers of Jerroh
 
 > “Jerroh looked out upon the earth and wept. Apenca’s creatures great and small thrived and multiplied until every surface of the land and sea was choked with their presence. With somber resolve Jerroh strode across the land and began the harvest. With sickle and scythe, he collected the old, the weak, and the sick, carefully escorting each spirit to the world beyond the void.”
@@ -1968,7 +2139,17 @@ The symbols of Jerroh are a tombstone, coffin, and mysterious cloaked figure.
 
 Principle Holiday: January 1st – Year’s End Devotion – Maintaining a graveyard Spell incants are prefixed by “With deaths embrace” At Will spells: 6th – Detect [[Undead]], 9th – Rebuke Undead Shared Domains: [[Clovis]], [[Apenca]] Opposed Domain: [[Stasa]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-19.png)$body45$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Bless](spell-compendium.html?open=Bless&cat=1st%20Level), [Bravery](spell-compendium.html?open=Bravery&cat=1st%20Level), [Disarm](spell-compendium.html?open=Disarm&cat=1st%20Level), [Repair](spell-compendium.html?open=Repair&cat=1st%20Level) |
+| 2nd Level | [Death's Delving](spell-compendium.html?open=Death's%20Delving&cat=2nd%20Level), [Detect Undead](spell-compendium.html?open=Detect%20Undead&cat=2nd%20Level), [Holy Bolt](spell-compendium.html?open=Holy%20Bolt&cat=2nd%20Level), [Rebuke Undead](spell-compendium.html?open=Rebuke%20Undead&cat=2nd%20Level) |
+| 3rd Level | [Remove Poison](spell-compendium.html?open=Remove%20Poison&cat=3rd%20Level), [Speak to Dead](spell-compendium.html?open=Speak%20to%20Dead&cat=3rd%20Level), [Resurrect](spell-compendium.html?open=Resurrect&cat=3rd%20Level) |
+| 4th Level | [Forbiddance](spell-compendium.html?open=Forbiddance&cat=4th%20Level), [Harm Undead](spell-compendium.html?open=Harm%20Undead&cat=4th%20Level) |
+| 5th Level | [Life](spell-compendium.html?open=Life&cat=5th%20Level) |
+| 6th Level | [Restore Body](spell-compendium.html?open=Restore%20Body&cat=6th%20Level) |
+| 7th Level | [Banishment](spell-compendium.html?open=Banishment&cat=7th%20Level), [Destroy Undead](spell-compendium.html?open=Destroy%20Undead&cat=7th%20Level), [Remove Curse](spell-compendium.html?open=Remove%20Curse&cat=7th%20Level) |
+| 8th Level | [Holy Aura](spell-compendium.html?open=Holy%20Aura&cat=8th%20Level) |
+| 9th Level | [Cleanse](spell-compendium.html?open=Cleanse&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Undying](spell-compendium.html?open=Undying&cat=9th%20Level) |$body45$),
 ('kazzok', 'Kazzok', 'Deities', $body46$The Terror Bringers The Followers of Kazzok
 
 > “… And with a scream that echoed across time itself he fell upon his knees. Rage filled him and evil and terror burst forth from him. For his grief he vowed to ravish the lands and minds of those upon it. Reaching to the sky’s starry curtain he brought forth every imaginable terror.”
@@ -1982,7 +2163,17 @@ The symbols of Kazzok are a face locked in a scream, a hand reaching up through 
 
 Principle Holiday: October 31st – Terror’s Breach Devotion – Creating frightening images or masks Spell incants are prefixed by “From beyond the curtain” At Will spells: 6th – Unholy Dart, 9th – Fear Shared Domains: [[Stasa]] Opposed Domain: [[Clovis]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-20.png)$body46$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Aid](spell-compendium.html?open=Aid&cat=1st%20Level), [Unholy Dart](spell-compendium.html?open=Unholy%20Dart&cat=1st%20Level) |
+| 2nd Level | [Fear](spell-compendium.html?open=Fear&cat=2nd%20Level), [Unholy Bolt](spell-compendium.html?open=Unholy%20Bolt&cat=2nd%20Level), [Web](spell-compendium.html?open=Web&cat=2nd%20Level) |
+| 3rd Level | [Berserk](spell-compendium.html?open=Berserk&cat=3rd%20Level), [Confine](spell-compendium.html?open=Confine&cat=3rd%20Level), [Unholy Smite](spell-compendium.html?open=Unholy%20Smite&cat=3rd%20Level) |
+| 4th Level | [Blindness](spell-compendium.html?open=Blindness&cat=4th%20Level), [Command Lesser Undead](spell-compendium.html?open=Command%20Lesser%20Undead&cat=4th%20Level), [Fire Storm](spell-compendium.html?open=Fire%20Storm&cat=4th%20Level) |
+| 5th Level | [Mass Fear](spell-compendium.html?open=Mass%20Fear&cat=5th%20Level), [Summon Infernalspawn](spell-compendium.html?open=Summon%20Infernal%20spawn&cat=5th%20Level) |
+| 6th Level | [Curse](spell-compendium.html?open=Curse&cat=6th%20Level), [Summon Imp](spell-compendium.html?open=Summon%20Imp&cat=6th%20Level), [Unholy Weapon](spell-compendium.html?open=Unholy%20Weapon&cat=6th%20Level) |
+| 7th Level | [Affliction](spell-compendium.html?open=Affliction&cat=7th%20Level), [Death Curse](spell-compendium.html?open=Death%20Curse&cat=7th%20Level), [Summon Manes](spell-compendium.html?open=Summon%20Manes&cat=7th%20Level) |
+| 8th Level | [Trap Spirit](spell-compendium.html?open=Trap%20Spirit&cat=8th%20Level), [Summon Devil](spell-compendium.html?open=Summon%20Devil&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Summons](spell-compendium.html?open=Summons&cat=9th%20Level) |$body46$),
 ('kell', 'Kell', 'Deities', $body47$The Shadow Stalkers The Followers of Kell
 
 > “With immortal cunning the darkness gathers. Cloaking the world in uncertainty, it conceals both friend and foe, growing thicker, until all that is known are the far-off whispers of men afeared.”
@@ -1996,7 +2187,17 @@ The symbols of Kell include obsidian, jet, a lantern, and torch.
 
 Principle Holiday: Winter Solstice – Kell’s Embrace Devotion – Hiding from everyone Spell incants are prefixed by “In the cloak of night” At Will spells: 6th – Bladeturn, 9th – Blindness Shared Domains: [[Astrid]], [[Balaxa]] Opposed Domain: [[Fiona]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-21.png)$body47$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Bravery](spell-compendium.html?open=Bravery&cat=1st%20Level), [Extinguish](spell-compendium.html?open=Extinguish&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level) |
+| 2nd Level | [Aura of Protection](spell-compendium.html?open=Aura%20of%20Protection&cat=2nd%20Level), [Bladeturn](spell-compendium.html?open=Bladeturn&cat=2nd%20Level) |
+| 3rd Level | [Aura of Resistance](spell-compendium.html?open=Aura%20of%20Resistance&cat=3rd%20Level), [Stun](spell-compendium.html?open=Stun&cat=3rd%20Level) |
+| 4th Level | [Blindness](spell-compendium.html?open=Blindness&cat=4th%20Level), [Sleep](spell-compendium.html?open=Sleep&cat=4th%20Level) |
+| 5th Level | [Passwall](spell-compendium.html?open=Passwall&cat=5th%20Level) |
+| 6th Level | [Free Action](spell-compendium.html?open=Free%20Action&cat=6th%20Level), [Zone of Silence](spell-compendium.html?open=Zone%20of%20Silence&cat=6th%20Level) |
+| 7th Level | [Regression](spell-compendium.html?open=Regression&cat=7th%20Level) |
+| 8th Level | [Teleport](spell-compendium.html?open=Teleport&cat=8th%20Level), [Mind Wipe](spell-compendium.html?open=Mind%20Wipe&cat=8th%20Level) |
+| 9th Level | [Anti-Magic Zone](spell-compendium.html?open=Anti-Magic%20Zone&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Memory Alteration](spell-compendium.html?open=Memory%20Alteration&cat=9th%20Level) |$body47$),
 ('kingdom-of-harodom', 'Kingdom of Harodom', 'Kingdoms & Regions', $body48$## Introduction
 
 The kingdom in which the Toronto chapter of Fantasy alive takes place, Harodom has a large impact on the game. Taking place in the town of Yorik, the players in FA TO are subject to the laws of Harodom and the rules of the Duchy of Gelrich. The Kingdom is ruled by King Francis Anthony Haro and his wife Queen Drusilla Haro, and the Duchy of Gelrich is ruled by Duke Gregory Hayden. Harodom is a predominantly Human kingdom, though those of any race can be found within its borders.
@@ -2669,7 +2870,14 @@ The symbols of Marius include a pile of coins, a wagon or cart and the wheel.
 
 Principle Holiday: July 16th – Summer’s Fair Devotion – Traveling to a destination or trading Spell incants are prefixed by “With fair exchange” At Will spells: 6th – Repair, 9th – Mage Lock Shared Domains: [[Brack]], [[Sasha]] Opposed Domain: [[Astrid]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-22.png)$body56$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Air Shield](spell-compendium.html?open=Air%20Shield&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level), [Repair](spell-compendium.html?open=Repair&cat=1st%20Level), [Repulse](spell-compendium.html?open=Repulse&cat=1st%20Level) |
+| 2nd Level | [Arcane Lore](spell-compendium.html?open=Arcane%20Lore&cat=2nd%20Level), [Lesser Mage Lock](spell-compendium.html?open=Lesser%20Mage%20Lock&cat=2nd%20Level), [Translate](spell-compendium.html?open=Translate&cat=2nd%20Level), [Wind Message](spell-compendium.html?open=Wind%20Message&cat=2nd%20Level) |
+| 3rd Level | [Detect Enemies](spell-compendium.html?open=Detect%20Enemies&cat=3rd%20Level), [Mage Lock](spell-compendium.html?open=Mage%20Lock&cat=3rd%20Level), [Magic Vestment](spell-compendium.html?open=Magic%20Vestment&cat=3rd%20Level), [Remove Paralysis](spell-compendium.html?open=Remove%20Paralysis&cat=3rd%20Level) |
+| 4th Level | [Flame Script](spell-compendium.html?open=Flame%20Script&cat=4th%20Level), [Forbiddance](spell-compendium.html?open=Forbiddance&cat=4th%20Level), [Fortify](spell-compendium.html?open=Fortify&cat=4th%20Level), [Fortunes of War](spell-compendium.html?open=Fortunes%20of%20War&cat=4th%20Level), [Greater Mage Lock](spell-compendium.html?open=Greater%20Mage%20Lock&cat=4th%20Level) |
+| 5th Level | [Explosive Runes](spell-compendium.html?open=Explosive%20Runes&cat=5th%20Level), [Identify](spell-compendium.html?open=Identify&cat=5th%20Level) |
+| 6th Level | [Floor of Binding](spell-compendium.html?open=Floor%20of%20Binding&cat=6th%20Level) |$body56$),
 ('martial-traditions-in-the-world-of-fantasy-alive', 'Martial Traditions in the World of Fantasy Alive', 'Getting Started', $body57$Dearest Maurice, The battles rage on into a third day of street-to-street fighting. We regrettably have lost several to the invading forces. The upside is, the squad we were bearding didn’t know these roads like we do, and ended up backing into the Hewer’s Courts. No room at all for cavalry – and I fear that the Butcher Street Fancy Lads viewed the Estovic Regulars’ weapons and armour as valuable loot indeed, and happily relieved them of it, once they were felled. We tried to explain to them the idea of offering quarter, and they simply had no interest…
 
 - Sergeant Guiniveve Duchamps, Letters from the Siege of Portnos (2008)
@@ -3231,7 +3439,17 @@ The symbols of Sasha are an open book, a prism or crystal, and a rainbow.
 
 Principle Holiday: May 27th – Twilight Festival Devotion – Studying magical items or texts Spell incants are prefixed by “With will and faith” At Will spells: 6th – Detect Magic, 9th – Dispel Shared Domains: [[Callis]], [[Fiona]] Opposed Domain: None
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-23.png)$body66$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Aid](spell-compendium.html?open=Aid&cat=1st%20Level), [Detect Magic](spell-compendium.html?open=Detect%20Magic&cat=1st%20Level), [Light](spell-compendium.html?open=Light&cat=1st%20Level), [Magic Stone](spell-compendium.html?open=Magic%20Stone&cat=1st%20Level), [Mystic Robes](spell-compendium.html?open=Mystic%20Robes&cat=1st%20Level) |
+| 2nd Level | [Arcane Lore](spell-compendium.html?open=Arcane%20Lore&cat=2nd%20Level), [Bind](spell-compendium.html?open=Bind&cat=2nd%20Level), [Lesser Mage Lock](spell-compendium.html?open=Lesser%20Mage%20Lock&cat=2nd%20Level), [Open Lesser Lock](spell-compendium.html?open=Open%20Lesser%20Lock&cat=2nd%20Level) |
+| 3rd Level | [Mage Lock](spell-compendium.html?open=Mage%20Lock&cat=3rd%20Level), [Magic Vestment](spell-compendium.html?open=Magic%20Vestment&cat=3rd%20Level), [Open Lock](spell-compendium.html?open=Open%20Lock&cat=3rd%20Level), [Spell Shield](spell-compendium.html?open=Spell%20Shield&cat=3rd%20Level) |
+| 4th Level | [Dispel](spell-compendium.html?open=Dispel&cat=4th%20Level), [False Eye](spell-compendium.html?open=False%20Eye&cat=4th%20Level), [Fortify](spell-compendium.html?open=Fortify&cat=4th%20Level), [Greater Mage Lock](spell-compendium.html?open=Greater%20Mage%20Lock&cat=4th%20Level), [Reflect](spell-compendium.html?open=Reflect&cat=4th%20Level), [Scribe](spell-compendium.html?open=Scribe&cat=4th%20Level) |
+| 5th Level | [Erase](spell-compendium.html?open=Erase&cat=5th%20Level), [Identify](spell-compendium.html?open=Identify&cat=5th%20Level), [Protection from Magic](spell-compendium.html?open=Protection%20from%20Magic&cat=5th%20Level) |
+| 6th Level | [Contingency](spell-compendium.html?open=Contingency&cat=6th%20Level), [Enchant Armour](spell-compendium.html?open=Enchant%20Armour&cat=6th%20Level), [Enchant Weapon](spell-compendium.html?open=Enchant%20Weapon&cat=6th%20Level), [Magic Mouth](spell-compendium.html?open=Magic%20Mouth&cat=6th%20Level) |
+| 7th Level | [Anti-Magic Shell](spell-compendium.html?open=Anti-Magic%20Shell&cat=7th%20Level), [Greater Dispel](spell-compendium.html?open=Greater%20Dispel&cat=7th%20Level) |
+| 8th Level | [Enchant Item](spell-compendium.html?open=Enchant%20Item&cat=8th%20Level), [Item](spell-compendium.html?open=Item&cat=8th%20Level) |
+| 9th Level | [Anti-Magic Zone](spell-compendium.html?open=Anti-Magic%20Zone&cat=9th%20Level), [Destroy](spell-compendium.html?open=Destroy&cat=9th%20Level), [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Permanency](spell-compendium.html?open=Permanency&cat=9th%20Level) |$body66$),
 ('smaller-towns-and-settlements', 'Smaller Towns and Settlements', 'Towns & Settlements', $body67$“Some of the greatest heroes are born in a place that nobody’s ever heard of. Me? I’m from… well, a small town you’ve probably never heard of. But I wasn’t trying to big myself up just then.”
 
 - Ogden Hammerguard, Hero of Understone
@@ -3316,7 +3534,17 @@ The symbols of Stasa are a skeletal corpse, a body slain in a graphic or gruesom
 
 Principle Holiday: Friday the 13th – Stasa’s Harvest Devotion – Taxidermy/mummification or preparing a body for animation Spell incants are prefixed by “Heeding death’s call” At Will spells: 6th – Repulse, 9th – Paralyze Shared Domains: None Opposed Domain: [[Elieff]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-24.png)$body69$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Aid](spell-compendium.html?open=Aid&cat=1st%20Level), [Detect Curse](spell-compendium.html?open=Detect%20Curse&cat=1st%20Level), [Extinguish](spell-compendium.html?open=Extinguish&cat=1st%20Level), [Pin](spell-compendium.html?open=Pin&cat=1st%20Level), [Repulse](spell-compendium.html?open=Repulse&cat=1st%20Level) |
+| 2nd Level | [Anti-Healing Shell](spell-compendium.html?open=Anti-Healing%20Shell&cat=2nd%20Level), [Detect Undead](spell-compendium.html?open=Detect%20Undead&cat=2nd%20Level), [Fear](spell-compendium.html?open=Fear&cat=2nd%20Level), [Unholy Bolt](spell-compendium.html?open=Unholy%20Bolt&cat=2nd%20Level) |
+| 3rd Level | [Barrier](spell-compendium.html?open=Barrier&cat=3rd%20Level), [Disease](spell-compendium.html?open=Disease&cat=3rd%20Level), [Enfeeble](spell-compendium.html?open=Enfeeble&cat=3rd%20Level), [Speak to Dead](spell-compendium.html?open=Speak%20to%20Dead&cat=3rd%20Level) |
+| 4th Level | [Blindness](spell-compendium.html?open=Blindness&cat=4th%20Level), [Blink](spell-compendium.html?open=Blink&cat=4th%20Level), [Command Lesser Undead](spell-compendium.html?open=Command%20Lesser%20Undead&cat=4th%20Level), [Paralyze](spell-compendium.html?open=Paralyze&cat=4th%20Level) |
+| 5th Level | [Animate Dead](spell-compendium.html?open=Animate%20Dead&cat=5th%20Level), [Bone Warrior](spell-compendium.html?open=Bone%20Warrior&cat=5th%20Level), [Identify](spell-compendium.html?open=Identify&cat=5th%20Level), [Mass Fear](spell-compendium.html?open=Mass%20Fear&cat=5th%20Level), [Passwall](spell-compendium.html?open=Passwall&cat=5th%20Level) |
+| 6th Level | [Age](spell-compendium.html?open=Age&cat=6th%20Level), [Command Undead](spell-compendium.html?open=Command%20Undead&cat=6th%20Level), [Unholy Weapon](spell-compendium.html?open=Unholy%20Weapon&cat=6th%20Level), [Zone of Silence](spell-compendium.html?open=Zone%20of%20Silence&cat=6th%20Level) |
+| 7th Level | [Death Curse](spell-compendium.html?open=Death%20Curse&cat=7th%20Level), [Sacrifice](spell-compendium.html?open=Sacrifice&cat=7th%20Level), [Torment Soul](spell-compendium.html?open=Torment%20Spirit&cat=7th%20Level) |
+| 8th Level | [Drain Life](spell-compendium.html?open=Drain%20Life&cat=8th%20Level), [Rotting Flesh](spell-compendium.html?open=Rotting%20Flesh&cat=8th%20Level), [Spirit Curse](spell-compendium.html?open=Spirit%20Curse&cat=8th%20Level), [Trap Spirit](spell-compendium.html?open=Trap%20Spirit&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Eternities Ritual](spell-compendium.html?open=Eternities%20Ritual&cat=9th%20Level), [Fate](spell-compendium.html?open=Fate&cat=9th%20Level) |$body69$),
 ('stelton', 'Stelton', 'Towns & Settlements', $body70$A major trading hub, and the gateway between the East and West of Harodom, Stelton is a large port town in central Harodom. Famous for its steelworkers, from which the city derives its name, Stelton benefits from the rich iron deposits in the nearby baronies, refining the raw ore, and making tools, weapons, and armour. Stelton holds a large and storied temple to [[Callis]], to which devotees of the god of fire and the forge visit as a part of their religious journey. Just as famous however is the Great Library of Stelton, the largest [[Libraries of Ariel]] in the country that is open to any who can pay a nominal fee for use.
 
 ## Ruling House of Stelton
@@ -3362,7 +3590,17 @@ The symbols of Strega include a vial of blood, a fang and an animal scale.
 
 Principle Holiday: April 21st – Dragon’s Feast Devotion – Overseeing Underlings or Being Served Spell incants are prefixed by “With Power and Greed” At Will spells: 6th – Arcane Dart, 9th – Find Things Shared Domains: [[Astrid]], [[Marius]] Opposed Domain: [[Elieff]]
 
-![Lore illustration](https://fantasyalivelrp.com/wp-content/uploads/2023/10/image-25.png)$body71$),
+| Level | Spells |
+| --- | --- |
+| 1st Level | [Arcane Dart](spell-compendium.html?open=Arcane%20Dart&cat=1st%20Level), [Detect Magic](spell-compendium.html?open=Detect%20Magic&cat=1st%20Level), [Repulse](spell-compendium.html?open=Repulse&cat=1st%20Level) |
+| 2nd Level | [Arcane Bolt](spell-compendium.html?open=Arcane%20Bolt&cat=2nd%20Level), [Bind](spell-compendium.html?open=Bind&cat=2nd%20Level), [Translate](spell-compendium.html?open=Translate&cat=2nd%20Level), [Unbind](spell-compendium.html?open=Unbind&cat=2nd%20Level) |
+| 3rd Level | [Arcane Strike](spell-compendium.html?open=Arcane%20Strike&cat=3rd%20Level), [Charm](spell-compendium.html?open=Charm&cat=3rd%20Level), [Shatter](spell-compendium.html?open=Shatter&cat=3rd%20Level), [Strength](spell-compendium.html?open=Strength&cat=3rd%20Level) |
+| 4th Level | [Arcane Barrage](spell-compendium.html?open=Arcane%20Barrage&cat=4th%20Level), [Find Things](spell-compendium.html?open=Find%20Things&cat=4th%20Level), [Ogre Strength](spell-compendium.html?open=Ogre%20Strength&cat=4th%20Level) |
+| 5th Level | [Giant Strength](spell-compendium.html?open=Giant%20Strength&cat=5th%20Level), [Passwall](spell-compendium.html?open=Passwall&cat=5th%20Level) |
+| 6th Level | [Greater Charm](spell-compendium.html?open=Greater%20Charm&cat=6th%20Level), [Legend](spell-compendium.html?open=Legend&cat=6th%20Level) |
+| 7th Level | [Banishment](spell-compendium.html?open=Banishment&cat=7th%20Level), [Youth](spell-compendium.html?open=Youth&cat=7th%20Level) |
+| 8th Level | [Mind Wipe](spell-compendium.html?open=Mind%20Wipe&cat=8th%20Level), [Teleport](spell-compendium.html?open=Teleport&cat=8th%20Level) |
+| 9th Level | [Divine Blessing](spell-compendium.html?open=Divine%20Blessing&cat=9th%20Level), [Mass Teleport](spell-compendium.html?open=Mass%20Teleport&cat=9th%20Level), [Memory Alteration](spell-compendium.html?open=Memory%20Alteration&cat=9th%20Level) |$body71$),
 ('the-broken-reach', 'The Broken Reach', 'Kingdoms & Regions', $body72$The Breaking of the Reach was a cataclysmic event that occurred so close to the end of the Eldersire-Harodom War that it was difficult to believe that the two events were unrelated. Almost overnight, towers fell, towns dissolved, the earth beneath our feet shook, and great noxious gases emerged from holes in the ground, poisoning the earth and causing what grew there thereafter to be strange or sickly or both. It is possible that the denials of the belligerent forces are true – or indeed, that whoever caused the Breaking is now so thoroughly dead from having done so that we might as well treat the event as a force majeure.
 
 - Omaria of [[Fiona]], Some Comments on the Breaking of the Rift (2022 A.T.)
