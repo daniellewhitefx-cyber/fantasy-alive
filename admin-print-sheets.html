@@ -120,6 +120,7 @@
   margin: 0;
   line-height: 1.1;
 }
+.tag-group-head:first-child{ margin-top: 0; }
 .tag-group-head{
   font-family: 'Cinzel', serif;
   font-size: 0.95rem;
@@ -233,8 +234,8 @@
 <div id="ptr-summary"></div>
 <div id="ptr-list"></div>
 <div style="margin-top:1rem; display:flex; gap:0.6rem; flex-wrap:wrap;">
-<button class="btn-gold" id="ptr-print-btn" onclick="ptr_print()" disabled>Print Selected Tags</button>
-<button class="btn-outline" id="ptr-fulfill-btn" onclick="ptr_markFulfilled()" disabled>Mark Selected as Fulfilled</button>
+<button class="btn-gold" id="ptr-print-btn" onclick="ptr_print()" disabled>Print All Tags</button>
+<button class="btn-outline" id="ptr-fulfill-btn" onclick="ptr_markFulfilled()" disabled>Mark All as Fulfilled</button>
 </div>
 </div>
 </div>
@@ -624,10 +625,9 @@ async function ptr_load(){
     <div class="reg-section">
       <div class="reg-section-label">${escapeHtml(g.player)}</div>
       ${g.rows.map(r => `
-        <label style="display:flex; align-items:center; gap:0.5rem; padding:0.3rem 0; border-bottom:1px solid var(--line);">
-          <input type="checkbox" class="ptr-check" data-id="${r.id}" checked>
-          <span>${escapeHtml(r.item_name)} &times;${r.quantity} <span style="color:var(--brown-dark); font-size:0.85rem;">(${escapeHtml(r.character_name)}, ${escapeHtml(r.event_slug)})</span></span>
-        </label>
+        <div style="padding:0.3rem 0; border-bottom:1px solid var(--line);">
+          ${escapeHtml(r.item_name)} &times;${r.quantity} <span style="color:var(--brown-dark); font-size:0.85rem;">(${escapeHtml(r.character_name)}, ${escapeHtml(r.event_slug)})</span>
+        </div>
       `).join('')}
     </div>
   `).join('');
@@ -636,17 +636,11 @@ async function ptr_load(){
   fulfillBtn.disabled = false;
 }
 
-function ptr_selectedRequests(){
-  const checked = new Set(Array.from(document.querySelectorAll('.ptr-check:checked')).map(el => el.dataset.id));
-  return PENDING_REQUESTS.filter(r => checked.has(r.id));
-}
-
 function ptr_print(){
-  const selected = ptr_selectedRequests();
-  if(!selected.length){ alert('Select at least one tag to print.'); return; }
+  if(!PENDING_REQUESTS.length){ alert('No pending tag requests to print.'); return; }
 
   const groups = [];
-  selected.forEach(r => {
+  PENDING_REQUESTS.forEach(r => {
     let g = groups.find(x => x.player === r.player_display_name);
     if(!g){ g = { player: r.player_display_name, rows: [] }; groups.push(g); }
     g.rows.push(r);
@@ -654,7 +648,6 @@ function ptr_print(){
 
   const html = `
     <div class="tag-print-page">
-      <div class="tag-print-head"><h2>Player Tags</h2></div>
       ${groups.map(g => `
         <h3 class="tag-group-head">${escapeHtml(g.player)}</h3>
         <div class="tag-grid">
@@ -667,11 +660,10 @@ function ptr_print(){
 }
 
 async function ptr_markFulfilled(){
-  const selected = ptr_selectedRequests();
-  if(!selected.length){ alert('Select at least one tag to mark fulfilled.'); return; }
-  if(!confirm(`Mark ${selected.length} tag request${selected.length === 1 ? '' : 's'} as fulfilled? This removes them from this list.`)) return;
+  if(!PENDING_REQUESTS.length){ alert('No pending tag requests to mark fulfilled.'); return; }
+  if(!confirm(`Mark all ${PENDING_REQUESTS.length} pending tag request${PENDING_REQUESTS.length === 1 ? '' : 's'} as fulfilled? This removes them from this list.`)) return;
 
-  for(const r of selected){
+  for(const r of PENDING_REQUESTS){
     await membersSupabase.rpc('logistics_fulfill_tag_request', { p_request_id: r.id });
   }
   await ptr_load();
