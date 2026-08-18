@@ -4,7 +4,9 @@
 -- so they can act anywhere on the site.
 
 create or replace function fa_is_site_admin()
-returns boolean language sql stable as $$
+returns boolean language sql stable
+set search_path = public
+as $$
   select coalesce((auth.jwt() -> 'app_metadata' ->> 'site_admin')::boolean, false);
 $$;
 
@@ -12,7 +14,9 @@ $$;
 -- and members of the Logistics department, per how the club actually
 -- splits that work, rather than a dedicated staff flag.
 create or replace function fa_is_logistics_or_admin()
-returns boolean language sql stable as $$
+returns boolean language sql stable
+set search_path = public
+as $$
   select fa_is_site_admin() or exists (
     select 1 from department_members dm
     join departments d on d.id = dm.department_id
