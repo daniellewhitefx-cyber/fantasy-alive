@@ -376,16 +376,19 @@ async function updateRegisterCta(who, characterName){
 async function loadKpis(){
   const me = window.faCurrentUser.id;
 
-  if(window.faIsTownspersonOnly){
+  if(window.faIsTownspersonOnly || window.faIsCastOnly){
     const bankCard = document.getElementById('home-kpi-bank-card');
     if(bankCard) bankCard.style.display = 'none';
-    const ocCard = document.getElementById('home-kpi-oc-card');
-    if(ocCard) ocCard.style.display = 'none';
   } else {
     const bankEl = document.getElementById('home-kpi-bank');
     const { data: balance, error: balanceErr } = await membersSupabase.rpc('bank_my_balance');
     bankEl.textContent = balanceErr ? 'Unavailable' : fmtAmount(balance) + ' cp';
+  }
 
+  if(window.faIsTownspersonOnly){
+    const ocCard = document.getElementById('home-kpi-oc-card');
+    if(ocCard) ocCard.style.display = 'none';
+  } else {
     const ocEl = document.getElementById('home-kpi-oc');
     const { data: ocRows } = await membersSupabase.from('oc_transactions').select('amount').eq('player_id', me);
     const ocTotal = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
