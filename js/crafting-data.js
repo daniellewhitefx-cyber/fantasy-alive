@@ -1,6 +1,7 @@
-// Loads the Crafting production list from the shared Google Sheet.
-
-const CRAFTING_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1pdO_F2fnCTLcLeEXsrpTMymkOkWarMYsgxHEJ8tdPSU/export?format=csv';
+// Loads the Crafting production list from the real item/recipe catalog
+// (migrated from the legacy database into Supabase; see
+// supabase/item-catalog-schema.sql), grouped by the trade skill(s) each
+// recipe requires.
 
 // Merchant and Labourer are trade skills but have no "craft a named item"
 // mechanic in the rulebook (Merchant is detection/business-oriented,
@@ -8,55 +9,106 @@ const CRAFTING_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1pdO_F2fn
 // Copper-earning mechanic already covers), so they're not part of this list.
 const CRAFTING_TRADE_ORDER = ['Armour Smith', 'Weapon Smith', 'Mechanic', 'Craftsman', 'Physician', 'Alchemist', 'Herbalist'];
 
-// Materials text looks like "1 Lumber and 1 Hardware", "1 Iron, 2 Lumber
-// and 2 Hardware (also requires Armour Smith 4)", or "none". A trailing
-// "(...)" is pulled out as a free-text note (dual-trade requirements,
-// "plus items dropped", etc.) rather than parsed as a tracked material.
-function craftingParseMaterials(text){
-  const raw = (text || '').trim();
-  if(!raw || raw.toLowerCase() === 'none') return { materials: [], note: null };
-  const noteMatch = raw.match(/\(([^)]+)\)\s*$/);
-  const note = noteMatch ? noteMatch[1].trim() : null;
-  const core = raw.replace(/\([^)]*\)\s*$/, '').trim();
-  if(!core) return { materials: [], note };
-  const parts = core.split(/,| and /i).map(s => s.trim()).filter(Boolean);
-  const materials = parts.map(p => {
-    const m = p.match(/^(\d+)\s+(.+)$/);
-    return m ? { name: m[2].trim(), qty: parseInt(m[1], 10) } : { name: p, qty: 1 };
-  });
-  return { materials, note };
+// The catalog's skill names differ slightly in spacing/casing from the
+// trade names shown on this page (and from the character skill list).
+const CRAFTING_TRADE_SKILL_NAMES = {
+  'Armoursmith': 'Armour Smith',
+  'Weaponsmith': 'Weapon Smith',
+  'Mechanic': 'Mechanic',
+  'Craftsman': 'Craftsman',
+  'Physician': 'Physician',
+  'Alchemist': 'Alchemist',
+  'Herbalist': 'Herbalist'
+};
+
+// Supabase caps a single request at 1000 rows; several of these tables
+// have more than that, so every table is paged through in full.
+async function craftingFetchAllRows(table, select){
+  const pageSize = 1000;
+  let rows = [];
+  let from = 0;
+  while(true){
+    const { data, error } = await membersSupabase.from(table).select(select).range(from, from + pageSize - 1);
+    if(error) throw new Error(error.message);
+    rows = rows.concat(data || []);
+    if(!data || data.length < pageSize) break;
+    from += pageSize;
+  }
+  return rows;
 }
 
 async function craftingLoadFromSheet(){
-  const res = await fetch(CRAFTING_SHEET_CSV_URL, { cache: 'no-store' });
-  if(!res.ok) throw new Error('Sheet request failed (' + res.status + ')');
-  const csvText = await res.text();
-  const rows = skillsParseCSV(csvText).filter(r => r.some(cell => (cell || '').trim() !== ''));
-  const header = (rows.shift() || []).map(h => h.trim().toLowerCase());
-  const col = name => header.indexOf(name);
+  const [items, categories, recipes, materials, requirements, skillReqs] = await Promise.all([
+    craftingFetchAllRows('items', 'id, name, category_id'),
+    craftingFetchAllRows('item_category', 'id, name'),
+    craftingFetchAllRows('recipes', 'id, item_id, quantity_produced, hours'),
+    craftingFetchAllRows('recipe_materials', 'recipe_id, item_id, quantity'),
+    craftingFetchAllRows('recipe_requirements', 'recipe_id, item_id, quantity'),
+    craftingFetchAllRows('recipe_skill_requirements', 'recipe_id, skill_name, level, focus_name')
+  ]);
 
-  const iTrade = col('trade'), iItem = col('item'), iCategory = col('category'),
-    iLevel = col('level required'), iHours = col('time hours'), iQty = col('qty produced'),
-    iMaterials = col('materials');
+  const categoryNameById = {};
+  categories.forEach(c => { categoryNameById[c.id] = c.name; });
 
-  return rows
-    .map(r => {
-      const materialsText = (r[iMaterials] || '').trim();
-      const { materials, note } = craftingParseMaterials(materialsText);
-      const hoursText = (r[iHours] || '').trim();
-      return {
-        trade: (r[iTrade] || '').trim(),
-        name: (r[iItem] || '').trim(),
-        category: (r[iCategory] || 'Uncategorized').trim(),
-        levelRequired: parseInt(r[iLevel], 10) || 1,
-        hours: hoursText ? (parseInt(hoursText, 10) || null) : null,
-        qtyProduced: parseInt(r[iQty], 10) || 1,
+  const itemById = {};
+  items.forEach(i => { itemById[i.id] = { name: i.name, category: categoryNameById[i.category_id] || 'Uncategorized' }; });
+
+  const materialsByRecipe = {};
+  materials.forEach(m => {
+    const item = itemById[m.item_id];
+    if(!item) return;
+    (materialsByRecipe[m.recipe_id] = materialsByRecipe[m.recipe_id] || []).push({ name: item.name, qty: Number(m.quantity) });
+  });
+
+  const requirementsByRecipe = {};
+  requirements.forEach(r => {
+    const item = itemById[r.item_id];
+    if(!item) return;
+    (requirementsByRecipe[r.recipe_id] = requirementsByRecipe[r.recipe_id] || []).push({ name: item.name, qty: r.quantity });
+  });
+
+  const skillReqsByRecipe = {};
+  skillReqs.forEach(s => {
+    (skillReqsByRecipe[s.recipe_id] = skillReqsByRecipe[s.recipe_id] || []).push(s);
+  });
+
+  const out = [];
+  recipes.forEach(r => {
+    const item = itemById[r.item_id];
+    if(!item) return;
+
+    const recipeMaterials = materialsByRecipe[r.id] || [];
+    const materialsText = recipeMaterials.length
+      ? recipeMaterials.map(m => `${m.qty} ${m.name}`).join(', ')
+      : 'none';
+
+    const recipeSkillReqs = skillReqsByRecipe[r.id] || [];
+    const tradeReqs = recipeSkillReqs.filter(s => CRAFTING_TRADE_SKILL_NAMES[s.skill_name]);
+    if(!tradeReqs.length) return; // no craft-trade gate -- a knowledge item (Scroll/Formula/Tutor Book/...), sold in the Shoppe instead
+
+    const otherSkillNotes = recipeSkillReqs
+      .filter(s => !CRAFTING_TRADE_SKILL_NAMES[s.skill_name])
+      .map(s => `${s.skill_name} ${s.level}${s.focus_name ? ' (' + s.focus_name + ' focus)' : ''}`);
+    const requirementNotes = (requirementsByRecipe[r.id] || []).map(req => `access to ${req.name}`);
+    const noteParts = [...otherSkillNotes, ...requirementNotes];
+    const note = noteParts.length ? noteParts.join('; ') : null;
+
+    tradeReqs.forEach(sr => {
+      out.push({
+        trade: CRAFTING_TRADE_SKILL_NAMES[sr.skill_name],
+        name: item.name,
+        category: item.category,
+        levelRequired: sr.level,
+        hours: r.hours === null || r.hours === undefined ? null : Number(r.hours),
+        qtyProduced: r.quantity_produced,
         materialsText: materialsText,
-        materials: materials,
+        materials: recipeMaterials,
         note: note
-      };
-    })
-    .filter(item => item.name && item.trade);
+      });
+    });
+  });
+
+  return out;
 }
 
 function craftingOrderedTrades(allItems){
@@ -67,8 +119,6 @@ function craftingOrderedTrades(allItems){
   return [...known, ...unknown];
 }
 
-window.CRAFTING_SHEET_CSV_URL = CRAFTING_SHEET_CSV_URL;
 window.CRAFTING_TRADE_ORDER = CRAFTING_TRADE_ORDER;
-window.craftingParseMaterials = craftingParseMaterials;
 window.craftingLoadFromSheet = craftingLoadFromSheet;
 window.craftingOrderedTrades = craftingOrderedTrades;
