@@ -77,8 +77,66 @@ function loreIsSafeUrl(url){
   return !/^\s*(javascript|data|vbscript):/i.test(url || '');
 }
 
-function loreInline(escapedText){
+function loreAutoLinkTerm(title){
+  const m = title.match(/^(.*)\s+\([^)]*\)$/);
+  return m ? m[1].trim() : title;
+}
+
+function loreAutoLink(escapedText, ownTitle, allTitles, linkedSoFar){
+  if(!ownTitle || !allTitles || !allTitles.length) return escapedText;
+
+  const protectedRe = /\[\[[^\]]*\]\]|!\[[^\]]*\]\([^)]*\)|\[[^\]]*\]\([^)]*\)/g;
+  const protectedSpans = [];
+  let pm;
+  while((pm = protectedRe.exec(escapedText))){
+    protectedSpans.push([pm.index, pm.index + pm[0].length]);
+  }
+
+  const linked = linkedSoFar || new Set();
+  const candidates = allTitles
+    .filter(t => t && t.toLowerCase() !== ownTitle.toLowerCase())
+    .filter(t => !linked.has(t.toLowerCase()))
+    .map(t => ({ title: t, term: loreAutoLinkTerm(t) }))
+    .filter(c => c.term)
+    .sort((a, b) => b.term.length - a.term.length);
+
+  const edits = [];
+  for(const { title, term } of candidates){
+    const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(escapedTerm, 'g');
+    let match;
+    let found = null;
+    while((match = re.exec(escapedText))){
+      const start = match.index;
+      const end = start + match[0].length;
+      const before = start > 0 ? escapedText[start - 1] : ' ';
+      const after = end < escapedText.length ? escapedText[end] : ' ';
+      if(/[a-z0-9]/i.test(before) || /[a-z0-9]/i.test(after)) continue;
+      const overlaps = protectedSpans.some(([ps, pe]) => start < pe && end > ps) ||
+        edits.some(e => start < e.end && end > e.start);
+      if(overlaps) continue;
+      found = { start, end, text: match[0] };
+      break;
+    }
+    if(found){
+      edits.push({ start: found.start, end: found.end, title, text: found.text });
+      linked.add(title.toLowerCase());
+    }
+  }
+
+  if(!edits.length) return escapedText;
+  edits.sort((a, b) => b.start - a.start);
   let out = escapedText;
+  for(const e of edits){
+    const term = loreAutoLinkTerm(e.title);
+    const replacement = term === e.title ? `[[${e.title}]]` : `[[${e.title}|${e.text}]]`;
+    out = out.slice(0, e.start) + replacement + out.slice(e.end);
+  }
+  return out;
+}
+
+function loreInline(escapedText, ownTitle, allTitles, linkedSoFar){
+  let out = loreAutoLink(escapedText, ownTitle, allTitles, linkedSoFar);
   out = out.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, target, display) => {
     const cleanTarget = target.trim();
     const cleanDisplay = (display || target).trim();
@@ -105,29 +163,38 @@ function loreParseImageLine(line){
   return imgTag;
 }
 
-function loreParseTable(lines){
+function loreParseTable(lines, ownTitle, allTitles, linkedSoFar){
   const parseRow = line => line.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
   const header = parseRow(lines[0]);
   const rows = lines.slice(2).map(parseRow);
-  const thead = '<thead><tr>' + header.map(h => `<th>${loreInline(loreEscapeHtml(h))}</th>`).join('') + '</tr></thead>';
-  const tbody = '<tbody>' + rows.map(r => '<tr>' + r.map(c => `<td>${loreInline(loreEscapeHtml(c))}</td>`).join('') + '</tr>').join('') + '</tbody>';
+  const thead = '<thead><tr>' + header.map(h => `<th>${loreInline(loreEscapeHtml(h), ownTitle, allTitles, linkedSoFar)}</th>`).join('') + '</tr></thead>';
+  const tbody = '<tbody>' + rows.map(r => '<tr>' + r.map(c => `<td>${loreInline(loreEscapeHtml(c), ownTitle, allTitles, linkedSoFar)}</td>`).join('') + '</tr>').join('') + '</tbody>';
   return `<table>${thead}${tbody}</table>`;
 }
 
-function loreParseMarkup(source){
-  const blocks = String(source || '').replace(/\r\n/g, '\n').split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+function loreParseMarkup(source, ownTitle, allTitles){
+  const raw = String(source || '');
+  const linkedSoFar = new Set();
+  const existingLinkRe = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
+  let lm;
+  while((lm = existingLinkRe.exec(raw))){
+    linkedSoFar.add(lm[1].trim().toLowerCase());
+  }
+
+  const blocks = raw.replace(/\r\n/g, '\n').split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
 
   return blocks.map(block => {
     const lines = block.split('\n');
+    const inline = text => loreInline(loreEscapeHtml(text), ownTitle, allTitles, linkedSoFar);
 
     if(lines[0].startsWith('### ')){
-      return `<h4>${loreInline(loreEscapeHtml(lines[0].slice(4).trim()))}</h4>`;
+      return `<h4>${inline(lines[0].slice(4).trim())}</h4>`;
     }
     if(lines[0].startsWith('## ')){
-      return `<h3>${loreInline(loreEscapeHtml(lines[0].slice(3).trim()))}</h3>`;
+      return `<h3>${inline(lines[0].slice(3).trim())}</h3>`;
     }
     if(lines[0].startsWith('~ ')){
-      return `<p class="lore-attribution">${loreInline(loreEscapeHtml(lines[0].slice(2).trim()))}</p>`;
+      return `<p class="lore-attribution">${inline(lines[0].slice(2).trim())}</p>`;
     }
     if(lines.every(l => l.startsWith('>'))){
       let cite = '';
@@ -138,17 +205,17 @@ function loreParseMarkup(source){
         if(citeMatch) cite = citeMatch[1].trim();
         else bodyLines.push(content);
       });
-      const body = loreInline(loreEscapeHtml(bodyLines.join(' ').trim()));
-      return `<div class="lore-quote">${body}${cite ? `<cite>${loreInline(loreEscapeHtml(cite))}</cite>` : ''}</div>`;
+      const body = inline(bodyLines.join(' ').trim());
+      return `<div class="lore-quote">${body}${cite ? `<cite>${inline(cite)}</cite>` : ''}</div>`;
     }
     if(lines.length === 1){
       const img = loreParseImageLine(lines[0]);
       if(img) return img;
     }
     if(lines.length >= 2 && lines[0].trim().startsWith('|') && /^[\s|:-]+$/.test(lines[1]) && lines[1].includes('-')){
-      return loreParseTable(lines);
+      return loreParseTable(lines, ownTitle, allTitles, linkedSoFar);
     }
-    return `<p>${loreInline(loreEscapeHtml(lines.join(' ')))}</p>`;
+    return `<p>${inline(lines.join(' '))}</p>`;
   }).join('\n');
 }
 
