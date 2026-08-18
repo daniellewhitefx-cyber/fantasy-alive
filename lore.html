@@ -289,6 +289,25 @@
   padding-top: 1rem;
   border-top: 1px dotted var(--line);
 }
+.lore-article p.lore-citation{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--gold-dark);
+  margin: -0.6rem 0 1.1rem;
+}
+.lore-article ul, .lore-article ol{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.12rem;
+  line-height: 1.75;
+  color: #2e2415;
+  margin: 0 0 1.1rem;
+  padding-left: 1.5rem;
+}
+.lore-article ul{ list-style: disc; }
+.lore-article ol{ list-style: decimal; }
+.lore-article li{ margin-bottom: 0.4rem; }
+.lore-article li::marker{ color: var(--gold-dark); }
 .lore-article a{
   color: var(--gold-dark);
   text-decoration: underline;
@@ -416,6 +435,10 @@
   color: var(--gold);
 }
 .lore-page.lore-dark .lore-article p{
+  color: var(--lore-dtext-soft);
+}
+.lore-page.lore-dark .lore-article ul,
+.lore-page.lore-dark .lore-article ol{
   color: var(--lore-dtext-soft);
 }
 .lore-page.lore-dark .lore-article .lore-quote{

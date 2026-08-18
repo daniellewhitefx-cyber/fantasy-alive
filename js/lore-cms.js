@@ -172,6 +172,9 @@ function loreParseTable(lines, ownTitle, allTitles, linkedSoFar){
   return `<table>${thead}${tbody}</table>`;
 }
 
+const BULLET_RE = /^[-*]\s+\S/;
+const ORDERED_RE = /^\d+\.\s+\S/;
+
 function loreParseMarkup(source, ownTitle, allTitles){
   const raw = String(source || '');
   const linkedSoFar = new Set();
@@ -182,21 +185,43 @@ function loreParseMarkup(source, ownTitle, allTitles){
   }
 
   const blocks = raw.replace(/\r\n/g, '\n').split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+  const inline = text => loreInline(loreEscapeHtml(text), ownTitle, allTitles, linkedSoFar);
 
-  return blocks.map(block => {
+  const isBulletBlock = b => !b.includes('\n') && BULLET_RE.test(b);
+  const isOrderedBlock = b => !b.includes('\n') && ORDERED_RE.test(b);
+
+  const out = [];
+  let i = 0;
+  while(i < blocks.length){
+    const block = blocks[i];
+
+    if(isBulletBlock(block) || isOrderedBlock(block)){
+      const ordered = isOrderedBlock(block);
+      const matches = ordered ? isOrderedBlock : isBulletBlock;
+      const stripRe = ordered ? /^\d+\.\s+/ : /^[-*]\s+/;
+      const items = [];
+      while(i < blocks.length && matches(blocks[i])){
+        items.push(blocks[i].replace(stripRe, ''));
+        i++;
+      }
+      if(items.length === 1){
+        out.push(`<p class="lore-citation">${inline(items[0])}</p>`);
+      } else {
+        const tag = ordered ? 'ol' : 'ul';
+        out.push(`<${tag}>${items.map(it => `<li>${inline(it)}</li>`).join('')}</${tag}>`);
+      }
+      continue;
+    }
+
     const lines = block.split('\n');
-    const inline = text => loreInline(loreEscapeHtml(text), ownTitle, allTitles, linkedSoFar);
 
     if(lines[0].startsWith('### ')){
-      return `<h4>${inline(lines[0].slice(4).trim())}</h4>`;
-    }
-    if(lines[0].startsWith('## ')){
-      return `<h3>${inline(lines[0].slice(3).trim())}</h3>`;
-    }
-    if(lines[0].startsWith('~ ')){
-      return `<p class="lore-attribution">${inline(lines[0].slice(2).trim())}</p>`;
-    }
-    if(lines.every(l => l.startsWith('>'))){
+      out.push(`<h4>${inline(lines[0].slice(4).trim())}</h4>`);
+    } else if(lines[0].startsWith('## ')){
+      out.push(`<h3>${inline(lines[0].slice(3).trim())}</h3>`);
+    } else if(lines[0].startsWith('~ ')){
+      out.push(`<p class="lore-attribution">${inline(lines[0].slice(2).trim())}</p>`);
+    } else if(lines.every(l => l.startsWith('>'))){
       let cite = '';
       const bodyLines = [];
       lines.forEach(l => {
@@ -206,17 +231,18 @@ function loreParseMarkup(source, ownTitle, allTitles){
         else bodyLines.push(content);
       });
       const body = inline(bodyLines.join(' ').trim());
-      return `<div class="lore-quote">${body}${cite ? `<cite>${inline(cite)}</cite>` : ''}</div>`;
+      out.push(`<div class="lore-quote">${body}${cite ? `<cite>${inline(cite)}</cite>` : ''}</div>`);
+    } else if(lines.length === 1 && loreParseImageLine(lines[0])){
+      out.push(loreParseImageLine(lines[0]));
+    } else if(lines.length >= 2 && lines[0].trim().startsWith('|') && /^[\s|:-]+$/.test(lines[1]) && lines[1].includes('-')){
+      out.push(loreParseTable(lines, ownTitle, allTitles, linkedSoFar));
+    } else {
+      out.push(`<p>${inline(lines.join(' '))}</p>`);
     }
-    if(lines.length === 1){
-      const img = loreParseImageLine(lines[0]);
-      if(img) return img;
-    }
-    if(lines.length >= 2 && lines[0].trim().startsWith('|') && /^[\s|:-]+$/.test(lines[1]) && lines[1].includes('-')){
-      return loreParseTable(lines, ownTitle, allTitles, linkedSoFar);
-    }
-    return `<p>${inline(lines.join(' '))}</p>`;
-  }).join('\n');
+    i++;
+  }
+
+  return out.join('\n');
 }
 
 window.loreLoadEntries = loreLoadEntries;
