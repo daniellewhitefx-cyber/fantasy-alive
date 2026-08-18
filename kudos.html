@@ -33,11 +33,10 @@
 <h1 class="page-title">Kudos</h1>
 
 <div class="bank-recipient-picker" data-picker="kudos">
-<label class="field-label" for="kudos-search-input">Give kudos to</label>
-<input type="text" id="kudos-search-input" placeholder="Search player or character name..." autocomplete="off"
-  oninput="kudos_search(this.value)" onfocus="kudos_search(this.value)" onblur="kudos_hideResults()">
-<div class="member-search-list" id="kudos-search-results"></div>
-<p class="bank-selected-recipient" id="kudos-selected" style="display:none;"></p>
+<label class="field-label" for="kudos-recipient-select">Give kudos to</label>
+<select id="kudos-recipient-select" onchange="kudos_pickFromSelect(this.value)">
+<option value="">Select a player or character...</option>
+</select>
 </div>
 
 <div class="section-block">
@@ -104,43 +103,20 @@ async function loadAllCandidates(){
     }));
 
   ALL_CANDIDATES = [...charCandidates, ...castCandidates].sort((a, b) => a.name.localeCompare(b.name));
+  renderCandidates();
 }
 
-function renderCandidates(query){
-  const q = query.trim().toLowerCase();
-  const resultsEl = document.getElementById('kudos-search-results');
-
-  const matches = q
-    ? ALL_CANDIDATES.filter(c => c.name.toLowerCase().includes(q) || c.playerName.toLowerCase().includes(q))
-    : ALL_CANDIDATES;
-
-  if(matches.length === 0){
-    resultsEl.innerHTML = '<div class="bank-recipient-empty">No matching characters.</div>';
-    return;
-  }
-
-  resultsEl.innerHTML = matches.map(c =>
-    `<button class="bank-recipient-result" onclick="kudos_pickPerson('${c.type}', '${c.id}', '${c.label.replace(/'/g, "\\'")}')">${escapeHtml(c.label)}</button>`
-  ).join('');
+function renderCandidates(){
+  const selectEl = document.getElementById('kudos-recipient-select');
+  selectEl.innerHTML = '<option value="">Select a player or character...</option>' +
+    ALL_CANDIDATES.map(c => `<option value="${c.type}:${escapeHtml(c.id)}">${escapeHtml(c.label)}</option>`).join('');
 }
 
-function kudos_search(query){
-  renderCandidates(query);
-}
-
-function kudos_hideResults(){
-  setTimeout(() => {
-    document.getElementById('kudos-search-results').innerHTML = '';
-  }, 150);
-}
-
-function kudos_pickPerson(type, id, label){
-  selectedRecipient = { type, id, label };
-  document.getElementById('kudos-search-input').value = '';
-  document.getElementById('kudos-search-results').innerHTML = '';
-  const selectedEl = document.getElementById('kudos-selected');
-  selectedEl.style.display = 'block';
-  selectedEl.textContent = `Selected: ${label}`;
+function kudos_pickFromSelect(value){
+  if(!value){ selectedRecipient = null; return; }
+  const [type, id] = value.split(':');
+  const found = ALL_CANDIDATES.find(c => c.type === type && String(c.id) === id);
+  selectedRecipient = found ? { type: found.type, id: found.id, label: found.label } : null;
 }
 
 async function kudos_submitKudos(){
@@ -148,7 +124,7 @@ async function kudos_submitKudos(){
   errorEl.style.display = 'none';
   const text = document.getElementById('kudos-kudos-text').value.trim();
 
-  if(!selectedRecipient){ showError(errorEl, 'Search for and select who you\'re giving kudos to.'); return; }
+  if(!selectedRecipient){ showError(errorEl, 'Select who you\'re giving kudos to.'); return; }
   if(!text){ showError(errorEl, 'Write a quick note before submitting.'); return; }
 
   const { error } = await membersSupabase.from('kudos').insert({
@@ -160,7 +136,7 @@ async function kudos_submitKudos(){
   if(error){ showError(errorEl, error.message); return; }
 
   selectedRecipient = null;
-  document.getElementById('kudos-selected').style.display = 'none';
+  document.getElementById('kudos-recipient-select').value = '';
   document.getElementById('kudos-kudos-text').value = '';
   await loadSubmitted();
 }
@@ -248,9 +224,7 @@ async function init(){
   await loadSubmitted();
 }
 
-window.kudos_search = kudos_search;
-window.kudos_hideResults = kudos_hideResults;
-window.kudos_pickPerson = kudos_pickPerson;
+window.kudos_pickFromSelect = kudos_pickFromSelect;
 window.kudos_submitKudos = kudos_submitKudos;
 document.addEventListener('fa-members-ready', init);
 })();
