@@ -1,6 +1,14 @@
 const FA_REGISTRATION_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzDzyi7jPDy_EwueBo_q8CPeOUY2sBVjWPBKRBBPoY5wKJpX8WMdzerUKOnI3Kx6614pA/exec';
 
 const FA_EVENT_DEFS = [
+  { start: '2026-01-24', end: '2026-01-24' },
+  { start: '2026-02-13', end: '2026-02-15' },
+  { start: '2026-03-13', end: '2026-03-15' },
+  { start: '2026-04-10', end: '2026-04-12' },
+  { start: '2026-05-08', end: '2026-05-10' },
+  { start: '2026-06-12', end: '2026-06-14' },
+  { start: '2026-07-03', end: '2026-07-05' },
+  { start: '2026-08-07', end: '2026-08-09' },
   { start: '2026-09-11', end: '2026-09-13' },
   { start: '2026-10-10', end: '2026-10-10' },
   { start: '2026-10-30', end: '2026-11-01' },
@@ -88,6 +96,11 @@ const FA_PAST_EVENTS = FA_EVENT_DEFS
   .map(faBuildEvent)
   .filter(e => e.end < FA_TODAY)
   .sort((a, b) => b.start - a.start);
+
+const FA_ALL_EVENTS = FA_EVENT_DEFS
+  .map(faBuildEvent)
+  .map(e => Object.assign(e, { isPast: e.end < FA_TODAY }))
+  .sort((a, b) => a.start - b.start);
 
 // The log for an event opens two weeks before it starts at 6pm, and
 // closes the Monday before the event at 9pm.
@@ -177,6 +190,7 @@ window.FA_REGISTRATION_ENDPOINT = FA_REGISTRATION_ENDPOINT;
 window.FA_EVENTS = FA_EVENTS;
 window.FA_NEXT_EVENT = FA_NEXT_EVENT;
 window.FA_PAST_EVENTS = FA_PAST_EVENTS;
+window.FA_ALL_EVENTS = FA_ALL_EVENTS;
 window.faGetCurrentUser = faGetCurrentUser;
 window.faCheckRegistration = faCheckRegistration;
 window.faLogWindow = faLogWindow;
