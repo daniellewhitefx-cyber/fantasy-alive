@@ -42,6 +42,11 @@
 <button onclick="cc_becomeCastOnly()">I'm Here to Cast</button>
 </div>
 
+<div class="reg-flex-banner" id="cc-townsperson-banner" style="display:none;">
+<div class="ftext">Just here to roleplay as a <strong>Townsperson</strong>? You don't need a full character with skills.</div>
+<button onclick="cc_becomeTownspersonOnly()">I'm a Townsperson</button>
+</div>
+
 <div id="cc-form-wrap">
 
 <div class="reg-section">
@@ -369,6 +374,7 @@ async function checkCap(){
 
   if(existingCharCount === 0){
     document.getElementById('cc-cast-banner').style.display = 'flex';
+    document.getElementById('cc-townsperson-banner').style.display = 'flex';
   }
 
   if(existingCharCount >= 2){
@@ -381,6 +387,15 @@ async function cc_becomeCastOnly(){
   if(!confirm("This marks your account as Cast-only and skips creating a player character. You can still create one later from the Characters page. Continue?")) return;
 
   const { error } = await membersSupabase.rpc('player_set_cast_only', { p_enabled: true });
+  if(error){ alert(error.message); return; }
+
+  window.location.href = 'home.html';
+}
+
+async function cc_becomeTownspersonOnly(){
+  if(!confirm("This marks your account as a Townsperson (RP only, no combat, no downtime log) and skips creating a player character. You can still create one later from the Characters page. Continue?")) return;
+
+  const { error } = await membersSupabase.rpc('player_set_townsperson_only', { p_enabled: true });
   if(error){ alert(error.message); return; }
 
   window.location.href = 'home.html';
@@ -405,6 +420,7 @@ async function init(){
 }
 
 window.cc_becomeCastOnly = cc_becomeCastOnly;
+window.cc_becomeTownspersonOnly = cc_becomeTownspersonOnly;
 window.cc_onRaceChange = cc_onRaceChange;
 window.cc_selectCategory = cc_selectCategory;
 window.cc_updateFocus = cc_updateFocus;
