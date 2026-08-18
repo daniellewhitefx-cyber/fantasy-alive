@@ -16,7 +16,7 @@ create table if not exists oc_submission_requests (
   status text not null default 'pending' check (status in ('pending', 'approved', 'denied')),
   created_at timestamptz not null default now(),
   reviewed_at timestamptz,
-  reviewed_by uuid references auth.users(id)
+  reviewed_by uuid references auth.users(id) on delete set null
 );
 
 create index if not exists oc_submission_requests_player_idx on oc_submission_requests(player_id, created_at desc);

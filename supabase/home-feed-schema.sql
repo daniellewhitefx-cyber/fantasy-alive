@@ -6,7 +6,7 @@ create table if not exists home_feed_items (
   link_url text,
   badge text,
   sort_order integer not null default 0,
-  created_by uuid references auth.users(id),
+  created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
