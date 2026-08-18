@@ -35,8 +35,33 @@ async function needsCharacterCreation(playerId){
 
   if((count || 0) > 0) return false;
 
-  const { data: profile } = await membersSupabase.from('profiles').select('is_cast').eq('id', playerId).maybeSingle();
-  return !(profile && profile.is_cast);
+  const { data: profile } = await membersSupabase.from('profiles').select('is_cast, is_townsperson').eq('id', playerId).maybeSingle();
+  return !(profile && (profile.is_cast || profile.is_townsperson));
+}
+
+// New players must sign the liability waiver and submit an emergency
+// contact form before doing anything else on the site, including creating
+// a character. Returns the page to redirect to, or null if both are done
+// (or the current page is one of the two waiver pages themselves).
+async function needsWaiverCompletion(playerId){
+  const current = location.pathname.split('/').pop();
+  if(current === 'liability-waiver.html' || current === 'emergency-contact.html') return null;
+
+  const { data: waiver } = await membersSupabase
+    .from('liability_waivers')
+    .select('player_id')
+    .eq('player_id', playerId)
+    .maybeSingle();
+  if(!waiver) return 'liability-waiver.html';
+
+  const { data: contact } = await membersSupabase
+    .from('emergency_contact_forms')
+    .select('player_id')
+    .eq('player_id', playerId)
+    .maybeSingle();
+  if(!contact) return 'emergency-contact.html';
+
+  return null;
 }
 
 async function refreshNotifBadge(){
@@ -96,6 +121,12 @@ async function initMembersPage(){
 
   try{ await membersSupabase.rpc('ensure_profile'); } catch(err){}
 
+  const waiverRedirect = await needsWaiverCompletion(data.session.user.id);
+  if(waiverRedirect){
+    window.location.href = waiverRedirect;
+    return;
+  }
+
   if(await needsCharacterCreation(data.session.user.id)){
     window.location.href = 'character-creator.html';
     return;
@@ -107,6 +138,40 @@ async function initMembersPage(){
   const displayName = (user.user_metadata && user.user_metadata.display_name) || user.email;
   document.getElementById('member-account-name').textContent = displayName;
   markActiveNavLink();
+
+  // Nav is trimmed down for Cast-only and Townsperson-only accounts, since
+  // neither has a character to spend coin/XP/OC on or attend events as.
+  // The moment either account creates a real character, hasCharacters
+  // flips true and the full nav comes back, regardless of whether the
+  // is_cast/is_townsperson flag itself ever gets cleared.
+  const { count: charCount } = await membersSupabase
+    .from('characters')
+    .select('id', { count: 'exact', head: true })
+    .eq('player_id', user.id);
+  const hasCharacters = (charCount || 0) > 0;
+
+  const { data: acctProfile } = await membersSupabase.from('profiles').select('is_cast, is_townsperson').eq('id', user.id).maybeSingle();
+  const isCastOnly = !hasCharacters && !!(acctProfile && acctProfile.is_cast);
+  const isTownspersonOnly = !hasCharacters && !!(acctProfile && acctProfile.is_townsperson);
+
+  function hideNavLinks(ids){
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = 'none';
+    });
+  }
+
+  if(isCastOnly){
+    hideNavLinks(['member-teachable-skills-link', 'member-bank-link', 'member-inventory-link', 'member-friends-link']);
+    const eventsGroup = document.getElementById('member-events-group');
+    if(eventsGroup) eventsGroup.style.display = 'none';
+  }
+
+  if(isTownspersonOnly){
+    hideNavLinks(['member-bank-link', 'member-auction-link', 'member-oc-submission-link', 'member-xp-oc-log-link']);
+    const eventsGroup = document.getElementById('member-events-group');
+    if(eventsGroup) eventsGroup.style.display = 'none';
+  }
 
   const meta = user.app_metadata || {};
   const isSiteAdmin = !!meta.site_admin;

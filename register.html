@@ -114,7 +114,7 @@ const PASSES = [
   { id:'bonusitem', name:'Bonus Item Event', price:111, grants:'45 XP + 3 item-tag draws at check-in', modes:['character'], show: s => !s.firstTime },
   { id:'bonusxp', name:'Bonus XP Event', price:142, grants:'50 XP', modes:['character'], show: s => !s.firstTime },
   { id:'supporter', name:'FA Supporter Event', price:226, grants:'45 XP + 50 XP + 50 OC + 3 item-tag draws', modes:['character'], show: s => !s.firstTime },
-  { id:'townsfolk', name:'Townsfolk Weekend Entry', price:25, grants:'RP only, no character or log', modes:['character'], show: s => true },
+  { id:'townsfolk', name:'Townsfolk Weekend Entry', price:25, grants:'RP only, no character or log', modes:['character','townsperson'], show: s => true },
   { id:'first-free', name:'First-Time FREE Weekend', price:0, grants:'45 XP', modes:['character'], show: s => s.firstTime, badge:'First-Time' },
   { id:'first-wellfed', name:'First-Time Well-Fed Weekend', price:60, grants:'45 XP + Full Meal Plan (included)', modes:['character'], show: s => s.firstTime, badge:'First-Time', bundlesMeal:true },
   { id:'first-vip', name:'First-Time VIP Weekend', price:80, grants:'45 XP + 50 XP + Full Meal Plan (included)', modes:['character'], show: s => s.firstTime, badge:'First-Time', bundlesMeal:true },
@@ -129,9 +129,9 @@ const COMBAT_OPTIONS = [
 const SINGLE_MEAL_OPTIONS = ['Saturday Breakfast', 'Saturday Lunch', 'Saturday Dinner', 'Sunday Breakfast'];
 
 const MEALS = [
-  { id:'full', name:'Full Meal Plan', price:73, flavor:'Saturday Breakfast, Lunch, Dinner (including dessert!), and Breakfast Sunday.', slots:['Saturday Breakfast','Saturday Lunch','Saturday Dinner','Sunday Breakfast'], show: s => s.who === 'character' },
-  { id:'half', name:'Half Meal Plan', price:48, flavor:'Saturday Lunch, and Dinner (including dessert!).', slots:['Saturday Lunch','Saturday Dinner'], show: s => s.who === 'character' },
-  { id:'single', name:'Single Meal', price:24, flavor:'One of the meals listed in Full Meal Plan. Please specify which meal.', slots:[], show: s => s.who === 'character' },
+  { id:'full', name:'Full Meal Plan', price:73, flavor:'Saturday Breakfast, Lunch, Dinner (including dessert!), and Breakfast Sunday.', slots:['Saturday Breakfast','Saturday Lunch','Saturday Dinner','Sunday Breakfast'], show: s => s.who === 'character' || s.who === 'townsperson' },
+  { id:'half', name:'Half Meal Plan', price:48, flavor:'Saturday Lunch, and Dinner (including dessert!).', slots:['Saturday Lunch','Saturday Dinner'], show: s => s.who === 'character' || s.who === 'townsperson' },
+  { id:'single', name:'Single Meal', price:24, flavor:'One of the meals listed in Full Meal Plan. Please specify which meal.', slots:[], show: s => s.who === 'character' || s.who === 'townsperson' },
   { id:'castmeal', name:'Cast Meal Plan', price:40, flavor:'Saturday Breakfast, Lunch, Dinner (including dessert!), and Breakfast Sunday.', slots:['Saturday Breakfast','Saturday Lunch','Saturday Dinner','Sunday Breakfast'], show: s => s.who === 'cast' }
 ];
 
@@ -202,7 +202,7 @@ function reg_selectWho(mode, characterId){
 
 async function checkExistingRegistration(){
   const character = CHARACTERS.find(c => c.id === state.character);
-  const characterName = state.who === 'cast' ? 'Cast' : (character ? character.name : '');
+  const characterName = state.who === 'cast' ? 'Cast' : (state.who === 'townsperson' ? 'Townsperson' : (character ? character.name : ''));
   if(!characterName) return;
 
   checkingRegistration = true;
@@ -295,6 +295,11 @@ function render(){
        <div class="badge cast">Cast</div>
        <div class="pname">Cast / NPC this weekend</div>
        <p class="pgrants">Not tied to a character. You'll play monsters and NPCs and earn OC instead of XP</p>
+     </div>`,
+    `<div class="reg-pass-card ${state.who==='townsperson' ? 'selected':''}" onclick="reg_selectWho('townsperson', null)">
+       <div class="badge townsperson">Townsperson</div>
+       <div class="pname">Townsperson (RP only)</div>
+       <p class="pgrants">No character needed. Pure roleplay, no combat, no downtime log. You can create a character later if you want one</p>
      </div>`
   ];
   whoGrid.innerHTML = whoCards.join('');
@@ -307,6 +312,10 @@ function render(){
   } else if(state.who === 'cast'){
     whoHint.style.display = 'block';
     whoHint.textContent = `Registering to Cast this event. This isn't tied to a character. You'll be marked Cast for this date and see Cast-only options below.`;
+    restOfForm.style.display = 'block';
+  } else if(state.who === 'townsperson'){
+    whoHint.style.display = 'block';
+    whoHint.textContent = `Registering as a Townsperson for this event. No character needed - this is pure roleplay, no combat, no downtime log.`;
     restOfForm.style.display = 'block';
   } else {
     whoHint.style.display = 'none';
@@ -328,8 +337,8 @@ function render(){
     alreadyRegisteredWrap.style.display = 'block';
     alreadyRegisteredWrap.innerHTML = `
       <h3>&#10003; You're Registered!</h3>
-      <p>${escapeHtml(state.who === 'cast' ? 'You' : (CHARACTERS.find(c=>c.id===state.character)||{}).name || 'This character')}
-      ${state.who === 'cast' ? "are" : "is"} already signed up for <strong>${escapeHtml(state.event.label)}</strong>
+      <p>${escapeHtml(state.who === 'cast' || state.who === 'townsperson' ? 'You' : (CHARACTERS.find(c=>c.id===state.character)||{}).name || 'This character')}
+      ${state.who === 'cast' || state.who === 'townsperson' ? "are" : "is"} already signed up for <strong>${escapeHtml(state.event.label)}</strong>
       ${r.passName ? ` with the <strong>${escapeHtml(r.passName)}</strong> pass` : ''}.</p>
       ${r.mealName && r.mealName !== 'None' ? `<p>Meal plan: ${escapeHtml(r.mealName)}</p>` : ''}
       ${r.daysAttending ? `<p>Days attending: ${escapeHtml(r.daysAttending)}</p>` : ''}
@@ -546,7 +555,7 @@ async function buildRegistrationPayload(){
       ? currentUser.user_metadata.display_name
       : (currentUser ? currentUser.email : ''),
     who: state.who,
-    characterName: state.who === 'character' ? (character ? character.name : '') : 'Cast',
+    characterName: state.who === 'character' ? (character ? character.name : '') : (state.who === 'cast' ? 'Cast' : 'Townsperson'),
     passId: selectedPass,
     passName: selectedPass === 'flex-used' ? 'Flex Pass' : (passObj ? passObj.name : ''),
     passPrice: selectedPass === 'flex-used' ? 0 : (passObj ? passObj.price : 0),

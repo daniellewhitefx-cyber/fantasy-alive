@@ -905,6 +905,7 @@ select.reg-date-select{
 }
 .reg-pass-card .badge.cast{ background: #7a4f9e; }
 .reg-pass-card .badge.first{ background: #b5652f; }
+.reg-pass-card .badge.townsperson{ background: #2f7a6b; }
 
 .reg-who-hint{
   font-size: 0.92rem;
