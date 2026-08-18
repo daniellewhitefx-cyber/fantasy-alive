@@ -160,11 +160,11 @@ async function handleLogin(){
   msg.textContent = 'Logged in! Redirecting...';
   msg.classList.add('success');
 
-  window.location.href = 'characters.html';
+  window.location.href = 'home.html';
 }
 
 supabaseClient.auth.getSession().then(({ data }) => {
-  if(data.session) window.location.href = 'characters.html';
+  if(data.session) window.location.href = 'home.html';
 });
 </script>
 
