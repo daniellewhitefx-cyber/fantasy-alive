@@ -248,79 +248,46 @@ opacity: 0.92;
 }
 
 .schedule-section{
-padding: 3rem;
+padding: 1.8rem 2rem 2.2rem;
 text-align: center;
 }
 .schedule-section h2{
 font-family: 'Cinzel', serif;
-margin: 0 0 1.6rem;
+font-size: 1.4rem;
+margin: 0 0 1rem;
 color: var(--brown);
 }
 .schedule-grid{
 display:flex;
 flex-wrap: wrap;
 justify-content: center;
-gap: 1.2rem;
-max-width: 1000px;
+gap: 0.6rem;
+max-width: 900px;
 margin: 0 auto;
 }
-.schedule-card{
-flex: 0 1 220px;
-border: 2px solid var(--gold-dark);
-border-radius: 8px;
-background: #fff;
-padding: 1.2rem 1rem;
-display:flex;
-flex-direction: column;
+.schedule-chip{
+display:inline-flex;
 align-items:center;
-gap: 0.5rem;
-}
-.schedule-card-date{
 font-family: 'Cinzel', serif;
 font-weight: 700;
-font-size: 1.15rem;
-color: var(--brown);
+font-size: 0.85rem;
 letter-spacing: 0.02em;
+color: var(--brown);
+background: #fff;
+border: 2px solid var(--gold-dark);
+border-radius: 999px;
+padding: 0.4rem 1rem;
 }
-.schedule-card-tag{
-font-family: 'Cinzel', serif;
-font-size: 0.65rem;
-font-weight: 700;
-letter-spacing: 0.05em;
-text-transform: uppercase;
-color: var(--ink);
-background: var(--gold);
-padding: 0.2rem 0.55rem;
-border-radius: 3px;
+.schedule-chip.is-past{
+color: var(--brown-dark);
+background: var(--cream-deep);
+border-color: var(--line);
+opacity: 0.75;
 }
-.schedule-card-link{
-font-family: 'Cinzel', serif;
-font-size: 0.8rem;
-font-weight: 700;
-color: var(--gold-dark);
-text-decoration: underline;
-margin-top: 0.2rem;
-}
-.schedule-card-link:hover{ color: var(--brown); }
 .schedule-empty{
 font-family: 'EB Garamond', serif;
 color: var(--brown-dark);
 font-size: 1.05rem;
-}
-.schedule-card.is-past{
-background: var(--cream-deep);
-opacity: 0.7;
-}
-.schedule-card.is-past .schedule-card-tag{
-background: var(--brown);
-color: var(--cream);
-}
-.schedule-card-status{
-font-family: 'Cinzel', serif;
-font-size: 0.8rem;
-font-weight: 700;
-color: var(--brown-dark);
-margin-top: 0.2rem;
 }
 
 .feed-section{
@@ -643,13 +610,7 @@ function renderScheduleGrid(){
   }
 
   wrap.innerHTML = events.map(e => `
-    <div class="schedule-card${e.isPast ? ' is-past' : ''}">
-      <span class="schedule-card-date">${feedEscapeHtml(e.label)}</span>
-      <span class="schedule-card-tag">${e.isDayEvent ? 'Day Event' : e.days.length + '-Day Event'}</span>
-      ${e.isPast
-        ? '<span class="schedule-card-status">Event Passed</span>'
-        : `<a class="schedule-card-link" href="register.html?event=${encodeURIComponent(e.value)}">Register</a>`}
-    </div>
+    <span class="schedule-chip${e.isPast ? ' is-past' : ''}">${feedEscapeHtml(e.label)}${e.isDayEvent ? ' (Day)' : ''}</span>
   `).join('');
 }
 
