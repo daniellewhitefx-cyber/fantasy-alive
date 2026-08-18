@@ -104,6 +104,71 @@
 .kp-print-table td.kp-checkbox{ text-align:center; font-size: 1rem; }
 .kp-print-table tr{ page-break-inside: avoid; }
 
+.tag-print-page{
+  font-family: 'EB Garamond', serif;
+  color: #000;
+  padding: 0.15in 0.1in;
+}
+.tag-print-head{
+  border-bottom: 1.5px solid #000;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+}
+.tag-print-head h2{
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  margin: 0;
+  line-height: 1.1;
+}
+.tag-group-head{
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  margin: 0.8rem 0 0.3rem;
+}
+.tag-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 0.4rem;
+}
+.tag-cell{
+  border: 1px solid #000;
+  margin: -1px 0 0 -1px;
+  padding: 0.3rem 0.4rem;
+  min-height: 1.35in;
+  display:flex;
+  flex-direction:column;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  page-break-inside: avoid;
+}
+.tag-cell-name{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  text-align:center;
+  font-size: 0.8rem;
+  line-height: 1.15;
+}
+.tag-cell-modifier{ font-size: 0.68rem; text-align:center; margin-top:0.25rem; }
+.tag-cell-modifier .tag-use-box{
+  display:inline-block;
+  width:0.55rem;
+  height:0.55rem;
+  border:1px solid #000;
+  margin-right:0.15rem;
+}
+.tag-cell-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap: 0.4rem;
+  font-size: 0.62rem;
+  border-top: 1px dashed #999;
+  padding-top:0.2rem;
+  margin-top:0.3rem;
+}
+.tag-cell-code{ font-family: monospace; white-space:nowrap; }
+.tag-cell-stamp{ flex:1; min-height: 0.45in; }
+
 @media print{
   @page{ margin: 0.25in; }
   div[data-include="partials/header.html"],
@@ -169,6 +234,64 @@
 </div>
 </div>
 
+<div class="panel">
+<div class="panel-head"><h2>Player Tag Requests</h2></div>
+<div class="panel-body">
+<p class="page-subhead">Every pending tag a player has requested from their Inventory, grouped by player so everyone's tags stay together.</p>
+<div id="ptr-summary"></div>
+<div id="ptr-list"></div>
+<div style="margin-top:1rem; display:flex; gap:0.6rem; flex-wrap:wrap;">
+<button class="btn-gold" id="ptr-print-btn" onclick="ptr_print()" disabled>Print Selected Tags</button>
+<button class="btn-outline" id="ptr-fulfill-btn" onclick="ptr_markFulfilled()" disabled>Mark Selected as Fulfilled</button>
+</div>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-head"><h2>Custom / Loot Tags</h2></div>
+<div class="panel-body">
+<p class="page-subhead">Pick any item that exists in game, or make one up on the spot, to print a batch of tags not tied to a player.</p>
+<div class="bank-form-grid">
+<div>
+<label class="field-label" for="ct-item-name">Item Name</label>
+<input type="text" id="ct-item-name" list="ct-item-options" placeholder="Type or pick an item" oninput="ct_onNameInput()">
+<datalist id="ct-item-options"></datalist>
+</div>
+<div>
+<label class="field-label" for="ct-qty">Quantity</label>
+<input type="number" id="ct-qty" step="1" value="1" min="1">
+</div>
+</div>
+<div id="ct-new-item-fields" style="display:none; margin-top:0.8rem;">
+<div class="bank-form-grid">
+<div>
+<label class="field-label" for="ct-code">Appraisal Code (optional)</label>
+<input type="text" id="ct-code" placeholder="Leave blank if none yet">
+</div>
+<div>
+<label class="field-label" for="ct-modifier">Modifier</label>
+<select id="ct-modifier" onchange="ct_onModifierChange()">
+<option value="none">None</option>
+<option value="shatter">Shattered checkbox</option>
+<option value="uses">Uses boxes (consumable)</option>
+</select>
+</div>
+<div id="ct-uses-row" style="display:none;">
+<label class="field-label" for="ct-use-count">Number of Uses</label>
+<input type="number" id="ct-use-count" step="1" value="5" min="1">
+</div>
+</div>
+<label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem;">
+<input type="checkbox" id="ct-save-catalog" checked> Save this item to the catalog for reuse
+</label>
+</div>
+<button class="btn-gold" style="margin-top:1rem;" onclick="ct_addToBatch()">Add to Print Batch</button>
+<p class="reg-error-note" id="ct-error" style="display:none;"></p>
+<div id="ct-batch-list" style="margin-top:1rem;"></div>
+<button class="btn-gold" id="ct-print-btn" style="margin-top:1rem;" onclick="ct_printBatch()" disabled>Print Batch</button>
+</div>
+</div>
+
 </div>
 
 <div id="ps-print-area"></div>
@@ -180,6 +303,9 @@
 
 <script src="js/include.js"></script>
 <script src="js/registration-status.js"></script>
+<script src="js/crafting-data.js"></script>
+<script src="js/recipes-data.js"></script>
+<script src="js/shoppe-data.js"></script>
 <script src="js/members-auth.js"></script>
 <script>
 (function(){
@@ -443,10 +569,248 @@ function ps_printDietary(){
   `);
 }
 
+/* ---------- tag cell rendering (shared by both tag panels) ---------- */
+
+function tagCellHtml(itemName, quantity, code, modifierType, useCount){
+  let modifierHtml = '';
+  if(modifierType === 'shatter'){
+    modifierHtml = '<div class="tag-cell-modifier">Shattered: &#9744;</div>';
+  } else if(modifierType === 'uses'){
+    const boxes = Array.from({ length: useCount || 0 }, () => '<span class="tag-use-box"></span>').join('');
+    modifierHtml = `<div class="tag-cell-modifier">Used: ${boxes}</div>`;
+  }
+  const codeHtml = code ? escapeHtml(code) : '';
+  const cell = `
+    <div class="tag-cell">
+      <div class="tag-cell-name">${escapeHtml(itemName)}</div>
+      ${modifierHtml}
+      <div class="tag-cell-footer">
+        <div class="tag-cell-code">${codeHtml}</div>
+        <div class="tag-cell-stamp"></div>
+      </div>
+    </div>
+  `;
+  return Array.from({ length: Math.max(1, quantity || 1) }, () => cell).join('');
+}
+
+/* ---------- player tag requests ---------- */
+
+let PENDING_REQUESTS = [];
+
+async function ptr_load(){
+  const summaryEl = document.getElementById('ptr-summary');
+  const listEl = document.getElementById('ptr-list');
+  const printBtn = document.getElementById('ptr-print-btn');
+  const fulfillBtn = document.getElementById('ptr-fulfill-btn');
+  printBtn.disabled = true;
+  fulfillBtn.disabled = true;
+  summaryEl.innerHTML = '<p class="reg-empty-note">Loading pending tag requests&hellip;</p>';
+  listEl.innerHTML = '';
+
+  const { data, error } = await membersSupabase.rpc('logistics_list_pending_tag_requests');
+  if(error){
+    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load tag requests: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+  PENDING_REQUESTS = data || [];
+  if(PENDING_REQUESTS.length === 0){
+    summaryEl.innerHTML = '';
+    listEl.innerHTML = emptyState('No pending tag requests right now.');
+    return;
+  }
+  summaryEl.innerHTML = `<p><strong>${PENDING_REQUESTS.length}</strong> pending tag request${PENDING_REQUESTS.length === 1 ? '' : 's'}.</p>`;
+
+  const groups = [];
+  PENDING_REQUESTS.forEach(r => {
+    let g = groups[groups.length - 1];
+    if(!g || g.player !== r.player_display_name){
+      g = { player: r.player_display_name, rows: [] };
+      groups.push(g);
+    }
+    g.rows.push(r);
+  });
+
+  listEl.innerHTML = groups.map(g => `
+    <div class="reg-section">
+      <div class="reg-section-label">${escapeHtml(g.player)}</div>
+      ${g.rows.map(r => `
+        <label style="display:flex; align-items:center; gap:0.5rem; padding:0.3rem 0; border-bottom:1px solid var(--line);">
+          <input type="checkbox" class="ptr-check" data-id="${r.id}" checked>
+          <span>${escapeHtml(r.item_name)} &times;${r.quantity} <span style="color:var(--brown-dark); font-size:0.85rem;">(${escapeHtml(r.character_name)}, ${escapeHtml(r.event_slug)})</span></span>
+        </label>
+      `).join('')}
+    </div>
+  `).join('');
+
+  printBtn.disabled = false;
+  fulfillBtn.disabled = false;
+}
+
+function ptr_selectedRequests(){
+  const checked = new Set(Array.from(document.querySelectorAll('.ptr-check:checked')).map(el => el.dataset.id));
+  return PENDING_REQUESTS.filter(r => checked.has(r.id));
+}
+
+function ptr_print(){
+  const selected = ptr_selectedRequests();
+  if(!selected.length){ alert('Select at least one tag to print.'); return; }
+
+  const groups = [];
+  selected.forEach(r => {
+    let g = groups.find(x => x.player === r.player_display_name);
+    if(!g){ g = { player: r.player_display_name, rows: [] }; groups.push(g); }
+    g.rows.push(r);
+  });
+
+  const html = `
+    <div class="tag-print-page">
+      <div class="tag-print-head"><h2>Player Tags</h2></div>
+      ${groups.map(g => `
+        <h3 class="tag-group-head">${escapeHtml(g.player)}</h3>
+        <div class="tag-grid">
+          ${g.rows.map(r => tagCellHtml(r.item_name, r.quantity, r.code, r.modifier_type, r.use_count)).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `;
+  ps_doPrint(html);
+}
+
+async function ptr_markFulfilled(){
+  const selected = ptr_selectedRequests();
+  if(!selected.length){ alert('Select at least one tag to mark fulfilled.'); return; }
+  if(!confirm(`Mark ${selected.length} tag request${selected.length === 1 ? '' : 's'} as fulfilled? This removes them from this list.`)) return;
+
+  for(const r of selected){
+    await membersSupabase.rpc('logistics_fulfill_tag_request', { p_request_id: r.id });
+  }
+  await ptr_load();
+}
+
+/* ---------- custom / loot tags ---------- */
+
+let CATALOG = [];
+let BATCH = [];
+
+async function ct_loadCatalogAndItems(){
+  const { data: catalog } = await membersSupabase.from('item_catalog').select('item_name, code, modifier_type, use_count').order('item_name');
+  CATALOG = catalog || [];
+
+  let craftingNames = [], recipeNames = [], shoppeNames = [];
+  try{ craftingNames = (await craftingLoadFromSheet()).map(i => i.name); } catch(err){}
+  try{ recipeNames = (await recipesLoadFromSheet()).map(i => i.title); } catch(err){}
+  try{ shoppeNames = (await shoppeLoadFromSheet()).map(i => i.name); } catch(err){}
+
+  const set = new Set();
+  CATALOG.forEach(i => i.item_name && set.add(i.item_name));
+  craftingNames.forEach(n => n && set.add(n));
+  recipeNames.forEach(n => n && set.add(n));
+  shoppeNames.forEach(n => n && set.add(n));
+  const allNames = Array.from(set).sort((a, b) => a.localeCompare(b));
+
+  document.getElementById('ct-item-options').innerHTML = allNames.map(n => `<option value="${escapeHtml(n)}">`).join('');
+}
+
+function ct_catalogMatch(name){
+  const lower = name.trim().toLowerCase();
+  return CATALOG.find(i => i.item_name.trim().toLowerCase() === lower);
+}
+
+function ct_onNameInput(){
+  const name = document.getElementById('ct-item-name').value;
+  const fieldsEl = document.getElementById('ct-new-item-fields');
+  fieldsEl.style.display = (name.trim() && !ct_catalogMatch(name)) ? 'block' : 'none';
+}
+
+function ct_onModifierChange(){
+  document.getElementById('ct-uses-row').style.display = document.getElementById('ct-modifier').value === 'uses' ? 'block' : 'none';
+}
+
+async function ct_addToBatch(){
+  const errorEl = document.getElementById('ct-error');
+  errorEl.style.display = 'none';
+  const name = document.getElementById('ct-item-name').value.trim();
+  const qty = parseInt(document.getElementById('ct-qty').value, 10) || 0;
+  if(!name){ errorEl.textContent = 'Enter an item name.'; errorEl.style.display = 'block'; return; }
+  if(qty < 1){ errorEl.textContent = 'Enter a quantity of at least 1.'; errorEl.style.display = 'block'; return; }
+
+  let match = ct_catalogMatch(name);
+  if(!match){
+    const code = document.getElementById('ct-code').value.trim();
+    const modifierType = document.getElementById('ct-modifier').value;
+    const useCount = modifierType === 'uses' ? (parseInt(document.getElementById('ct-use-count').value, 10) || null) : null;
+    const saveToCatalog = document.getElementById('ct-save-catalog').checked;
+
+    if(saveToCatalog){
+      const { error } = await membersSupabase.rpc('logistics_upsert_catalog_item', {
+        p_item_name: name, p_code: code || null, p_modifier_type: modifierType, p_use_count: useCount
+      });
+      if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+      await ct_loadCatalogAndItems();
+      match = ct_catalogMatch(name);
+    } else {
+      match = { item_name: name, code: code || null, modifier_type: modifierType, use_count: useCount };
+    }
+  }
+
+  BATCH.push({ item_name: match.item_name, quantity: qty, code: match.code, modifier_type: match.modifier_type, use_count: match.use_count });
+  ct_renderBatch();
+
+  document.getElementById('ct-item-name').value = '';
+  document.getElementById('ct-qty').value = '1';
+  document.getElementById('ct-code').value = '';
+  document.getElementById('ct-modifier').value = 'none';
+  document.getElementById('ct-use-count').value = '5';
+  document.getElementById('ct-save-catalog').checked = true;
+  ct_onNameInput();
+  ct_onModifierChange();
+}
+
+function ct_renderBatch(){
+  const el = document.getElementById('ct-batch-list');
+  const printBtn = document.getElementById('ct-print-btn');
+  if(!BATCH.length){
+    el.innerHTML = '';
+    printBtn.disabled = true;
+    return;
+  }
+  el.innerHTML = '<table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th></th></tr></thead><tbody>' +
+    BATCH.map((b, i) => `<tr><td>${escapeHtml(b.item_name)}</td><td>${b.quantity}</td><td><button class="btn-outline" onclick="ct_removeFromBatch(${i})">Remove</button></td></tr>`).join('') +
+    '</tbody></table>';
+  printBtn.disabled = false;
+}
+
+function ct_removeFromBatch(i){
+  BATCH.splice(i, 1);
+  ct_renderBatch();
+}
+
+function ct_printBatch(){
+  if(!BATCH.length) return;
+  const html = `
+    <div class="tag-print-page">
+      <div class="tag-print-head"><h2>Loot / Custom Tags</h2></div>
+      <div class="tag-grid">
+        ${BATCH.map(b => tagCellHtml(b.item_name, b.quantity, b.code, b.modifier_type, b.use_count)).join('')}
+      </div>
+    </div>
+  `;
+  ps_doPrint(html);
+  BATCH = [];
+  ct_renderBatch();
+}
+
 window.ps_onEventChange = ps_onEventChange;
 window.ps_printAll = ps_printAll;
 window.ps_printMeals = ps_printMeals;
 window.ps_printDietary = ps_printDietary;
+window.ptr_print = ptr_print;
+window.ptr_markFulfilled = ptr_markFulfilled;
+window.ct_onNameInput = ct_onNameInput;
+window.ct_onModifierChange = ct_onModifierChange;
+window.ct_addToBatch = ct_addToBatch;
+window.ct_removeFromBatch = ct_removeFromBatch;
+window.ct_printBatch = ct_printBatch;
 
 document.addEventListener('fa-members-ready', async () => {
   const { data: allowed, error } = await membersSupabase.rpc('fa_is_logistics_or_admin');
@@ -456,7 +820,7 @@ document.addEventListener('fa-members-ready', async () => {
   }
   document.getElementById('ps-wrap').style.display = 'block';
   populateEventSelect();
-  await Promise.all([ps_loadRoster(), ps_loadKitchen()]);
+  await Promise.all([ps_loadRoster(), ps_loadKitchen(), ptr_load(), ct_loadCatalogAndItems()]);
 });
 })();
 </script>
