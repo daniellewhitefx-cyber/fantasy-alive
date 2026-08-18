@@ -476,6 +476,8 @@ function renderDisplay(){
     return;
   }
 
+  const showGasColumn = activeCategory !== 'Alchemical';
+
   const tableRows = recipes.map(r => {
     const isHighlighted = r.title === highlightedRecipe;
     const rowId = 'recipe-row-' + r.title.replace(/[^a-zA-Z0-9]/g, '-');
@@ -485,7 +487,7 @@ function renderDisplay(){
         <td data-label="Level">${escapeHtml(r.level)}</td>
         <td class="col-effect" data-label="Effect">${escapeHtml(r.effect)}</td>
         <td data-label="Type">${escapeHtml(r.type)}</td>
-        <td data-label="Mixed with Gas">${escapeHtml(r.mixedWithGas)}</td>
+        ${showGasColumn ? `<td data-label="Mixed with Gas">${escapeHtml(r.mixedWithGas)}</td>` : ''}
         <td class="col-ingredients" data-label="Ingredients">${escapeHtml(r.ingredients)}</td>
         <td class="col-desc" data-label="Description">${escapeHtml(r.desc)}</td>
       </tr>
@@ -502,7 +504,7 @@ function renderDisplay(){
             <th>Level</th>
             <th>Effect</th>
             <th>Type</th>
-            <th>Mixed with Gas</th>
+            ${showGasColumn ? '<th>Mixed with Gas</th>' : ''}
             <th>Ingredients</th>
             <th>Description</th>
           </tr>
