@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergency Contact Form - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Emergency Contact Form - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/emergency-contact.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Emergency Contact Form - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.ecf-row{
+  display:flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+.ecf-field{ flex: 1 1 220px; margin-bottom: 0; }
+.ecf-field label{
+  display:block;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  color: var(--brown-dark);
+  margin-bottom: 0.4rem;
+}
+.ecf-field input, .ecf-field textarea{
+  width:100%;
+  max-width: none;
+}
+.ecf-subhead{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--gold-dark);
+  margin: 1.6rem 0 0.8rem;
+  padding-top: 1rem;
+  border-top: 1px dotted var(--line);
+}
+.ecf-subhead:first-of-type{ border-top:none; padding-top:0; margin-top:0; }
+.ecf-consent{
+  font-family:'EB Garamond', serif;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--brown);
+  margin: 1.4rem 0 1rem;
+}
+.ecf-saved-note{
+  font-family:'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--brown-dark);
+  margin-bottom: 1rem;
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Emergency Contact Form</h1>
+
+<div class="panel">
+<div class="panel-body">
+<p style="font-family:'EB Garamond', serif; font-size:1.02rem; line-height:1.6; color:var(--brown); margin:0;">Please fill this out before your first event, and keep it up to date. This helps us keep you safe, and to reach the right people on your behalf, in the event of an emergency.</p>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-body">
+
+<p class="ecf-saved-note" id="ecf-saved-note" style="display:none;"></p>
+
+<div class="ecf-subhead">Your Info</div>
+<div class="ecf-row">
+<div class="ecf-field"><label for="ecf-name">Name</label><input type="text" id="ecf-name" autocomplete="name"></div>
+<div class="ecf-field"><label for="ecf-characters">Character(s)</label><input type="text" id="ecf-characters"></div>
+</div>
+<div class="ecf-row">
+<div class="ecf-field" style="flex-basis:100%;"><label for="ecf-address">Home Address</label><input type="text" id="ecf-address" autocomplete="street-address"></div>
+</div>
+<div class="ecf-row">
+<div class="ecf-field"><label for="ecf-city">City</label><input type="text" id="ecf-city" autocomplete="address-level2"></div>
+<div class="ecf-field"><label for="ecf-postal">Postal Code</label><input type="text" id="ecf-postal" autocomplete="postal-code"></div>
+<div class="ecf-field"><label for="ecf-phone">Phone #</label><input type="text" id="ecf-phone" autocomplete="tel"></div>
+</div>
+
+<div class="ecf-subhead">Emergency Contact (1)</div>
+<div class="ecf-row">
+<div class="ecf-field"><label for="ecf-c1-name">Name</label><input type="text" id="ecf-c1-name"></div>
+<div class="ecf-field"><label for="ecf-c1-phone">Phone Number</label><input type="text" id="ecf-c1-phone"></div>
+</div>
+<div class="ecf-row">
+<div class="ecf-field"><label for="ecf-c1-relationship">Relationship</label><input type="text" id="ecf-c1-relationship"></div>
+<div class="ecf-field"><label for="ecf-c1-email">Email</label><input type="text" id="ecf-c1-email"></div>
+</div>
+
+<div class="ecf-subhead">Emergency Contact (2) <span style="text-transform:none; letter-spacing:normal; font-weight:400; color:var(--brown);">(optional)</span></div>
+<div class="ecf-row">
+<div class="ecf-field"><label for="ecf-c2-name">Name</label><input type="text" id="ecf-c2-name"></div>
+<div class="ecf-field"><label for="ecf-c2-phone">Phone Number</label><input type="text" id="ecf-c2-phone"></div>
+</div>
+<div class="ecf-row">
+<div class="ecf-field"><label for="ecf-c2-relationship">Relationship</label><input type="text" id="ecf-c2-relationship"></div>
+<div class="ecf-field"><label for="ecf-c2-email">Email</label><input type="text" id="ecf-c2-email"></div>
+</div>
+
+<div class="ecf-subhead">Medical Info</div>
+<div class="ecf-row">
+<div class="ecf-field" style="flex-basis:100%;">
+<label for="ecf-medical">Do you have any illnesses or conditions that may be medically relevant in the event of a medical emergency?</label>
+<textarea id="ecf-medical"></textarea>
+</div>
+</div>
+<div class="ecf-row">
+<div class="ecf-field" style="flex-basis:100%;">
+<label for="ecf-other">Do you have any other relevant information that we should know for you to safely participate in a Fantasy Alive event?</label>
+<textarea id="ecf-other"></textarea>
+</div>
+</div>
+
+<p class="ecf-consent">I, the Undersigned, have voluntarily provided the above contact information and authorize Fantasy Alive to contact any of the above on my behalf in the event of an emergency.</p>
+
+<div class="ecf-row">
+<div class="ecf-field"><label for="ecf-signature">Participant Signature (type your full name)</label><input type="text" id="ecf-signature"></div>
+</div>
+
+<button class="btn-gold" onclick="ecf_save()">Save</button>
+<p class="reg-error-note" id="ecf-error" style="display:none; margin-top:0.6rem;"></p>
+
+</div>
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+function fmtDateTime(iso){
+  return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function setVal(id, val){ document.getElementById(id).value = val || ''; }
+function getVal(id){ return document.getElementById(id).value.trim(); }
+
+async function loadExisting(){
+  const { data } = await membersSupabase.from('emergency_contact_forms')
+    .select('full_name, characters, home_address, city, postal_code, phone, contact1_name, contact1_phone, contact1_relationship, contact1_email, contact2_name, contact2_phone, contact2_relationship, contact2_email, medical_conditions, other_notes, signature_name, updated_at')
+    .eq('player_id', window.faCurrentUser.id).maybeSingle();
+
+  if(!data) return;
+
+  setVal('ecf-name', data.full_name);
+  setVal('ecf-characters', data.characters);
+  setVal('ecf-address', data.home_address);
+  setVal('ecf-city', data.city);
+  setVal('ecf-postal', data.postal_code);
+  setVal('ecf-phone', data.phone);
+  setVal('ecf-c1-name', data.contact1_name);
+  setVal('ecf-c1-phone', data.contact1_phone);
+  setVal('ecf-c1-relationship', data.contact1_relationship);
+  setVal('ecf-c1-email', data.contact1_email);
+  setVal('ecf-c2-name', data.contact2_name);
+  setVal('ecf-c2-phone', data.contact2_phone);
+  setVal('ecf-c2-relationship', data.contact2_relationship);
+  setVal('ecf-c2-email', data.contact2_email);
+  setVal('ecf-medical', data.medical_conditions);
+  setVal('ecf-other', data.other_notes);
+  setVal('ecf-signature', data.signature_name);
+
+  const note = document.getElementById('ecf-saved-note');
+  note.textContent = 'Last updated ' + fmtDateTime(data.updated_at) + '.';
+  note.style.display = 'block';
+}
+
+async function ecf_save(){
+  const errorEl = document.getElementById('ecf-error');
+  errorEl.style.display = 'none';
+
+  const { error } = await membersSupabase.rpc('emergency_contact_save', {
+    p_full_name: getVal('ecf-name'),
+    p_characters: getVal('ecf-characters'),
+    p_home_address: getVal('ecf-address'),
+    p_city: getVal('ecf-city'),
+    p_postal_code: getVal('ecf-postal'),
+    p_phone: getVal('ecf-phone'),
+    p_contact1_name: getVal('ecf-c1-name'),
+    p_contact1_phone: getVal('ecf-c1-phone'),
+    p_contact1_relationship: getVal('ecf-c1-relationship'),
+    p_contact1_email: getVal('ecf-c1-email'),
+    p_contact2_name: getVal('ecf-c2-name'),
+    p_contact2_phone: getVal('ecf-c2-phone'),
+    p_contact2_relationship: getVal('ecf-c2-relationship'),
+    p_contact2_email: getVal('ecf-c2-email'),
+    p_medical_conditions: getVal('ecf-medical'),
+    p_other_notes: getVal('ecf-other'),
+    p_signature_name: getVal('ecf-signature')
+  });
+
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  await loadExisting();
+}
+
+window.ecf_save = ecf_save;
+document.addEventListener('fa-members-ready', loadExisting);
+})();
+</script>
+
+</body>
+</html>
