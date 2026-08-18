@@ -130,7 +130,7 @@ create table if not exists xp_transactions (
   player_id uuid not null references auth.users(id) on delete cascade,
   amount integer not null,
   note text,
-  created_by uuid references auth.users(id),
+  created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
@@ -152,7 +152,7 @@ create table if not exists oc_transactions (
   player_id uuid not null references auth.users(id) on delete cascade,
   amount integer not null,
   note text,
-  created_by uuid references auth.users(id),
+  created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 

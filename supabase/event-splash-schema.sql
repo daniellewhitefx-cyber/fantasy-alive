@@ -62,7 +62,7 @@ create table if not exists event_info_items (
   id uuid primary key default gen_random_uuid(),
   event_slug text not null,
   body text not null,
-  created_by uuid references auth.users(id),
+  created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 

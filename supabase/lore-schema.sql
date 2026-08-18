@@ -8,7 +8,7 @@ create table if not exists lore_entries (
   body text not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  created_by uuid references auth.users(id)
+  created_by uuid references auth.users(id) on delete set null
 );
 
 alter table lore_entries enable row level security;

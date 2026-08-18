@@ -6,10 +6,10 @@ create table if not exists auction_items (
   starting_bid numeric(10,2) not null default 0 check (starting_bid >= 0),
   min_increment numeric(10,2) not null default 1 check (min_increment > 0),
   status text not null default 'draft' check (status in ('draft', 'live', 'closed')),
-  created_by uuid references auth.users(id),
+  created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   closed_at timestamptz,
-  winner_player_id uuid references auth.users(id),
+  winner_player_id uuid references auth.users(id) on delete set null,
   winning_bid_amount numeric(10,2),
   payment_status text not null default 'unpaid' check (payment_status in ('unpaid', 'paid_online', 'paid_at_event'))
 );
@@ -32,7 +32,7 @@ create policy "Auction staff see everything including drafts"
 create table if not exists auction_bids (
   id uuid primary key default gen_random_uuid(),
   item_id uuid not null references auction_items(id) on delete cascade,
-  player_id uuid not null references auth.users(id),
+  player_id uuid not null references auth.users(id) on delete cascade,
   amount numeric(10,2) not null check (amount > 0),
   created_at timestamptz not null default now()
 );

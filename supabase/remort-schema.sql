@@ -19,7 +19,7 @@ create table if not exists character_remort_requests (
   status text not null default 'pending' check (status in ('pending', 'approved', 'completed', 'denied')),
   requested_at timestamptz not null default now(),
   decided_at timestamptz,
-  decided_by uuid references auth.users(id),
+  decided_by uuid references auth.users(id) on delete set null,
   completed_at timestamptz
 );
 

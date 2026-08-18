@@ -45,15 +45,15 @@ $$;
 
 create table if not exists bank_transactions (
   id uuid primary key default gen_random_uuid(),
-  player_id uuid not null references auth.users(id),
+  player_id uuid not null references auth.users(id) on delete cascade,
   type text not null check (type in (
     'deposit', 'withdrawal', 'transfer_in', 'transfer_out',
     'bill_payment_in', 'bill_payment_out', 'log_bank'
   )),
   amount numeric(12,2) not null check (amount > 0),
   note text,
-  counterparty_id uuid references auth.users(id),
-  created_by uuid references auth.users(id),
+  counterparty_id uuid references auth.users(id) on delete set null,
+  created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
@@ -122,8 +122,8 @@ $$;
 
 create table if not exists bank_bills (
   id uuid primary key default gen_random_uuid(),
-  from_player_id uuid not null references auth.users(id),
-  to_player_id uuid not null references auth.users(id),
+  from_player_id uuid not null references auth.users(id) on delete cascade,
+  to_player_id uuid not null references auth.users(id) on delete cascade,
   amount numeric(12,2) not null check (amount > 0),
   note text,
   status text not null default 'pending' check (status in ('pending', 'paid', 'declined', 'cancelled')),
@@ -204,13 +204,13 @@ $$;
 
 create table if not exists bank_withdrawal_requests (
   id uuid primary key default gen_random_uuid(),
-  player_id uuid not null references auth.users(id),
+  player_id uuid not null references auth.users(id) on delete cascade,
   amount numeric(12,2) not null check (amount > 0),
   note text,
   status text not null default 'pending' check (status in ('pending', 'fulfilled', 'cancelled')),
   created_at timestamptz not null default now(),
   fulfilled_at timestamptz,
-  fulfilled_by uuid references auth.users(id)
+  fulfilled_by uuid references auth.users(id) on delete set null
 );
 
 alter table bank_withdrawal_requests enable row level security;
