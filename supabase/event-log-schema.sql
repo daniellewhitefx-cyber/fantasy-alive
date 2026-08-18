@@ -35,7 +35,9 @@ create policy "Players see their own OC spends"
 -- Raising the amount spends more OC; lowering it refunds the OC and
 -- claws back the XP/Copper already granted.
 create or replace function event_log_set_oc_spend(p_event_slug text, p_kind text, p_character_id uuid, p_oc_amount integer)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_current integer;
@@ -95,7 +97,9 @@ $$;
 
 -- Current committed amounts for this player + event, per direction.
 create or replace function event_log_oc_summary(p_event_slug text)
-returns jsonb language plpgsql stable security definer as $$
+returns jsonb language plpgsql stable security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_xp_spent integer;

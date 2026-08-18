@@ -28,7 +28,9 @@ create index if not exists characters_player_idx on characters(player_id, create
 alter table profiles add column if not exists is_cast boolean not null default false;
 
 create or replace function player_set_cast_only(p_enabled boolean)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
   update profiles set is_cast = p_enabled where id = auth.uid();
@@ -85,7 +87,9 @@ create or replace function character_create(
   p_birthday date,
   p_skills jsonb
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_name text := trim(coalesce(p_name, ''));
@@ -168,7 +172,9 @@ $$;
 alter table character_skills add column if not exists teachable boolean not null default false;
 
 create or replace function character_set_skill_teachable(p_skill_id uuid, p_teachable boolean)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
 

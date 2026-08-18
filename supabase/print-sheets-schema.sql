@@ -9,7 +9,9 @@
 -- Lists every registered player with their email, so the print tool can
 -- match a registrant's email (from the Google Sheet) to a player_id.
 create or replace function admin_list_players_with_email()
-returns table(id uuid, email text, display_name text) language plpgsql security definer as $$
+returns table(id uuid, email text, display_name text) language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not fa_is_logistics_or_admin() then
     raise exception 'Staff only';
@@ -36,7 +38,9 @@ returns table(
   starting_sp integer,
   xp integer,
   skills jsonb
-) language plpgsql stable security definer as $$
+) language plpgsql stable security definer
+set search_path = public
+as $$
 begin
   if not fa_is_logistics_or_admin() then
     raise exception 'Staff only';

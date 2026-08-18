@@ -15,7 +15,9 @@ create policy "Announcements are publicly readable"
   using (true);
 
 create or replace function announcement_post(p_title text, p_body text)
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
   v_title text := trim(coalesce(p_title, ''));
@@ -36,7 +38,9 @@ end;
 $$;
 
 create or replace function announcement_delete(p_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'announcements_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';

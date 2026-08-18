@@ -27,7 +27,9 @@ create or replace function character_staff_update_details(
   p_birthday date,
   p_social_class text
 )
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_name text := trim(coalesce(p_name, ''));
   v_race text := trim(coalesce(p_race, ''));
@@ -63,7 +65,9 @@ end;
 $$;
 
 create or replace function character_staff_set_starting_sp(p_character_id uuid, p_new_sp integer)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
@@ -83,7 +87,9 @@ create or replace function character_staff_add_skill(
   p_level integer,
   p_sp_cost integer
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_owner uuid;
   v_skill_id uuid;
@@ -113,7 +119,9 @@ end;
 $$;
 
 create or replace function character_staff_remove_skill(p_skill_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
@@ -170,14 +178,18 @@ create policy "Players and staff see OC transactions"
   );
 
 create or replace function xp_balance(p_character uuid)
-returns integer language sql stable security definer as $$
+returns integer language sql stable security definer
+set search_path = public
+as $$
   select coalesce(sum(amount), 0)::integer from xp_transactions where character_id = p_character;
 $$;
 
 revoke execute on function xp_balance(uuid) from public, authenticated, anon;
 
 create or replace function xp_my_character_balance(p_character_id uuid)
-returns integer language plpgsql stable security definer as $$
+returns integer language plpgsql stable security definer
+set search_path = public
+as $$
 begin
   if not exists (select 1 from characters where id = p_character_id and player_id = auth.uid()) then
     raise exception 'Character not found';
@@ -187,7 +199,9 @@ end;
 $$;
 
 create or replace function character_staff_xp_balance(p_character_id uuid)
-returns integer language plpgsql stable security definer as $$
+returns integer language plpgsql stable security definer
+set search_path = public
+as $$
 begin
   if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
@@ -197,7 +211,9 @@ end;
 $$;
 
 create or replace function character_staff_adjust_xp(p_character_id uuid, p_amount integer, p_note text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_owner uuid;
   v_staff uuid := auth.uid();
@@ -216,19 +232,25 @@ end;
 $$;
 
 create or replace function oc_balance(p_player uuid)
-returns integer language sql stable security definer as $$
+returns integer language sql stable security definer
+set search_path = public
+as $$
   select coalesce(sum(amount), 0)::integer from oc_transactions where player_id = p_player;
 $$;
 
 revoke execute on function oc_balance(uuid) from public, authenticated, anon;
 
 create or replace function oc_my_balance()
-returns integer language sql stable security definer as $$
+returns integer language sql stable security definer
+set search_path = public
+as $$
   select oc_balance(auth.uid());
 $$;
 
 create or replace function character_staff_oc_balance(p_player uuid)
-returns integer language plpgsql stable security definer as $$
+returns integer language plpgsql stable security definer
+set search_path = public
+as $$
 begin
   if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
@@ -238,7 +260,9 @@ end;
 $$;
 
 create or replace function character_staff_adjust_oc(p_player_id uuid, p_amount integer, p_note text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
 begin

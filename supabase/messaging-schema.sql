@@ -103,7 +103,9 @@ create or replace function message_send(
   p_sender_character_id uuid default null,
   p_sender_department_id uuid default null
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_sender uuid := auth.uid();
   v_body text := trim(coalesce(p_body, ''));
@@ -172,7 +174,9 @@ end;
 $$;
 
 create or replace function message_mark_read(p_message_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin
@@ -200,7 +204,9 @@ end;
 $$;
 
 create or replace function message_unread_count()
-returns integer language sql stable security definer as $$
+returns integer language sql stable security definer
+set search_path = public
+as $$
   select count(*)::integer
   from messages m
   where m.sender_id != auth.uid()
@@ -245,7 +251,9 @@ create policy "Players see their own folder assignments"
   using (player_id = auth.uid());
 
 create or replace function message_folder_create(p_name text)
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_name text := trim(coalesce(p_name, ''));
@@ -264,7 +272,9 @@ end;
 $$;
 
 create or replace function message_folder_rename(p_folder_id uuid, p_name text)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_name text := trim(coalesce(p_name, ''));
@@ -280,7 +290,9 @@ end;
 $$;
 
 create or replace function message_folder_delete(p_folder_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin
@@ -293,7 +305,9 @@ end;
 $$;
 
 create or replace function message_set_folder(p_thread_key text, p_folder_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin
@@ -317,7 +331,9 @@ $$;
 alter table profiles add column if not exists activity_last_seen_at timestamptz;
 
 create or replace function notifications_mark_seen()
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
   update profiles set activity_last_seen_at = now() where id = auth.uid();
@@ -325,7 +341,9 @@ end;
 $$;
 
 create or replace function notifications_summary()
-returns jsonb language plpgsql stable security definer as $$
+returns jsonb language plpgsql stable security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_last_seen timestamptz;

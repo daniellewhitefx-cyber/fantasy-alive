@@ -7,7 +7,9 @@ alter table characters add column if not exists is_anonymous boolean not null de
 alter table characters add column if not exists hide_trades boolean not null default false;
 
 create or replace function character_set_privacy(p_character_id uuid, p_is_anonymous boolean, p_hide_trades boolean)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
 
@@ -30,7 +32,9 @@ returns table (
   is_anonymous boolean,
   hide_trades boolean,
   trades jsonb
-) language sql stable security definer as $$
+) language sql stable security definer
+set search_path = public
+as $$
   select
     case when coalesce(c.is_anonymous, false) then 'Anonymous' else c.name end,
     coalesce(c.is_anonymous, false),
@@ -75,7 +79,9 @@ create policy "Event info items are publicly readable"
   using (true);
 
 create or replace function event_info_post(p_event_slug text, p_body text)
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_slug text := trim(coalesce(p_event_slug, ''));
   v_body text := trim(coalesce(p_body, ''));
@@ -93,7 +99,9 @@ end;
 $$;
 
 create or replace function event_info_delete(p_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not fa_is_plot_or_admin() then raise exception 'Plot staff only'; end if;
 

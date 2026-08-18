@@ -56,7 +56,9 @@ create policy "Players see their own training purchases"
 -- Current spendable SP and hours already spent this log, for the
 -- player's own character.
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
-returns jsonb language plpgsql stable security definer as $$
+returns jsonb language plpgsql stable security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_starting_sp integer;
@@ -97,7 +99,9 @@ create or replace function event_log_train_skill(
   p_level integer,
   p_sp_cost integer
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_starting_sp integer;
@@ -175,7 +179,9 @@ create or replace function event_log_relevel_skill(
   p_new_level integer,
   p_new_sp_cost integer
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_starting_sp integer;
@@ -247,7 +253,9 @@ $$;
 -- relevel instead reverts the skill back to its level and cost from
 -- before the purchase, since the skill itself may predate this log.
 create or replace function event_log_cancel_training(p_purchase_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_char_skill_id uuid;

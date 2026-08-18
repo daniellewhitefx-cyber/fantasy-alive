@@ -41,7 +41,9 @@ create policy "Players and staff see remort requests"
   );
 
 create or replace function character_request_remort(p_character_id uuid)
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_req_id uuid;
@@ -68,7 +70,9 @@ end;
 $$;
 
 create or replace function character_approve_remort(p_request_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
 begin
@@ -85,7 +89,9 @@ end;
 $$;
 
 create or replace function character_deny_remort(p_request_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
 begin
@@ -108,7 +114,9 @@ create or replace function character_update_remort(
   p_birthday date,
   p_skills jsonb
 )
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_char characters;
@@ -170,7 +178,9 @@ end;
 $$;
 
 create or replace function character_confirm_remort(p_character_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin

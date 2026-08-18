@@ -62,7 +62,9 @@ grant select on crafting_materials_consumed to authenticated;
 -- (which can themselves be used as materials in later recipes), negative
 -- rows from materials already consumed by past crafts.
 create or replace function character_material_ledger(p_character_id uuid)
-returns table(material_name text, delta integer) language sql stable security definer as $$
+returns table(material_name text, delta integer) language sql stable security definer
+set search_path = public
+as $$
   select item_name, quantity from shoppe_purchases where character_id = p_character_id
   union all
   select item_name, qty_produced from crafting_log where character_id = p_character_id
@@ -80,7 +82,9 @@ revoke execute on function character_material_ledger(uuid) from public, authenti
 -- Event Info tab's "Tags Owed to Logistics" box instead of showing up
 -- here as a confusing negative quantity.
 create or replace function character_material_inventory(p_character_id uuid)
-returns table(material_name text, balance integer) language plpgsql stable security definer as $$
+returns table(material_name text, balance integer) language plpgsql stable security definer
+set search_path = public
+as $$
 begin
   if not exists (select 1 from characters where id = p_character_id and player_id = auth.uid()) then
     raise exception 'Character not found';
@@ -99,7 +103,9 @@ $$;
 -- reflects Training, Working, and Crafting spend against the same
 -- shared downtime budget.
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
-returns jsonb language plpgsql stable security definer as $$
+returns jsonb language plpgsql stable security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_starting_sp integer;
@@ -143,7 +149,9 @@ create or replace function craft_item(
   p_materials jsonb,
   p_tag_turned_in boolean
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_skill character_skills%rowtype;
@@ -218,7 +226,9 @@ end;
 $$;
 
 create or replace function cancel_craft(p_crafting_log_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
 begin

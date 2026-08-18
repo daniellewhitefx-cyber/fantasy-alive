@@ -29,7 +29,9 @@ create policy "Players and staff see OC submissions"
   using (player_id = auth.uid() or fa_is_logistics_or_admin());
 
 create or replace function oc_submit_request(p_amount integer, p_reason text)
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_id uuid;
@@ -47,7 +49,9 @@ end;
 $$;
 
 create or replace function oc_submission_approve(p_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
   v_req oc_submission_requests;
@@ -67,7 +71,9 @@ end;
 $$;
 
 create or replace function oc_submission_deny(p_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
 begin
@@ -102,7 +108,9 @@ create policy "Players see kudos about them"
   );
 
 create or replace function kudos_approve(p_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not fa_is_logistics_or_admin() then raise exception 'Staff only'; end if;
 
@@ -112,7 +120,9 @@ end;
 $$;
 
 create or replace function kudos_deny(p_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 begin
   if not fa_is_logistics_or_admin() then raise exception 'Staff only'; end if;
 
@@ -135,7 +145,9 @@ create policy "Players and staff see remort requests"
   );
 
 create or replace function character_approve_remort(p_request_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
 begin
@@ -152,7 +164,9 @@ end;
 $$;
 
 create or replace function character_deny_remort(p_request_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_staff uuid := auth.uid();
 begin
@@ -171,7 +185,9 @@ $$;
 -- ---------- Badge count ----------
 
 create or replace function requests_pending_count()
-returns integer language plpgsql stable security definer as $$
+returns integer language plpgsql stable security definer
+set search_path = public
+as $$
 begin
   if not fa_is_logistics_or_admin() then
     return 0;

@@ -33,7 +33,9 @@ create policy "Players see their own working sessions"
 -- Hours Remaining reflects both Training and Working spend against the
 -- same shared downtime budget.
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
-returns jsonb language plpgsql stable security definer as $$
+returns jsonb language plpgsql stable security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_starting_sp integer;
@@ -70,7 +72,9 @@ create or replace function event_log_work_for_copper(
   p_character_skill_id uuid,
   p_hours integer
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_skill character_skills%rowtype;
@@ -120,7 +124,9 @@ end;
 $$;
 
 create or replace function event_log_cancel_working(p_session_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer
+set search_path = public
+as $$
 declare
   v_player uuid := auth.uid();
   v_session event_log_working_sessions%rowtype;
