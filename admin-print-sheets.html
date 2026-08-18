@@ -281,7 +281,7 @@ async function ps_loadRoster(){
 
   const [{ data: players, error: playersErr }, { data: chars, error: charsErr }] = await Promise.all([
     membersSupabase.rpc('admin_list_players_with_email'),
-    membersSupabase.from('character_names').select('id, name, player_id')
+    membersSupabase.rpc('character_names').select('id, name, player_id')
   ]);
   if(playersErr || charsErr){
     const detail = [playersErr && `players: ${playersErr.message}`, charsErr && `characters: ${charsErr.message}`].filter(Boolean).join(' / ');

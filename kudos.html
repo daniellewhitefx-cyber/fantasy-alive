@@ -73,7 +73,7 @@ async function loadAllCandidates(){
   const myUserId = window.faCurrentUser ? window.faCurrentUser.id : null;
 
   const [{ data: chars }, { data: profiles }, { data: castRows }] = await Promise.all([
-    membersSupabase.from('character_names').select('id, name, player_id'),
+    membersSupabase.rpc('character_names').select('id, name, player_id'),
     membersSupabase.from('profiles').select('id, display_name'),
     membersSupabase.from('profiles').select('id, display_name').eq('is_cast', true)
   ]);
@@ -181,7 +181,7 @@ async function loadSubmitted(){
   if(!rows || rows.length === 0){ list.innerHTML = ''; return; }
 
   const charIds = [...new Set(rows.map(r => r.to_character_id).filter(Boolean))];
-  const { data: chars } = await membersSupabase.from('character_names').select('id, name, player_id').in('id', charIds);
+  const { data: chars } = await membersSupabase.rpc('character_names').select('id, name, player_id').in('id', charIds);
   const charById = {};
   (chars || []).forEach(c => { charById[c.id] = c; });
 
@@ -229,7 +229,7 @@ async function loadReceived(){
   (profiles || []).forEach(p => { nameByPlayer[p.id] = p.display_name; });
 
   const charIds = [...new Set(rows.map(r => r.to_character_id).filter(Boolean))];
-  const { data: chars } = await membersSupabase.from('character_names').select('id, name').in('id', charIds);
+  const { data: chars } = await membersSupabase.rpc('character_names').select('id, name').in('id', charIds);
   const charById = {};
   (chars || []).forEach(c => { charById[c.id] = c; });
 

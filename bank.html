@@ -174,7 +174,7 @@ function fmtDate(iso){
 async function loadProfiles(){
   const [{ data: profiles, error }, { data: chars }] = await Promise.all([
     membersSupabase.from('profiles').select('id, display_name'),
-    membersSupabase.from('character_names').select('name, player_id')
+    membersSupabase.rpc('character_names').select('name, player_id')
   ]);
   if(error) return;
   profileMap = {};
@@ -197,7 +197,7 @@ async function bank_searchRecipients(picker, query){
   if(!q){ results.innerHTML = ''; return; }
 
   let profileQuery = membersSupabase.from('profiles').select('id, display_name').ilike('display_name', `%${q}%`);
-  let charQuery = membersSupabase.from('character_names').select('id, name, player_id').ilike('name', `%${q}%`);
+  let charQuery = membersSupabase.rpc('character_names').select('id, name, player_id').ilike('name', `%${q}%`);
   if(window.faCurrentUser){
     profileQuery = profileQuery.neq('id', window.faCurrentUser.id);
     charQuery = charQuery.neq('player_id', window.faCurrentUser.id);

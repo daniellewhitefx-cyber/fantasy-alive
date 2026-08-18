@@ -99,7 +99,7 @@ async function loadAllCandidates(){
   const myUserId = window.faCurrentUser ? window.faCurrentUser.id : null;
 
   const [{ data: chars }, { data: profiles }] = await Promise.all([
-    membersSupabase.from('character_names').select('id, name, player_id'),
+    membersSupabase.rpc('character_names').select('id, name, player_id'),
     membersSupabase.from('profiles').select('id, display_name')
   ]);
 
@@ -258,7 +258,7 @@ async function loadFriends(){
     return;
   }
 
-  const { data: chars } = await membersSupabase.from('character_names').select('id, name, player_id').in('id', allIds);
+  const { data: chars } = await membersSupabase.rpc('character_names').select('id, name, player_id').in('id', allIds);
   const playerIds = [...new Set((chars || []).map(c => c.player_id))];
   const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', playerIds);
   const nameByPlayer = {};

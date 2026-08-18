@@ -94,7 +94,7 @@ function fmtDate(iso){
 async function loadProfiles(){
   const [{ data: profiles }, { data: chars }] = await Promise.all([
     membersSupabase.from('profiles').select('id, display_name'),
-    membersSupabase.from('character_names').select('name, player_id')
+    membersSupabase.rpc('character_names').select('name, player_id')
   ]);
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
@@ -117,7 +117,7 @@ async function ab_searchRecipients(query){
 
   const [{ data: profileMatches }, { data: charMatches }] = await Promise.all([
     membersSupabase.from('profiles').select('id, display_name').ilike('display_name', `%${q}%`).limit(8),
-    membersSupabase.from('character_names').select('id, name, player_id').ilike('name', `%${q}%`).limit(8)
+    membersSupabase.rpc('character_names').select('id, name, player_id').ilike('name', `%${q}%`).limit(8)
   ]);
 
   const byId = {};
