@@ -33,7 +33,7 @@
 .page-hero h1{
   font-family: 'EB Garamond', serif;
   font-weight: 500;
-  font-size: 3rem;
+  font-size: 2.6rem;
   margin: 0.5rem 0 0;
   color: var(--brown);
   text-align: center;
@@ -58,29 +58,244 @@
 }
 .photo-slot svg{ width:34px; height:34px; opacity:0.55; }
 .photo-slot.hero-slot{ height:100%; min-height:320px; border-radius:0; }
-.coming-soon{
-  max-width: 700px;
+
+.bc-intro{
+  max-width: 900px;
   margin: 0 auto;
-  padding: 3.5rem 2rem 4.5rem;
-  text-align:center;
+  padding: 3rem 2rem 1rem;
 }
-.coming-soon h2{
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0 0 1rem;
-  color: var(--brown-dark);
-}
-.coming-soon p{
+.bc-intro p{
   font-family:'EB Garamond', serif;
   font-size: 1.08rem;
-  line-height: 1.6;
+  line-height: 1.65;
+  color: #2e2415;
+  margin: 0 0 1.1rem;
+}
+
+.bc-jump{
+  display:flex;
+  justify-content:center;
+  gap: 0.8rem;
+  flex-wrap:wrap;
+  max-width: 900px;
+  margin: 1.5rem auto 2.5rem;
+  padding: 0 2rem;
+}
+.bc-jump a{
+  background: var(--ink);
+  color: var(--gold);
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  font-size: 0.8rem;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  padding: 0.55rem 1.1rem;
+  border: 2px solid var(--gold);
+}
+.bc-jump a:hover{ background: var(--gold); color: var(--ink); }
+
+.bc-section{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  border-top: 3px solid var(--gold);
+  scroll-margin-top: 1.5rem;
+}
+.bc-section:first-of-type{ border-top:none; }
+.bc-section h2{
+  font-family: 'Cinzel', serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin: 0 0 1.2rem;
+  color: var(--brown-dark);
+  text-align:center;
+}
+.bc-section > p{
+  font-family:'EB Garamond', serif;
+  font-size: 1.06rem;
+  line-height: 1.65;
+  color: #2e2415;
+  margin: 0 0 1rem;
+}
+.bc-section a{ color: var(--gold-dark); font-weight:600; }
+.bc-section a:hover{ color: var(--brown-dark); }
+.bc-section ul.bc-considerations{
+  margin: 0 0 1rem;
+  padding-left: 1.4rem;
+}
+.bc-considerations li{
+  font-family:'EB Garamond', serif;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: #2e2415;
+  margin-bottom: 0.6rem;
+}
+
+.bc-table-wrap{
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0 1rem;
+}
+.bc-table{
+  width:100%;
+  border-collapse: collapse;
+  border: 2px solid var(--gold);
+  background: var(--row-a);
+}
+.bc-table th{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--ink);
+  text-align: left;
+  padding: 0.65rem 0.9rem;
+}
+.bc-table td{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  padding: 0.6rem 0.9rem;
+  border-top: 1px dotted var(--gold-dark);
   color: #2e2415;
 }
+.bc-table tr:nth-child(even){ background: var(--row-b); }
+.bc-table td:first-child{ font-weight:700; color: var(--brown-dark); white-space:nowrap; }
+.bc-note{
+  font-family:'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.96rem;
+  color: var(--brown-dark);
+  margin: 0.8rem 0 0;
+}
+
+.bc-next-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.4rem;
+  margin-top: 1.6rem;
+}
+.bc-next-card{
+  background: var(--cream-deep);
+  border: 2px solid var(--gold-dark);
+  box-shadow: 8px 8px 0 0 var(--gold);
+  padding: 1.3rem 1.5rem;
+}
+.bc-next-card h3{
+  font-family:'Cinzel', serif;
+  font-size:1.08rem;
+  font-weight:700;
+  color: var(--brown-dark);
+  margin:0 0 0.6rem;
+}
+.bc-next-card p{
+  font-family:'EB Garamond', serif;
+  font-size:0.98rem;
+  line-height:1.55;
+  color:#2e2415;
+  margin:0;
+}
+
+.pregen-intro{ text-align:center; }
+.pregen-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.6rem;
+  margin-top: 1.8rem;
+}
+.pregen-card{
+  background: var(--ink);
+  color: var(--cream);
+  border: 2px solid var(--gold);
+  padding: 1.5rem 1.7rem;
+}
+.pregen-card h3{
+  font-family:'Cinzel', serif;
+  font-size:1.3rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin:0 0 1rem;
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.pregen-card h3 svg{ width:24px; height:24px; flex-shrink:0; }
+.pregen-stats{
+  display:flex;
+  gap: 1.6rem;
+  margin: 0 0 1.1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(232,166,34,0.35);
+}
+.pregen-stat-label{
+  font-family:'Cinzel', serif;
+  font-size: 0.68rem;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  color: var(--gold);
+  margin-bottom: 0.2rem;
+}
+.pregen-stat-value{
+  font-family:'Cinzel', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--cream);
+}
+.pregen-desc{
+  font-family:'EB Garamond', serif;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: #e8ddc8;
+  margin: 0 0 1.1rem;
+}
+.pregen-skills{
+  list-style:none;
+  margin: 0 0 1.1rem;
+  padding:0;
+}
+.pregen-skills li{
+  font-family:'EB Garamond', serif;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: #e8ddc8;
+  margin-bottom: 0.35rem;
+}
+.pregen-skills li strong{ color: var(--gold); }
+.pregen-block{
+  font-family:'EB Garamond', serif;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: #e8ddc8;
+  margin: 0 0 0.6rem;
+}
+.pregen-block:last-child{ margin-bottom:0; }
+.pregen-block strong{ color: var(--gold); }
+.pregen-block em{ color: var(--cream); font-style:normal; font-weight:600; }
+
+.bc-closing{
+  font-family:'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--brown-dark);
+  text-align:center;
+  max-width: 700px;
+  margin: 2rem auto 0;
+}
+
 @media (max-width: 900px){
   .page-hero{ grid-template-columns: 1fr; height:auto; }
   .page-hero-content{ padding: 1.5rem 1rem; }
-  .page-hero h1{ font-size: 2.2rem; }
+  .page-hero h1{ font-size: 2rem; }
   .photo-slot.hero-slot{ height:180px; min-height:180px; }
+  .bc-section{ padding: 2rem 1.2rem; }
+  .bc-next-grid{ grid-template-columns: 1fr; }
+  .pregen-grid{ grid-template-columns: 1fr; }
+  .pregen-stats{ flex-wrap:wrap; gap: 1rem 1.6rem; }
 }
 </style>
 </head>
@@ -99,9 +314,179 @@ Add a photo
 </div>
 </section>
 
-<section class="coming-soon">
-<h2>Coming Soon</h2>
-<p>We're still writing this guide to building your character. Check back soon, or reach out on Discord if you have questions in the meantime.</p>
+<div class="bc-intro">
+<p>Getting into the action at LARP means that you may want your own character, a new hero ready to start on their path. Whether you're new to LARP, familiar with LARP but new to Fantasy Alive, or a returning Fantasy Alive player, knowing how your character comes together can be useful.</p>
+<p>As a great first step, consider signing up for our <a href="https://database.fantasyalivelrp.com" target="_blank" rel="noopener">Logistics Database</a>, a set of online tools that can help you build your character. You may also wish to have a copy of our <a href="https://fantasyalivelrp.com/wp-content/uploads/2024/03/Fantasy-Alive-Manual-v13.1.1.pdf" target="_blank" rel="noopener">Rulebook</a> open, since this helps you see how the rules interact with one another.</p>
+<p>If all of this seems interesting but a little too complicated to start out with, consider checking out our <a href="#pre-generated">Pre-Generated Characters</a>. These can help you get started faster, and you can always grow from there.</p>
+</div>
+
+<nav class="bc-jump">
+<a href="#character-creation">Character Creation</a>
+<a href="#starting-equipment">Starting Equipment</a>
+<a href="#backstory">Backstory</a>
+<a href="#next-steps">Next Steps</a>
+<a href="#pre-generated">Pre-Generated Characters</a>
+</nav>
+
+<section class="bc-section" id="character-creation">
+<h2>Character Creation</h2>
+<p>Fantasy Alive has an open-concept character building system. You build your character by deciding on what sort of character you would like to play, and then spending Skill Points (sometimes called &lsquo;Build&rsquo;) to acquire the skills and abilities that reflect that character. The cost of some skills is affected by your character's <a href="playable-races.html">species</a>, and in some, few, cases, your character's species will mean that you can buy some skills not available to others, or that you will not have access to some skills or abilities.</p>
+<p>For your first event, we suggest selecting Human. After all, you have excellent points of reference for humans, likely being one yourself! Humans are the most prevalent species in the areas that the game takes place, and while they don't excel in any particular field, they are also not limited in what they can grow into.</p>
+<p>When putting together your character, consider the following:</p>
+<ul class="bc-considerations">
+<li><strong>What kind of fantasy abilities do I want to explore?</strong> A wizard may focus in some areas that a warrior build might not.</li>
+<li><strong>What will be fun to do with my character?</strong> We have some skills that are of most use between games, and while helpful, they may not be the strongest choice for your character at event (although clever use of such skills can sometimes be rewarded!).</li>
+<li><strong>Where do I want my character to grow?</strong> You don't have to buy every skill you will ever need at character creation! If you want to eventually become a wizard but it isn't a starting priority, you can buy other skills to start, and grow into being a wizard in the course of play!</li>
+</ul>
+<p>We offer a free &lsquo;Remort&rsquo; (a re-choosing of your character's skills and abilities) after your first event. If you want to continue with the character that you have begun, you certainly can, but if you find that you wish you had made other choices, you can change anything about your character that you wish, including creating an entirely new character.</p>
+<p>For your first character, you start with 30 Skill Points and no Ogre Chips (unless you have earned them prior to the start of your first character). Human characters start with a bonus 5 skill points at character creation. Your character begins game with 300 copper pieces, and <a href="#starting-equipment">equipment suitable to the skills that they have on their character sheet</a>.</p>
+<p>Finding props and costuming can take some time. Fantasy Alive is prepared to lend you a few pieces of gear to help you get started: for your first event, the game can lend you a weapon, a holy symbol for a cleric, and a simple costume. Please let our <a href="mailto:logistics@fantasyalivelrp.com">Logistics Team</a> know if you would like to borrow anything from us. After your first game, we're able to rent out gear for $10.00 CAD per event.</p>
+</section>
+
+<section class="bc-section" id="starting-equipment">
+<h2>New Character Starting Equipment</h2>
+<p>When your character comes into game, they have skills that they have worked their entire lifetime to acquire. To make the best use of those skills, new characters start with 300 copper pieces, as well as some equipment that reflects the skills and allows for their use at your character's first event. If this starting equipment is lost, destroyed, or stolen in the course of play, your character will need to source new equipment to use in-game from other players or non-player characters.</p>
+
+<div class="bc-table-wrap">
+<table class="bc-table">
+<thead><tr><th>Skill</th><th>Starting Equipment</th></tr></thead>
+<tbody>
+<tr><td>Any Weapon Skill</td><td>One weapon tag associated with the weapon skill (such as 1 Longsword or Short Sword when buying 1-Handed Swords).</td></tr>
+<tr><td>Shield</td><td>One Buckler or Shield tag.</td></tr>
+<tr><td>Wear Light Armour</td><td>10 locations of Gambeson, Leather, Hardened Leather or Studded Leather (player choice and based on phys-reps).</td></tr>
+<tr><td>Wear Heavy Armour</td><td>5 locations of Chain, Scale or Plate (player choice and based on phys-reps).</td></tr>
+<tr><td>Armour Smith 1</td><td>Armour Smith Tools and 10 Leather Patches.</td></tr>
+<tr><td>Weapon Smith 1</td><td>Weapon Smith Tools and 10 each Iron and Wood.</td></tr>
+<tr><td>Alchemist 1</td><td>10 various Ingredients.</td></tr>
+<tr><td>Herbalist 1</td><td>10 various Herbs.</td></tr>
+<tr><td>Mechanic 1</td><td>Mechanic Tools, 2 Rope, 10 Hardware, 2 Iron.</td></tr>
+<tr><td>Physician 1</td><td>Physician Tools, 10 Bandages, Energy Boost Mixture.</td></tr>
+<tr><td>Merchant 1</td><td>300 extra copper.</td></tr>
+<tr><td>Craftsman (Any) 1</td><td>Relevant Craftsman Tools.</td></tr>
+<tr><td>Labourer (Any) 1</td><td>Relevant Labourer Tools.</td></tr>
+<tr><td>Divination 1</td><td>One of each divination implement (Divining Rod, Sand, Crystal, Crystal Ball, Prism, Deck of Cards, Candles (10), Rune Stones).</td></tr>
+<tr><td>Magery</td><td>Spellbook and any 4 First Level Spells (player choice).</td></tr>
+<tr><td>Clerical Investment (Any) 1</td><td>Shrine, or 10 Candles, 5 Hardware, 1 Chest, 5 Cloth, 3 Containers, 3 Lumber, 2 Iron (enough materials to create a Shrine at a later log).</td></tr>
+</tbody>
+</table>
+</div>
+<p class="bc-note">No additional starting items become available from the purchase of any other skill, or multiple ranks of any above listed skill.</p>
+</section>
+
+<section class="bc-section" id="backstory">
+<h2>Submitting a Character Backstory</h2>
+<p>A character backstory can help you to figure out where your character fits in the world of Fantasy Alive. Creating a character backstory can help to flesh out your character, and to help describe their experiences and lives before the events of game. In general, a character backstory should help to explain how your character came to be the person they are now, and why they would be interested in exciting and dangerous adventures.</p>
+<p>When you have a backstory figured out, you can <a href="backstory.html">submit it to us here</a>.</p>
+</section>
+
+<section class="bc-section" id="next-steps">
+<h2>Next Steps</h2>
+<div class="bc-next-grid">
+<div class="bc-next-card">
+<h3>Your First Event</h3>
+<p>Check out our <a href="your-first-event.html">Your First Event</a> page.</p>
+</div>
+<div class="bc-next-card">
+<h3>Game Policies</h3>
+<p>Read our <a href="policies.html">Policies</a> so that you know what to expect at event.</p>
+</div>
+<div class="bc-next-card">
+<h3>Consent &amp; Liability</h3>
+<p>Before coming out, read and sign our <a href="policies.html#policy-consent-liability">Consent to Participate and Liability Waiver</a>.</p>
+</div>
+<div class="bc-next-card">
+<h3>Emergency Contact</h3>
+<p>Before coming to event, fill out our Emergency Contact Form.</p>
+</div>
+</div>
+</section>
+
+<section class="bc-section" id="pre-generated">
+<h2>Pre-Generated Characters</h2>
+<p class="pregen-intro">To help ease new players into the game and world, we've set up some basic characters that people can use. There are four different basic options. We've named them after four fantasy archetypes, Cleric, Fighter, Mage and Rogue, but since Fantasy Alive does not have &lsquo;character classes&rsquo;, they can learn new skills, and grow in just about any direction!</p>
+<p class="pregen-intro">You can build your character in our <a href="https://database.fantasyalivelrp.com" target="_blank" rel="noopener">Logistics Database</a>. If you have any issues accessing or using the Database, please reach out to our <a href="mailto:logistics@fantasyalivelrp.com">Logistics Team</a>. Please note that the workweek leading up to an event can be labour-intensive for our teams, so if you can, please consider submitting earlier rather than later so that we can best accommodate, troubleshoot, or otherwise offer you assistance.</p>
+
+<div class="pregen-grid">
+
+<div class="pregen-card">
+<h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M6 8h12"/><circle cx="12" cy="6" r="1.6" fill="currentColor" stroke="none"/></svg>Cleric</h3>
+<div class="pregen-stats">
+<div><div class="pregen-stat-label">Life Points</div><div class="pregen-stat-value">5</div></div>
+<div><div class="pregen-stat-label">Armour Points</div><div class="pregen-stat-value">6</div></div>
+<div><div class="pregen-stat-label">Magic</div><div class="pregen-stat-value">11 SE</div></div>
+</div>
+<p class="pregen-desc">You've studied Theology and have your first level of Clerical Investment. This example is a cleric of Clovis, whose holy symbol is a Star. Your skills let you use a one-handed Blunt weapon, like a club or a mace, to defend yourself.</p>
+<ul class="pregen-skills">
+<li><strong>Theology:</strong> You have knowledge of the Divine.</li>
+<li><strong>Clerical Investment 1:</strong> You've been granted spells by your Deity.</li>
+<li><strong>1h Blunt:</strong> You can use Clubs or Maces.</li>
+<li><strong>Spiritual Energy (SE):</strong> You have 10 Energy usable to cast.</li>
+</ul>
+<p class="pregen-block"><strong>Spells:</strong> Lend Health (heal the target 2 LP, costs 1 SE), Holy Dart (2 points of Light damage, costs 1 SE).</p>
+<p class="pregen-block"><strong>Starting Equipment:</strong> Mace, Shrine, 300 copper.</p>
+<p class="pregen-block"><strong>Variations:</strong> <em>Atha</em>, nature worship and Healing Spells &middot; <em>Callis</em>, fire worship and Damage Spells &middot; <em>Hemulis</em>, battle worship and Buff Spells.</p>
+</div>
+
+<div class="pregen-card">
+<h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l6 6M18 3l-6 6M4 21l6-6M20 21l-6-6"/><circle cx="12" cy="12" r="2"/></svg>Fighter</h3>
+<div class="pregen-stats">
+<div><div class="pregen-stat-label">Life Points</div><div class="pregen-stat-value">5</div></div>
+<div><div class="pregen-stat-label">Armour Points</div><div class="pregen-stat-value">10</div></div>
+<div><div class="pregen-stat-label">Magic</div><div class="pregen-stat-value">None</div></div>
+</div>
+<p class="pregen-desc">The fighter is skilled with a one-handed sword. With the Weapon Mastery skill, you do +1 damage when using your sword. You also have Counter Attack, one Parry, and one Disarm.</p>
+<ul class="pregen-skills">
+<li><strong>1h Swords:</strong> You can use Daggers or Swords.</li>
+<li><strong>Counter Attack:</strong> After a block, swing once for +1 damage.</li>
+<li><strong>Parry:</strong> When struck by a weapon attack, call to negate the damage.</li>
+<li><strong>Weapon Mastery:</strong> +1 weapon damage.</li>
+<li><strong>Disarm 1:</strong> Call on hit of opponent's weapon to send it flying.</li>
+</ul>
+<p class="pregen-block"><strong>Starting Equipment:</strong> Longsword, 10 locations of Leather Armour, 300 copper.</p>
+<p class="pregen-block"><strong>Variations:</strong> <em>Sword and Shield</em>, Longsword, Shield &middot; <em>Axe and Shield</em>, Battle Axe, Shield &middot; <em>2h Sword</em>, Two Handed Sword &middot; <em>Mace and Shield</em>, Mace, Shield (all include 10 locations of Leather Armour and 300 copper).</p>
+</div>
+
+<div class="pregen-card">
+<h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l2.8 2.8M16.2 16.2 19 19M19 5l-2.8 2.8M7.8 16.2 5 19"/></svg>Mage</h3>
+<div class="pregen-stats">
+<div><div class="pregen-stat-label">Life Points</div><div class="pregen-stat-value">5</div></div>
+<div><div class="pregen-stat-label">Armour Points</div><div class="pregen-stat-value">6</div></div>
+<div><div class="pregen-stat-label">Magic</div><div class="pregen-stat-value">10 ME</div></div>
+</div>
+<p class="pregen-desc">The Mage can cast spells based on study. You know how to read and write, as well as read and write magic.</p>
+<ul class="pregen-skills">
+<li><strong>Read &amp; Write:</strong> You are literate!</li>
+<li><strong>Read Magic:</strong> You can read the complex language of Magic.</li>
+<li><strong>Magery:</strong> Your mind is attuned to the flow of Magic.</li>
+<li><strong>Magical Energy (ME):</strong> You have 10 Energy usable to cast.</li>
+</ul>
+<p class="pregen-block"><strong>Spells:</strong> Magic Stone (1 Magic damage, 1 ME), Fire Dart (2 Fire damage, 2 ME), Frost Dart (2 Frost damage, 2 ME), Pin (target's right foot is stuck to the ground, 4 ME).</p>
+<p class="pregen-block"><strong>Starting Equipment:</strong> Spellbook containing Fire Dart, Frost Dart, Pin and Mystic Robes, 300 copper.</p>
+<p class="pregen-block"><strong>Variations:</strong> <em>Protection Spells</em>, Repulse, Lend Health, Bravery, Mystic Robes &middot; <em>Damaging Spells</em>, Fire Dart, Frost Dart, Magic Stone, Spark &middot; <em>Debuff Spells</em>, Pin, Disarm, Magic Stone, Mystic Robes.</p>
+</div>
+
+<div class="pregen-card">
+<h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l14 14M19 5 5 19"/></svg>Rogue</h3>
+<div class="pregen-stats">
+<div><div class="pregen-stat-label">Life Points</div><div class="pregen-stat-value">5</div></div>
+<div><div class="pregen-stat-label">Armour Points</div><div class="pregen-stat-value">6</div></div>
+<div><div class="pregen-stat-label">Magic</div><div class="pregen-stat-value">None</div></div>
+</div>
+<p class="pregen-desc">As a rogue, you're a quick fighter who can get in and out when attacking. You are skilled with a one-handed sword or daggers, and with your Florentine skill, you can also use a dagger in your off hand.</p>
+<ul class="pregen-skills">
+<li><strong>1h Swords:</strong> You can use Daggers or Swords.</li>
+<li><strong>Florentine:</strong> You can use a Dagger in your off hand.</li>
+<li><strong>Backstab:</strong> +1 weapon damage hitting an opponent's back.</li>
+<li><strong>Knockout:</strong> Call on hit to opponent's back to put them to sleep, once per fight.</li>
+<li><strong>Dodge:</strong> When struck by any attack, call to negate the damage.</li>
+</ul>
+<p class="pregen-block"><strong>Starting Equipment:</strong> Two daggers, 10 locations of Leather Armour, 300 copper.</p>
+<p class="pregen-block"><strong>Variations:</strong> <em>Assassin</em>, Critical Attack instead of Knockout &middot; <em>Bounty Hunter</em>, Subdue and Stunning Blow instead of Backstab and Knockout &middot; <em>Trapsmith</em>, Mechanic 1 and 2 instead of Knockout.</p>
+</div>
+
+</div>
+
+<p class="bc-closing">You don't have to have it all figured out before your first step into the field. Don't be afraid to live more than once!</p>
 </section>
 
 <div data-include="partials/footer.html"></div>
