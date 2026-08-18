@@ -93,17 +93,6 @@
   color: var(--brown);
 }
 
-.ec-count{
-  font-family:'Cinzel', serif;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--gold-dark);
-  text-align:center;
-  margin: 0 0 1rem;
-}
-
 .ec-table-wrap{
   width: 100%;
   box-shadow: 10px 10px 0 0 var(--gold);
@@ -226,8 +215,6 @@
 <input type="text" id="ec-search-input" placeholder="Search effects..." oninput="ec_search(this.value)">
 </div>
 
-<p class="ec-count" id="ec-count"></p>
-
 <div id="ec-results">
 <p class="ec-empty">Loading effects from the spreadsheet&hellip;</p>
 </div>
@@ -319,11 +306,9 @@ function highlight(text, query){
 
 function renderResults(rawQuery){
   const query = rawQuery.trim();
-  const countEl = document.getElementById('ec-count');
   const target = document.getElementById('ec-results');
 
   if(loadError){
-    countEl.textContent = '';
     target.innerHTML = '<p class="ec-empty">Couldn\'t load the effects list from the spreadsheet. Refresh to try again.</p>';
     return;
   }
@@ -336,8 +321,6 @@ function renderResults(rawQuery){
         e.category.toLowerCase().includes(lowerQuery) ||
         e.counters.toLowerCase().includes(lowerQuery))
     : allEffects;
-
-  countEl.textContent = matches.length + (matches.length === 1 ? ' Effect' : ' Effects');
 
   if(matches.length === 0){
     target.innerHTML = '<p class="ec-empty">No effects found matching &ldquo;' + escapeHtml(query) + '&rdquo;.</p>';
