@@ -113,6 +113,24 @@ body.members-ready .dashboard{ visibility:visible; }
 }
 .side-nav-logout:hover{ background: var(--gold); }
 
+.side-nav-replay-tutorial{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  padding: 0.55rem 1rem;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--brown-dark);
+  border: 2px dashed var(--gold-dark);
+  border-radius: 0;
+  text-decoration:none;
+}
+.side-nav-replay-tutorial .side-nav-icon{ width: 16px; height: 16px; flex-shrink:0; }
+.side-nav-replay-tutorial:hover{ background: var(--cream-deep); }
+
 .panel{
   border: 2px solid var(--line);
   border-radius: 0;
@@ -1266,3 +1284,84 @@ select.reg-date-select{
   .bank-form-grid{ grid-template-columns: 1fr; }
   .account-form-grid{ grid-template-columns: 1fr; }
 }
+
+/* Walkthrough tutorial: a full-screen spotlight overlay that darkens
+   everything except the sidebar item the current step is talking about. */
+.tut-clickblock{
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  background: transparent;
+  cursor: default;
+  display: none;
+}
+.tut-spotlight{
+  position: fixed;
+  z-index: 9998;
+  pointer-events: none;
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(20,18,15,0.82);
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+  display: none;
+}
+.tut-tooltip{
+  position: fixed;
+  z-index: 9999;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: var(--ink);
+  color: var(--cream);
+  border: 2px solid var(--gold);
+  box-shadow: 6px 6px 0 0 var(--gold);
+  padding: 1.2rem 1.3rem 1.1rem;
+  font-family: 'EB Garamond', serif;
+  display: none;
+}
+.tut-tooltip-title{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--gold);
+  margin: 0 0 0.5rem;
+}
+.tut-tooltip-body{
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--cream);
+  margin: 0 0 0.9rem;
+}
+.tut-tooltip-progress{
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin: 0 0 0.8rem;
+}
+.tut-tooltip-actions{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.tut-tooltip-nav{ display:flex; gap: 0.5rem; }
+.tut-btn{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.5rem 0.9rem;
+  border: 2px solid var(--gold);
+  border-radius: 0;
+  background: transparent;
+  color: var(--cream);
+  cursor: pointer;
+}
+.tut-btn:hover{ background: var(--gold); color: var(--ink); }
+.tut-btn-skip{
+  border-color: transparent;
+  padding-left: 0;
+  text-decoration: underline;
+}
+.tut-btn-skip:hover{ background: transparent; color: var(--gold); }
+.tut-btn-back.tut-hidden{ visibility: hidden; }

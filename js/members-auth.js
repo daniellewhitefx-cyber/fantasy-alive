@@ -3,6 +3,17 @@ const SUPABASE_URL = 'https://xdchluuvicuuqyqsejnq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99';
 const membersSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+function loadTutorialScript(){
+  return new Promise(resolve => {
+    if(window.faTutorialLoaded){ resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'js/tutorial.js';
+    s.onload = resolve;
+    s.onerror = resolve;
+    document.body.appendChild(s);
+  });
+}
+
 function waitForSidebar(){
   return new Promise(resolve => {
     (function check(){
@@ -113,6 +124,8 @@ async function refreshRequestsBadge(){
 }
 
 async function initMembersPage(){
+  const current = location.pathname.split('/').pop();
+
   const { data } = await membersSupabase.auth.getSession();
   if(!data.session){
     window.location.href = 'login.html';
@@ -150,7 +163,7 @@ async function initMembersPage(){
     .eq('player_id', user.id);
   const hasCharacters = (charCount || 0) > 0;
 
-  const { data: acctProfile } = await membersSupabase.from('profiles').select('is_cast, is_townsperson').eq('id', user.id).maybeSingle();
+  const { data: acctProfile } = await membersSupabase.from('profiles').select('is_cast, is_townsperson, has_seen_tutorial').eq('id', user.id).maybeSingle();
   const isCastOnly = !hasCharacters && !!(acctProfile && acctProfile.is_cast);
   const isTownspersonOnly = !hasCharacters && !!(acctProfile && acctProfile.is_townsperson);
 
@@ -209,6 +222,17 @@ async function initMembersPage(){
   refreshNotifBadge();
   refreshMessagesBadge();
   refreshRequestsBadge();
+
+  // The walkthrough tutorial auto-plays once, the first time a player
+  // lands on a normal page after finishing waivers and character setup.
+  // It's never auto-played on top of the waiver/character-creator forms
+  // themselves, but the Replay Tutorial sidebar link works everywhere.
+  const skipAutoTutorialPages = ['liability-waiver.html', 'emergency-contact.html', 'character-creator.html'];
+  loadTutorialScript().then(() => {
+    if(!skipAutoTutorialPages.includes(current) && !(acctProfile && acctProfile.has_seen_tutorial)){
+      if(window.faOpenTutorial) window.faOpenTutorial();
+    }
+  });
 }
 
 window.membersSignOut = membersSignOut;
