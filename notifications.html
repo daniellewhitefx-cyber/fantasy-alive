@@ -94,7 +94,7 @@ async function init(){
   const senderCharIds = [...new Set((allMsgs || []).map(m => m.sender_character_id).filter(Boolean))];
   const senderCharMap = {};
   if(senderCharIds.length){
-    const { data: senderChars } = await membersSupabase.from('character_names').select('id, name').in('id', senderCharIds);
+    const { data: senderChars } = await membersSupabase.rpc('character_names').select('id, name').in('id', senderCharIds);
     (senderChars || []).forEach(c => { senderCharMap[c.id] = c.name; });
   }
 
@@ -146,7 +146,7 @@ async function init(){
   const kudosCharIds = [...new Set((myKudos || []).map(k => k.to_character_id).filter(Boolean))];
   const kudosCharMap = {};
   if(kudosCharIds.length){
-    const { data: kc } = await membersSupabase.from('character_names').select('id, name').in('id', kudosCharIds);
+    const { data: kc } = await membersSupabase.rpc('character_names').select('id, name').in('id', kudosCharIds);
     (kc || []).forEach(c => { kudosCharMap[c.id] = c.name; });
   }
   (myKudos || []).forEach(k => {

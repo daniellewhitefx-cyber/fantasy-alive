@@ -514,7 +514,7 @@ async function loadMessages(reopenKey){
   const charIds = [...new Set(allMessages.map(m => m.sender_character_id).filter(Boolean))];
   const missingCharIds = charIds.filter(id => !charNameMap[id]);
   if(missingCharIds.length){
-    const { data: chars } = await membersSupabase.from('character_names').select('id, name').in('id', missingCharIds);
+    const { data: chars } = await membersSupabase.rpc('character_names').select('id, name').in('id', missingCharIds);
     (chars || []).forEach(c => { charNameMap[c.id] = c.name; });
   }
 
@@ -532,7 +532,7 @@ async function init(){
 
   const [{ data: profiles }, { data: allChars }] = await Promise.all([
     membersSupabase.from('profiles').select('id, display_name'),
-    membersSupabase.from('character_names').select('name, player_id')
+    membersSupabase.rpc('character_names').select('name, player_id')
   ]);
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
