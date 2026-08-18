@@ -106,6 +106,91 @@ aspect-ratio: 3/4;
 box-shadow: 10px 10px 0 0 var(--gold);
 }
 
+.featured-event-section{
+padding: 3rem;
+}
+.featured-event-section h2{
+font-family: 'Cinzel', serif;
+text-align: center;
+margin: 0 0 1.6rem;
+color: var(--brown);
+}
+.featured-event{
+max-width: 1100px;
+margin: 0 auto;
+display:grid;
+grid-template-columns: 0.9fr 1.4fr;
+gap: 0;
+background: var(--row-a);
+border: 3px solid var(--gold);
+box-shadow: 10px 10px 0 0 var(--gold);
+}
+.featured-event-image img{
+width:100%; height:100%; object-fit:cover; display:block;
+min-height: 320px;
+}
+.featured-event-content{
+padding: 2rem 2.2rem 2.2rem;
+}
+.featured-event-tag{
+display:inline-block;
+font-family: 'Cinzel', serif;
+font-size: 0.7rem;
+font-weight: 700;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: var(--ink);
+background: var(--gold);
+padding: 0.25rem 0.65rem;
+margin-bottom: 0.9rem;
+}
+.featured-event-content h3{
+font-family: 'Cinzel', serif;
+font-size: 1.5rem;
+font-weight: 700;
+color: var(--brown-dark);
+margin: 0 0 0.5rem;
+}
+.featured-event-when{
+font-family: 'Cinzel', serif;
+font-weight: 700;
+font-size: 0.95rem;
+color: var(--brown);
+margin: 0 0 1.1rem;
+}
+.featured-event-content > p{
+font-family: 'EB Garamond', serif;
+font-weight: 400;
+font-size: 1.05rem;
+line-height: 1.5;
+color: #2e2415;
+margin: 0 0 0.9rem;
+}
+.featured-event-content .featured-event-options{
+text-align: center;
+font-weight: 700;
+color: var(--brown-dark);
+}
+.featured-event-content .featured-event-pricing{
+font-weight: 700;
+}
+.featured-event-content .featured-event-footnote{
+font-size: 0.85rem;
+font-style: italic;
+color: var(--brown-dark);
+margin-bottom: 0;
+}
+.featured-event-footnote a{ color: var(--gold-dark); }
+.featured-event-actions{
+margin-top: 1.3rem;
+}
+
+@media (max-width: 900px){
+.featured-event{ grid-template-columns: 1fr; }
+.featured-event-image img{ min-height: 220px; }
+.featured-event-section{ padding: 2rem 1.2rem; }
+}
+
 .event-banner{
 background: var(--ink);
 color: var(--cream);
@@ -471,6 +556,29 @@ outline-offset: 2px;
 </div>
 <div class="intro-image">
 <img src="https://i.imgur.com/QplcpN9.png" alt="Armour, helm, and shield resting on a bench at camp">
+</div>
+</section>
+
+<section class="featured-event-section">
+<h2>Featured Event</h2>
+<div class="featured-event">
+<div class="featured-event-image">
+<img src="https://i.imgur.com/gMbdese.jpeg" alt="Fantasy Alive characters gathered at a past event">
+</div>
+<div class="featured-event-content">
+<span class="featured-event-tag">Fantasy Alive Day Event</span>
+<h3>Day-Event and Harvest Feast Dinner</h3>
+<p class="featured-event-when">Saturday, October 10th, 12pm to 8pm, at the Canboro Community Centre, 7 Darling St, Dunnville</p>
+<p>Be ye seasoned Adventurer, humble Townsfolk, or mysterious Traveler, join us for a celebration of community, a hearty meal, and many entertainments. Should any trouble come round, the Cook will keep the Tavern safe for non-combat guests. But mayhap you Adventuring types should keep your weapons at hand, just in case . . .</p>
+<p>A fantasy LARP day-event (indoors), suitable for combat and non-combat alike. Featuring afternoon snacks and beverages, and a full Thanksgiving inspired dinner. Existing Fantasy Alive characters and newcomers to our world are all welcome.</p>
+<p>If you are new to larp (or prefer rp to combat) you can become a Townsfolk for the day. Or, if you are a larper but new to FA, we can set you up as a visiting character with a combat archetype. New Players can also register a new official FA character.</p>
+<p class="featured-event-options">There are options for all, just ask us how!</p>
+<p class="featured-event-pricing">Pre-purchase event passes online by Saturday, September 19th* to receive bonus OC and double event XP, and to reserve your plate. Prices range from $20.00 to $70.00 (pass details available online, taxes included).</p>
+<p class="featured-event-footnote">* A minimum number of passes are required for this event. If this minimum is not met, purchases will be credited or refunded. Contact <a href="contact.html">Logistics</a> for details.</p>
+<div class="featured-event-actions">
+<a href="register.html?event=oct-10" class="btn-gold">Register for This Event</a>
+</div>
+</div>
 </div>
 </section>
 
