@@ -127,47 +127,39 @@
 }
 .tag-grid{
   display:grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 2.55in);
+  gap:0;
   margin-bottom: 0.4rem;
 }
 .tag-cell{
+  width: 2.55in;
+  height: 1.15in;
+  box-sizing: border-box;
   border: 1px solid #000;
-  margin: -1px 0 0 -1px;
-  padding: 0.3rem 0.4rem;
-  min-height: 1.35in;
+  padding: 0.08in 0.15in 0.06in;
   display:flex;
   flex-direction:column;
   justify-content: space-between;
-  font-size: 0.72rem;
+  overflow: hidden;
   page-break-inside: avoid;
 }
+.tag-cell-stamp{ min-height: 0.22in; }
 .tag-cell-name{
   font-family: 'Cinzel', serif;
   font-weight: 700;
   text-align:center;
-  font-size: 0.8rem;
+  font-size: 1rem;
   line-height: 1.15;
 }
-.tag-cell-modifier{ font-size: 0.68rem; text-align:center; margin-top:0.25rem; }
+.tag-cell-modifier{ font-size: 0.78rem; text-align:center; }
 .tag-cell-modifier .tag-use-box{
   display:inline-block;
-  width:0.55rem;
-  height:0.55rem;
+  width:0.6rem;
+  height:0.6rem;
   border:1px solid #000;
   margin-right:0.15rem;
 }
-.tag-cell-footer{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
-  gap: 0.4rem;
-  font-size: 0.62rem;
-  border-top: 1px dashed #999;
-  padding-top:0.2rem;
-  margin-top:0.3rem;
-}
-.tag-cell-code{ font-family: monospace; white-space:nowrap; }
-.tag-cell-stamp{ flex:1; min-height: 0.45in; }
+.tag-cell-code{ font-family: monospace; font-size: 0.72rem; white-space:nowrap; }
 
 @media print{
   @page{ margin: 0.25in; }
@@ -582,12 +574,10 @@ function tagCellHtml(itemName, quantity, code, modifierType, useCount){
   const codeHtml = code ? escapeHtml(code) : '';
   const cell = `
     <div class="tag-cell">
+      <div class="tag-cell-stamp"></div>
       <div class="tag-cell-name">${escapeHtml(itemName)}</div>
-      ${modifierHtml}
-      <div class="tag-cell-footer">
-        <div class="tag-cell-code">${codeHtml}</div>
-        <div class="tag-cell-stamp"></div>
-      </div>
+      ${modifierHtml || '<div class="tag-cell-modifier">&nbsp;</div>'}
+      <div class="tag-cell-code">${codeHtml}</div>
     </div>
   `;
   return Array.from({ length: Math.max(1, quantity || 1) }, () => cell).join('');
