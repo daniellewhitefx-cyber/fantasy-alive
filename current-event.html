@@ -144,6 +144,7 @@ let INFO_TAGS_RECEIVING = [];
 
 let SHOP_ALL_ITEMS = [];
 let SHOP_CATEGORY = null;
+let SHOP_SEARCH = '';
 let SHOP_QTY_STATE = {};
 let SHOP_BANK_BALANCE = 0;
 let SHOP_MERCHANT_LEVEL = 0;
@@ -165,6 +166,7 @@ let WORK_LOAD_ERROR = null;
 
 let CRAFT_ALL_ITEMS = [];
 let CRAFT_TRADE = null;
+let CRAFT_SEARCH = '';
 let CRAFT_LOG = [];
 let CRAFT_INVENTORY = [];
 let CRAFT_TAG_STATE = {};
@@ -760,6 +762,7 @@ function renderShopBody(){
         <span class="ce-logging-as">Your Copper: ${SHOP_BANK_BALANCE}</span>
       </div>
       <div class="panel-body">
+        <input type="text" id="ce-shop-search" placeholder="Search all items..." value="${escapeHtml(SHOP_SEARCH)}" oninput="ce_shopSearch(this.value)" style="margin-bottom:0.8rem; max-width:320px;">
         <div class="day-toggle" id="ce-shop-cat-tabs"></div>
         <div class="table-scroll">
           <table class="data-table">
@@ -785,12 +788,23 @@ function renderShopCatTabs(){
 
 function ce_shopSelectCategory(cat){
   SHOP_CATEGORY = cat;
+  SHOP_SEARCH = '';
+  const searchEl = document.getElementById('ce-shop-search');
+  if(searchEl) searchEl.value = '';
   renderShopCatTabs();
   renderShopGrid();
 }
 
+function ce_shopSearch(value){
+  SHOP_SEARCH = value;
+  renderShopGrid();
+}
+
 function renderShopGrid(){
-  const items = SHOP_ALL_ITEMS.filter(i => i.category === SHOP_CATEGORY);
+  const query = SHOP_SEARCH.trim().toLowerCase();
+  const items = query
+    ? SHOP_ALL_ITEMS.filter(i => i.name.toLowerCase().includes(query))
+    : SHOP_ALL_ITEMS.filter(i => i.category === SHOP_CATEGORY);
   const gated = REGISTERED_AS === 'character' && MY_CHARACTER;
 
   document.getElementById('ce-shop-grid').innerHTML = items.length ? items.map(item => {
@@ -810,7 +824,7 @@ function renderShopGrid(){
         <td><button class="btn-outline" ${(canAfford && !locked) ? '' : 'disabled'} onclick="ce_shopBuy('${item.category.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}', ${item.costCopper}, ${item.availabilityTier})">Buy (${total})</button></td>
       </tr>
     `;
-  }).join('') : `<tr><td colspan="4">Nothing in this category yet.</td></tr>`;
+  }).join('') : `<tr><td colspan="4">${query ? `No items match &ldquo;${escapeHtml(SHOP_SEARCH)}&rdquo;.` : 'Nothing in this category yet.'}</td></tr>`;
 }
 
 function ce_shopUpdateQty(key, val){
@@ -1339,6 +1353,7 @@ function renderCraftHtml(){
         <span class="ce-logging-as">Hours Remaining: ${hoursRemaining} / ${TRAIN_BUDGET}</span>
       </div>
       <div class="panel-body">
+        <input type="text" id="ce-craft-search" placeholder="Search all trades..." value="${escapeHtml(CRAFT_SEARCH)}" oninput="ce_craftSearch(this.value)" style="margin-bottom:0.8rem; max-width:320px;">
         <div class="day-toggle" id="ce-craft-trade-tabs"></div>
         <div class="table-scroll">
           <table class="data-table">
@@ -1364,19 +1379,30 @@ function renderCraftTradeTabs(){
 
 function ce_craftSelectTrade(trade){
   CRAFT_TRADE = trade;
+  CRAFT_SEARCH = '';
+  const searchEl = document.getElementById('ce-craft-search');
+  if(searchEl) searchEl.value = '';
   renderCraftTradeTabs();
   renderCraftGrid();
 }
 
+function ce_craftSearch(value){
+  CRAFT_SEARCH = value;
+  renderCraftGrid();
+}
+
 function renderCraftGrid(){
-  const items = CRAFT_ALL_ITEMS.filter(i => i.trade === CRAFT_TRADE);
+  const query = CRAFT_SEARCH.trim().toLowerCase();
+  const items = query
+    ? CRAFT_ALL_ITEMS.filter(i => i.name.toLowerCase().includes(query))
+    : CRAFT_ALL_ITEMS.filter(i => i.trade === CRAFT_TRADE);
   const hoursRemaining = Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent);
-  const knownSkill = TRAIN_KNOWN.find(k => k.category === 'Trade Skill' && k.title.trim().toLowerCase() === (CRAFT_TRADE || '').trim().toLowerCase());
 
   document.getElementById('ce-craft-grid').innerHTML = items.length ? items.map(item => {
     const key = item.trade + '::' + item.name;
     const keyEsc = key.replace(/'/g, "\\'");
     const tagChecked = !!CRAFT_TAG_STATE[key];
+    const knownSkill = TRAIN_KNOWN.find(k => k.category === 'Trade Skill' && k.title.trim().toLowerCase() === item.trade.trim().toLowerCase());
 
     const levelOk = !!knownSkill && knownSkill.level >= item.levelRequired;
     const missingMaterials = tagChecked ? [] : item.materials.filter(m => craftInventoryBalance(m.name) < m.qty);
@@ -1407,7 +1433,7 @@ function renderCraftGrid(){
         <td><button class="btn-outline" ${canCraft ? '' : 'disabled'} onclick="ce_craftMake('${item.trade.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')">Craft</button></td>
       </tr>
     `;
-  }).join('') : `<tr><td colspan="8">Nothing in this trade yet.</td></tr>`;
+  }).join('') : `<tr><td colspan="8">${query ? `No items match &ldquo;${escapeHtml(CRAFT_SEARCH)}&rdquo;.` : 'Nothing in this trade yet.'}</td></tr>`;
 }
 
 function ce_craftToggleTag(key, checked){
@@ -1469,10 +1495,12 @@ window.ce_workCancel = ce_workCancel;
 window.ce_infoPost = ce_infoPost;
 window.ce_infoDelete = ce_infoDelete;
 window.ce_shopSelectCategory = ce_shopSelectCategory;
+window.ce_shopSearch = ce_shopSearch;
 window.ce_shopUpdateQty = ce_shopUpdateQty;
 window.ce_shopBuy = ce_shopBuy;
 window.ce_shopCancel = ce_shopCancel;
 window.ce_craftSelectTrade = ce_craftSelectTrade;
+window.ce_craftSearch = ce_craftSearch;
 window.ce_craftToggleTag = ce_craftToggleTag;
 window.ce_craftMake = ce_craftMake;
 window.ce_craftCancel = ce_craftCancel;
