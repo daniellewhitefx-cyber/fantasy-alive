@@ -530,8 +530,8 @@ async function loadMessages(reopenKey){
 async function init(){
   const me = window.faCurrentUser.id;
 
-  const [{ data: profiles }, { data: allChars }] = await Promise.all([
-    membersSupabase.from('profiles').select('id, display_name'),
+  const [profiles, { data: allChars }] = await Promise.all([
+    faFetchAllRows('profiles', 'id, display_name'),
     membersSupabase.rpc('character_names').select('name, player_id')
   ]);
   profileMap = {};

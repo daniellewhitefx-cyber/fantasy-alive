@@ -623,7 +623,7 @@ document.addEventListener('fa-members-ready', async (e) => {
   isAnnounceStaff = !!(user.app_metadata && (user.app_metadata.announcements_staff || user.app_metadata.site_admin));
   document.getElementById('home-announce-staff-section').style.display = isAnnounceStaff ? 'block' : 'none';
 
-  const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
+  const profiles = await faFetchAllRows('profiles', 'id, display_name');
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
 
