@@ -62,6 +62,7 @@
   font-size: 1.7rem;
   color: var(--ink);
   margin: 0 0 0.2rem;
+  overflow-wrap: break-word;
 }
 .home-hero-tagline{
   font-family: 'EB Garamond', serif;
@@ -132,6 +133,8 @@
 @media (max-width: 720px){
   .home-kpis{ grid-template-columns: repeat(2, 1fr); }
   .home-hero{ flex-wrap: wrap; }
+  .home-hero-stats{ flex-basis: 100%; }
+  .home-hero-cta{ flex-basis: 100%; }
 }
 
 .home-split{

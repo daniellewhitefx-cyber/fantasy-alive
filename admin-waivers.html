@@ -71,10 +71,12 @@
 <div class="reg-section">
 <label class="field-label" for="aw-search">Search by player name or email</label>
 <input type="text" id="aw-search" placeholder="Start typing..." oninput="aw_renderTable()">
-<table class="data-table" id="aw-results-table" style="margin-top:0.8rem;">
+<div class="table-scroll" style="margin-top:0.8rem;">
+<table class="data-table" id="aw-results-table">
 <thead><tr><th>Player</th><th>Waiver</th><th>Emergency Contact</th><th></th></tr></thead>
 <tbody id="aw-results"></tbody>
 </table>
+</div>
 </div>
 
 <div id="aw-detail" style="display:none;">
