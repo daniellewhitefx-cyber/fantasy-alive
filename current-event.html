@@ -1721,12 +1721,15 @@ function renderCraftGrid(){
     const materialsNote = missingMaterials.length
       ? `<span class="skill-missing-prereq">Missing: ${missingMaterials.map(m => `${m.qty} ${escapeHtml(m.name)}`).join(', ')}</span>`
       : (tagChecked ? `<span class="reg-empty-note" style="display:inline;">Materials covered by tags owed next event</span>` : '');
+    const requirementNote = item.note
+      ? `<div class="reg-empty-note" style="margin-top:0.2rem;">Also requires ${escapeHtml(item.note)}</div>`
+      : '';
 
     const hoursLabel = hoursKnown ? `${item.hours} hrs` : `<span class="skill-missing-prereq">TBD</span>`;
 
     return `
       <tr class="${locked ? 'skill-row-locked' : ''}">
-        <td class="shop-item-name">${escapeHtml(item.name)}${lockedNote ? `<span class="skill-missing-prereq">${lockedNote}</span>` : ''}${materialsNote}</td>
+        <td class="shop-item-name">${escapeHtml(item.name)}${lockedNote ? `<span class="skill-missing-prereq">${lockedNote}</span>` : ''}${materialsNote}${requirementNote}</td>
         <td>${escapeHtml(item.category)}</td>
         <td>${item.levelRequired}</td>
         <td>${hoursLabel}</td>
@@ -1938,6 +1941,10 @@ function renderLuxuriesHtml(){
           ${escapeHtml(item.name)}
         </label></td>
         <td>${item.costCopper} Copper</td>
+        <td>${escapeHtml(item.skillText || '-')}</td>
+        <td>${escapeHtml(item.ingredientsText || '-')}</td>
+        <td>${escapeHtml(item.craftHours || '-')}</td>
+        <td>${escapeHtml(item.effectText || '-')}</td>
       </tr>
     `;
   }).join('');
@@ -1946,11 +1953,11 @@ function renderLuxuriesHtml(){
     <div class="panel">
       <div class="panel-head"><h2>Luxuries</h2></div>
       <div class="panel-body">
-        <p class="reg-empty-note" style="margin-bottom:0.8rem;">Check off what ${escapeHtml(MY_CHARACTER.name)} has this event. Copper cost shown is for reference, not a purchase.</p>
+        <p class="reg-empty-note" style="margin-bottom:0.8rem;">Check off what ${escapeHtml(MY_CHARACTER.name)} has this event. Copper cost shown is the weekly upkeep for reference, not a purchase.</p>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Luxury</th><th>Reference Cost</th></tr></thead>
-            <tbody>${rows || '<tr><td colspan="2">No Luxuries in the catalog yet.</td></tr>'}</tbody>
+            <thead><tr><th>Luxury</th><th>Upkeep/Week</th><th>Crafting Skill</th><th>Ingredients</th><th>Time</th><th>Effect</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="6">No Luxuries in the catalog yet.</td></tr>'}</tbody>
           </table>
         </div>
         <p class="reg-error-note" id="ce-lux-error" style="display:none; margin-top:0.6rem;"></p>
