@@ -32,6 +32,8 @@
 
 <h1 class="page-title">Register for an Event</h1>
 
+<div class="reg-section" id="reg-flex-store-wrap"></div>
+
 <div class="reg-section" id="reg-date-section">
 <div class="reg-section-label">Event Date</div>
 <select class="reg-date-select" id="reg-date-select" onchange="reg_selectEvent(this.value)"></select>
@@ -101,13 +103,23 @@
 const REGISTRATION_ENDPOINT = window.FA_REGISTRATION_ENDPOINT;
 
 const ACCOUNT = {
-  firstTime: true,
-  flexEventCredits: 0
+  firstTime: true
 };
 
 let CHARACTERS = [];
 
 const EVENTS = window.FA_EVENTS;
+
+// Multi-event prepaid bundles, bought here through the same online
+// checkout used for event passes below rather than the old external
+// endlessadventures.ca store. Server-side values live in
+// fa_flex_pass_catalog() (supabase/flex-passes-schema.sql) -- this is
+// just the display copy, kept in sync by hand.
+const FLEX_PASSES = [
+  { id:'flex3', name:'3-Event Flex Pass', price:219, grants:'3 event admission credits + 150 bonus OC (raises your OC-to-XP/Copper cap to 150 while you hold an active Flex Pass)' },
+  { id:'flex6', name:'6-Event Flex Pass', price:438, grants:'6 event admission credits + 300 bonus OC (raises your OC-to-XP/Copper cap to 150 while you hold an active Flex Pass)' },
+  { id:'flexmeal6', name:'6 Meal Plan Flex Pass', price:582, grants:'6 Full Event Meal Plan credits + 150 bonus OC' }
+];
 
 const PASSES = [
   { id:'regular', name:'Regular Weekend', price:97, grants:'45 XP', modes:['character'], show: s => !s.firstTime },
@@ -141,7 +153,8 @@ const requestedEvent = requestedEventValue ? EVENTS.find(e => e.value === reques
 const state = {
   firstTime: ACCOUNT.firstTime,
   isCast: false,
-  flexEvent: ACCOUNT.flexEventCredits,
+  flexEvent: 0,
+  flexMeal: 0,
   who: null,
   character: null,
   event: requestedEvent || EVENTS[0] || null
@@ -159,6 +172,7 @@ let selectedMeal = null;
 let singleMealChoice = null;
 let selectedDays = new Set();
 let submitting = false;
+let flexPurchasing = false;
 let submitted = false;
 let currentUser = null;
 let existingRegistration = null;
@@ -261,11 +275,42 @@ function reg_useFlex(){
   render();
 }
 
+function reg_useFlexMeal(){
+  selectedMeal = 'flex-meal-used';
+  singleMealChoice = null;
+  render();
+}
+
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function renderFlexStore(){
+  const wrap = document.getElementById('reg-flex-store-wrap');
+  const balanceLine = (state.flexEvent > 0 || state.flexMeal > 0)
+    ? `<p class="page-subhead">You currently have <strong>${state.flexEvent}</strong> event credit${state.flexEvent===1?'':'s'} and <strong>${state.flexMeal}</strong> meal credit${state.flexMeal===1?'':'s'}.</p>`
+    : '';
+  wrap.innerHTML = `
+    <div class="reg-section-label">Flex Passes</div>
+    <p class="page-subhead">Prepay for multiple events at once. Credits go onto your account and can be used at Registration for any future event.</p>
+    ${balanceLine}
+    <div class="reg-pass-grid">
+      ${FLEX_PASSES.map(p => `
+        <div class="reg-pass-card">
+          <div class="pname">${escapeHtml(p.name)}</div>
+          <div class="pprice">$${p.price}</div>
+          <p class="pgrants">${escapeHtml(p.grants)}</p>
+          <button class="btn-outline" onclick="reg_buyFlexPass('${p.id}')" ${flexPurchasing?'disabled':''}>Buy</button>
+        </div>
+      `).join('')}
+    </div>
+    <p class="reg-error-note" id="reg-flex-store-error" style="display:none;"></p>
+  `;
+}
+
 function render(){
+  renderFlexStore();
+
   const dateSelect = document.getElementById('reg-date-select');
 
   if(!EVENTS.length){
@@ -363,7 +408,7 @@ function render(){
     flexWrap.innerHTML = `
       <div class="reg-flex-banner">
         <div class="ftext">You have <strong>${state.flexEvent}</strong> Flex event credit${state.flexEvent===1?'':'s'} available.</div>
-        <button onclick="reg_useFlex()">Use Flex Pass</button>
+        <button onclick="reg_useFlex()" ${selectedPass==='flex-used'?'disabled':''}>${selectedPass==='flex-used'?'Flex Pass In Use':'Use Flex Pass'}</button>
       </div>`;
   } else {
     flexWrap.innerHTML = '';
@@ -407,7 +452,15 @@ function render(){
     mealContent.innerHTML = `<p class="reg-meal-note">A Full Meal Plan is already included with this pass. No need to add one separately.</p>`;
   } else {
     const visibleMeals = MEALS.filter(m => m.show(state));
-    let mealHtml = `<div class="reg-pass-grid">` + visibleMeals.map(m => `
+    let mealHtml = '';
+    if(state.flexMeal > 0){
+      mealHtml += `
+        <div class="reg-flex-banner">
+          <div class="ftext">You have <strong>${state.flexMeal}</strong> Flex meal credit${state.flexMeal===1?'':'s'} available.</div>
+          <button onclick="reg_useFlexMeal()" ${selectedMeal==='flex-meal-used'?'disabled':''}>${selectedMeal==='flex-meal-used'?'Flex Meal Credit In Use':'Use a Flex Meal Credit'}</button>
+        </div>`;
+    }
+    mealHtml += `<div class="reg-pass-grid">` + visibleMeals.map(m => `
       <div class="reg-pass-card ${selectedMeal===m.id?'selected':''}" onclick="reg_selectMeal('${m.id}')">
         <div class="pname">${escapeHtml(m.name)}</div>
         <div class="pprice">$${m.price}</div>
@@ -451,7 +504,11 @@ function render(){
 
   const mealObj = MEALS.find(m => m.id === selectedMeal);
   const bundled = passObj && passObj.bundlesMeal;
-  if(mealObj && selectedPass !== 'flex-used' && !bundled){
+  if(selectedMeal === 'flex-meal-used'){
+    mealRow.style.display = 'flex';
+    mealName.textContent = 'Flex Meal Credit redeemed (1 credit used)';
+    mealPrice.textContent = 'Free';
+  } else if(mealObj && selectedPass !== 'flex-used' && !bundled){
     mealRow.style.display = 'flex';
     mealName.textContent = mealObj.id === 'single' && singleMealChoice
       ? `${mealObj.name} (${singleMealChoice})`
@@ -512,7 +569,7 @@ function render(){
 function mealSlotsFor(passObj, mealObj){
   const slots = {};
   SINGLE_MEAL_OPTIONS.forEach(s => slots[s] = false);
-  if(passObj && passObj.bundlesMeal){
+  if((passObj && passObj.bundlesMeal) || selectedMeal === 'flex-meal-used'){
     SINGLE_MEAL_OPTIONS.forEach(s => slots[s] = true);
     return slots;
   }
@@ -559,10 +616,12 @@ async function buildRegistrationPayload(){
     passId: selectedPass,
     passName: selectedPass === 'flex-used' ? 'Flex Pass' : (passObj ? passObj.name : ''),
     passPrice: selectedPass === 'flex-used' ? 0 : (passObj ? passObj.price : 0),
+    passIsFlex: selectedPass === 'flex-used',
+    mealIsFlex: selectedMeal === 'flex-meal-used',
     combatStatus: selectedCombat === 'combat' ? 'Combat' : (selectedCombat === 'noncombat' ? 'Non-Combat' : ''),
     daysAttending: state.event.days.filter(d => selectedDays.has(d.id)).map(d => d.label),
-    mealName: bundled ? (passObj.name + ' (included)') : (mealObj ? mealObj.name : ''),
-    mealPrice: bundled ? 0 : (mealObj ? mealObj.price : 0),
+    mealName: bundled ? (passObj.name + ' (included)') : (selectedMeal === 'flex-meal-used' ? 'Flex Meal Credit' : (mealObj ? mealObj.name : '')),
+    mealPrice: (bundled || selectedMeal === 'flex-meal-used') ? 0 : (mealObj ? mealObj.price : 0),
     singleMealChoice: (mealObj && mealObj.id === 'single') ? (singleMealChoice || '') : '',
     mealSlots: mealSlotsFor(passObj, mealObj),
     total: parseInt(sumEl.textContent.replace('$',''), 10) || 0,
@@ -618,6 +677,20 @@ async function submitRegistrationToSheet(payload){
   return true;
 }
 
+// Only burns a credit once the registration itself is confirmed
+// submitted, so a failed submission never silently spends a Flex Pass.
+async function redeemFlexCreditsFor(payload){
+  if(payload.passIsFlex){
+    await membersSupabase.rpc('flex_pass_redeem', { p_kind: 'event' });
+  }
+  if(payload.mealIsFlex){
+    await membersSupabase.rpc('flex_pass_redeem', { p_kind: 'meal' });
+  }
+  if(payload.passIsFlex || payload.mealIsFlex){
+    await loadFlexBalance();
+  }
+}
+
 async function reg_submit(){
   const errorNote = document.getElementById('reg-error-note');
   errorNote.style.display = 'none';
@@ -653,6 +726,7 @@ async function reg_submit(){
     }
 
     await submitRegistrationToSheet(payload);
+    await redeemFlexCreditsFor(payload);
     showRegistrationSuccess(payload);
   } catch(err){
     localStorage.removeItem(PENDING_REGISTRATION_KEY);
@@ -689,10 +763,90 @@ async function handlePaymentReturn(){
     }
     localStorage.removeItem(PENDING_REGISTRATION_KEY);
     await submitRegistrationToSheet(payload);
+    await redeemFlexCreditsFor(payload);
     showRegistrationSuccess(payload);
   } catch(err){
     localStorage.removeItem(PENDING_REGISTRATION_KEY);
     alert("We couldn't confirm your payment went through. Please contact us before trying to register again.");
+  }
+}
+
+const PENDING_FLEX_PURCHASE_KEY = 'fa_pending_flex_purchase';
+
+async function loadFlexBalance(){
+  const { data } = await membersSupabase.rpc('flex_pass_my_balance');
+  const bal = (data && data[0]) || { event_credits: 0, meal_credits: 0 };
+  state.flexEvent = bal.event_credits || 0;
+  state.flexMeal = bal.meal_credits || 0;
+  render();
+}
+
+async function reg_buyFlexPass(passId){
+  const pass = FLEX_PASSES.find(p => p.id === passId);
+  const errorEl = document.getElementById('reg-flex-store-error');
+  if(!pass || flexPurchasing) return;
+  errorEl.style.display = 'none';
+
+  flexPurchasing = true;
+  render();
+
+  try{
+    localStorage.setItem(PENDING_FLEX_PURCHASE_KEY, passId);
+    const base = location.origin + location.pathname;
+    const { data, error } = await membersSupabase.functions.invoke('create-checkout-session', {
+      body: {
+        amount: pass.price,
+        description: pass.name,
+        successUrl: base + '?flexpaid=1&session_id={CHECKOUT_SESSION_ID}',
+        cancelUrl: base + '?flexcancelled=1'
+      }
+    });
+    if(error || !data || !data.url){
+      throw new Error((data && data.error) || 'Could not start checkout');
+    }
+    window.location.href = data.url;
+  } catch(err){
+    localStorage.removeItem(PENDING_FLEX_PURCHASE_KEY);
+    flexPurchasing = false;
+    errorEl.textContent = 'Something went wrong starting checkout. Please try again.';
+    errorEl.style.display = 'block';
+    render();
+  }
+}
+
+async function handleFlexPaymentReturn(){
+  const params = new URLSearchParams(location.search);
+
+  if(params.get('flexcancelled') === '1'){
+    localStorage.removeItem(PENDING_FLEX_PURCHASE_KEY);
+    history.replaceState({}, '', location.pathname);
+    alert('Flex Pass purchase was cancelled.');
+    return;
+  }
+
+  const sessionId = params.get('session_id');
+  if(params.get('flexpaid') !== '1' || !sessionId) return;
+
+  history.replaceState({}, '', location.pathname);
+  const passId = localStorage.getItem(PENDING_FLEX_PURCHASE_KEY);
+  if(!passId) return;
+
+  try{
+    const { data, error } = await membersSupabase.functions.invoke('verify-checkout-session', { body: { sessionId } });
+    if(error || !data || !data.paid){
+      throw new Error('Payment could not be confirmed');
+    }
+    localStorage.removeItem(PENDING_FLEX_PURCHASE_KEY);
+    const { error: grantError } = await membersSupabase.rpc('flex_pass_purchase_grant', { p_pass_id: passId });
+    if(grantError) throw grantError;
+    await loadFlexBalance();
+    alert("Your Flex Pass purchase is complete! The credits (and any bonus OC) have been added to your account.");
+  } catch(err){
+    localStorage.removeItem(PENDING_FLEX_PURCHASE_KEY);
+    alert("We couldn't confirm your Flex Pass payment. Please contact us before trying again.");
+  } finally {
+    flexPurchasing = false;
+    render();
   }
 }
 
@@ -705,6 +859,8 @@ window.reg_toggleDay = reg_toggleDay;
 window.reg_selectMeal = reg_selectMeal;
 window.reg_setSingleMealChoice = reg_setSingleMealChoice;
 window.reg_useFlex = reg_useFlex;
+window.reg_useFlexMeal = reg_useFlexMeal;
+window.reg_buyFlexPass = reg_buyFlexPass;
 window.reg_submit = reg_submit;
 
 selectedDays = state.event ? new Set(state.event.days.map(d => d.id)) : new Set();
@@ -722,7 +878,9 @@ async function loadCharacters(){
 
 document.addEventListener('fa-members-ready', async () => {
   await loadCharacters();
+  await loadFlexBalance();
   await handlePaymentReturn();
+  await handleFlexPaymentReturn();
 });
 })();
 </script>

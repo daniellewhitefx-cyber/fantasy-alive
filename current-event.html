@@ -151,6 +151,7 @@ let REGISTERED_AS = null;
 let MY_CHARACTER = null;
 let OC_BALANCE = 0;
 let COPPER_BALANCE = 0;
+let OC_CAP = 100;
 let SPENT = { xp_spent: 0, copper_spent: 0 };
 let ALLOWANCE_JUST_GRANTED = null;
 let ACTIVE_TAB = 'info';
@@ -219,12 +220,12 @@ function fmtDateTime(d){
 function clampAmount(v){
   let n = parseInt(v, 10);
   if(isNaN(n)) n = 0;
-  return Math.max(0, Math.min(100, n));
+  return Math.max(0, Math.min(OC_CAP, n));
 }
 
 function ocAmountOptions(selected, labelFor){
   let html = '';
-  for(let n = 0; n <= 100; n++){
+  for(let n = 0; n <= OC_CAP; n++){
     html += `<option value="${n}" ${n === selected ? 'selected' : ''}>${escapeHtml(labelFor(n))}</option>`;
   }
   return html;
@@ -311,7 +312,8 @@ async function loadRegistration(){
 async function loadOcAndTraining(){
   const tasks = [
     membersSupabase.from('oc_transactions').select('amount').eq('player_id', window.faCurrentUser.id),
-    membersSupabase.rpc('event_log_oc_summary', { p_event_slug: EVENT.value })
+    membersSupabase.rpc('event_log_oc_summary', { p_event_slug: EVENT.value }),
+    membersSupabase.rpc('flex_pass_my_balance')
   ];
   if(REGISTERED_AS === 'character' && MY_CHARACTER){
     TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT);
@@ -319,10 +321,12 @@ async function loadOcAndTraining(){
     tasks.push(claimAllowance());
   }
 
-  const [{ data: ocRows }, { data: summary }] = await Promise.all(tasks);
+  const [{ data: ocRows }, { data: summary }, { data: flexBalance }] = await Promise.all(tasks);
 
   OC_BALANCE = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
   SPENT = summary || { xp_spent: 0, copper_spent: 0 };
+  const flex = (flexBalance && flexBalance[0]) || { event_credits: 0, meal_credits: 0 };
+  OC_CAP = (flex.event_credits > 0 || flex.meal_credits > 0) ? 150 : 100;
 
   // Fetched after claimAllowance() (above) has already settled, so a
   // just-granted allowance is reflected in this total, not one request
