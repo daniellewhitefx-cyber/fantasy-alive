@@ -29,12 +29,18 @@ function faHasSkillNamed(skills, name){
   return skills.some(s => s.name.trim().toLowerCase() === name.toLowerCase());
 }
 
-function faDeriveStats(race, skills){
+// statusEffectTotals is an optional { statName: total } map from
+// character_my_status_effects/character_staff_status_effects (see
+// supabase/character-status-effects-schema.sql) -- staff-logged deltas
+// like Resurrections actually used or Life Points changed by plot,
+// applied on top of the race/skill-derived pool.
+function faDeriveStats(race, skills, statusEffectTotals){
   const r = RACE_STATS[race] || { baseLp: 5, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 };
   skills = skills || [];
+  statusEffectTotals = statusEffectTotals || {};
 
-  const lp = Math.min(r.baseLp + faSkillLevelTotal(skills, 'Physical Endurance'), r.maxLp);
-  const resurrectionsLeft = Math.min(r.baseResurrections + faSkillLevelTotal(skills, 'Spiritual Endurance'), MAX_RESURRECTIONS);
+  const lp = Math.max(0, Math.min(r.baseLp + faSkillLevelTotal(skills, 'Physical Endurance'), r.maxLp) + (statusEffectTotals.LP || 0));
+  const resurrectionsLeft = Math.max(0, Math.min(r.baseResurrections + faSkillLevelTotal(skills, 'Spiritual Endurance'), MAX_RESURRECTIONS) + (statusEffectTotals.Resurrections || 0));
   const se = r.baseSe + faSkillLevelTotal(skills, 'Spiritual Energy') + (faHasSkillNamed(skills, 'Theology') ? 1 : 0);
   const me = r.baseMe + faSkillLevelTotal(skills, 'Magical Energy') + (faHasSkillNamed(skills, 'Magery') ? 1 : 0);
 

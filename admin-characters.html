@@ -58,6 +58,7 @@
 <button class="bank-tab" data-tab="xp" onclick="ac_switchTab('xp')">XP</button>
 <button class="bank-tab" data-tab="oc" onclick="ac_switchTab('oc')">OC</button>
 <button class="bank-tab" data-tab="inventory" onclick="ac_switchTab('inventory')">Inventory</button>
+<button class="bank-tab" data-tab="effects" onclick="ac_switchTab('effects')">Status Effects</button>
 </div>
 
 <div class="bank-tab-panel" data-panel="details">
@@ -245,6 +246,45 @@
 
 </div>
 
+<div class="bank-tab-panel" data-panel="effects" style="display:none;">
+
+<div class="reg-section">
+<div class="reg-section-label">Log a Status Effect</div>
+<p class="page-subhead">Persistent per-character flags like Resurrections used or plot Life Point changes. Resurrections and LP feed straight into this character's stats; anything else shows up below as a standalone effect.</p>
+<div class="bank-form-grid">
+<div>
+<label class="field-label" for="ac-effect-name">Stat Name</label>
+<input type="text" id="ac-effect-name" list="ac-effect-names" placeholder="e.g. Resurrections">
+<datalist id="ac-effect-names">
+<option value="Resurrections">
+<option value="LP">
+</datalist>
+</div>
+<div>
+<label class="field-label" for="ac-effect-amount">Amount (negative to spend/reduce)</label>
+<input type="number" id="ac-effect-amount" step="1">
+</div>
+<div>
+<label class="field-label" for="ac-effect-note">Description</label>
+<input type="text" id="ac-effect-note" placeholder="What's this for?">
+</div>
+</div>
+<button class="btn-gold" onclick="ac_addStatusEffect()">Log Effect</button>
+<p class="reg-error-note" id="ac-effect-error" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Current Totals</div>
+<div id="ac-effects-list"></div>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Recent History</div>
+<div id="ac-effects-history"></div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -350,7 +390,7 @@ async function ac_selectCharacter(charId){
   socialClassSelect.value = currentSocialClass;
   document.getElementById('ac-starting-sp').value = char.starting_sp;
 
-  await Promise.all([loadSkills(), loadXp(), loadOc(), loadInventory()]);
+  await Promise.all([loadSkills(), loadXp(), loadOc(), loadInventory(), loadStatusEffects()]);
   renderTabs();
   renderBrowser();
 }
@@ -496,6 +536,53 @@ async function ac_grantItem(){
   document.getElementById('ac-item-qty').value = '1';
   document.getElementById('ac-item-note').value = '';
   await loadInventory();
+}
+
+async function loadStatusEffects(){
+  const { data: totals } = await membersSupabase.rpc('character_staff_status_effects', { p_character_id: selected.id });
+
+  const listTarget = document.getElementById('ac-effects-list');
+  listTarget.innerHTML = (totals && totals.length) ? totals.map(t => `
+    <div class="bank-bill-card">
+      <strong>${escapeHtml(t.stat_name)}</strong> <span class="bank-request-date">${t.total > 0 ? '+' : ''}${t.total}</span>
+    </div>
+  `).join('') : emptyState('No status effects logged yet.');
+
+  const { data: history } = await membersSupabase
+    .from('character_status_effects')
+    .select('stat_name, delta, description, created_at')
+    .eq('character_id', selected.id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  const historyTarget = document.getElementById('ac-effects-history');
+  historyTarget.innerHTML = (history && history.length) ? history.map(h => `
+    <div class="bank-bill-card">
+      <div><strong>${escapeHtml(h.stat_name)} ${h.delta > 0 ? '+' : ''}${h.delta}</strong>${h.description ? ' - ' + escapeHtml(h.description) : ''} <span class="bank-request-date">(${fmtDate(h.created_at)})</span></div>
+    </div>
+  `).join('') : emptyState('No history yet.');
+}
+
+async function ac_addStatusEffect(){
+  const errorEl = document.getElementById('ac-effect-error');
+  errorEl.style.display = 'none';
+
+  const statName = document.getElementById('ac-effect-name').value.trim();
+  const amount = parseInt(document.getElementById('ac-effect-amount').value, 10);
+  const note = document.getElementById('ac-effect-note').value.trim();
+
+  if(!statName){ errorEl.textContent = 'Enter a stat name.'; errorEl.style.display = 'block'; return; }
+  if(!amount){ errorEl.textContent = 'Enter a non-zero amount.'; errorEl.style.display = 'block'; return; }
+
+  const { error } = await membersSupabase.rpc('character_staff_add_status_effect', {
+    p_character_id: selected.id, p_stat_name: statName, p_delta: amount, p_description: note || null
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  document.getElementById('ac-effect-name').value = '';
+  document.getElementById('ac-effect-amount').value = '';
+  document.getElementById('ac-effect-note').value = '';
+  await loadStatusEffects();
 }
 
 async function ac_saveDetails(){
@@ -670,6 +757,8 @@ window.ac_updateCost = ac_updateCost;
 window.ac_addSkill = ac_addSkill;
 window.ac_adjustXp = ac_adjustXp;
 window.ac_adjustOc = ac_adjustOc;
+window.ac_grantItem = ac_grantItem;
+window.ac_addStatusEffect = ac_addStatusEffect;
 
 document.addEventListener('fa-members-ready', async (e) => {
   const user = e.detail.user;
