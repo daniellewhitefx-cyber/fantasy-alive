@@ -25,6 +25,7 @@ create or replace function skills_true_cost(p_skill_name text, p_focus text, p_l
 returns integer
 language plpgsql
 stable
+set search_path = public
 as $$
 declare
   v_skill_id integer;
