@@ -3,15 +3,16 @@
 -- skill catalog..." change): their character_skills.sp_cost was computed
 -- under the old flat, race-blind Google Sheet formula. Now that costs
 -- vary by race (and, for skills like Craftsman/Labourer, by the chosen
--- specialty), that stored cost can be stale, which throws off the
--- incremental "delta" pricing event_log_relevel_skill() charges when a
--- player levels the skill up further.
+-- specialty), that stored cost can be stale and show the wrong price for
+-- the skill's current level on Characters, the staff character tool, and
+-- print sheets.
 --
--- This does NOT change how relevels are priced (still delta-based, pay
--- only the increase) and does NOT touch event_log_training_purchases (the
--- historical purchase log -- what was actually charged at the time stays
--- as a true record). It only corrects the *current* cost basis on
--- character_skills, which is what future relevels compare against.
+-- This does NOT touch event_log_training_purchases (the historical
+-- purchase log -- what was actually charged at the time stays as a true
+-- record) or total_sp_paid (each character's running SP total, which
+-- reflects real history and shouldn't be rewritten just because a
+-- formula changed since). It only corrects the *display* cost basis on
+-- character_skills.sp_cost.
 --
 -- HOW TO RUN THIS:
 --   1. Run everything up through the PART 1 preview query. Read its

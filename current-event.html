@@ -906,7 +906,7 @@ function renderLearningListHtml(){
   if(!TRAIN_PURCHASES.length) return '';
   const rows = TRAIN_PURCHASES.map(p => {
     const levelLabel = p.is_relevel ? `${p.prev_level} &rarr; ${p.level}` : `${p.level}`;
-    const costLabel = p.is_relevel ? `+${p.sp_cost} SP (+${p.hours_cost} hrs)` : `${p.sp_cost} SP (${p.hours_cost} hrs)`;
+    const costLabel = `${p.sp_cost} SP (${p.hours_cost} hrs)`;
     return `
       <tr>
         <td>${escapeHtml(p.skill_name)}${p.focus ? ' (' + escapeHtml(p.focus) + ')' : ''}</td>
@@ -997,9 +997,10 @@ function trainFocusFieldHtml(idx, s, state, isLeveled, focusLocked){
 // Resolves everything needed to render or act on one browse row: the
 // matching known skill (if any), whether acting on it is a relevel,
 // the level to act on (auto-detected: the next level up from whatever
-// is already known, or level 1 if it isn't known at all), and the
-// delta cost in SP/Hours (the delta equals the full cost for a
-// brand-new skill, since there's nothing to subtract).
+// is already known, or level 1 if it isn't known at all), and the full
+// SP/Hours cost of that level -- leveling up is a fresh full-price
+// purchase of the new level, not just the increase over what's already
+// been paid.
 function ce_trainRowInfo(idx){
   const { s, state } = ce_trainRowState(idx);
   const race = MY_CHARACTER.race;
@@ -1019,21 +1020,20 @@ function ce_trainRowInfo(idx){
   const spendableSp = TRAIN_SUMMARY.spendable_sp;
 
   const cost = skillsParseCost(s, level, race, focusVal);
-  const deltaSp = cost === null ? null : (isRelevel ? cost - known.spCost : cost);
-  const deltaHours = deltaSp === null ? null : deltaSp * 5;
+  const hoursCost = cost === null ? null : cost * 5;
 
   const missing = unmetPrereqText(s, race, focusVal, TRAIN_KNOWN, TRAIN_STATS);
   const alreadyKnownFlat = !isLeveled && !!known;
-  const canAct = !missing && deltaSp !== null && deltaSp > 0 && deltaSp <= spendableSp && deltaHours <= hoursRemaining
+  const canAct = !missing && cost !== null && cost > 0 && cost <= spendableSp && hoursCost <= hoursRemaining
     && !(s.focusTypeId && !focusVal) && !alreadyKnownFlat;
 
-  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, deltaSp, deltaHours, missing, alreadyKnownFlat, canAct };
+  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, missing, alreadyKnownFlat, canAct };
 }
 
 function trainCostLabel(info){
   if(info.alreadyKnownFlat) return '-';
-  if(info.deltaSp === null) return '-';
-  return info.isRelevel ? `+${info.deltaSp} SP (+${info.deltaHours} hrs)` : `${info.deltaSp} SP (${info.deltaHours} hrs)`;
+  if(info.cost === null) return '-';
+  return `${info.cost} SP (${info.hoursCost} hrs)`;
 }
 
 function renderTrainBrowser(){

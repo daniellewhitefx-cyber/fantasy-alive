@@ -355,10 +355,10 @@ async function ac_selectCharacter(charId){
 async function loadSkills(){
   const { data } = await membersSupabase
     .from('character_skills')
-    .select('id, category, skill_name, focus, level, sp_cost')
+    .select('id, category, skill_name, focus, level, sp_cost, total_sp_paid')
     .eq('character_id', selected.id);
 
-  const spent = (data || []).reduce((sum, s) => sum + s.sp_cost, 0);
+  const spent = (data || []).reduce((sum, s) => sum + s.total_sp_paid, 0);
   document.getElementById('ac-sp-stat').textContent = `${spent} / ${selected.starting_sp} SP used`;
 
   document.getElementById('ac-skills-body').innerHTML = (data && data.length) ? data.map(s => `

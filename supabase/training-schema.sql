@@ -76,7 +76,7 @@ begin
     where id = p_character_id and player_id = v_player;
   if not found then raise exception 'Character not found'; end if;
 
-  select coalesce(sum(sp_cost), 0) into v_spent_sp from character_skills where character_id = p_character_id;
+  select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
   v_rate := fa_xp_per_sp(v_starting_sp + v_spent_sp);
   v_spendable_sp := greatest(0, v_starting_sp + floor(v_xp_balance::numeric / v_rate)::integer - v_spent_sp);
@@ -139,7 +139,7 @@ begin
     raise exception 'You already know that skill';
   end if;
 
-  select coalesce(sum(sp_cost), 0) into v_spent_sp from character_skills where character_id = p_character_id;
+  select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
   v_rate := fa_xp_per_sp(v_starting_sp + v_spent_sp);
   v_spendable_sp := greatest(0, v_starting_sp + floor(v_xp_balance::numeric / v_rate)::integer - v_spent_sp);
@@ -158,8 +158,8 @@ begin
     raise exception 'Not enough downtime hours left';
   end if;
 
-  insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost)
-    values (p_character_id, v_player, v_category, v_skill_name, v_focus, v_level, p_sp_cost)
+  insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost, total_sp_paid)
+    values (p_character_id, v_player, v_category, v_skill_name, v_focus, v_level, p_sp_cost, p_sp_cost)
     returning id into v_skill_id;
 
   insert into event_log_training_purchases
@@ -171,8 +171,10 @@ end;
 $$;
 
 -- Levels up a skill the character already knows (skills whose cost
--- scales with level can be bought again at a higher level). Only the
--- delta between the old and new cost is charged in Hours and SP.
+-- scales with level can be bought again at a higher level). Each level
+-- is a fresh purchase at that level's own full cost -- e.g. level 2
+-- costs a full 5 SP, level 3 a full 6 SP -- rather than only charging
+-- the increase over what was already paid.
 create or replace function event_log_relevel_skill(
   p_event_slug text,
   p_character_id uuid,
@@ -194,8 +196,7 @@ declare
   v_hours_spent integer;
   v_prev_level integer;
   v_prev_sp_cost integer;
-  v_delta_sp integer;
-  v_delta_hours integer;
+  v_hours_cost integer;
   v_purchase_id uuid;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
@@ -215,34 +216,33 @@ begin
 
   if p_new_level <= v_prev_level then raise exception 'New level must be higher than the current level'; end if;
 
-  v_delta_sp := p_new_sp_cost - v_prev_sp_cost;
-  if v_delta_sp < 0 then raise exception 'New cost must be higher than the current cost'; end if;
-
   select starting_sp into v_starting_sp from characters where id = p_character_id;
-  select coalesce(sum(sp_cost), 0) into v_spent_sp from character_skills where character_id = p_character_id;
+  select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
   v_rate := fa_xp_per_sp(v_starting_sp + v_spent_sp);
   v_spendable_sp := greatest(0, v_starting_sp + floor(v_xp_balance::numeric / v_rate)::integer - v_spent_sp);
 
-  if v_delta_sp > v_spendable_sp then
+  if p_new_sp_cost > v_spendable_sp then
     raise exception 'Not enough spendable Skill Points';
   end if;
 
-  v_delta_hours := v_delta_sp * 5;
+  v_hours_cost := p_new_sp_cost * 5;
 
   select coalesce(sum(hours_cost), 0) into v_hours_spent
     from event_log_training_purchases
     where character_id = p_character_id and event_slug = p_event_slug;
 
-  if v_hours_spent + v_delta_hours > p_hours_budget then
+  if v_hours_spent + v_hours_cost > p_hours_budget then
     raise exception 'Not enough downtime hours left';
   end if;
 
-  update character_skills set level = p_new_level, sp_cost = p_new_sp_cost where id = p_character_skill_id;
+  update character_skills
+    set level = p_new_level, sp_cost = p_new_sp_cost, total_sp_paid = total_sp_paid + p_new_sp_cost
+    where id = p_character_skill_id;
 
   insert into event_log_training_purchases
     (player_id, character_id, event_slug, character_skill_id, category, skill_name, focus, level, sp_cost, hours_cost, is_relevel, prev_level, prev_sp_cost)
-  select v_player, p_character_id, p_event_slug, id, category, skill_name, focus, p_new_level, v_delta_sp, v_delta_hours, true, v_prev_level, v_prev_sp_cost
+  select v_player, p_character_id, p_event_slug, id, category, skill_name, focus, p_new_level, p_new_sp_cost, v_hours_cost, true, v_prev_level, v_prev_sp_cost
   from character_skills where id = p_character_skill_id
   returning id into v_purchase_id;
 
@@ -264,17 +264,20 @@ declare
   v_is_relevel boolean;
   v_prev_level integer;
   v_prev_sp_cost integer;
+  v_purchase_sp_cost integer;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
 
-  select character_skill_id, is_relevel, prev_level, prev_sp_cost
-    into v_char_skill_id, v_is_relevel, v_prev_level, v_prev_sp_cost
+  select character_skill_id, is_relevel, prev_level, prev_sp_cost, sp_cost
+    into v_char_skill_id, v_is_relevel, v_prev_level, v_prev_sp_cost, v_purchase_sp_cost
     from event_log_training_purchases
     where id = p_purchase_id and player_id = v_player;
   if not found then raise exception 'Training purchase not found'; end if;
 
   if v_is_relevel then
-    update character_skills set level = v_prev_level, sp_cost = v_prev_sp_cost where id = v_char_skill_id;
+    update character_skills
+      set level = v_prev_level, sp_cost = v_prev_sp_cost, total_sp_paid = total_sp_paid - v_purchase_sp_cost
+      where id = v_char_skill_id;
     delete from event_log_training_purchases where id = p_purchase_id;
   else
     delete from character_skills where id = v_char_skill_id;
