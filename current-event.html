@@ -1154,6 +1154,51 @@ async function loadWorkData(){
   }
 }
 
+// Copper earned scales proportionally to a full 8 hour shift (5 Copper
+// per level of the skill used) and rounds up to the nearest whole Copper,
+// so working any number of hours is never worth less than a straight
+// 8-hour fraction would suggest.
+function ce_workCopperFor(hours, level){
+  return Math.ceil((hours * 5 * level) / 8);
+}
+
+function ce_workHoursOptionsHtml(hoursRemaining){
+  let opts = '';
+  for(let h = 1; h <= hoursRemaining; h++) opts += `<option value="${h}">${h} hour${h === 1 ? '' : 's'}</option>`;
+  return opts;
+}
+
+function ce_workFormHtml(kind, skills, hoursRemaining){
+  const idSuffix = kind === 'cause' ? 'cause' : 'living';
+  const label = kind === 'cause' ? 'Clerical Investment' : 'Trade Skill';
+  const title = kind === 'cause' ? 'Work for a Cause' : 'Work for a Living';
+  const blurb = kind === 'cause'
+    ? "Use your Clerical Investment to earn money for your faith: 5 Copper per level for every 8 hours worked, prorated and rounded up for any other amount of time."
+    : 'Earn 5 Copper per level of a Trade Skill for every 8 hours worked, prorated and rounded up for any other amount of time.';
+
+  if(!skills.length || hoursRemaining <= 0) return '';
+
+  return `
+    <div class="panel">
+      <div class="panel-head"><h2>${title}</h2></div>
+      <div class="panel-body">
+        <p class="page-subhead">${blurb}</p>
+        <label class="field-label" for="ce-work-skill-${idSuffix}">${label}</label>
+        <select id="ce-work-skill-${idSuffix}" onchange="ce_workUpdatePreview('${idSuffix}')">
+          ${skills.map(k => `<option value="${escapeHtml(k.id)}">${escapeHtml(k.title)}${k.focus ? ' (' + escapeHtml(k.focus) + ')' : ''} - Level ${k.level}</option>`).join('')}
+        </select>
+        <label class="field-label" for="ce-work-hours-${idSuffix}" style="margin-top:0.8rem;">Hours to Work</label>
+        <select id="ce-work-hours-${idSuffix}" onchange="ce_workUpdatePreview('${idSuffix}')">
+          ${ce_workHoursOptionsHtml(hoursRemaining)}
+        </select>
+        <p class="page-subhead" id="ce-work-preview-${idSuffix}" style="margin-top:0.6rem;"></p>
+        <button class="btn-gold" onclick="ce_workSubmit('${idSuffix}')">Work</button>
+        <p class="reg-error-note" id="ce-work-error-${idSuffix}" style="display:none; margin-top:0.6rem;"></p>
+      </div>
+    </div>
+  `;
+}
+
 function renderWorkHtml(){
   const body = document.getElementById('ce-tab-body');
 
@@ -1163,15 +1208,19 @@ function renderWorkHtml(){
   }
 
   const tradeSkills = TRAIN_KNOWN.filter(k => k.category === 'Trade Skill');
+  const causeSkills = TRAIN_KNOWN.filter(k => k.title === 'Clerical Investment');
   const hoursRemaining = Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent);
 
   const sessionsHtml = WORK_SESSIONS.length ? `
     <div class="panel">
       <div class="panel-head"><h2>Worked This Event</h2></div>
       <div class="panel-body">
+        <div class="ce-stats">
+          <div class="ce-stat"><div class="ce-stat-label">Hours Remaining</div><div class="ce-stat-value">${hoursRemaining} / ${TRAIN_BUDGET}</div></div>
+        </div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Trade Skill</th><th>Level</th><th>Hours</th><th>Copper Earned</th><th></th></tr></thead>
+            <thead><tr><th>Skill</th><th>Level</th><th>Hours</th><th>Copper Earned</th><th></th></tr></thead>
             <tbody>${WORK_SESSIONS.map(s => `
               <tr>
                 <td>${escapeHtml(s.skill_name)}${s.focus ? ' (' + escapeHtml(s.focus) + ')' : ''}</td>
@@ -1185,57 +1234,53 @@ function renderWorkHtml(){
         </div>
       </div>
     </div>
-  ` : '';
-
-  const formHtml = tradeSkills.length ? `
+  ` : `
     <div class="panel">
-      <div class="panel-head"><h2>Work for Copper</h2></div>
+      <div class="panel-head"><h2>Worked This Event</h2></div>
       <div class="panel-body">
-        <p class="page-subhead">Every 8 hours worked earns 5 Copper per level of the Trade Skill used.</p>
         <div class="ce-stats">
           <div class="ce-stat"><div class="ce-stat-label">Hours Remaining</div><div class="ce-stat-value">${hoursRemaining} / ${TRAIN_BUDGET}</div></div>
         </div>
-        <label class="field-label" for="ce-work-skill">Trade Skill</label>
-        <select id="ce-work-skill" onchange="ce_workUpdatePreview()">
-          ${tradeSkills.map(k => `<option value="${escapeHtml(k.id)}">${escapeHtml(k.title)}${k.focus ? ' (' + escapeHtml(k.focus) + ')' : ''} - Level ${k.level}</option>`).join('')}
-        </select>
-        <label class="field-label" for="ce-work-hours" style="margin-top:0.8rem;">Hours to Work</label>
-        <input type="number" id="ce-work-hours" min="8" step="8" value="8" oninput="ce_workUpdatePreview()">
-        <p class="page-subhead" id="ce-work-preview" style="margin-top:0.6rem;"></p>
-        <button class="btn-gold" onclick="ce_workSubmit()">Work</button>
-        <p class="reg-error-note" id="ce-work-error" style="display:none; margin-top:0.6rem;"></p>
       </div>
-    </div>
-  ` : `
-    <div class="panel">
-      <div class="panel-head"><h2>Work for Copper</h2></div>
-      <div class="panel-body">${emptyState("This character doesn't know any Trade Skills yet.")}</div>
     </div>
   `;
 
-  body.innerHTML = sessionsHtml + formHtml;
-  if(tradeSkills.length) ce_workUpdatePreview();
+  const livingHtml = ce_workFormHtml('living', tradeSkills, hoursRemaining);
+  const causeHtml = ce_workFormHtml('cause', causeSkills, hoursRemaining);
+
+  const emptyHtml = (!livingHtml && !causeHtml) ? `
+    <div class="panel">
+      <div class="panel-head"><h2>Work</h2></div>
+      <div class="panel-body">${emptyState(hoursRemaining <= 0
+        ? 'No downtime hours remaining this event.'
+        : "This character doesn't know any Trade Skills or Clerical Investment yet.")}</div>
+    </div>
+  ` : '';
+
+  body.innerHTML = sessionsHtml + livingHtml + causeHtml + emptyHtml;
+  if(livingHtml) ce_workUpdatePreview('living');
+  if(causeHtml) ce_workUpdatePreview('cause');
 }
 
-function ce_workUpdatePreview(){
-  const hoursInput = document.getElementById('ce-work-hours');
-  let hours = Math.round((parseInt(hoursInput.value, 10) || 8) / 8) * 8;
-  if(hours < 8) hours = 8;
-  hoursInput.value = hours;
+function ce_workUpdatePreview(idSuffix){
+  const skills = idSuffix === 'cause'
+    ? TRAIN_KNOWN.filter(k => k.title === 'Clerical Investment')
+    : TRAIN_KNOWN.filter(k => k.category === 'Trade Skill');
 
-  const skillId = document.getElementById('ce-work-skill').value;
-  const skill = TRAIN_KNOWN.find(k => k.id === skillId);
-  const copper = skill ? (hours / 8) * 5 * skill.level : 0;
-  document.getElementById('ce-work-preview').textContent = skill
-    ? `Working ${hours} hours as a level ${skill.level} ${skill.title} earns ${copper} Copper.`
+  const hours = parseInt(document.getElementById(`ce-work-hours-${idSuffix}`).value, 10) || 1;
+  const skillId = document.getElementById(`ce-work-skill-${idSuffix}`).value;
+  const skill = skills.find(k => k.id === skillId);
+  const copper = skill ? ce_workCopperFor(hours, skill.level) : 0;
+  document.getElementById(`ce-work-preview-${idSuffix}`).textContent = skill
+    ? `Working ${hours} hour${hours === 1 ? '' : 's'} as a level ${skill.level} ${skill.title} earns ${copper} Copper.`
     : '';
 }
 
-async function ce_workSubmit(){
-  const errorEl = document.getElementById('ce-work-error');
+async function ce_workSubmit(idSuffix){
+  const errorEl = document.getElementById(`ce-work-error-${idSuffix}`);
   errorEl.style.display = 'none';
-  const skillId = document.getElementById('ce-work-skill').value;
-  const hours = parseInt(document.getElementById('ce-work-hours').value, 10) || 8;
+  const skillId = document.getElementById(`ce-work-skill-${idSuffix}`).value;
+  const hours = parseInt(document.getElementById(`ce-work-hours-${idSuffix}`).value, 10) || 1;
 
   const { error } = await membersSupabase.rpc('event_log_work_for_copper', {
     p_event_slug: EVENT.value,
