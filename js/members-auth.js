@@ -298,10 +298,12 @@ async function initMembersPage(){
   refreshRequestsBadge();
 
   // The walkthrough tutorial auto-plays once, the first time a player
-  // lands on a normal page after finishing waivers and character setup.
-  // It's never auto-played on top of the waiver/character-creator forms
-  // themselves, but the Replay Tutorial sidebar link works everywhere.
-  const skipAutoTutorialPages = ['liability-waiver.html', 'emergency-contact.html', 'character-creator.html'];
+  // reaches the members area -- which for a brand-new account is the
+  // liability waiver page, since that's the first hard gate. It's never
+  // auto-played on top of the emergency contact or character-creator
+  // forms themselves (the player is already mid-flow at that point), but
+  // the Replay Tutorial sidebar link works everywhere.
+  const skipAutoTutorialPages = ['emergency-contact.html', 'character-creator.html'];
   loadTutorialScript().then(() => {
     if(!skipAutoTutorialPages.includes(current) && !(acctProfile && acctProfile.has_seen_tutorial)){
       if(window.faOpenTutorial) window.faOpenTutorial();

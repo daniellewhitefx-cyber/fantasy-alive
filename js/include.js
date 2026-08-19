@@ -34,8 +34,28 @@ function setFooterCopyrightYear(){
   if(el) el.textContent = new Date().getFullYear();
 }
 
+// A floating "back to top" button for long pages, shown once the reader
+// has scrolled down a bit. Added here rather than in footer.html since
+// that partial is loaded via innerHTML and any <script> inside it never
+// runs.
+function initBackToTop(){
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'back-to-top-btn';
+  btn.setAttribute('aria-label', 'Back to top');
+  btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg>';
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  document.body.appendChild(btn);
+
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 600);
+  }, { passive: true });
+}
+
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', loadIncludes);
+  document.addEventListener('DOMContentLoaded', initBackToTop);
 } else {
   loadIncludes();
+  initBackToTop();
 }

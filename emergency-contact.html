@@ -92,7 +92,7 @@
 <div class="ecf-subhead">Your Info</div>
 <div class="ecf-row">
 <div class="ecf-field"><label for="ecf-name">Name</label><input type="text" id="ecf-name" autocomplete="name"></div>
-<div class="ecf-field"><label for="ecf-characters">Character(s)</label><input type="text" id="ecf-characters"></div>
+<div class="ecf-field"><label for="ecf-characters">Character(s) <span style="text-transform:none; letter-spacing:normal; font-weight:400; color:var(--brown);">(optional)</span></label><input type="text" id="ecf-characters" placeholder="Leave blank if you haven't created one yet"></div>
 </div>
 <div class="ecf-row">
 <div class="ecf-field" style="flex-basis:100%;"><label for="ecf-address">Home Address</label><input type="text" id="ecf-address" autocomplete="street-address"></div>
@@ -166,12 +166,19 @@ function fmtDateTime(iso){
 function setVal(id, val){ document.getElementById(id).value = val || ''; }
 function getVal(id){ return document.getElementById(id).value.trim(); }
 
+// Tracks whether this player already had a saved form when the page
+// loaded, so a first-time save (the tail end of onboarding) can move them
+// on to Account Info, without yanking a returning player away from this
+// page every time they come back to update a phone number or address.
+let hadExistingRecord = false;
+
 async function loadExisting(){
   const { data } = await membersSupabase.from('emergency_contact_forms')
     .select('full_name, characters, home_address, city, postal_code, phone, contact1_name, contact1_phone, contact1_relationship, contact1_email, contact2_name, contact2_phone, contact2_relationship, contact2_email, medical_conditions, other_notes, signature_name, updated_at')
     .eq('player_id', window.faCurrentUser.id).maybeSingle();
 
   if(!data) return;
+  hadExistingRecord = true;
 
   setVal('ecf-name', data.full_name);
   setVal('ecf-characters', data.characters);
@@ -222,7 +229,9 @@ async function ecf_save(){
 
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
 
+  const isFirstSave = !hadExistingRecord;
   await loadExisting();
+  if(isFirstSave) window.location.href = 'account.html';
 }
 
 window.ecf_save = ecf_save;
