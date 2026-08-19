@@ -276,10 +276,9 @@ async function loadRegistration(){
   const me = window.faCurrentUser;
   let registrants;
   try{
-    const res = await fetch(window.FA_REGISTRATION_ENDPOINT + '?action=list&event=' + encodeURIComponent(EVENT.label), { cache: 'no-store' });
-    if(!res.ok) throw new Error('Registration check failed (' + res.status + ')');
-    const data = await res.json();
-    registrants = data.registrants || [];
+    const { data, error } = await membersSupabase.rpc('event_roster', { p_event_slug: EVENT.value });
+    if(error) throw new Error(error.message);
+    registrants = data || [];
   } catch(err){
     REG_ERROR = err.message;
     REG_CHECKED = true;
@@ -287,13 +286,13 @@ async function loadRegistration(){
     return;
   }
 
-  const mine = registrants.find(r => (r.email || '').trim().toLowerCase() === (me.email || '').trim().toLowerCase());
+  const mine = registrants.find(r => r.player_id === me.id);
   REGISTERED_AS = mine ? mine.who : null;
   MY_CHARACTER = null;
 
   if(mine && mine.who === 'character'){
     const { data: chars } = await membersSupabase.from('characters').select('id, name, race, social_class').eq('player_id', me.id);
-    MY_CHARACTER = (chars || []).find(c => c.name.trim().toLowerCase() === (mine.characterName || '').trim().toLowerCase()) || null;
+    MY_CHARACTER = (chars || []).find(c => c.id === mine.character_id) || null;
   }
 
   if(REGISTERED_AS) await loadOcAndTraining();
@@ -596,14 +595,14 @@ async function loadInfoData(){
   INFO_ERROR = null;
   try{
     const [rosterRes, itemsResult, canEditResult] = await Promise.all([
-      fetch(window.FA_REGISTRATION_ENDPOINT + '?action=list&event=' + encodeURIComponent(EVENT.label), { cache: 'no-store' })
-        .then(res => { if(!res.ok) throw new Error('Roster check failed (' + res.status + ')'); return res.json(); }),
+      membersSupabase.rpc('event_roster', { p_event_slug: EVENT.value }),
       membersSupabase.from('event_info_items').select('id, body, created_at').eq('event_slug', EVENT.value).order('created_at', { ascending: false }),
       membersSupabase.rpc('fa_is_plot_or_admin')
     ]);
+    if(rosterRes.error) throw new Error(rosterRes.error.message);
 
-    const registrants = rosterRes.registrants || [];
-    const characterNames = registrants.filter(r => r.who === 'character').map(r => r.characterName).filter(Boolean);
+    const registrants = rosterRes.data || [];
+    const characterNames = registrants.filter(r => r.who === 'character').map(r => r.character_name).filter(Boolean);
     INFO_CAST_COUNT = registrants.filter(r => r.who === 'cast').length;
 
     INFO_ROSTER = characterNames.length

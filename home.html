@@ -361,10 +361,8 @@ async function updateRegisterCta(who, characterName){
   if(!el || !window.FA_NEXT_EVENT) return;
 
   try{
-    const user = await faGetCurrentUser();
-    if(!user) return;
-    const result = await faCheckRegistration(window.FA_NEXT_EVENT.label, who, characterName, user.email);
-    if(result.registered){
+    const { data } = await membersSupabase.rpc('my_event_registration', { p_event_slug: window.FA_NEXT_EVENT.value });
+    if(data && data.length){
       el.innerHTML = `<a href="register.html" class="chars-registered-badge">&#10003; You're Registered for ${escapeHtml(window.FA_NEXT_EVENT.label)}</a>`;
     }
   } catch(err){

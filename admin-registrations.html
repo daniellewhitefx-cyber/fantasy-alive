@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registrations (Staff) - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Registrations (Staff) - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/admin-registrations.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Registrations (Staff) - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.ar-note-pill{
+  display:inline-block;
+  background: var(--bad, #a33);
+  color:#fff;
+  font-family:'Cinzel', serif;
+  font-size:0.7rem;
+  font-weight:700;
+  padding:0.1rem 0.5rem;
+  margin-bottom:0.2rem;
+}
+.ar-note-pill.disability{ background: var(--gold-dark, #8a6d1f); }
+.ar-notes-cell{ min-width:220px; }
+.ar-summary-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:1.2rem;
+  margin-bottom:0.6rem;
+}
+.ar-summary-stat{ font-family:'EB Garamond', serif; }
+.ar-summary-stat strong{ font-family:'Cinzel', serif; }
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Registrations</h1>
+
+<div class="reg-already-registered" id="ar-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to site admins and Logistics.</p>
+</div>
+
+<div id="ar-wrap" style="display:none;">
+
+<div class="panel">
+<div class="panel-head"><h2>Event</h2></div>
+<div class="panel-body">
+<label class="field-label" for="ar-event-select">Event</label>
+<select id="ar-event-select" onchange="ar_loadRoster()"></select>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-head"><h2>Who's Registered</h2></div>
+<div class="panel-body">
+<div class="ar-summary-row" id="ar-summary"></div>
+<label style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.8rem; cursor:pointer;">
+<input type="checkbox" id="ar-notes-only" onchange="ar_render()">
+Only show registrants with notes for logistics
+</label>
+<div class="table-scroll">
+<table class="data-table">
+<thead><tr><th>Character / Cast</th><th>Player</th><th>Who</th><th>Pass</th><th>Meal</th><th>Days</th><th>Payment</th><th>Notes for Logistics</th></tr></thead>
+<tbody id="ar-roster-body"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let REGISTRANTS = [];
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
+function fmtWho(who){
+  return who === 'character' ? 'Character' : (who === 'cast' ? 'Cast' : 'Townsperson');
+}
+
+function populateEventSelect(){
+  const sel = document.getElementById('ar-event-select');
+  sel.innerHTML = (window.FA_ALL_EVENTS || []).map(e => `<option value="${escapeHtml(e.value)}">${escapeHtml(e.longLabel)}</option>`).join('');
+  if(window.FA_NEXT_EVENT) sel.value = window.FA_NEXT_EVENT.value;
+}
+
+async function ar_loadRoster(){
+  const eventSlug = document.getElementById('ar-event-select').value;
+  const body = document.getElementById('ar-roster-body');
+  if(!eventSlug) return;
+
+  body.innerHTML = `<tr><td colspan="8"><p class="reg-empty-note">Loading&hellip;</p></td></tr>`;
+
+  const { data, error } = await membersSupabase.rpc('staff_event_registrations', { p_event_slug: eventSlug });
+  if(error){
+    body.innerHTML = `<tr><td colspan="8"><p class="reg-error-note">Couldn't load registrations: ${escapeHtml(error.message)}</p></td></tr>`;
+    return;
+  }
+  REGISTRANTS = data || [];
+  ar_render();
+}
+
+function ar_render(){
+  const summaryEl = document.getElementById('ar-summary');
+  const body = document.getElementById('ar-roster-body');
+  const notesOnly = document.getElementById('ar-notes-only').checked;
+
+  const total = REGISTRANTS.length;
+  const withMeal = REGISTRANTS.filter(r => r.meal_name).length;
+  const withNotes = REGISTRANTS.filter(r => (r.allergy_notes && r.allergy_notes.trim()) || (r.disability_notes && r.disability_notes.trim())).length;
+
+  summaryEl.innerHTML = `
+    <div class="ar-summary-stat"><strong>${total}</strong> registered</div>
+    <div class="ar-summary-stat"><strong>${withMeal}</strong> with a meal plan</div>
+    <div class="ar-summary-stat"><strong>${withNotes}</strong> with logistics notes</div>
+  `;
+
+  const rows = notesOnly
+    ? REGISTRANTS.filter(r => (r.allergy_notes && r.allergy_notes.trim()) || (r.disability_notes && r.disability_notes.trim()))
+    : REGISTRANTS;
+
+  if(rows.length === 0){
+    body.innerHTML = `<tr><td colspan="8">${emptyState(notesOnly ? 'No registrants with logistics notes for this event.' : 'No one is registered for this event yet.')}</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = rows.map(r => {
+    const notes = [];
+    if(r.allergy_notes && r.allergy_notes.trim()) notes.push(`<div><span class="ar-note-pill">Allergy</span> ${escapeHtml(r.allergy_notes)}</div>`);
+    if(r.disability_notes && r.disability_notes.trim()) notes.push(`<div><span class="ar-note-pill disability">Access</span> ${escapeHtml(r.disability_notes)}</div>`);
+    return `
+      <tr>
+        <td>${escapeHtml(r.character_name)}</td>
+        <td>${escapeHtml(r.player_name)}</td>
+        <td>${fmtWho(r.who)}</td>
+        <td>${r.pass_name ? escapeHtml(r.pass_name) : '-'}</td>
+        <td>${r.meal_name ? escapeHtml(r.meal_name) : '-'}</td>
+        <td>${r.days_attending && r.days_attending.length ? escapeHtml(r.days_attending.join(', ')) : '-'}</td>
+        <td>${r.payment_method ? escapeHtml(r.payment_method) : '-'}</td>
+        <td class="ar-notes-cell">${notes.length ? notes.join('') : ''}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+window.ar_loadRoster = ar_loadRoster;
+window.ar_render = ar_render;
+
+document.addEventListener('fa-members-ready', async () => {
+  const { data: allowed, error } = await membersSupabase.rpc('fa_is_logistics_or_admin');
+  if(error || !allowed){
+    document.getElementById('ar-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('ar-wrap').style.display = 'block';
+  populateEventSelect();
+  await ar_loadRoster();
+});
+})();
+</script>
+
+</body>
+</html>
