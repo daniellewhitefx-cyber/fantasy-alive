@@ -105,7 +105,7 @@
 .kp-print-table tr{ page-break-inside: avoid; }
 
 .tag-print-page{
-  font-family: 'EB Garamond', serif;
+  font-family: Arial, Helvetica, sans-serif;
   color: #000;
   padding: 0.15in 0.1in;
 }
@@ -115,14 +115,12 @@
   padding-bottom: 0.25rem;
 }
 .tag-print-head h2{
-  font-family: 'Cinzel', serif;
   font-size: 1.2rem;
   margin: 0;
   line-height: 1.1;
 }
 .tag-group-head:first-child{ margin-top: 0; }
 .tag-group-head{
-  font-family: 'Cinzel', serif;
   font-size: 0.95rem;
   margin: 0.8rem 0 0.3rem;
 }
@@ -146,13 +144,13 @@
 }
 .tag-cell-stamp{ min-height: 0.22in; }
 .tag-cell-name{
-  font-family: 'Cinzel', serif;
   font-weight: 700;
   text-align:center;
   font-size: 1rem;
   line-height: 1.15;
 }
-.tag-cell-modifier{ font-size: 0.78rem; text-align:center; }
+.tag-cell-modifiers{ display:flex; flex-direction:column; gap:0.1rem; }
+.tag-cell-modifier{ font-size: 0.72rem; text-align:center; }
 .tag-cell-modifier .tag-use-box{
   display:inline-block;
   width:0.6rem;
@@ -160,7 +158,13 @@
   border:1px solid #000;
   margin-right:0.15rem;
 }
-.tag-cell-code{ font-family: monospace; font-size: 0.72rem; white-space:nowrap; }
+.tag-cell-modifier .tag-blank-line{
+  display:inline-block;
+  width:0.9in;
+  border-bottom:1px solid #000;
+  vertical-align:middle;
+}
+.tag-cell-code{ font-size: 0.72rem; text-align:center; white-space:nowrap; }
 
 .recipe-tag-grid{
   display:grid;
@@ -177,7 +181,6 @@
   page-break-inside: avoid;
 }
 .recipe-tag-name{
-  font-family: 'Cinzel', serif;
   font-weight: 700;
   font-size: 1.05rem;
   line-height: 1.15;
@@ -205,7 +208,7 @@
   width: 1%;
 }
 .recipe-tag-copy-head{
-  font-family: 'Cinzel', serif;
+  font-weight: 700;
   font-size: 0.78rem;
   border-top: 1px solid #999;
   margin-top: 0.3rem;
@@ -610,20 +613,34 @@ function ps_printDietary(){
 
 /* ---------- tag cell rendering (shared by both tag panels) ---------- */
 
-function tagCellHtml(itemName, quantity, code, modifierType, useCount){
-  let modifierHtml = '';
-  if(modifierType === 'shatter'){
-    modifierHtml = '<div class="tag-cell-modifier">Shattered: &#9744;</div>';
-  } else if(modifierType === 'uses'){
-    const boxes = Array.from({ length: useCount || 0 }, () => '<span class="tag-use-box"></span>').join('');
-    modifierHtml = `<div class="tag-cell-modifier">Used: ${boxes}</div>`;
+// A modifier line is either a row of checkbox-style boxes (count > 0, e.g.
+// "Shattered: [ ]" or "Used: [ ][ ][ ][ ]") or a write-in blank (count 0,
+// e.g. "Deity: ______" for items that need a name filled in at game).
+function tagModifierLineHtml(mod){
+  if(mod.count > 0){
+    const boxes = Array.from({ length: mod.count }, () => '<span class="tag-use-box"></span>').join('');
+    return `<div class="tag-cell-modifier">${escapeHtml(mod.label)}: ${boxes}</div>`;
   }
+  return `<div class="tag-cell-modifier">${escapeHtml(mod.label)}: <span class="tag-blank-line"></span></div>`;
+}
+
+// modifiers (an array of {label, count}, imported from the legacy tag
+// catalog) takes priority when present since it can express custom labels
+// and multiple lines per item; modifierType/useCount is the simpler
+// fallback used for items staff add by hand through the print form.
+function tagCellHtml(itemName, quantity, code, modifierType, useCount, modifiers){
+  let mods = modifiers && modifiers.length ? modifiers : null;
+  if(!mods){
+    if(modifierType === 'shatter') mods = [{ label: 'Shattered', count: 1 }];
+    else if(modifierType === 'uses') mods = [{ label: 'Used', count: useCount || 0 }];
+  }
+  const modifierHtml = mods ? mods.map(tagModifierLineHtml).join('') : '<div class="tag-cell-modifier">&nbsp;</div>';
   const codeHtml = code ? escapeHtml(code) : '';
   const cell = `
     <div class="tag-cell">
       <div class="tag-cell-stamp"></div>
       <div class="tag-cell-name">${escapeHtml(itemName)}</div>
-      ${modifierHtml || '<div class="tag-cell-modifier">&nbsp;</div>'}
+      <div class="tag-cell-modifiers">${modifierHtml}</div>
       <div class="tag-cell-code">${codeHtml}</div>
     </div>
   `;
@@ -656,7 +673,7 @@ function ct_stripRecipeSuffix(name){
 }
 
 async function ct_loadItemCatalogTable(){
-  const { data } = await membersSupabase.from('item_catalog').select('item_name, code, modifier_type, use_count').order('item_name');
+  const { data } = await membersSupabase.from('item_catalog').select('item_name, code, modifier_type, use_count, modifiers').order('item_name');
   CATALOG = data || [];
 }
 
@@ -848,7 +865,7 @@ async function ptr_print(){
           continue;
         } catch(err){ /* fall through to plain item card below */ }
       }
-      itemCells.push(tagCellHtml(r.item_name, r.quantity, r.code, r.modifier_type, r.use_count));
+      itemCells.push(tagCellHtml(r.item_name, r.quantity, r.code, r.modifier_type, r.use_count, r.modifiers));
     }
     return `
       <h3 class="tag-group-head">${escapeHtml(g.player)}</h3>
@@ -923,11 +940,11 @@ async function ct_addToBatch(){
       ct_rebuildDatalist();
       match = ct_catalogMatch(name);
     } else {
-      match = { item_name: name, code: code || null, modifier_type: modifierType, use_count: useCount };
+      match = { item_name: name, code: code || null, modifier_type: modifierType, use_count: useCount, modifiers: null };
     }
   }
 
-  BATCH.push({ kind: 'item', item_name: match.item_name, quantity: qty, code: match.code, modifier_type: match.modifier_type, use_count: match.use_count });
+  BATCH.push({ kind: 'item', item_name: match.item_name, quantity: qty, code: match.code, modifier_type: match.modifier_type, use_count: match.use_count, modifiers: match.modifiers });
   ct_renderBatch();
   ct_resetForm();
 }
@@ -962,7 +979,7 @@ function ct_printBatch(){
   const html = `
     <div class="tag-print-page">
       <div class="tag-print-head"><h2>Search &amp; Print Any Tag</h2></div>
-      ${itemEntries.length ? `<div class="tag-grid">${itemEntries.map(b => tagCellHtml(b.item_name, b.quantity, b.code, b.modifier_type, b.use_count)).join('')}</div>` : ''}
+      ${itemEntries.length ? `<div class="tag-grid">${itemEntries.map(b => tagCellHtml(b.item_name, b.quantity, b.code, b.modifier_type, b.use_count, b.modifiers)).join('')}</div>` : ''}
       ${recipeEntries.length ? `<div class="recipe-tag-grid">${recipeEntries.map(b => recipeTagCellHtml(b.data, b.quantity)).join('')}</div>` : ''}
     </div>
   `;

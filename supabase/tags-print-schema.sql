@@ -12,6 +12,13 @@ create table if not exists item_catalog (
   code text,
   modifier_type text not null default 'none' check (modifier_type in ('none', 'shatter', 'uses')),
   use_count integer,
+  -- Richer modifier lines than modifier_type/use_count can express (custom
+  -- labels, multiple lines per item, e.g. "Shattered" + "Resist Corrode
+  -- Used"), as imported from the legacy tag sheet: [{"label": "...",
+  -- "count": N}], where count 0 means a write-in blank rather than
+  -- checkboxes. Printed instead of modifier_type/use_count when present;
+  -- items added by hand through the staff UI still use the simpler pair.
+  modifiers jsonb,
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -96,6 +103,9 @@ grant execute on function logistics_fulfill_tag_request(uuid) to authenticated;
 -- Every pending tag request, with the player/character names resolved and
 -- the matching catalog entry (appraisal code + modifier style) joined in,
 -- ordered by player so a printed sheet keeps each player's tags together.
+-- Dropped first since adding the modifiers column changes the function's
+-- return type, which create or replace can't do in place.
+drop function if exists logistics_list_pending_tag_requests();
 create or replace function logistics_list_pending_tag_requests()
 returns table(
   id uuid,
@@ -107,7 +117,8 @@ returns table(
   created_at timestamptz,
   code text,
   modifier_type text,
-  use_count integer
+  use_count integer,
+  modifiers jsonb
 ) language plpgsql stable security definer
 set search_path = public
 as $$
@@ -127,7 +138,8 @@ begin
       r.created_at,
       ic.code,
       coalesce(ic.modifier_type, 'none'),
-      ic.use_count
+      ic.use_count,
+      ic.modifiers
     from character_tag_requests r
     join characters c on c.id = r.character_id
     join auth.users u on u.id = r.player_id
