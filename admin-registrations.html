@@ -40,6 +40,8 @@
 }
 .ar-summary-stat{ font-family:'EB Garamond', serif; }
 .ar-summary-stat strong{ font-family:'Cinzel', serif; }
+.ar-row-actions{ display:flex; gap:0.4rem; white-space:nowrap; }
+.ar-meal-slots label{ display:flex; align-items:center; gap:0.4rem; margin-bottom:0.2rem; cursor:pointer; font-family:'EB Garamond', serif; }
 </style>
 </head>
 <body>
@@ -79,10 +81,89 @@ Only show registrants with notes for logistics
 </label>
 <div class="table-scroll">
 <table class="data-table">
-<thead><tr><th>Character / Cast</th><th>Player</th><th>Who</th><th>Pass</th><th>Meal</th><th>Days</th><th>Payment</th><th>Notes for Logistics</th></tr></thead>
+<thead><tr><th>Character / Cast</th><th>Player</th><th>Who</th><th>Pass</th><th>Meal</th><th>Days</th><th>Payment</th><th>Notes for Logistics</th><th></th></tr></thead>
 <tbody id="ar-roster-body"></tbody>
 </table>
 </div>
+</div>
+</div>
+
+<div class="panel" id="ar-edit-panel" style="display:none;">
+<div class="panel-head"><h2>Edit Registration</h2></div>
+<div class="panel-body">
+<div class="account-form-grid">
+<div>
+<label class="field-label" for="ar-edit-who">Who</label>
+<select id="ar-edit-who" onchange="ar_editWhoChanged()">
+<option value="character">Character</option>
+<option value="cast">Cast</option>
+<option value="townsperson">Townsperson</option>
+</select>
+</div>
+<div id="ar-edit-character-wrap">
+<label class="field-label" for="ar-edit-character">Character</label>
+<select id="ar-edit-character"></select>
+</div>
+<div>
+<label class="field-label" for="ar-edit-pass-name">Pass Name</label>
+<input type="text" id="ar-edit-pass-name">
+</div>
+<div>
+<label class="field-label" for="ar-edit-pass-price">Pass Price</label>
+<input type="number" id="ar-edit-pass-price" min="0">
+</div>
+<div>
+<label class="field-label" for="ar-edit-combat">Combat Status</label>
+<select id="ar-edit-combat">
+<option value="">-</option>
+<option value="Combat">Combat</option>
+<option value="Non-Combat">Non-Combat</option>
+</select>
+</div>
+<div>
+<label class="field-label" for="ar-edit-days">Days Attending (comma separated)</label>
+<input type="text" id="ar-edit-days" placeholder="Friday, Saturday, Sunday">
+</div>
+<div>
+<label class="field-label" for="ar-edit-meal-name">Meal Name</label>
+<input type="text" id="ar-edit-meal-name">
+</div>
+<div>
+<label class="field-label" for="ar-edit-meal-price">Meal Price</label>
+<input type="number" id="ar-edit-meal-price" min="0">
+</div>
+<div>
+<label class="field-label" for="ar-edit-single-meal">Single Meal Choice</label>
+<input type="text" id="ar-edit-single-meal">
+</div>
+<div>
+<label class="field-label">Meal Slots</label>
+<div class="ar-meal-slots" id="ar-edit-meal-slots"></div>
+</div>
+<div>
+<label class="field-label" for="ar-edit-total">Total</label>
+<input type="number" id="ar-edit-total" min="0">
+</div>
+<div>
+<label class="field-label" for="ar-edit-payment">Payment Method</label>
+<select id="ar-edit-payment">
+<option value="">-</option>
+<option value="Online (paid)">Online (paid)</option>
+<option value="At Event">At Event</option>
+</select>
+</div>
+<div>
+<label class="field-label" for="ar-edit-allergy">Allergy Notes</label>
+<input type="text" id="ar-edit-allergy">
+</div>
+<div>
+<label class="field-label" for="ar-edit-disability">Disability / Access Notes</label>
+<input type="text" id="ar-edit-disability">
+</div>
+</div>
+<button class="btn-gold" onclick="ar_saveEdit()">Save Changes</button>
+<button class="btn-outline" onclick="ar_cancelEdit()">Cancel</button>
+<p class="reg-error-note" id="ar-edit-error" style="display:none;"></p>
 </div>
 </div>
 
@@ -99,6 +180,9 @@ Only show registrants with notes for logistics
 <script>
 (function(){
 let REGISTRANTS = [];
+let EDIT_ID = null;
+let EDIT_PLAYER_ID = null;
+const MEAL_SLOTS = ['Saturday Breakfast', 'Saturday Lunch', 'Saturday Dinner', 'Sunday Breakfast'];
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -121,11 +205,11 @@ async function ar_loadRoster(){
   const body = document.getElementById('ar-roster-body');
   if(!eventSlug) return;
 
-  body.innerHTML = `<tr><td colspan="8"><p class="reg-empty-note">Loading&hellip;</p></td></tr>`;
+  body.innerHTML = `<tr><td colspan="9"><p class="reg-empty-note">Loading&hellip;</p></td></tr>`;
 
   const { data, error } = await membersSupabase.rpc('staff_event_registrations', { p_event_slug: eventSlug });
   if(error){
-    body.innerHTML = `<tr><td colspan="8"><p class="reg-error-note">Couldn't load registrations: ${escapeHtml(error.message)}</p></td></tr>`;
+    body.innerHTML = `<tr><td colspan="9"><p class="reg-error-note">Couldn't load registrations: ${escapeHtml(error.message)}</p></td></tr>`;
     return;
   }
   REGISTRANTS = data || [];
@@ -152,7 +236,7 @@ function ar_render(){
     : REGISTRANTS;
 
   if(rows.length === 0){
-    body.innerHTML = `<tr><td colspan="8">${emptyState(notesOnly ? 'No registrants with logistics notes for this event.' : 'No one is registered for this event yet.')}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9">${emptyState(notesOnly ? 'No registrants with logistics notes for this event.' : 'No one is registered for this event yet.')}</td></tr>`;
     return;
   }
 
@@ -170,13 +254,141 @@ function ar_render(){
         <td>${r.days_attending && r.days_attending.length ? escapeHtml(r.days_attending.join(', ')) : '-'}</td>
         <td>${r.payment_method ? escapeHtml(r.payment_method) : '-'}</td>
         <td class="ar-notes-cell">${notes.length ? notes.join('') : ''}</td>
+        <td class="ar-row-actions">
+          <button class="btn-outline" onclick="ar_editRegistration('${r.id}')">Edit</button>
+          <button class="btn-outline" onclick="ar_deleteRegistration('${r.id}')">Delete</button>
+        </td>
       </tr>
     `;
   }).join('');
 }
 
+function renderMealSlotCheckboxes(slots){
+  const container = document.getElementById('ar-edit-meal-slots');
+  const selected = slots || {};
+  container.innerHTML = MEAL_SLOTS.map(slot => `
+    <label><input type="checkbox" value="${escapeHtml(slot)}" ${selected[slot] ? 'checked' : ''}> ${escapeHtml(slot)}</label>
+  `).join('');
+}
+
+async function loadCharacterOptionsForEdit(preselectId){
+  const sel = document.getElementById('ar-edit-character');
+  sel.innerHTML = `<option value="">Loading&hellip;</option>`;
+  const { data, error } = await membersSupabase.rpc('staff_player_characters', { p_player_id: EDIT_PLAYER_ID });
+  if(error || !data){
+    sel.innerHTML = `<option value="">(couldn't load characters)</option>`;
+    return;
+  }
+  sel.innerHTML = data.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
+  if(preselectId) sel.value = preselectId;
+}
+
+function ar_editWhoChanged(){
+  const who = document.getElementById('ar-edit-who').value;
+  document.getElementById('ar-edit-character-wrap').style.display = who === 'character' ? 'block' : 'none';
+}
+
+function ar_editRegistration(id){
+  const r = REGISTRANTS.find(x => x.id === id);
+  if(!r) return;
+
+  EDIT_ID = r.id;
+  EDIT_PLAYER_ID = r.player_id;
+
+  document.getElementById('ar-edit-who').value = r.who;
+  document.getElementById('ar-edit-pass-name').value = r.pass_name || '';
+  document.getElementById('ar-edit-pass-price').value = r.pass_price || 0;
+  document.getElementById('ar-edit-combat').value = r.combat_status || '';
+  document.getElementById('ar-edit-days').value = (r.days_attending || []).join(', ');
+  document.getElementById('ar-edit-meal-name').value = r.meal_name || '';
+  document.getElementById('ar-edit-meal-price').value = r.meal_price || 0;
+  document.getElementById('ar-edit-single-meal').value = r.single_meal_choice || '';
+  document.getElementById('ar-edit-total').value = r.total || 0;
+  document.getElementById('ar-edit-payment').value = r.payment_method || '';
+  document.getElementById('ar-edit-allergy').value = r.allergy_notes || '';
+  document.getElementById('ar-edit-disability').value = r.disability_notes || '';
+
+  renderMealSlotCheckboxes(r.meal_slots);
+  ar_editWhoChanged();
+  if(r.who === 'character') loadCharacterOptionsForEdit(r.character_id);
+
+  document.getElementById('ar-edit-error').style.display = 'none';
+  const panel = document.getElementById('ar-edit-panel');
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function ar_cancelEdit(){
+  EDIT_ID = null;
+  EDIT_PLAYER_ID = null;
+  document.getElementById('ar-edit-panel').style.display = 'none';
+}
+
+async function ar_saveEdit(){
+  if(!EDIT_ID) return;
+  const errEl = document.getElementById('ar-edit-error');
+  errEl.style.display = 'none';
+
+  const who = document.getElementById('ar-edit-who').value;
+  const characterId = who === 'character' ? (document.getElementById('ar-edit-character').value || null) : null;
+  const days = document.getElementById('ar-edit-days').value.split(',').map(s => s.trim()).filter(Boolean);
+  const mealSlots = {};
+  document.querySelectorAll('#ar-edit-meal-slots input[type="checkbox"]').forEach(cb => {
+    if(cb.checked) mealSlots[cb.value] = true;
+  });
+
+  const { error } = await membersSupabase.rpc('staff_update_registration', {
+    p_id: EDIT_ID,
+    p_who: who,
+    p_character_id: characterId,
+    p_character_name: null,
+    p_pass_name: document.getElementById('ar-edit-pass-name').value,
+    p_pass_price: Number(document.getElementById('ar-edit-pass-price').value) || 0,
+    p_combat_status: document.getElementById('ar-edit-combat').value,
+    p_days_attending: days,
+    p_meal_name: document.getElementById('ar-edit-meal-name').value,
+    p_meal_price: Number(document.getElementById('ar-edit-meal-price').value) || 0,
+    p_single_meal_choice: document.getElementById('ar-edit-single-meal').value,
+    p_meal_slots: mealSlots,
+    p_total: Number(document.getElementById('ar-edit-total').value) || 0,
+    p_payment_method: document.getElementById('ar-edit-payment').value,
+    p_allergy_notes: document.getElementById('ar-edit-allergy').value,
+    p_disability_notes: document.getElementById('ar-edit-disability').value
+  });
+
+  if(error){
+    errEl.textContent = `Couldn't save changes: ${error.message}`;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  ar_cancelEdit();
+  await ar_loadRoster();
+}
+
+async function ar_deleteRegistration(id){
+  const r = REGISTRANTS.find(x => x.id === id);
+  if(!r) return;
+  if(!confirm(`Delete the registration for ${r.character_name}? This cannot be undone.`)) return;
+
+  const { data: credited, error } = await membersSupabase.rpc('staff_delete_registration', { p_id: id });
+  if(error){
+    alert(`Couldn't delete registration: ${error.message}`);
+    return;
+  }
+
+  if(EDIT_ID === id) ar_cancelEdit();
+  alert(credited ? 'Registration deleted. A Flex Pass event credit was issued for the online payment.' : 'Registration deleted.');
+  await ar_loadRoster();
+}
+
 window.ar_loadRoster = ar_loadRoster;
 window.ar_render = ar_render;
+window.ar_editRegistration = ar_editRegistration;
+window.ar_editWhoChanged = ar_editWhoChanged;
+window.ar_saveEdit = ar_saveEdit;
+window.ar_cancelEdit = ar_cancelEdit;
+window.ar_deleteRegistration = ar_deleteRegistration;
 
 document.addEventListener('fa-members-ready', async () => {
   const { data: allowed, error } = await membersSupabase.rpc('fa_is_logistics_or_admin');
