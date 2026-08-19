@@ -85,6 +85,27 @@
 </div>
 
 <div class="reg-section">
+<div class="reg-section-label">Quick Start <span style="font-weight:400;">(optional)</span></div>
+<p class="page-subhead">Load a pre-built skill loadout for a classic build, then trim it to fit your Skill Point budget below. Skip this if you'd rather build from scratch.</p>
+<div class="account-form-grid">
+<div>
+<label class="field-label" for="cc-template">Template</label>
+<select id="cc-template" onchange="cc_onTemplateChange()">
+<option value="">None</option>
+</select>
+</div>
+<div>
+<label class="field-label" for="cc-archetype">Archetype</label>
+<select id="cc-archetype">
+<option value="">None</option>
+</select>
+</div>
+</div>
+<button class="btn-outline" id="cc-load-template-btn" onclick="cc_loadTemplate()" disabled>Load Template</button>
+<p class="reg-error-note" id="cc-template-note" style="display:none;"></p>
+</div>
+
+<div class="reg-section">
 <div class="reg-section-label">Choose Skills</div>
 <p class="page-subhead" id="cc-budget-line">Choose a race above to see your starting Skill Point budget.</p>
 
@@ -133,6 +154,9 @@ let activeCategory = 'Combat Skill';
 let chosen = [];
 let browseState = {};
 let existingCharCount = 0;
+let templates = [];
+let archetypes = [];
+let templateSkills = [];
 
 function currentRace(){ return document.getElementById('cc-race').value; }
 function currentStats(){
@@ -230,6 +254,69 @@ function cc_removeSkill(i){
   renderChosen();
   renderBrowser();
   cc_onRaceChange();
+}
+
+function renderTemplateOptions(){
+  const sel = document.getElementById('cc-template');
+  sel.innerHTML = '<option value="">None</option>'
+    + templates.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+}
+
+function cc_onTemplateChange(){
+  const templateId = document.getElementById('cc-template').value;
+  const archetypeSelect = document.getElementById('cc-archetype');
+  const opts = archetypes.filter(a => String(a.template_id) === String(templateId));
+  archetypeSelect.innerHTML = '<option value="">None</option>'
+    + opts.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+  document.getElementById('cc-load-template-btn').disabled = !templateId;
+}
+
+function cc_loadTemplate(){
+  const note = document.getElementById('cc-template-note');
+  note.style.display = 'none';
+
+  const race = currentRace();
+  if(!race){
+    note.textContent = 'Choose a race above before loading a template.';
+    note.style.display = 'block';
+    return;
+  }
+
+  const templateId = document.getElementById('cc-template').value;
+  if(!templateId) return;
+  const archetypeId = document.getElementById('cc-archetype').value;
+
+  if(chosen.length > 0 && !confirm('Loading this template will replace your currently chosen skills. Continue?')) return;
+
+  const rows = templateSkills.filter(r => String(r.template_id) === String(templateId)
+    && (r.archetype_id === null || String(r.archetype_id) === String(archetypeId)));
+
+  const newChosen = [];
+  for(const row of rows){
+    const skillObj = allSkills.find(s => s.title === row.skill_name);
+    if(!skillObj) continue;
+    const cost = skillsParseCost(skillObj, row.level, race, row.focus_name);
+    if(cost === null) continue;
+
+    newChosen.push({
+      category: skillObj.category,
+      title: row.skill_name,
+      focus: row.focus_name || '',
+      level: isLeveledCost(skillObj, race, row.focus_name) ? row.level : 1,
+      cost: cost
+    });
+  }
+
+  chosen = newChosen;
+  browseState = {};
+  renderChosen();
+  renderBrowser();
+  cc_onRaceChange();
+
+  if(rows.length === 0){
+    note.textContent = 'This template has no predefined skills to load - build from scratch below.';
+    note.style.display = 'block';
+  }
 }
 
 function renderTabs(){
@@ -395,6 +482,18 @@ async function cc_becomeTownspersonOnly(){
   window.location.href = 'home.html';
 }
 
+async function loadTemplates(){
+  const [tRes, aRes, sRes] = await Promise.all([
+    membersSupabase.from('character_templates').select('id, name').order('id'),
+    membersSupabase.from('character_template_archetypes').select('id, name, template_id').order('id'),
+    membersSupabase.from('character_template_skills').select('template_id, archetype_id, skill_name, focus_name, level')
+  ]);
+  templates = tRes.data || [];
+  archetypes = aRes.data || [];
+  templateSkills = sRes.data || [];
+  renderTemplateOptions();
+}
+
 async function init(){
   await checkCap();
 
@@ -407,6 +506,7 @@ async function init(){
     renderTabs();
     renderBrowser();
     renderChosen();
+    await loadTemplates();
   } catch(err){
     document.getElementById('cc-skills-loading').style.display = 'none';
     document.getElementById('cc-skills-error').style.display = 'block';
@@ -421,6 +521,8 @@ window.cc_updateFocus = cc_updateFocus;
 window.cc_updateLevel = cc_updateLevel;
 window.cc_addSkill = cc_addSkill;
 window.cc_removeSkill = cc_removeSkill;
+window.cc_onTemplateChange = cc_onTemplateChange;
+window.cc_loadTemplate = cc_loadTemplate;
 window.cc_submit = cc_submit;
 
 document.addEventListener('fa-members-ready', init);
