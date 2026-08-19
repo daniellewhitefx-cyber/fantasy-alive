@@ -49,6 +49,20 @@
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1rem;
 }
+.ce-register-cta{
+  text-align: center;
+  padding: 0.5rem 0;
+}
+.ce-register-cta p{
+  margin: 0 0 0.8rem;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  color: var(--brown-dark);
+}
+.ce-register-btn{
+  font-size: 1.15rem;
+  padding: 0.9rem 2.2rem;
+}
 .ce-stat{
   border: 2px solid var(--line);
   background: var(--row-b);
@@ -293,6 +307,15 @@ async function loadOcAndTraining(){
 }
 
 function renderHeaderStatsHtml(){
+  if(LOG_STATUS.state === 'open' && REG_CHECKED && !REGISTERED_AS){
+    return `
+      <div class="ce-register-cta">
+        <p>You're not registered for this event yet.</p>
+        <a href="register.html"><button class="btn-gold ce-register-btn">Register for This Event</button></a>
+      </div>
+    `;
+  }
+
   const trainingTiles = (REGISTERED_AS === 'character' && MY_CHARACTER) ? `
     <div class="ce-stat"><div class="ce-stat-label">Hours Remaining</div><div class="ce-stat-value">${Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent)} / ${TRAIN_BUDGET}</div></div>
     <div class="ce-stat"><div class="ce-stat-label">Spendable SP</div><div class="ce-stat-value">${TRAIN_SUMMARY.spendable_sp}</div></div>
