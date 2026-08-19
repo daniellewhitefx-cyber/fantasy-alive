@@ -145,6 +145,7 @@
   width: 100%;
   min-height: 10in;
   box-sizing: border-box;
+  border: 1.5px solid #000;
   padding: 0.4in 0.6in;
   display: flex;
   flex-direction: column;
@@ -312,9 +313,20 @@ function emptyState(msg){
   return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
 
-function pt_doPrint(html){
+// Tangerine (used by Scroll Tags) is only ever needed inside this
+// injected print HTML, so the browser hasn't fetched it yet the first
+// time a scroll prints -- a blind setTimeout was firing window.print()
+// before the web font finished loading, silently falling back to a bold
+// system font. Explicitly waiting on the Font Loading API (with a 2s cap
+// so a slow/broken connection still lets printing proceed) fixes that.
+async function pt_doPrint(html){
   document.getElementById('pt-print-area').innerHTML = html;
-  setTimeout(() => window.print(), 200);
+  const fontsReady = Promise.all([
+    document.fonts.load('700 72pt Tangerine'),
+    document.fonts.load('400 30pt Tangerine')
+  ]).catch(() => {});
+  await Promise.race([fontsReady, new Promise(resolve => setTimeout(resolve, 2000))]);
+  window.print();
 }
 
 /* ---------- tag cell rendering ---------- */
