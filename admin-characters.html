@@ -131,7 +131,7 @@
 <div class="day-toggle" id="ac-cat-tabs"></div>
 <div class="skill-table-wrap-cc">
 <table class="data-table">
-<thead><tr><th>Skill</th><th>SP Cost</th><th>Prerequisite</th><th>Focus / Level</th><th></th></tr></thead>
+<thead><tr><th>Skill</th><th>SP Cost</th><th>Focus / Level</th><th></th></tr></thead>
 <tbody id="ac-browser-body"></tbody>
 </table>
 </div>
@@ -233,6 +233,7 @@
 <script src="js/registration-status.js"></script>
 <script src="js/members-auth.js"></script>
 <script src="js/skills-data.js"></script>
+<script src="js/skills-catalog.js"></script>
 <script>
 (function(){
 let allSkills = [];
@@ -242,42 +243,11 @@ let allCharacters = [];
 let profileMap = {};
 let selected = null;
 
-const SCHOOLS_OF_MAGIC = ['Armour','Body','Creation','Death','Detection','Divine','Elemental','Healing','Infliction','Magic','Mind','Summoning'];
-const DEITIES = ['Alejandero','Alwyn','Anajaream','Apenca','Arkady','Astrid','Atha','Balaxa','Bard','Beldon','Blythe','Brack','Callis','Clovis','Elieff','Fiona','Hemulis','Iccula','Jerroh','Kazzok','Kell','Marius','Sasha','Stasa','Strega'];
-const ENERGY_TYPES = ['Magical Energy','Spiritual Energy'];
-const CRAFTSMAN_TYPES = ['Seamstress / Tailor','Jeweler','Blacksmith','Tanner','Weaver','Sawyer','Carpenter','Mason','Herb Gardener','Ingredient Extractor'];
-const LABOURER_TYPES = ['Farmer','Hunter','Miner','Lumberjack','Shepherd'];
-
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function emptyState(msg){
   return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
-}
-
-function skillNameParts(title){
-  const m = title.match(/^(.*?)\s*[\[\(]([^\]\)]+)[\]\)]\s*$/);
-  if(!m) return { base: title.trim(), placeholder: null };
-  const base = m[1].trim();
-  if(base === 'Read & Write') return { base, placeholder: null };
-  return { base, placeholder: m[2].trim() };
-}
-
-function skillKey(s){ return s.category + '::' + s.title; }
-function isLeveledCost(costStr){ return /\+lvl|[x×*]\s*lvl|\/\s*pt\.?/i.test(costStr); }
-
-function focusOptionsFor(s){
-  const parts = skillNameParts(s.title);
-  if(!parts.placeholder) return null;
-  if(parts.placeholder.toLowerCase() === 'weapon type'){
-    return allSkills.filter(x => x.category === 'Weapon Skill').map(x => skillNameParts(x.title).base);
-  }
-  if(parts.base === 'Channel Spell') return ENERGY_TYPES;
-  if(parts.base === 'Clerical Investment') return DEITIES;
-  if(parts.base === 'Arcane Research') return SCHOOLS_OF_MAGIC;
-  if(parts.base === 'Craftsman') return CRAFTSMAN_TYPES;
-  if(parts.base === 'Labourer') return LABOURER_TYPES;
-  return null;
 }
 
 function nameFor(playerId){ return profileMap[playerId] || 'Unknown player'; }
@@ -550,6 +520,7 @@ function ac_selectCategory(cat){
 function ac_updateFocus(idx, val){
   const { state } = rowState(idx);
   state.focus = val;
+  renderBrowser();
 }
 
 function ac_updateLevel(idx, val){
@@ -557,7 +528,8 @@ function ac_updateLevel(idx, val){
   state.level = Math.max(1, parseInt(val, 10) || 1);
   if(state.cost === null){
     const el = document.getElementById('ac-costinput-' + idx);
-    if(el) el.value = skillsParseCost(s.cost, state.level);
+    const cost = skillsParseCost(s, state.level, selected.race, state.focus);
+    if(el) el.value = cost === null ? 0 : cost;
   }
 }
 
@@ -567,18 +539,17 @@ function ac_updateCost(idx, val){
   if(isNaN(state.cost)) state.cost = 0;
 }
 
+// Staff grant a skill regardless of what the character already knows, so
+// the focus picker here is unrestricted (see focusOptionsFor's opts) --
+// e.g. a combat technique tied to a weapon type doesn't require staff to
+// already have granted that weapon skill first.
 function focusFieldHtml(idx, s, state, isLeveled){
-  const parts = skillNameParts(s.title);
-  const options = focusOptionsFor(s);
   const widthStyle = `style="max-width:${isLeveled ? 140 : 180}px;display:inline-block;${isLeveled ? 'margin-right:0.5rem;' : ''}"`;
-
-  if(options){
-    return `<select onchange="ac_updateFocus(${idx}, this.value)" ${widthStyle}>`
-      + `<option value="">Choose&hellip;</option>`
-      + options.map(o => `<option value="${escapeHtml(o)}" ${state.focus === o ? 'selected' : ''}>${escapeHtml(o)}</option>`).join('')
-      + `</select>`;
-  }
-  return `<input type="text" placeholder="${escapeHtml(parts.placeholder)}" value="${escapeHtml(state.focus)}" oninput="ac_updateFocus(${idx}, this.value)" ${widthStyle}>`;
+  const options = focusOptionsFor(s, [], selected.race, { unrestricted: true }) || [];
+  return `<select onchange="ac_updateFocus(${idx}, this.value)" ${widthStyle}>`
+    + `<option value="">Choose&hellip;</option>`
+    + options.map(o => `<option value="${escapeHtml(o)}" ${state.focus === o ? 'selected' : ''}>${escapeHtml(o)}</option>`).join('')
+    + `</select>`;
 }
 
 function renderTabs(){
@@ -594,17 +565,16 @@ function renderBrowser(){
     .filter(({ s }) => s.category === activeCategory);
 
   document.getElementById('ac-browser-body').innerHTML = rows.map(({ s, idx }) => {
-    const parts = skillNameParts(s.title);
     const key = skillKey(s);
     const state = browseState[key] || { level: 1, focus: '', cost: null };
-    const isLeveled = isLeveledCost(s.cost);
-    const defaultCost = skillsParseCost(s.cost, state.level);
+    const isLeveled = isLeveledCost(s, selected.race, state.focus);
+    const defaultCost = skillsParseCost(s, state.level, selected.race, state.focus);
 
     let focusCell = '-';
-    if(parts.placeholder && isLeveled){
+    if(s.focusTypeId && isLeveled){
       focusCell = focusFieldHtml(idx, s, state, true)
         + `<input type="number" min="1" value="${state.level}" oninput="ac_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
-    } else if(parts.placeholder){
+    } else if(s.focusTypeId){
       focusCell = focusFieldHtml(idx, s, state, false);
     } else if(isLeveled){
       focusCell = `Level <input type="number" min="1" value="${state.level}" oninput="ac_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
@@ -614,9 +584,8 @@ function renderBrowser(){
 
     return `
       <tr>
-        <td>${escapeHtml(parts.base)}</td>
+        <td>${escapeHtml(s.title)}</td>
         <td><input type="number" min="0" id="ac-costinput-${idx}" value="${costValue}" oninput="ac_updateCost(${idx}, this.value)" style="max-width:80px;"></td>
-        <td class="col-prereq">${escapeHtml(s.prereq)}</td>
         <td>${focusCell}</td>
         <td><button class="btn-outline" onclick="ac_addSkill(${idx})">+ Add</button></td>
       </tr>
@@ -626,8 +595,7 @@ function renderBrowser(){
 
 async function ac_addSkill(idx){
   const { s, key, state } = rowState(idx);
-  const parts = skillNameParts(s.title);
-  if(parts.placeholder && !state.focus.trim()){
+  if(s.focusTypeId && !state.focus.trim()){
     alert('Choose a focus for this skill first.');
     return;
   }
@@ -637,9 +605,9 @@ async function ac_addSkill(idx){
   const { error } = await membersSupabase.rpc('character_staff_add_skill', {
     p_character_id: selected.id,
     p_category: s.category,
-    p_skill_name: parts.base,
-    p_focus: parts.placeholder ? state.focus.trim() : null,
-    p_level: isLeveledCost(s.cost) ? state.level : 1,
+    p_skill_name: s.title,
+    p_focus: s.focusTypeId ? state.focus.trim() : null,
+    p_level: isLeveledCost(s, selected.race, state.focus) ? state.level : 1,
     p_sp_cost: cost
   });
   if(error){ alert(error.message); return; }
@@ -684,7 +652,7 @@ document.addEventListener('fa-members-ready', async (e) => {
   renderCharacterList(allCharacters);
 
   try{
-    allSkills = await skillsLoadFromSheet();
+    allSkills = await skillsLoadCatalog();
   } catch(err){
   }
 });

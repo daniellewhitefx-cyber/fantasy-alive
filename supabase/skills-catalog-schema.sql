@@ -138,27 +138,44 @@ alter table skill_prerequisites enable row level security;
 alter table skill_focus_prerequisites enable row level security;
 alter table race_notable_skills enable row level security;
 
+-- Public reference data: skill-list.html shows this catalog to every
+-- site visitor, not just logged-in members (it's the same information
+-- that used to sit in a publicly-readable Google Sheet), so read access
+-- is open rather than gated on auth.uid(), matching that prior behavior.
+-- The old "Members read skill catalog" policy name is also dropped here
+-- so this file is safe to re-run whether or not an earlier version of it
+-- was already applied.
 drop policy if exists "Members read skill catalog" on skill_types;
-create policy "Members read skill catalog" on skill_types for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on skill_types;
+create policy "Anyone can read skill catalog" on skill_types for select using (true);
 drop policy if exists "Members read skill catalog" on focus_types;
-create policy "Members read skill catalog" on focus_types for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on focus_types;
+create policy "Anyone can read skill catalog" on focus_types for select using (true);
 drop policy if exists "Members read skill catalog" on skills;
-create policy "Members read skill catalog" on skills for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on skills;
+create policy "Anyone can read skill catalog" on skills for select using (true);
 drop policy if exists "Members read skill catalog" on skill_focuses;
-create policy "Members read skill catalog" on skill_focuses for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on skill_focuses;
+create policy "Anyone can read skill catalog" on skill_focuses for select using (true);
 drop policy if exists "Members read skill catalog" on skill_focus_type_map;
-create policy "Members read skill catalog" on skill_focus_type_map for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on skill_focus_type_map;
+create policy "Anyone can read skill catalog" on skill_focus_type_map for select using (true);
 drop policy if exists "Members read skill catalog" on skill_details;
-create policy "Members read skill catalog" on skill_details for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on skill_details;
+create policy "Anyone can read skill catalog" on skill_details for select using (true);
 drop policy if exists "Members read skill catalog" on skill_focus_details;
-create policy "Members read skill catalog" on skill_focus_details for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on skill_focus_details;
+create policy "Anyone can read skill catalog" on skill_focus_details for select using (true);
 drop policy if exists "Members read skill catalog" on skill_prerequisites;
-create policy "Members read skill catalog" on skill_prerequisites for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on skill_prerequisites;
+create policy "Anyone can read skill catalog" on skill_prerequisites for select using (true);
 drop policy if exists "Members read skill catalog" on skill_focus_prerequisites;
-create policy "Members read skill catalog" on skill_focus_prerequisites for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on skill_focus_prerequisites;
+create policy "Anyone can read skill catalog" on skill_focus_prerequisites for select using (true);
 drop policy if exists "Members read skill catalog" on race_notable_skills;
-create policy "Members read skill catalog" on race_notable_skills for select using (auth.uid() is not null);
+drop policy if exists "Anyone can read skill catalog" on race_notable_skills;
+create policy "Anyone can read skill catalog" on race_notable_skills for select using (true);
 
 grant select on skill_types, focus_types, skills, skill_focuses, skill_focus_type_map,
   skill_details, skill_focus_details, skill_prerequisites, skill_focus_prerequisites,
-  race_notable_skills to authenticated;
+  race_notable_skills to authenticated, anon;
