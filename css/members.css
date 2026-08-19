@@ -424,7 +424,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 }
 .char-panel .table-scroll{ max-height: 460px; overflow-y: auto; }
 @media (max-width: 900px){
-  .char-panel{ grid-template-columns: 1fr; }
+  .char-panel{ grid-template-columns: minmax(0, 1fr); }
   .char-panel .table-scroll{ max-height: none; overflow-y: visible; }
 }
 
