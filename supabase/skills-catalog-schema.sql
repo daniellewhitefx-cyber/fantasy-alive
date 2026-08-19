@@ -1,0 +1,164 @@
+-- Real skill/focus/prerequisite catalog migrated from the legacy Django
+-- database (database.fantasyalivelrp.com), replacing the flat Google Sheet
+-- (name/cost-string/prerequisite-text) that js/skills-data.js currently
+-- reads live at page load, and the hand-parsed prerequisite/focus logic in
+-- js/skills-catalog.js. This file only defines the schema; the actual rows
+-- are loaded by skills-catalog-import.sql, which must be run immediately
+-- after this file.
+--
+-- These tables use plain integer primary keys matching the source
+-- system's own IDs, rather than this project's usual uuid convention,
+-- since they're a straight import of an existing relational dataset and
+-- preserving the original IDs makes every foreign key in the import file
+-- a direct copy instead of a generated remapping (same convention as
+-- item-catalog-schema.sql).
+--
+-- Race is stored as plain text matching the exact strings already used by
+-- characters.race and RACE_STATS in js/character-stats.js ('Human',
+-- 'Elf', 'Dwarf', 'Gnome', 'Curtainborn', 'Orc', 'D''Shunn', 'Minotaur',
+-- 'Malkin', 'Goblin', 'Lizardfolk') rather than a foreign key, since this
+-- project has no races table -- race lives as free text on characters.
+--
+-- Costs are resolved per (skill, race): skill_details has one row with
+-- race = null (the default cost for any race) and, only where the source
+-- rulebook varies it, additional rows with a specific race that override
+-- the default for that race only. The same override pattern applies to
+-- skill_focus_details for the rare focuses with a race-specific cost.
+--
+-- race_notable_skills is carried over from the source data as-is but its
+-- gameplay meaning wasn't confirmed during migration -- the skills it
+-- lists already have their own normal, race-unrestricted skill_details
+-- rows, so it does not appear to gate purchases. Treat it as informational
+-- (e.g. "notable for this race") rather than an enforced restriction.
+
+create table if not exists skill_types (
+  id integer primary key,
+  name text not null unique
+);
+
+create table if not exists focus_types (
+  id integer primary key,
+  name text not null unique
+);
+
+create table if not exists skills (
+  id integer primary key,
+  name text not null,
+  skill_type_id integer not null references skill_types(id),
+  focus_type_id integer references focus_types(id),
+  stat_name text,
+  stat_value integer,
+  levelable boolean not null default false,
+  overwrite_cost_for_focus boolean not null default false,
+  description text
+);
+create index if not exists skills_type_idx on skills(skill_type_id);
+create index if not exists skills_name_idx on skills(lower(name));
+
+create table if not exists skill_focuses (
+  id integer primary key,
+  name text not null,
+  cost integer,
+  tutor integer,
+  level_cost text,
+  description text
+);
+create index if not exists skill_focuses_name_idx on skill_focuses(lower(name));
+
+create table if not exists skill_focus_type_map (
+  id integer primary key,
+  focus_id integer not null references skill_focuses(id) on delete cascade,
+  focus_type_id integer not null references focus_types(id)
+);
+create index if not exists skill_focus_type_map_focus_idx on skill_focus_type_map(focus_id);
+create index if not exists skill_focus_type_map_type_idx on skill_focus_type_map(focus_type_id);
+
+create table if not exists skill_details (
+  id integer primary key,
+  skill_id integer not null references skills(id) on delete cascade,
+  race text,
+  cost integer,
+  tutor integer,
+  level_limit integer,
+  focus_limit integer,
+  min_cost integer,
+  level_cost text,
+  energy_prereq integer,
+  lp_prereq integer,
+  unique_skill boolean not null default false
+);
+create index if not exists skill_details_skill_idx on skill_details(skill_id);
+
+create table if not exists skill_focus_details (
+  id integer primary key,
+  focus_id integer not null references skill_focuses(id) on delete cascade,
+  race text,
+  cost integer,
+  tutor integer,
+  level_cost text
+);
+create index if not exists skill_focus_details_focus_idx on skill_focus_details(focus_id);
+
+create table if not exists skill_prerequisites (
+  id integer primary key,
+  skill_detail_id integer not null references skill_details(id) on delete cascade,
+  prerequisite_skill_id integer not null references skills(id),
+  prerequisite_level integer not null,
+  prerequisite_skill2_id integer references skills(id),
+  prerequisite_level2 integer,
+  must_match_focus boolean not null default false,
+  prerequisite_focus_id integer references skill_focuses(id),
+  prerequisite_focus_level integer
+);
+create index if not exists skill_prerequisites_detail_idx on skill_prerequisites(skill_detail_id);
+
+create table if not exists skill_focus_prerequisites (
+  id integer primary key,
+  focus_id integer not null references skill_focuses(id) on delete cascade,
+  prerequisite_skill_id integer not null references skills(id),
+  prerequisite_level integer not null
+);
+create index if not exists skill_focus_prerequisites_focus_idx on skill_focus_prerequisites(focus_id);
+
+create table if not exists race_notable_skills (
+  id integer primary key,
+  race text not null,
+  skill_id integer not null references skills(id) on delete cascade
+);
+create index if not exists race_notable_skills_race_idx on race_notable_skills(race);
+
+alter table skill_types enable row level security;
+alter table focus_types enable row level security;
+alter table skills enable row level security;
+alter table skill_focuses enable row level security;
+alter table skill_focus_type_map enable row level security;
+alter table skill_details enable row level security;
+alter table skill_focus_details enable row level security;
+alter table skill_prerequisites enable row level security;
+alter table skill_focus_prerequisites enable row level security;
+alter table race_notable_skills enable row level security;
+
+drop policy if exists "Members read skill catalog" on skill_types;
+create policy "Members read skill catalog" on skill_types for select using (auth.uid() is not null);
+drop policy if exists "Members read skill catalog" on focus_types;
+create policy "Members read skill catalog" on focus_types for select using (auth.uid() is not null);
+drop policy if exists "Members read skill catalog" on skills;
+create policy "Members read skill catalog" on skills for select using (auth.uid() is not null);
+drop policy if exists "Members read skill catalog" on skill_focuses;
+create policy "Members read skill catalog" on skill_focuses for select using (auth.uid() is not null);
+drop policy if exists "Members read skill catalog" on skill_focus_type_map;
+create policy "Members read skill catalog" on skill_focus_type_map for select using (auth.uid() is not null);
+drop policy if exists "Members read skill catalog" on skill_details;
+create policy "Members read skill catalog" on skill_details for select using (auth.uid() is not null);
+drop policy if exists "Members read skill catalog" on skill_focus_details;
+create policy "Members read skill catalog" on skill_focus_details for select using (auth.uid() is not null);
+drop policy if exists "Members read skill catalog" on skill_prerequisites;
+create policy "Members read skill catalog" on skill_prerequisites for select using (auth.uid() is not null);
+drop policy if exists "Members read skill catalog" on skill_focus_prerequisites;
+create policy "Members read skill catalog" on skill_focus_prerequisites for select using (auth.uid() is not null);
+drop policy if exists "Members read skill catalog" on race_notable_skills;
+create policy "Members read skill catalog" on race_notable_skills for select using (auth.uid() is not null);
+
+grant select on skill_types, focus_types, skills, skill_focuses, skill_focus_type_map,
+  skill_details, skill_focus_details, skill_prerequisites, skill_focus_prerequisites,
+  race_notable_skills to authenticated;
