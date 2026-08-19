@@ -1357,25 +1357,8 @@ function renderCraftHtml(){
     </div>
   ` : '';
 
-  const inventoryHtml = `
-    <div class="panel">
-      <div class="panel-head"><h2>Your Materials</h2></div>
-      <div class="panel-body">
-        ${CRAFT_INVENTORY.length ? `
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead><tr><th>Material</th><th>On Hand</th></tr></thead>
-              <tbody>${CRAFT_INVENTORY.map(r => `<tr><td>${escapeHtml(r.material_name)}</td><td>${r.balance}</td></tr>`).join('')}</tbody>
-            </table>
-          </div>
-        ` : emptyState('No tracked materials yet. Buy Material/Equipment items from the Shoppe or craft your own.')}
-      </div>
-    </div>
-  `;
-
   body.innerHTML = `
     ${logHtml}
-    ${inventoryHtml}
     <div class="panel">
       <div class="panel-head ce-event-head">
         <h2>Production List</h2>
