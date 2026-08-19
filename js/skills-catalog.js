@@ -36,9 +36,19 @@ function findFocus(skill, focusName){
 // price and never looks at the focus's. When neither resolves to a real
 // number (no focus chosen yet, for a skill that needs one), there's no
 // computable cost.
+//
+// A race-specific override on the skill itself (e.g. Craftsman costing a
+// Dwarf less and a Curtainborn more than the default) always wins outright,
+// even for skills whose default price is normally replaced by the chosen
+// focus's -- it's this race's aptitude for the whole trade, and applies no
+// matter which specialty is picked within it. Only when there's no
+// race-specific row does the focus's (usually race-invariant) price apply.
 function resolveCostDetail(skill, level, race, focusName){
   const skillDetail = skillDetailFor(skill, race);
+  const isRaceSpecific = !!(race && skill.costByRace && skill.costByRace[race] === skillDetail);
   const skillHasOwnCost = skillDetail && skillDetail.value !== null && skillDetail.value !== undefined;
+
+  if(isRaceSpecific && skillHasOwnCost) return skillDetail;
   if(skillHasOwnCost && !skill.overwriteCostForFocus) return skillDetail;
 
   const focus = findFocus(skill, focusName);
