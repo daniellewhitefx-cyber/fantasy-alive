@@ -21,6 +21,22 @@ const CRAFTING_TRADE_SKILL_NAMES = {
   'Herbalist': 'Herbalist'
 };
 
+// Turns a recipe_requirements target item's raw catalog name into a
+// player-facing hint -- "Fireball - Spell" (already knowing a spell is
+// itself a prerequisite for some recipes) reads as "knows Fireball",
+// "Luxury - Forge" (e.g. every Adamantine/Mithril/Kereste weapon and
+// armour recipe) as "access to a Forge", "Tools - Craftsman - MC" as
+// "access to MC Craftsman Tools", and so on.
+function craftingRequirementLabel(name){
+  if(name.endsWith(' - Spell')) return `knows ${name.slice(0, -' - Spell'.length)}`;
+  const parts = name.split(' - ');
+  const head = parts[0];
+  const rest = parts.slice(1);
+  if(head === 'Luxury') return `access to a ${rest.join(' ')}`;
+  if(head === 'Tools') return `access to ${rest.slice().reverse().join(' ')} Tools`;
+  return rest.length ? `access to ${head} ${rest.join(' ')}` : `access to ${head}`;
+}
+
 // Supabase caps a single request at 1000 rows; several of these tables
 // have more than that, so every table is paged through in full.
 async function craftingFetchAllRows(table, select){
@@ -89,7 +105,7 @@ async function craftingLoadFromSheet(){
     const otherSkillNotes = recipeSkillReqs
       .filter(s => !CRAFTING_TRADE_SKILL_NAMES[s.skill_name])
       .map(s => `${s.skill_name} ${s.level}${s.focus_name ? ' (' + s.focus_name + ' focus)' : ''}`);
-    const requirementNotes = (requirementsByRecipe[r.id] || []).map(req => `access to ${req.name}`);
+    const requirementNotes = (requirementsByRecipe[r.id] || []).map(req => craftingRequirementLabel(req.name));
     const noteParts = [...otherSkillNotes, ...requirementNotes];
     const note = noteParts.length ? noteParts.join('; ') : null;
 

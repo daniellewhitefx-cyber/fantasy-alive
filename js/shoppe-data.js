@@ -62,17 +62,32 @@ async function shoppeLoadFromSheet(){
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// The Luxuries item list (id + name + reference Copper cost), for the
-// per-event Luxuries checklist rather than the Shoppe purchase flow.
+// The Luxuries item list (id + name + weekly upkeep + crafting recipe),
+// for the per-event Luxuries checklist rather than the Shoppe purchase
+// flow.
 async function shoppeLoadLuxuries(){
-  const [items, categories] = await Promise.all([
+  const [items, categories, recipes] = await Promise.all([
     shoppeFetchAllRows('items', 'id, name, copper_value, category_id'),
-    shoppeFetchAllRows('item_category', 'id, name')
+    shoppeFetchAllRows('item_category', 'id, name'),
+    shoppeFetchAllRows('luxury_recipes', 'item_id, skill_text, ingredients_text, craft_hours, effect_text')
   ]);
   const luxuryCategoryId = (categories.find(c => c.name === 'Luxuries') || {}).id;
+  const recipeByItem = {};
+  recipes.forEach(r => { recipeByItem[r.item_id] = r; });
   return items
     .filter(item => item.category_id === luxuryCategoryId)
-    .map(item => ({ id: item.id, name: item.name, costCopper: item.copper_value }))
+    .map(item => {
+      const r = recipeByItem[item.id] || {};
+      return {
+        id: item.id,
+        name: item.name,
+        costCopper: item.copper_value,
+        skillText: r.skill_text || null,
+        ingredientsText: r.ingredients_text || null,
+        craftHours: r.craft_hours || null,
+        effectText: r.effect_text || null
+      };
+    })
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
