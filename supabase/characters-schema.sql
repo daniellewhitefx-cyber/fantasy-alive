@@ -65,6 +65,15 @@ create table if not exists character_skills (
   created_at timestamptz not null default now()
 );
 
+-- Cumulative SP ever paid for this skill across every level (as opposed
+-- to sp_cost, which is just the current level's own price) -- see
+-- skill-relevel-full-cost.sql for why the two need to be tracked
+-- separately now that relevels are full-price purchases.
+alter table character_skills add column if not exists total_sp_paid integer;
+update character_skills set total_sp_paid = sp_cost where total_sp_paid is null;
+alter table character_skills alter column total_sp_paid set not null;
+alter table character_skills alter column total_sp_paid set default 0;
+
 create index if not exists character_skills_character_idx on character_skills(character_id);
 
 alter table character_skills enable row level security;
@@ -152,7 +161,7 @@ begin
       if coalesce(trim(v_skill ->> 'skill_name'), '') = '' then
         raise exception 'Every chosen skill needs a name';
       end if;
-      insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost)
+      insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost, total_sp_paid)
         values (
           v_char_id,
           v_player,
@@ -160,6 +169,7 @@ begin
           trim(v_skill ->> 'skill_name'),
           nullif(v_skill ->> 'focus', ''),
           coalesce((v_skill ->> 'level')::integer, 1),
+          coalesce((v_skill ->> 'sp_cost')::integer, 0),
           coalesce((v_skill ->> 'sp_cost')::integer, 0)
         );
     end loop;

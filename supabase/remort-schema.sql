@@ -162,7 +162,7 @@ begin
       if coalesce(trim(v_skill ->> 'skill_name'), '') = '' then
         raise exception 'Every chosen skill needs a name';
       end if;
-      insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost)
+      insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost, total_sp_paid)
         values (
           p_character_id,
           v_player,
@@ -170,6 +170,7 @@ begin
           trim(v_skill ->> 'skill_name'),
           nullif(v_skill ->> 'focus', ''),
           coalesce((v_skill ->> 'level')::integer, 1),
+          coalesce((v_skill ->> 'sp_cost')::integer, 0),
           coalesce((v_skill ->> 'sp_cost')::integer, 0)
         );
     end loop;

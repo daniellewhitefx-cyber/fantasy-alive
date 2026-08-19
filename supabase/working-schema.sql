@@ -51,7 +51,7 @@ begin
     where id = p_character_id and player_id = v_player;
   if not found then raise exception 'Character not found'; end if;
 
-  select coalesce(sum(sp_cost), 0) into v_spent_sp from character_skills where character_id = p_character_id;
+  select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
   v_rate := fa_xp_per_sp(v_starting_sp + v_spent_sp);
   v_spendable_sp := greatest(0, v_starting_sp + floor(v_xp_balance::numeric / v_rate)::integer - v_spent_sp);

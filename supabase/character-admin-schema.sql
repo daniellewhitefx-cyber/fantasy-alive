@@ -102,7 +102,7 @@ begin
   select player_id into v_owner from characters where id = p_character_id;
   if v_owner is null then raise exception 'Character not found'; end if;
 
-  insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost)
+  insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost, total_sp_paid)
     values (
       p_character_id,
       v_owner,
@@ -110,6 +110,7 @@ begin
       trim(p_skill_name),
       nullif(p_focus, ''),
       greatest(1, coalesce(p_level, 1)),
+      greatest(0, coalesce(p_sp_cost, 0)),
       greatest(0, coalesce(p_sp_cost, 0))
     )
     returning id into v_skill_id;
