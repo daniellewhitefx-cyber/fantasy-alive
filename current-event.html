@@ -1230,16 +1230,7 @@ function renderWorkHtml(){
         </div>
       </div>
     </div>
-  ` : `
-    <div class="panel">
-      <div class="panel-head"><h2>Worked This Event</h2></div>
-      <div class="panel-body">
-        <div class="ce-stats">
-          <div class="ce-stat"><div class="ce-stat-label">Hours Remaining</div><div class="ce-stat-value">${hoursRemaining} / ${TRAIN_BUDGET}</div></div>
-        </div>
-      </div>
-    </div>
-  `;
+  ` : '';
 
   const livingHtml = ce_workFormHtml('living', tradeSkills, hoursRemaining);
   const causeHtml = ce_workFormHtml('cause', causeSkills, hoursRemaining);
