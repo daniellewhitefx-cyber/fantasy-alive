@@ -1,0 +1,125 @@
+-- Rebuilds the Combat/Academic/Trade/Ability skill_prerequisites rows for
+-- this catalog against the real rulebook table (Table 7: Combat Skills,
+-- Weapon Skills, Academic Skills, Trade Skills, & Abilities). The legacy
+-- import had these badly scrambled -- nearly every skill pointed at the
+-- wrong prerequisite (e.g. Clerical Investment required Arcane Research 6
+-- instead of Theology). Costs, energy_prereq, and lp_prereq were already
+-- correct and are untouched. Applies to every skill_details row for each
+-- affected skill, including race-specific overrides, which had their own
+-- separately-scrambled (and separately wrong) prerequisite rows.
+--
+-- Two skills are deliberately left as-is, since the reference table can't
+-- be represented exactly with the current data model:
+--   - Spell Specialization's rulebook prerequisite is "See Text" (an
+--     unwritten special rule) -- left at its current Magery-or-Clerical
+--     Investment simplification.
+--   - Lethal Hands technically requires Weapon Skill specifically in Hand
+--     to Hand, and Shield's Physical Prowess requirement technically only
+--     applies to large shields -- both simplified to a flat requirement
+--     (Weapon Skill / Physical Prowess with no focus restriction) since the
+--     engine doesn't support a prerequisite pinned to one specific focus.
+
+delete from skill_prerequisites where skill_detail_id in (2, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 55, 56, 57, 59, 60, 61, 62, 63, 64, 66, 68, 71, 72, 73, 74, 75, 76, 77, 78, 80, 82, 83, 84, 85, 86, 88, 89, 93, 94, 95, 97, 98, 100, 101, 102, 103, 105, 106, 109, 111, 112, 113, 114, 116, 128, 129, 130, 131, 153, 154, 155, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 179, 180, 181, 182);
+
+insert into skill_prerequisites (id, skill_detail_id, prerequisite_skill_id, prerequisite_level, prerequisite_skill2_id, prerequisite_level2, must_match_focus, prerequisite_focus_id, prerequisite_focus_level) values
+  (200, 128, 70, 1, null, null, false, null, null),
+  (201, 129, 70, 1, null, null, false, null, null),
+  (202, 130, 70, 1, null, null, false, null, null),
+  (203, 131, 70, 1, null, null, false, null, null),
+  (204, 182, 82, 5, null, null, false, null, null),
+  (205, 181, 82, 10, null, null, false, null, null),
+  (206, 12, 12, 1, null, null, false, null, null),
+  (207, 71, 45, 1, null, null, false, null, null),
+  (208, 180, 83, 5, null, null, false, null, null),
+  (209, 179, 83, 10, null, null, false, null, null),
+  (210, 13, 40, 1, null, null, true, null, null),
+  (211, 57, 70, 1, null, null, false, null, null),
+  (212, 2, 2, 1, null, null, true, null, null),
+  (213, 105, 2, 1, null, null, true, null, null),
+  (214, 14, 18, 1, null, null, false, null, null),
+  (215, 15, 42, 1, null, null, false, null, null),
+  (216, 98, 42, 1, null, null, false, null, null),
+  (217, 72, 76, 1, null, null, false, null, null),
+  (218, 59, 45, 1, null, null, false, null, null),
+  (219, 97, 45, 1, null, null, false, null, null),
+  (220, 176, 85, 5, null, null, false, null, null),
+  (221, 175, 85, 10, null, null, false, null, null),
+  (222, 10, 3, 1, null, null, true, null, null),
+  (223, 16, 32, 1, 27, 1, false, null, null),
+  (224, 60, 61, 1, null, null, false, null, null),
+  (225, 88, 61, 1, null, null, false, null, null),
+  (226, 17, 38, 1, 3, 1, true, null, null),
+  (227, 18, 42, 1, null, null, true, null, null),
+  (228, 73, 59, 1, null, null, false, null, null),
+  (229, 116, 45, 1, null, null, false, null, null),
+  (230, 116, 61, 1, null, null, false, null, null),
+  (231, 45, 51, 1, null, null, false, null, null),
+  (232, 46, 51, 1, null, null, false, null, null),
+  (233, 82, 51, 1, null, null, false, null, null),
+  (234, 100, 51, 1, null, null, false, null, null),
+  (235, 112, 51, 1, null, null, false, null, null),
+  (236, 74, 61, 7, null, null, false, null, null),
+  (237, 75, 61, 8, null, null, false, null, null),
+  (238, 19, 7, 1, null, null, false, null, null),
+  (239, 20, 3, 1, null, null, false, null, null),
+  (240, 174, 86, 5, null, null, false, null, null),
+  (241, 173, 86, 10, null, null, false, null, null),
+  (242, 21, 42, 1, 47, 2, false, null, null),
+  (243, 22, 3, 1, null, null, true, null, null),
+  (244, 172, 87, 5, null, null, false, null, null),
+  (245, 171, 87, 10, null, null, false, null, null),
+  (246, 23, 2, 1, null, null, false, null, null),
+  (247, 78, 71, 1, null, null, false, null, null),
+  (248, 80, 71, 1, null, null, false, null, null),
+  (249, 85, 71, 1, null, null, false, null, null),
+  (250, 95, 71, 1, null, null, false, null, null),
+  (251, 103, 71, 1, null, null, false, null, null),
+  (252, 106, 71, 1, null, null, false, null, null),
+  (253, 76, 45, 1, null, null, false, null, null),
+  (254, 84, 45, 1, null, null, false, null, null),
+  (255, 101, 45, 1, null, null, false, null, null),
+  (256, 9, 8, 1, null, null, false, null, null),
+  (257, 61, 64, 1, null, null, false, null, null),
+  (258, 170, 88, 5, null, null, false, null, null),
+  (259, 169, 88, 10, null, null, false, null, null),
+  (260, 153, 57, 1, null, null, false, null, null),
+  (261, 154, 57, 1, null, null, false, null, null),
+  (262, 155, 57, 1, null, null, false, null, null),
+  (263, 168, 89, 5, null, null, false, null, null),
+  (264, 167, 89, 10, null, null, false, null, null),
+  (265, 24, 18, 1, null, null, true, null, null),
+  (266, 25, 4, 1, null, null, true, null, null),
+  (267, 166, 90, 5, null, null, false, null, null),
+  (268, 165, 90, 10, null, null, false, null, null),
+  (269, 26, 42, 1, null, null, true, null, null),
+  (270, 62, 61, 1, null, null, false, null, null),
+  (271, 89, 61, 1, null, null, false, null, null),
+  (272, 64, 70, 1, null, null, false, null, null),
+  (273, 83, 70, 1, null, null, false, null, null),
+  (274, 94, 70, 1, null, null, false, null, null),
+  (275, 113, 70, 1, null, null, false, null, null),
+  (276, 28, 34, 1, 51, 1, false, null, null),
+  (277, 109, 34, 1, 51, 1, false, null, null),
+  (278, 29, 19, 1, 26, 1, true, null, null),
+  (279, 30, 38, 1, null, null, true, null, null),
+  (280, 31, 42, 1, null, null, true, null, null),
+  (281, 32, 27, 1, 47, 2, false, null, null),
+  (282, 33, 51, 1, null, null, false, null, null),
+  (283, 34, 27, 1, null, null, false, null, null),
+  (284, 77, 61, 1, null, null, false, null, null),
+  (285, 102, 61, 1, null, null, false, null, null),
+  (286, 35, 31, 1, null, null, true, null, null),
+  (287, 36, 38, 1, null, null, true, null, null),
+  (288, 37, 42, 1, null, null, true, null, null),
+  (289, 38, 20, 1, null, null, false, null, null),
+  (290, 66, 45, 1, null, null, false, null, null),
+  (291, 55, 49, 1, null, null, false, null, null),
+  (292, 11, 5, 1, null, null, false, null, null),
+  (293, 39, 11, 1, null, null, true, null, null),
+  (294, 40, 23, 1, null, null, true, null, null),
+  (295, 41, 4, 1, null, null, true, null, null),
+  (296, 41, 1, 1, null, null, true, null, null),
+  (297, 164, 91, 5, null, null, false, null, null),
+  (298, 163, 91, 10, null, null, false, null, null),
+  (299, 42, 9, 1, 51, 1, false, null, null),
+  (300, 43, 11, 1, null, null, true, null, null);
