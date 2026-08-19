@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Print Tags (Staff) - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Print Tags (Staff) - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/admin-print-tags.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Print Tags (Staff) - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+#pt-print-area{ display:none; }
+
+.tagbrowse-item-name{ text-align: left; }
+.tagbrowse-qty{ width: 70px; }
+
+.tag-print-page{
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000;
+  padding: 0.15in 0.1in;
+}
+.tag-print-head{
+  border-bottom: 1.5px solid #000;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+}
+.tag-print-head h2{
+  font-size: 1.2rem;
+  margin: 0;
+  line-height: 1.1;
+}
+.tag-group-head:first-child{ margin-top: 0; }
+.tag-group-head{
+  font-size: 0.95rem;
+  margin: 0.8rem 0 0.3rem;
+}
+.tag-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 2.55in);
+  gap:0;
+  margin-bottom: 0.4rem;
+}
+.tag-cell{
+  width: 2.55in;
+  height: 1.15in;
+  box-sizing: border-box;
+  border: 1px solid #000;
+  padding: 0.08in 0.15in 0.06in;
+  display:flex;
+  flex-direction:column;
+  justify-content: space-between;
+  overflow: hidden;
+  page-break-inside: avoid;
+}
+.tag-cell-stamp{ min-height: 0.22in; }
+.tag-cell-name{
+  font-weight: 700;
+  text-align:center;
+  font-size: 1rem;
+  line-height: 1.15;
+}
+.tag-cell-modifiers{ display:flex; flex-direction:column; gap:0.1rem; }
+.tag-cell-modifier{ font-size: 0.72rem; text-align:center; }
+.tag-cell-modifier .tag-use-box{
+  display:inline-block;
+  width:0.6rem;
+  height:0.6rem;
+  border:1px solid #000;
+  margin-right:0.15rem;
+}
+.tag-cell-modifier .tag-blank-line{
+  display:inline-block;
+  width:0.9in;
+  border-bottom:1px solid #000;
+  vertical-align:middle;
+}
+.tag-cell-code{ font-size: 0.72rem; text-align:center; white-space:nowrap; }
+
+.recipe-tag-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 3.7in);
+  gap: 0.15in;
+  margin-bottom: 0.4rem;
+}
+.recipe-tag-cell{
+  width: 3.7in;
+  box-sizing: border-box;
+  border: 1px solid #000;
+  padding: 0.12in 0.18in;
+  overflow: hidden;
+  page-break-inside: avoid;
+}
+.recipe-tag-name{
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.15;
+  margin-bottom: 0.15rem;
+}
+.recipe-tag-produces{
+  font-style: italic;
+  font-size: 0.78rem;
+  margin-bottom: 0.3rem;
+}
+.recipe-tag-rows{
+  width:100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+}
+.recipe-tag-rows td{
+  padding: 0.06rem 0;
+  vertical-align: top;
+  line-height: 1.25;
+}
+.recipe-tag-rows td.recipe-tag-label{
+  font-weight: 700;
+  white-space: nowrap;
+  padding-right: 0.4rem;
+  width: 1%;
+}
+.recipe-tag-copy-head{
+  font-weight: 700;
+  font-size: 0.78rem;
+  border-top: 1px solid #999;
+  margin-top: 0.3rem;
+  padding-top: 0.2rem;
+}
+
+@media print{
+  @page{ margin: 0.25in; }
+  div[data-include="partials/header.html"],
+  div[data-include="partials/members-sidebar.html"],
+  div[data-include="partials/footer.html"],
+  .page-title,
+  #pt-blocked-notice,
+  #pt-wrap{ display:none !important; }
+  .dashboard{ display:block !important; }
+  #pt-print-area{ display:block; width:100%; }
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Print Tags</h1>
+
+<div class="reg-already-registered" id="pt-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to site admins and Logistics.</p>
+</div>
+
+<div id="pt-wrap" style="display:none;">
+
+<div class="panel">
+<div class="panel-head"><h2>Player Tag Requests</h2></div>
+<div class="panel-body">
+<p class="page-subhead">Every pending tag a player has requested from their Inventory, grouped by player so everyone's tags stay together.</p>
+<div id="ptr-summary"></div>
+<div style="margin-top:1rem;">
+<button class="btn-gold" id="ptr-print-btn" onclick="ptr_print()" disabled>Print All Tags</button>
+</div>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-head"><h2>Search &amp; Print Any Tag</h2></div>
+<div class="panel-body">
+<p class="page-subhead">Browse the catalog by category, or search, to add tags to a print batch not tied to a player. Recipe/Formula/Instruction items print as a larger structured card automatically.</p>
+<input type="text" id="tb-search" placeholder="Search all items..." oninput="tb_search(this.value)" style="margin-bottom:0.8rem; max-width:320px;">
+<div class="day-toggle" id="tb-cat-tabs"></div>
+<div class="table-scroll">
+<table class="data-table">
+<thead><tr><th>Item</th><th>Type</th><th>Qty</th><th></th></tr></thead>
+<tbody id="tb-grid"></tbody>
+</table>
+</div>
+
+<div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--line);">
+<p class="page-subhead">Or add an item that isn't in the catalog yet:</p>
+<div class="bank-form-grid">
+<div>
+<label class="field-label" for="ct-item-name">Item Name</label>
+<input type="text" id="ct-item-name" list="ct-item-options" placeholder="New item name" oninput="ct_onNameInput()">
+<datalist id="ct-item-options"></datalist>
+</div>
+<div>
+<label class="field-label" for="ct-qty">Quantity</label>
+<input type="number" id="ct-qty" step="1" value="1" min="1">
+</div>
+</div>
+<div id="ct-new-item-fields" style="display:none; margin-top:0.8rem;">
+<div class="bank-form-grid">
+<div>
+<label class="field-label" for="ct-code">Appraisal Code (optional)</label>
+<input type="text" id="ct-code" placeholder="Leave blank if none yet">
+</div>
+<div>
+<label class="field-label" for="ct-modifier">Modifier</label>
+<select id="ct-modifier" onchange="ct_onModifierChange()">
+<option value="none">None</option>
+<option value="shatter">Shattered checkbox</option>
+<option value="uses">Uses boxes (consumable)</option>
+</select>
+</div>
+<div id="ct-uses-row" style="display:none;">
+<label class="field-label" for="ct-use-count">Number of Uses</label>
+<input type="number" id="ct-use-count" step="1" value="5" min="1">
+</div>
+</div>
+<label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem;">
+<input type="checkbox" id="ct-save-catalog" checked> Save this item to the catalog for reuse
+</label>
+</div>
+<button class="btn-gold" style="margin-top:1rem;" onclick="ct_addToBatch()">Add to Print Batch</button>
+<p class="reg-error-note" id="ct-error" style="display:none;"></p>
+</div>
+
+<div id="ct-batch-list" style="margin-top:1.5rem;"></div>
+<div style="margin-top:1rem; display:flex; gap:0.6rem;">
+<button class="btn-gold" id="ct-print-btn" onclick="ct_printBatch()" disabled>Print Batch</button>
+<button class="btn-outline" id="ct-clear-btn" onclick="ct_clearBatch()" disabled>Clear Batch</button>
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="pt-print-area"></div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/crafting-data.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
+
+function pt_doPrint(html){
+  document.getElementById('pt-print-area').innerHTML = html;
+  setTimeout(() => window.print(), 200);
+}
+
+/* ---------- tag cell rendering ---------- */
+
+// A modifier line is either a row of checkbox-style boxes (count > 0, e.g.
+// "Shattered: [ ]" or "Used: [ ][ ][ ][ ]") or a write-in blank (count 0,
+// e.g. "Deity: ______" for items that need a name filled in at game).
+function tagModifierLineHtml(mod){
+  if(mod.count > 0){
+    const boxes = Array.from({ length: mod.count }, () => '<span class="tag-use-box"></span>').join('');
+    return `<div class="tag-cell-modifier">${escapeHtml(mod.label)}: ${boxes}</div>`;
+  }
+  return `<div class="tag-cell-modifier">${escapeHtml(mod.label)}: <span class="tag-blank-line"></span></div>`;
+}
+
+// modifiers (an array of {label, count}, imported from the legacy tag
+// catalog) takes priority when present since it can express custom labels
+// and multiple lines per item; modifierType/useCount is the simpler
+// fallback used for items staff add by hand through the print form.
+function tagCellHtml(itemName, quantity, code, modifierType, useCount, modifiers){
+  let mods = modifiers && modifiers.length ? modifiers : null;
+  if(!mods){
+    if(modifierType === 'shatter') mods = [{ label: 'Shattered', count: 1 }];
+    else if(modifierType === 'uses') mods = [{ label: 'Used', count: useCount || 0 }];
+  }
+  const modifierHtml = mods ? mods.map(tagModifierLineHtml).join('') : '<div class="tag-cell-modifier">&nbsp;</div>';
+  const codeHtml = code ? escapeHtml(code) : '';
+  const cell = `
+    <div class="tag-cell">
+      <div class="tag-cell-stamp"></div>
+      <div class="tag-cell-name">${escapeHtml(itemName)}</div>
+      <div class="tag-cell-modifiers">${modifierHtml}</div>
+      <div class="tag-cell-code">${codeHtml}</div>
+    </div>
+  `;
+  return Array.from({ length: Math.max(1, quantity || 1) }, () => cell).join('');
+}
+
+function recipeMakeRowsHtml(cardData){
+  const d = cardData.make;
+  if(!d) return `<tr><td class="recipe-tag-label">Skill(s) Required:</td><td>Unknown</td></tr>`;
+  const energyLine = (d.meCost || d.seCost || d.eCost)
+    ? [d.meCost ? `${d.meCost} ME` : null, d.seCost ? `${d.seCost} SE` : null, d.eCost ? `${d.eCost} Energy` : null].filter(Boolean).join(', ')
+    : 'N/A';
+  return `
+    <tr><td class="recipe-tag-label">Skill(s) Required:</td><td>${escapeHtml(d.skillsText)}</td></tr>
+    <tr><td class="recipe-tag-label">Downtime Required:</td><td>${d.hours} hours</td></tr>
+    <tr><td class="recipe-tag-label">ME/SE Required:</td><td>${escapeHtml(energyLine)}</td></tr>
+    <tr><td class="recipe-tag-label">Materials:</td><td>${escapeHtml(d.materialsText)}</td></tr>
+    ${d.rep ? `<tr><td class="recipe-tag-label">Phys-Rep Required for Result:</td><td>${escapeHtml(d.rep)}</td></tr>` : ''}
+  `;
+}
+
+function recipeCopyRowsHtml(cardData){
+  const d = cardData.copy;
+  if(!d) return '';
+  return `
+    <tr><td colspan="2" class="recipe-tag-copy-head">To Copy</td></tr>
+    <tr><td class="recipe-tag-label">Skill(s) Required to Copy:</td><td>${escapeHtml(d.skillsText)}</td></tr>
+    <tr><td class="recipe-tag-label">Downtime Required to Copy:</td><td>${d.hours} hours</td></tr>
+    <tr><td class="recipe-tag-label">Materials Required to Copy:</td><td>${escapeHtml(d.materialsText)}</td></tr>
+  `;
+}
+
+function recipeTagCellHtml(cardData, quantity){
+  const cell = `
+    <div class="recipe-tag-cell">
+      <div class="recipe-tag-name">${escapeHtml(cardData.name)}</div>
+      ${cardData.produces ? `<div class="recipe-tag-produces">Produces: ${escapeHtml(cardData.produces)}</div>` : ''}
+      <table class="recipe-tag-rows"><tbody>
+        <tr><td class="recipe-tag-label">Level:</td><td>${cardData.level != null ? cardData.level : 'N/A'}</td></tr>
+        ${recipeMakeRowsHtml(cardData)}
+        ${recipeCopyRowsHtml(cardData)}
+      </tbody></table>
+    </div>
+  `;
+  return Array.from({ length: Math.max(1, quantity || 1) }, () => cell).join('');
+}
+
+/* ---------- real item/recipe catalog ---------- */
+
+let CATALOG = [];              // item_catalog: appraisal code + modifier per item name
+let REAL_ITEMS = [];           // items joined with category name (loaded once per session)
+let REAL_ITEMS_BY_NAME = new Map();
+let REAL_ITEMS_BY_ID = new Map();
+const RECIPE_KIND_CATEGORIES = new Set(['Recipe', 'Formula', 'Instruction']);
+
+// Recipe/Formula/Instruction items are the paperwork a character carries for
+// knowing a formula -- they need the larger structured Recipe Tag layout,
+// not the small physical-prop Item Tag. Everything else (Armour, Weapon,
+// Potion/Oil, Ingredient, etc.) prints as a normal item tag.
+function ct_tagKindForName(name){
+  const item = REAL_ITEMS_BY_NAME.get((name || '').trim().toLowerCase());
+  return item && RECIPE_KIND_CATEGORIES.has(item.category) ? 'recipe' : 'item';
+}
+
+// A Recipe/Formula/Instruction item's own name is the base item's name with
+// " - Recipe"/" - Formula"/" - Instruction" appended, e.g. "Heroes Last
+// Stand" (the potion) / "Heroes Last Stand - Recipe" (the formula card) --
+// there's no foreign key linking them, just this naming convention.
+function ct_stripRecipeSuffix(name){
+  return name.replace(/\s*-\s*(Recipe|Formula|Instruction)$/i, '').trim();
+}
+
+async function ct_loadItemCatalogTable(){
+  const { data } = await membersSupabase.from('item_catalog').select('item_name, code, modifier_type, use_count, modifiers').order('item_name');
+  CATALOG = data || [];
+}
+
+async function ct_loadRealCatalog(){
+  if(REAL_ITEMS.length) return;
+
+  const { data: categories } = await membersSupabase.from('item_category').select('id, name');
+  const categoryNameById = {};
+  (categories || []).forEach(c => { categoryNameById[c.id] = c.name; });
+
+  const rows = await craftingFetchAllRows('items', 'id, name, category_id, level, energy');
+  REAL_ITEMS = rows.map(r => ({ id: r.id, name: r.name, category: categoryNameById[r.category_id] || '', level: r.level, energy: r.energy }));
+  REAL_ITEMS.forEach(item => {
+    REAL_ITEMS_BY_NAME.set(item.name.trim().toLowerCase(), item);
+    REAL_ITEMS_BY_ID.set(item.id, item);
+  });
+}
+
+function ct_rebuildDatalist(){
+  const set = new Set();
+  CATALOG.forEach(i => i.item_name && set.add(i.item_name));
+  REAL_ITEMS.forEach(i => i.name && set.add(i.name));
+  const allNames = Array.from(set).sort((a, b) => a.localeCompare(b));
+  document.getElementById('ct-item-options').innerHTML = allNames.map(n => `<option value="${escapeHtml(n)}">`).join('');
+}
+
+async function ct_loadCatalogAndItems(){
+  await Promise.all([ct_loadItemCatalogTable(), ct_loadRealCatalog()]);
+  ct_rebuildDatalist();
+}
+
+function ct_catalogMatch(name){
+  const lower = name.trim().toLowerCase();
+  return CATALOG.find(i => i.item_name.trim().toLowerCase() === lower);
+}
+
+// A recipe's own downtime/materials/skill requirements, read from the real
+// items/recipes/recipe_materials/recipe_skill_requirements catalog. Returns
+// null when the item has no recipe row at all (e.g. a raw-material item).
+async function ct_fetchRecipeDetail(itemId){
+  const { data: recipes, error } = await membersSupabase.from('recipes')
+    .select('id, hours, rep, me_cost, se_cost, e_cost').eq('item_id', itemId).limit(1);
+  if(error) throw new Error(error.message);
+  const recipe = (recipes || [])[0];
+  if(!recipe) return null;
+
+  const [{ data: materials }, { data: skills }] = await Promise.all([
+    membersSupabase.from('recipe_materials').select('item_id, quantity').eq('recipe_id', recipe.id),
+    membersSupabase.from('recipe_skill_requirements').select('skill_name, focus_name, level').eq('recipe_id', recipe.id)
+  ]);
+
+  const materialsText = (materials || [])
+    .map(m => `${(REAL_ITEMS_BY_ID.get(m.item_id) || {}).name || 'Unknown'}: ${m.quantity}`)
+    .join(', ') || 'None';
+  const skillsText = (skills || [])
+    .map(s => `${s.skill_name}${s.focus_name ? ' (' + s.focus_name + ')' : ''}: ${s.level}`)
+    .join(', ') || 'None';
+
+  return { hours: recipe.hours, rep: recipe.rep, meCost: recipe.me_cost, seCost: recipe.se_cost, eCost: recipe.e_cost, materialsText, skillsText };
+}
+
+// A Recipe/Formula Tag shows two sets of requirements: making the item
+// itself ("make", from the base item's own recipe row, found by stripping
+// the " - Recipe"/" - Formula" suffix) and copying the formula paperwork
+// ("copy", from the Recipe/Formula item's own, separate recipe row) --
+// matching the legacy tag sheet's "Downtime Required" vs "Downtime
+// Required to Copy" split. Instruction items (e.g. Magical Components) are
+// crafted directly rather than copied from a base item -- their own
+// recipe row IS the "make" data, with no base item or "copy" concept.
+async function ct_buildRecipeCardData(name){
+  const recipeItem = REAL_ITEMS_BY_NAME.get(name.trim().toLowerCase());
+  if(!recipeItem) throw new Error('Item not found in catalog');
+
+  if(recipeItem.category === 'Instruction'){
+    const make = await ct_fetchRecipeDetail(recipeItem.id);
+    return { name: recipeItem.name, produces: null, level: recipeItem.level, energy: recipeItem.energy, make, copy: null };
+  }
+
+  const copy = await ct_fetchRecipeDetail(recipeItem.id);
+
+  const baseName = ct_stripRecipeSuffix(recipeItem.name);
+  const baseItem = baseName.toLowerCase() !== recipeItem.name.trim().toLowerCase()
+    ? REAL_ITEMS_BY_NAME.get(baseName.toLowerCase())
+    : null;
+  const make = baseItem ? await ct_fetchRecipeDetail(baseItem.id) : null;
+
+  return {
+    name: recipeItem.name,
+    produces: baseItem ? baseItem.name : null,
+    level: (baseItem || recipeItem).level,
+    energy: (baseItem || recipeItem).energy,
+    make,
+    copy
+  };
+}
+
+/* ---------- player tag requests ---------- */
+
+let PENDING_REQUESTS = [];
+
+async function ptr_load(){
+  const summaryEl = document.getElementById('ptr-summary');
+  const printBtn = document.getElementById('ptr-print-btn');
+  printBtn.disabled = true;
+  summaryEl.innerHTML = '<p class="reg-empty-note">Loading pending tag requests&hellip;</p>';
+
+  const { data, error } = await membersSupabase.rpc('logistics_list_pending_tag_requests');
+  if(error){
+    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load tag requests: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+  PENDING_REQUESTS = data || [];
+  if(PENDING_REQUESTS.length === 0){
+    summaryEl.innerHTML = emptyState('No pending tag requests right now.');
+    return;
+  }
+  const playerCount = new Set(PENDING_REQUESTS.map(r => r.player_display_name)).size;
+  summaryEl.innerHTML = `<p><strong>${PENDING_REQUESTS.length}</strong> pending tag request${PENDING_REQUESTS.length === 1 ? '' : 's'} across <strong>${playerCount}</strong> player${playerCount === 1 ? '' : 's'}.</p>`;
+
+  printBtn.disabled = false;
+}
+
+// Each request's item_name is checked against the real catalog so a
+// requested Recipe/Formula/Instruction item prints with the structured
+// Recipe Tag layout; anything else (or anything not in the real catalog at
+// all, e.g. a hand-typed loot item) falls back to the plain item tag exactly
+// as before.
+async function ptr_print(){
+  if(!PENDING_REQUESTS.length){ alert('No pending tag requests to print.'); return; }
+
+  const groups = [];
+  PENDING_REQUESTS.forEach(r => {
+    let g = groups.find(x => x.player === r.player_display_name);
+    if(!g){ g = { player: r.player_display_name, rows: [] }; groups.push(g); }
+    g.rows.push(r);
+  });
+
+  const groupsHtml = await Promise.all(groups.map(async g => {
+    const itemCells = [];
+    const recipeCells = [];
+    for(const r of g.rows){
+      if(ct_tagKindForName(r.item_name) === 'recipe'){
+        try{
+          const cardData = await ct_buildRecipeCardData(r.item_name);
+          recipeCells.push(recipeTagCellHtml(cardData, r.quantity));
+          continue;
+        } catch(err){ /* fall through to plain item card below */ }
+      }
+      itemCells.push(tagCellHtml(r.item_name, r.quantity, r.code, r.modifier_type, r.use_count, r.modifiers));
+    }
+    return `
+      <h3 class="tag-group-head">${escapeHtml(g.player)}</h3>
+      ${itemCells.length ? `<div class="tag-grid">${itemCells.join('')}</div>` : ''}
+      ${recipeCells.length ? `<div class="recipe-tag-grid">${recipeCells.join('')}</div>` : ''}
+    `;
+  }));
+
+  pt_doPrint(`<div class="tag-print-page">${groupsHtml.join('')}</div>`);
+}
+
+/* ---------- category browser ---------- */
+
+let TAG_CATEGORY = null;
+let TAG_SEARCH = '';
+let TAG_QTY_STATE = {};
+
+function tagCategories(){
+  const set = new Set();
+  REAL_ITEMS.forEach(i => { if(i.category) set.add(i.category); });
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function renderTagCatTabs(){
+  const categories = tagCategories();
+  document.getElementById('tb-cat-tabs').innerHTML = categories.map(cat =>
+    `<button class="${cat === TAG_CATEGORY ? 'active' : ''}" onclick="tb_selectCategory('${cat.replace(/'/g, "\\'")}')">${escapeHtml(cat)}</button>`
+  ).join('');
+}
+
+function tb_selectCategory(cat){
+  TAG_CATEGORY = cat;
+  TAG_SEARCH = '';
+  const searchEl = document.getElementById('tb-search');
+  if(searchEl) searchEl.value = '';
+  renderTagCatTabs();
+  renderTagGrid();
+}
+
+function tb_search(value){
+  TAG_SEARCH = value;
+  renderTagGrid();
+}
+
+function renderTagGrid(){
+  const query = TAG_SEARCH.trim().toLowerCase();
+  const items = query
+    ? REAL_ITEMS.filter(i => i.name.toLowerCase().includes(query))
+    : REAL_ITEMS.filter(i => i.category === TAG_CATEGORY);
+
+  document.getElementById('tb-grid').innerHTML = items.length ? items.map(item => {
+    TAG_QTY_STATE[item.id] = TAG_QTY_STATE[item.id] || 1;
+    const qty = TAG_QTY_STATE[item.id];
+    const kind = RECIPE_KIND_CATEGORIES.has(item.category) ? 'Recipe' : 'Item';
+
+    return `
+      <tr>
+        <td class="tagbrowse-item-name">${escapeHtml(item.name)}</td>
+        <td>${kind}</td>
+        <td><input type="number" min="1" value="${qty}" class="tagbrowse-qty" onchange="tb_updateQty(${item.id}, this.value)"></td>
+        <td><button class="btn-outline" onclick="tb_addToBatch(${item.id})">Add</button></td>
+      </tr>
+    `;
+  }).join('') : `<tr><td colspan="4">${query ? `No items match &ldquo;${escapeHtml(TAG_SEARCH)}&rdquo;.` : 'Nothing in this category.'}</td></tr>`;
+}
+
+function tb_updateQty(id, val){
+  let n = parseInt(val, 10);
+  if(isNaN(n) || n < 1) n = 1;
+  TAG_QTY_STATE[id] = n;
+}
+
+async function tb_addToBatch(id){
+  const item = REAL_ITEMS_BY_ID.get(id);
+  if(!item) return;
+  const qty = TAG_QTY_STATE[id] || 1;
+
+  if(RECIPE_KIND_CATEGORIES.has(item.category)){
+    let cardData;
+    try{
+      cardData = await ct_buildRecipeCardData(item.name);
+    } catch(err){ return; }
+    BATCH.push({ kind: 'recipe', quantity: qty, data: cardData });
+  } else {
+    const match = ct_catalogMatch(item.name);
+    BATCH.push({
+      kind: 'item',
+      item_name: item.name,
+      quantity: qty,
+      code: match ? match.code : null,
+      modifier_type: match ? match.modifier_type : 'none',
+      use_count: match ? match.use_count : null,
+      modifiers: match ? match.modifiers : null
+    });
+  }
+  ct_renderBatch();
+}
+
+/* ---------- custom item form + batch ---------- */
+
+let BATCH = [];
+
+function ct_onNameInput(){
+  const name = document.getElementById('ct-item-name').value;
+  const fieldsEl = document.getElementById('ct-new-item-fields');
+  const isNewCustomItem = name.trim() && ct_tagKindForName(name) !== 'recipe' && !ct_catalogMatch(name);
+  fieldsEl.style.display = isNewCustomItem ? 'block' : 'none';
+}
+
+function ct_onModifierChange(){
+  document.getElementById('ct-uses-row').style.display = document.getElementById('ct-modifier').value === 'uses' ? 'block' : 'none';
+}
+
+function ct_resetForm(){
+  document.getElementById('ct-item-name').value = '';
+  document.getElementById('ct-qty').value = '1';
+  document.getElementById('ct-code').value = '';
+  document.getElementById('ct-modifier').value = 'none';
+  document.getElementById('ct-use-count').value = '5';
+  document.getElementById('ct-save-catalog').checked = true;
+  ct_onNameInput();
+  ct_onModifierChange();
+}
+
+async function ct_addToBatch(){
+  const errorEl = document.getElementById('ct-error');
+  errorEl.style.display = 'none';
+  const name = document.getElementById('ct-item-name').value.trim();
+  const qty = parseInt(document.getElementById('ct-qty').value, 10) || 0;
+  if(!name){ errorEl.textContent = 'Enter an item name.'; errorEl.style.display = 'block'; return; }
+  if(qty < 1){ errorEl.textContent = 'Enter a quantity of at least 1.'; errorEl.style.display = 'block'; return; }
+
+  if(ct_tagKindForName(name) === 'recipe'){
+    let cardData;
+    try{
+      cardData = await ct_buildRecipeCardData(name);
+    } catch(err){
+      errorEl.textContent = err.message; errorEl.style.display = 'block'; return;
+    }
+    BATCH.push({ kind: 'recipe', quantity: qty, data: cardData });
+    ct_renderBatch();
+    ct_resetForm();
+    return;
+  }
+
+  let match = ct_catalogMatch(name);
+  if(!match){
+    const code = document.getElementById('ct-code').value.trim();
+    const modifierType = document.getElementById('ct-modifier').value;
+    const useCount = modifierType === 'uses' ? (parseInt(document.getElementById('ct-use-count').value, 10) || null) : null;
+    const saveToCatalog = document.getElementById('ct-save-catalog').checked;
+
+    if(saveToCatalog){
+      const { error } = await membersSupabase.rpc('logistics_upsert_catalog_item', {
+        p_item_name: name, p_code: code || null, p_modifier_type: modifierType, p_use_count: useCount
+      });
+      if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+      await ct_loadItemCatalogTable();
+      ct_rebuildDatalist();
+      match = ct_catalogMatch(name);
+    } else {
+      match = { item_name: name, code: code || null, modifier_type: modifierType, use_count: useCount, modifiers: null };
+    }
+  }
+
+  BATCH.push({ kind: 'item', item_name: match.item_name, quantity: qty, code: match.code, modifier_type: match.modifier_type, use_count: match.use_count, modifiers: match.modifiers });
+  ct_renderBatch();
+  ct_resetForm();
+}
+
+function ct_renderBatch(){
+  const el = document.getElementById('ct-batch-list');
+  const printBtn = document.getElementById('ct-print-btn');
+  const clearBtn = document.getElementById('ct-clear-btn');
+  if(!BATCH.length){
+    el.innerHTML = '';
+    printBtn.disabled = true;
+    clearBtn.disabled = true;
+    return;
+  }
+  el.innerHTML = '<table class="data-table"><thead><tr><th>Item</th><th>Type</th><th>Qty</th><th></th></tr></thead><tbody>' +
+    BATCH.map((b, i) => {
+      const name = b.kind === 'recipe' ? b.data.name : b.item_name;
+      return `<tr><td>${escapeHtml(name)}</td><td>${b.kind === 'recipe' ? 'Recipe' : 'Item'}</td><td>${b.quantity}</td><td><button class="btn-outline" onclick="ct_removeFromBatch(${i})">Remove</button></td></tr>`;
+    }).join('') +
+    '</tbody></table>';
+  printBtn.disabled = false;
+  clearBtn.disabled = false;
+}
+
+function ct_removeFromBatch(i){
+  BATCH.splice(i, 1);
+  ct_renderBatch();
+}
+
+// Printing doesn't clear the batch -- staff often print the same batch more
+// than once (e.g. a second copy), so clearing is its own explicit action.
+function ct_printBatch(){
+  if(!BATCH.length) return;
+  const itemEntries = BATCH.filter(b => b.kind !== 'recipe');
+  const recipeEntries = BATCH.filter(b => b.kind === 'recipe');
+
+  const html = `
+    <div class="tag-print-page">
+      <div class="tag-print-head"><h2>Search &amp; Print Any Tag</h2></div>
+      ${itemEntries.length ? `<div class="tag-grid">${itemEntries.map(b => tagCellHtml(b.item_name, b.quantity, b.code, b.modifier_type, b.use_count, b.modifiers)).join('')}</div>` : ''}
+      ${recipeEntries.length ? `<div class="recipe-tag-grid">${recipeEntries.map(b => recipeTagCellHtml(b.data, b.quantity)).join('')}</div>` : ''}
+    </div>
+  `;
+  pt_doPrint(html);
+}
+
+function ct_clearBatch(){
+  BATCH = [];
+  ct_renderBatch();
+}
+
+window.ptr_print = ptr_print;
+window.tb_search = tb_search;
+window.tb_selectCategory = tb_selectCategory;
+window.tb_updateQty = tb_updateQty;
+window.tb_addToBatch = tb_addToBatch;
+window.ct_onNameInput = ct_onNameInput;
+window.ct_onModifierChange = ct_onModifierChange;
+window.ct_addToBatch = ct_addToBatch;
+window.ct_removeFromBatch = ct_removeFromBatch;
+window.ct_printBatch = ct_printBatch;
+window.ct_clearBatch = ct_clearBatch;
+
+document.addEventListener('fa-members-ready', async () => {
+  const { data: allowed, error } = await membersSupabase.rpc('fa_is_logistics_or_admin');
+  if(error || !allowed){
+    document.getElementById('pt-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('pt-wrap').style.display = 'block';
+  await Promise.all([ptr_load(), ct_loadCatalogAndItems()]);
+  const categories = tagCategories();
+  TAG_CATEGORY = categories.length ? categories[0] : null;
+  renderTagCatTabs();
+  renderTagGrid();
+  ct_renderBatch();
+});
+})();
+</script>
+
+</body>
+</html>

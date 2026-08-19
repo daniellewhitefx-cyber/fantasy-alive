@@ -276,6 +276,7 @@ async function initMembersPage(){
     ['member-requests-link', canSeeRequests],
     ['member-permissions-link', isSiteAdmin],
     ['member-print-sheets-link', canSeeRequests],
+    ['member-print-tags-link', canSeeRequests],
     ['member-waivers-link', canSeeRequests],
   ];
   let anyStaffAccess = false;
