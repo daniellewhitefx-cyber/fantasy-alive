@@ -88,6 +88,7 @@
 <button class="bank-tab active" data-tab="remort" onclick="req_switchTab('remort')">Remort Requests <span id="req-count-remort"></span></button>
 <button class="bank-tab" data-tab="oc" onclick="req_switchTab('oc')">OC Submissions <span id="req-count-oc"></span></button>
 <button class="bank-tab" data-tab="kudos" onclick="req_switchTab('kudos')">Kudos <span id="req-count-kudos"></span></button>
+<button class="bank-tab" data-tab="other" onclick="req_switchTab('other')">Other Tasks <span id="req-count-other"></span></button>
 </div>
 
 <div class="bank-tab-panel" data-panel="remort">
@@ -114,6 +115,15 @@
 <div id="req-list-kudos"><p class="reg-empty-note">Loading&hellip;</p></div>
 </div>
 
+<div class="bank-tab-panel" data-panel="other" style="display:none;">
+<div class="req-tab-head">
+<div class="reg-section-label" style="margin:0;">Unacknowledged Other Task Log Entries</div>
+<button class="btn-outline" onclick="req_ackAllOther()">Mark All Acknowledged</button>
+</div>
+<p class="page-subhead">These already happened in-game and their hours are already spent -- this is just for staff to see and acknowledge them, not to approve or deny.</p>
+<div id="req-list-other"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
 </div>
 
 </div>
@@ -131,6 +141,7 @@ let charById = {};
 let remortRows = [];
 let ocRows = [];
 let kudosRows = [];
+let otherTaskRows = [];
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -156,6 +167,12 @@ function updateCounts(){
   document.getElementById('req-count-remort').textContent = remortRows.length ? `(${remortRows.length})` : '';
   document.getElementById('req-count-oc').textContent = ocRows.length ? `(${ocRows.length})` : '';
   document.getElementById('req-count-kudos').textContent = kudosRows.length ? `(${kudosRows.length})` : '';
+  document.getElementById('req-count-other').textContent = otherTaskRows.length ? `(${otherTaskRows.length})` : '';
+}
+
+function eventLabelFor(slug){
+  const e = (window.FA_ALL_EVENTS || []).find(ev => ev.value === slug);
+  return e ? e.longLabel : slug;
 }
 
 async function loadNames(playerIds, characterIds){
@@ -330,6 +347,59 @@ function renderKudos(){
   });
 }
 
+/* ---------- Other Tasks ---------- */
+
+async function loadOtherTasks(){
+  const { data } = await membersSupabase
+    .from('event_log_other_tasks')
+    .select('id, player_id, character_id, event_slug, description, hours, created_at')
+    .eq('actioned', false)
+    .order('created_at', { ascending: true });
+  otherTaskRows = data || [];
+  await loadNames(otherTaskRows.map(r => r.player_id), otherTaskRows.map(r => r.character_id));
+  renderOtherTasks();
+  updateCounts();
+}
+
+function renderOtherTasks(){
+  const target = document.getElementById('req-list-other');
+  if(otherTaskRows.length === 0){
+    target.innerHTML = emptyState('No unacknowledged Other Task entries.');
+    return;
+  }
+  target.innerHTML = otherTaskRows.map(r => {
+    const c = charById[r.character_id] || { name: 'Unknown character' };
+    return `
+      <div class="req-row">
+        <div class="req-row-body">
+          <div class="req-row-who">${escapeHtml(nameFor(r.player_id))} &middot; ${escapeHtml(c.name)} &middot; ${r.hours} hrs</div>
+          <div>${escapeHtml(r.description)}</div>
+          <div class="req-row-meta">${escapeHtml(eventLabelFor(r.event_slug))} &middot; ${fmtDateTime(r.created_at)}</div>
+        </div>
+        <div class="req-row-actions">
+          <button class="req-btn req-btn-approve" title="Mark Acknowledged" data-ack="${escapeHtml(r.id)}">&#10003;</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  target.querySelectorAll('[data-ack]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { error } = await membersSupabase.rpc('event_log_mark_other_task_actioned', { p_id: btn.dataset.ack });
+      if(error){ alert(error.message); return; }
+      await loadOtherTasks();
+    });
+  });
+}
+
+async function req_ackAllOther(){
+  if(otherTaskRows.length === 0) return;
+  if(!confirm(`Mark all ${otherTaskRows.length} entr${otherTaskRows.length === 1 ? 'y' : 'ies'} acknowledged?`)) return;
+
+  await Promise.all(otherTaskRows.map(r => membersSupabase.rpc('event_log_mark_other_task_actioned', { p_id: r.id })));
+  await loadOtherTasks();
+}
+
 /* ---------- Approve All ---------- */
 
 async function req_approveAll(kind){
@@ -348,6 +418,7 @@ async function req_approveAll(kind){
 
 window.req_switchTab = req_switchTab;
 window.req_approveAll = req_approveAll;
+window.req_ackAllOther = req_ackAllOther;
 
 document.addEventListener('fa-members-ready', async () => {
   const { data: allowed, error } = await membersSupabase.rpc('fa_is_logistics_or_admin');
@@ -357,7 +428,7 @@ document.addEventListener('fa-members-ready', async () => {
   }
   document.getElementById('req-wrap').style.display = 'block';
 
-  await Promise.all([loadRemort(), loadOc(), loadKudos()]);
+  await Promise.all([loadRemort(), loadOc(), loadKudos(), loadOtherTasks()]);
 });
 })();
 </script>
