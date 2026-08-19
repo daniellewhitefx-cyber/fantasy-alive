@@ -78,13 +78,24 @@ function isLeveledCost(skill, race, focusName){
   return !!(detail && detail.levelCost);
 }
 
-function hasKnownSkillLevel(knownSkills, name, minLevel){
+// focusName, when given, requires the known skill to have been learned
+// with that specific focus -- e.g. Lethal Hands needs Weapon Skill known
+// specifically in Hand to Hand, not just any weapon type. This is
+// distinct from mustMatchFocus (used elsewhere), which instead requires
+// a skill's own chosen focus to match whatever focus its prerequisite
+// was learned with.
+function hasKnownSkillLevel(knownSkills, name, minLevel, focusName){
   const norm = (name || '').trim().toLowerCase();
-  return (knownSkills || []).some(k => k.title.trim().toLowerCase() === norm && k.level >= minLevel);
+  const normFocus = focusName ? focusName.trim().toLowerCase() : null;
+  return (knownSkills || []).some(k => {
+    if(k.title.trim().toLowerCase() !== norm || k.level < minLevel) return false;
+    if(normFocus && (k.focus || '').trim().toLowerCase() !== normFocus) return false;
+    return true;
+  });
 }
 
 function prereqGroupSatisfied(group, knownSkills){
-  if(!hasKnownSkillLevel(knownSkills, group.skill1.name, group.skill1.level)) return false;
+  if(!hasKnownSkillLevel(knownSkills, group.skill1.name, group.skill1.level, group.requiredFocusName)) return false;
   if(group.skill2 && !hasKnownSkillLevel(knownSkills, group.skill2.name, group.skill2.level)) return false;
   return true;
 }
@@ -120,9 +131,13 @@ function isPrereqMet(skill, race, focusName, knownSkills, stats){
   return skillOk && energyOk && lpOk && focusOk;
 }
 
-function describePrereqPart(s){ return s.level > 1 ? `${s.name} ${s.level}` : s.name; }
+function describePrereqPart(s, focusName){
+  const base = s.level > 1 ? `${s.name} ${s.level}` : s.name;
+  return focusName ? `${base} [${focusName}]` : base;
+}
 function describePrereqGroup(g){
-  return g.skill2 ? `${describePrereqPart(g.skill1)} and ${describePrereqPart(g.skill2)}` : describePrereqPart(g.skill1);
+  const part1 = describePrereqPart(g.skill1, g.requiredFocusName);
+  return g.skill2 ? `${part1} and ${describePrereqPart(g.skill2)}` : part1;
 }
 
 // Human-readable text for the prerequisite(s) not yet met, or null once

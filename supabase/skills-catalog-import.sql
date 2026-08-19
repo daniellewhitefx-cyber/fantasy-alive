@@ -25,7 +25,8 @@ insert into focus_types (id, name) values
   (14, 'Exotic Weapon'),
   (15, 'Spell'),
   (16, 'Trade'),
-  (17, 'Merchant Focus')
+  (17, 'Merchant Focus'),
+  (18, 'Shield')
 on conflict (id) do nothing;
 
 insert into skills (id, name, skill_type_id, focus_type_id, stat_name, stat_value, levelable, overwrite_cost_for_focus, description) values
@@ -64,7 +65,7 @@ combat skills or casting spells if worn.'),
   (31, 'Ringing Blow', 1, 3, null, null, false, false, ''),
   (32, 'Sever', 1, 3, null, null, false, false, null),
   (33, 'Shatter', 1, null, null, null, false, false, null),
-  (34, 'Shield', 1, null, null, null, false, false, null),
+  (34, 'Shield', 1, 18, null, null, false, false, null),
   (35, 'Slay', 1, null, null, null, false, false, null),
   (36, 'Staggering Blow', 1, 3, null, null, false, false, ''),
   (37, 'Stunning Blow', 1, 3, null, null, false, false, null),
@@ -305,7 +306,9 @@ Opposed Domain: Beldon
   (148, 'Lend Health', null, null, null, ''),
   (149, 'Fire Bolt', null, null, null, ''),
   (150, 'Arcane Bolt', null, null, null, ''),
-  (151, 'Researcher', null, null, null, '')
+  (151, 'Researcher', null, null, null, ''),
+  (152, 'Large Shield', null, null, null, ''),
+  (153, 'Small Shield', null, null, null, '')
 on conflict (id) do nothing;
 
 insert into skill_focus_type_map (id, focus_id, focus_type_id) values
@@ -479,7 +482,9 @@ insert into skill_focus_type_map (id, focus_id, focus_type_id) values
   (179, 148, 15),
   (180, 149, 15),
   (181, 150, 15),
-  (182, 30, 5)
+  (182, 30, 5),
+  (183, 152, 18),
+  (184, 153, 18)
 on conflict (id) do nothing;
 
 insert into skill_details (id, skill_id, race, cost, tutor, level_limit, focus_limit, min_cost, level_cost, energy_prereq, lp_prereq, unique_skill) values
@@ -725,7 +730,7 @@ insert into skill_prerequisites (id, skill_detail_id, prerequisite_skill_id, pre
   (243, 22, 3, 1, null, null, true, null, null),
   (244, 172, 87, 5, null, null, false, null, null),
   (245, 171, 87, 10, null, null, false, null, null),
-  (246, 23, 2, 1, null, null, false, null, null),
+  (246, 23, 2, 1, null, null, false, 9, null),
   (247, 78, 71, 1, null, null, false, null, null),
   (248, 80, 71, 1, null, null, false, null, null),
   (249, 85, 71, 1, null, null, false, null, null),
@@ -761,7 +766,6 @@ insert into skill_prerequisites (id, skill_detail_id, prerequisite_skill_id, pre
   (279, 30, 38, 1, null, null, true, null, null),
   (280, 31, 42, 1, null, null, true, null, null),
   (281, 32, 27, 1, 47, 2, false, null, null),
-  (282, 33, 51, 1, null, null, false, null, null),
   (283, 34, 27, 1, null, null, false, null, null),
   (284, 77, 61, 1, null, null, false, null, null),
   (285, 102, 61, 1, null, null, false, null, null),
@@ -785,7 +789,8 @@ on conflict (id) do nothing;
 insert into skill_focus_prerequisites (id, focus_id, prerequisite_skill_id, prerequisite_level) values
   (3, 3, 51, 1),
   (4, 4, 51, 1),
-  (5, 12, 51, 1)
+  (5, 12, 51, 1),
+  (6, 152, 51, 1)
 on conflict (id) do nothing;
 
 insert into race_notable_skills (id, race, skill_id) values

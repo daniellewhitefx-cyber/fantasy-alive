@@ -71,6 +71,14 @@ async function skillsLoadCatalog(){
   const skillById = {};
   skills.forEach(s => { skillById[s.id] = s; });
 
+  const focusNameById = {};
+  focuses.forEach(f => { focusNameById[f.id] = f.name; });
+
+  // A prerequisite can be pinned to one specific focus of skill1 (e.g.
+  // Lethal Hands requires Weapon Skill specifically in Hand to Hand, not
+  // just any weapon type) -- distinct from mustMatchFocus, which instead
+  // requires skill1's focus to match whatever focus the player is
+  // choosing for the skill they're trying to learn.
   const prereqGroupsBySkillDetail = {};
   prereqs.forEach(p => {
     (prereqGroupsBySkillDetail[p.skill_detail_id] = prereqGroupsBySkillDetail[p.skill_detail_id] || []).push({
@@ -78,7 +86,8 @@ async function skillsLoadCatalog(){
       skill2: p.prerequisite_skill2_id
         ? { id: p.prerequisite_skill2_id, name: (skillById[p.prerequisite_skill2_id] || {}).name, level: p.prerequisite_level2 }
         : null,
-      mustMatchFocus: !!p.must_match_focus
+      mustMatchFocus: !!p.must_match_focus,
+      requiredFocusName: p.prerequisite_focus_id ? (focusNameById[p.prerequisite_focus_id] || null) : null
     });
   });
 
