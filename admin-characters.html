@@ -95,7 +95,32 @@
 </div>
 <div>
 <label class="field-label" for="ac-social-class">Social Class</label>
-<input type="text" id="ac-social-class">
+<select id="ac-social-class">
+<optgroup label="Common Law">
+<option>Vagabond</option>
+<option>Serf</option>
+<option>Guard</option>
+<option>Apprentice</option>
+<option>Yeoman</option>
+<option>Yeoman (Well Fed!)</option>
+<option>Citizen</option>
+</optgroup>
+<optgroup label="Noble Law">
+<option>Ward</option>
+<option>Knight</option>
+<option>Magistrate</option>
+<option>Lord</option>
+<option>Lady</option>
+<option>Baron</option>
+<option>Baroness</option>
+<option>Duke</option>
+<option>Duchess</option>
+</optgroup>
+<optgroup label="Above the Law">
+<option>King</option>
+<option>Queen</option>
+</optgroup>
+</select>
 </div>
 </div>
 <button class="btn-gold" style="margin-top:1rem;" onclick="ac_saveDetails()">Save Details</button>
@@ -314,7 +339,12 @@ async function ac_selectCharacter(charId){
   document.getElementById('ac-race').value = char.race;
   document.getElementById('ac-pronouns').value = char.pronouns || '';
   document.getElementById('ac-birthday').value = char.birthday || '';
-  document.getElementById('ac-social-class').value = char.social_class || '';
+  const socialClassSelect = document.getElementById('ac-social-class');
+  const currentSocialClass = char.social_class || 'Yeoman';
+  if(![...socialClassSelect.options].some(o => o.value === currentSocialClass)){
+    socialClassSelect.insertAdjacentHTML('afterbegin', `<option>${escapeHtml(currentSocialClass)}</option>`);
+  }
+  socialClassSelect.value = currentSocialClass;
   document.getElementById('ac-starting-sp').value = char.starting_sp;
 
   await Promise.all([loadSkills(), loadXp(), loadOc(), loadInventory()]);
