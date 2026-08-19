@@ -473,9 +473,12 @@ function ct_stripScrollSuffix(name){
   return name.replace(/\s*-\s*Scroll$/i, '').trim();
 }
 
+// Plain .select() caps at Supabase's 1000-row limit -- item_catalog now
+// has a code for every real item (~2427 rows), so anything alphabetically
+// past that cutoff was silently never loading. craftingFetchAllRows pages
+// through the full table the same way it already does for items.
 async function ct_loadItemCatalogTable(){
-  const { data } = await membersSupabase.from('item_catalog').select('item_name, code, modifier_type, use_count, modifiers').order('item_name');
-  CATALOG = data || [];
+  CATALOG = await craftingFetchAllRows('item_catalog', 'item_name, code, modifier_type, use_count, modifiers');
 }
 
 async function ct_loadRealCatalog(){
