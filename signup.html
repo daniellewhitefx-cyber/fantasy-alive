@@ -16,6 +16,7 @@
 <meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
 <script src="js/vendor/supabase-js.min.js"></script>
 <style>
 :root{
@@ -34,9 +35,13 @@ html, body{
   color: var(--brown);
   font-family: 'EB Garamond', serif;
   min-height: 100vh;
+}
+.auth-page{
   display:flex;
   align-items:center;
   justify-content:center;
+  padding: 3rem 1rem;
+  min-height: 70vh;
 }
 .auth-box{
   width: 100%;
@@ -103,11 +108,14 @@ button:disabled{ opacity: 0.6; cursor: not-allowed; }
 </head>
 <body>
 
+<div data-include="partials/header.html"></div>
+
+<div class="auth-page">
 <div class="auth-box">
   <h1>Create Your Account</h1>
 
-  <label for="display-name">Display Name</label>
-  <input type="text" id="display-name" placeholder="Danielle White">
+  <label for="display-name">Your Name</label>
+  <input type="text" id="display-name" placeholder="e.g. Jane Smith">
 
   <label for="email">Email</label>
   <input type="email" id="email" placeholder="you@example.com">
@@ -121,7 +129,10 @@ button:disabled{ opacity: 0.6; cursor: not-allowed; }
 
   <div class="switch-link">Already have an account? <a href="login.html">Log in</a></div>
 </div>
+</div>
 
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
 <script>
 const SUPABASE_URL = 'https://xdchluuvicuuqyqsejnq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99';
@@ -169,8 +180,9 @@ async function handleSignup(){
     return;
   }
 
-  msg.textContent = 'Account created! Check your email to confirm before logging in.';
+  msg.textContent = 'Account created! Check your email to confirm before logging in. Taking you to the login page&hellip;';
   msg.classList.add('success');
+  setTimeout(() => { window.location.href = 'login.html'; }, 2000);
 }
 </script>
 

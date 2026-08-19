@@ -16,6 +16,7 @@
 <meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
 <script src="js/vendor/supabase-js.min.js"></script>
 <style>
 :root{
@@ -34,9 +35,13 @@ html, body{
   color: var(--brown);
   font-family: 'EB Garamond', serif;
   min-height: 100vh;
+}
+.auth-page{
   display:flex;
   align-items:center;
   justify-content:center;
+  padding: 3rem 1rem;
+  min-height: 70vh;
 }
 .auth-box{
   width: 100%;
@@ -103,6 +108,9 @@ button:disabled{ opacity: 0.6; cursor: not-allowed; }
 </head>
 <body>
 
+<div data-include="partials/header.html"></div>
+
+<div class="auth-page">
 <div class="auth-box">
   <h1>Log In</h1>
 
@@ -118,7 +126,10 @@ button:disabled{ opacity: 0.6; cursor: not-allowed; }
 
   <div class="switch-link">Need an account? <a href="signup.html">Sign up</a></div>
 </div>
+</div>
 
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
 <script>
 const SUPABASE_URL = 'https://xdchluuvicuuqyqsejnq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99';

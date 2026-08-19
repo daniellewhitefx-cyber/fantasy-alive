@@ -198,6 +198,13 @@ async function lw_sign(){
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
 
   await loadExisting();
+
+  const { data: contact } = await membersSupabase
+    .from('emergency_contact_forms')
+    .select('player_id')
+    .eq('player_id', window.faCurrentUser.id)
+    .maybeSingle();
+  if(!contact) window.location.href = 'emergency-contact.html';
 }
 
 window.lw_sign = lw_sign;
