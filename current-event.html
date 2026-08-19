@@ -38,6 +38,12 @@
   font-style: italic;
   color: var(--brown-dark);
 }
+.ce-allowance-note{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  color: var(--gold-dark);
+  margin: 0 0 0.8rem;
+}
 .ce-stats{
   display:grid;
   grid-template-columns: repeat(2, 1fr);
@@ -145,6 +151,7 @@ let REGISTERED_AS = null;
 let MY_CHARACTER = null;
 let OC_BALANCE = 0;
 let SPENT = { xp_spent: 0, copper_spent: 0 };
+let ALLOWANCE_JUST_GRANTED = null;
 let ACTIVE_TAB = 'info';
 
 let INFO_LOADED = false;
@@ -272,7 +279,7 @@ async function loadRegistration(){
   MY_CHARACTER = null;
 
   if(mine && mine.who === 'character'){
-    const { data: chars } = await membersSupabase.from('characters').select('id, name, race').eq('player_id', me.id);
+    const { data: chars } = await membersSupabase.from('characters').select('id, name, race, social_class').eq('player_id', me.id);
     MY_CHARACTER = (chars || []).find(c => c.name.trim().toLowerCase() === (mine.characterName || '').trim().toLowerCase()) || null;
   }
 
@@ -302,12 +309,23 @@ async function loadOcAndTraining(){
   if(REGISTERED_AS === 'character' && MY_CHARACTER){
     TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT);
     tasks.push(refreshTrainingState());
+    tasks.push(claimAllowance());
   }
 
   const [{ data: ocRows }, { data: summary }] = await Promise.all(tasks);
 
   OC_BALANCE = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
   SPENT = summary || { xp_spent: 0, copper_spent: 0 };
+}
+
+// A Social Class allowance is a standing entitlement, not something a
+// player opts into, so it's claimed automatically (once per character
+// per event) rather than needing its own tab or button.
+async function claimAllowance(){
+  const { data } = await membersSupabase.rpc('event_log_claim_allowance', {
+    p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id
+  });
+  ALLOWANCE_JUST_GRANTED = (data === null || data === undefined) ? null : Number(data);
 }
 
 function renderHeaderStatsHtml(){
@@ -325,7 +343,12 @@ function renderHeaderStatsHtml(){
     <div class="ce-stat"><div class="ce-stat-label">Spendable SP</div><div class="ce-stat-value">${TRAIN_SUMMARY.spendable_sp}</div></div>
   ` : '';
 
+  const allowanceNote = ALLOWANCE_JUST_GRANTED
+    ? `<p class="ce-allowance-note">${escapeHtml(MY_CHARACTER.name)} received ${ALLOWANCE_JUST_GRANTED} Copper as their ${escapeHtml(MY_CHARACTER.social_class || 'Yeoman')} allowance for this event.</p>`
+    : '';
+
   return `
+    ${allowanceNote}
     <div class="ce-header-stats">
       <div class="ce-stat"><div class="ce-stat-label">Your Ogre Chips</div><div class="ce-stat-value">${OC_BALANCE}</div></div>
       ${trainingTiles}
