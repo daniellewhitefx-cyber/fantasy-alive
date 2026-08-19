@@ -76,6 +76,19 @@ async function shoppeLoadLuxuries(){
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+// Merchant-tier buy/sell pricing (merchant_price_tiers, migrated from
+// the old site, id-per-level 0-10). Level 0 pays 150% to buy and gets
+// 25% back selling; by level 10 that's 80% to buy and 75% selling.
+async function shoppeLoadPriceTiers(){
+  return shoppeFetchAllRows('merchant_price_tiers', 'merchant_level, buy_pct, sell_pct');
+}
+
+function shoppeMerchantPct(tiers, level){
+  const lvl = Math.max(0, Math.min(10, level || 0));
+  const row = (tiers || []).find(t => t.merchant_level === lvl);
+  return row || { buy_pct: 100, sell_pct: 25 };
+}
+
 function shoppeOrderedCategories(allItems){
   const byCategory = {};
   allItems.forEach(i => { byCategory[i.category] = true; });
@@ -89,4 +102,6 @@ window.SHOPPE_AVAILABILITY_ORDER = SHOPPE_AVAILABILITY_ORDER;
 window.shoppeAvailabilityTier = shoppeAvailabilityTier;
 window.shoppeLoadFromSheet = shoppeLoadFromSheet;
 window.shoppeLoadLuxuries = shoppeLoadLuxuries;
+window.shoppeLoadPriceTiers = shoppeLoadPriceTiers;
+window.shoppeMerchantPct = shoppeMerchantPct;
 window.shoppeOrderedCategories = shoppeOrderedCategories;
