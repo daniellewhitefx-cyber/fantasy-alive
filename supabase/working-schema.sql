@@ -1,9 +1,12 @@
 -- "Work" tab on the Current Event log: a character spends downtime Hours
--- (the same shared budget Training draws from) using one of their known
--- Trade Skills to earn Copper, per the rulebook: "For every 8 hours of
--- time a character dedicates to using the Craftsman skill they will earn
--- 5 Copper coins per level of skill" -- and "Every trade skill may be
--- used as if it were Craftsman for the purposes of earning money."
+-- (the same shared budget Training draws from) using either a Trade Skill
+-- ("Working for a Living") or their Clerical Investment ("Working for a
+-- Cause") to earn Copper, per the rulebook: "a tradesperson can command 5
+-- copper pieces per level of their trade skill, per eight hour shift" --
+-- and "[Clerics] can use their levels of Clerical Investment to work for
+-- a cause instead." Any number of hours can be worked; pay scales
+-- proportionally to a full 8 hour shift and rounds up to the nearest
+-- Copper.
 
 create table if not exists event_log_working_sessions (
   id uuid primary key default gen_random_uuid(),
@@ -14,7 +17,7 @@ create table if not exists event_log_working_sessions (
   skill_name text not null,
   focus text,
   level integer not null,
-  hours_worked integer not null check (hours_worked > 0 and hours_worked % 8 = 0),
+  hours_worked integer not null check (hours_worked > 0),
   copper_earned integer not null check (copper_earned >= 0),
   created_at timestamptz not null default now()
 );
@@ -83,8 +86,8 @@ declare
   v_session_id uuid;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
-  if p_hours is null or p_hours <= 0 or p_hours % 8 != 0 then
-    raise exception 'Hours must be a positive multiple of 8';
+  if p_hours is null or p_hours <= 0 then
+    raise exception 'Hours must be a positive number';
   end if;
   if p_hours_budget is null or p_hours_budget < 0 then raise exception 'Invalid hours budget'; end if;
 
@@ -96,7 +99,9 @@ begin
     where id = p_character_skill_id and character_id = p_character_id
     for update;
   if not found then raise exception 'Skill not found'; end if;
-  if v_skill.category != 'Trade Skill' then raise exception 'Only Trade Skills can be worked for Copper'; end if;
+  if v_skill.category != 'Trade Skill' and v_skill.skill_name != 'Clerical Investment' then
+    raise exception 'Only Trade Skills or Clerical Investment can be worked for Copper';
+  end if;
 
   select
     coalesce((select sum(hours_cost) from event_log_training_purchases where character_id = p_character_id and event_slug = p_event_slug), 0)
@@ -107,7 +112,7 @@ begin
     raise exception 'Not enough downtime hours left';
   end if;
 
-  v_copper := (p_hours / 8) * 5 * v_skill.level;
+  v_copper := ceil((p_hours * 5 * v_skill.level)::numeric / 8)::integer;
 
   insert into event_log_working_sessions
     (player_id, character_id, event_slug, character_skill_id, skill_name, focus, level, hours_worked, copper_earned)
