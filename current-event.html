@@ -893,7 +893,7 @@ function renderShopInventoryHtml(){
         <td>${item.balance}</td>
         <td>${sellUnit} Copper</td>
         <td><input type="number" min="1" max="${item.balance}" value="${qty}" class="shop-qty" onchange="ce_invSellUpdateQty('${nameEsc}', ${item.balance}, this.value)"></td>
-        <td><button class="btn-outline" onclick="ce_shopSellFromInventory('${catalogItem.category.replace(/'/g, "\\'")}', '${nameEsc}', ${catalogItem.costCopper})">Sell (${sellUnit * qty})</button></td>
+        <td><button class="btn-outline" onclick="ce_shopSellFromInventory('${catalogItem.category.replace(/'/g, "\\'")}', '${nameEsc}', ${catalogItem.costCopper}, ${catalogItem.availabilityTier})">Sell (${sellUnit * qty})</button></td>
       </tr>
     `;
   }).join('');
@@ -1008,7 +1008,7 @@ function renderShopGrid(){
       sellCells = `
         <td>${sellUnit} Copper</td>
         <td><input type="number" min="1" value="${sellQty}" class="shop-qty" onchange="ce_sellUpdateQty('${keyEsc}', this.value)"></td>
-        <td><button class="btn-outline" onclick="ce_shopSell('${catEsc}', '${nameEsc}', ${item.costCopper})">Sell (${sellUnit * sellQty})</button></td>
+        <td><button class="btn-outline" onclick="ce_shopSell('${catEsc}', '${nameEsc}', ${item.costCopper}, ${item.availabilityTier})">Sell (${sellUnit * sellQty})</button></td>
       `;
     }
 
@@ -1080,7 +1080,7 @@ async function ce_shopCancel(purchaseId){
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
 }
 
-async function ce_shopSell(category, itemName, unitValue){
+async function ce_shopSell(category, itemName, unitValue, availabilityTier){
   const errorEl = document.getElementById('ce-shop-error');
   errorEl.style.display = 'none';
   const key = category + '::' + itemName;
@@ -1094,7 +1094,8 @@ async function ce_shopSell(category, itemName, unitValue){
     p_unit_value_copper: unitValue,
     p_quantity: qty,
     p_from_inventory: false,
-    p_hours_budget: TRAIN_BUDGET
+    p_hours_budget: TRAIN_BUDGET,
+    p_availability_tier: availabilityTier
   });
   if(error){ showError(errorEl, error.message); return; }
 
@@ -1104,7 +1105,7 @@ async function ce_shopSell(category, itemName, unitValue){
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
 }
 
-async function ce_shopSellFromInventory(category, itemName, unitValue){
+async function ce_shopSellFromInventory(category, itemName, unitValue, availabilityTier){
   const errorEl = document.getElementById('ce-shop-error');
   errorEl.style.display = 'none';
   const key = 'inv::' + itemName;
@@ -1118,7 +1119,8 @@ async function ce_shopSellFromInventory(category, itemName, unitValue){
     p_unit_value_copper: unitValue,
     p_quantity: qty,
     p_from_inventory: true,
-    p_hours_budget: TRAIN_BUDGET
+    p_hours_budget: TRAIN_BUDGET,
+    p_availability_tier: availabilityTier
   });
   if(error){ showError(errorEl, error.message); return; }
 
