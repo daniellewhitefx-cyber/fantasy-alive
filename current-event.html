@@ -172,6 +172,12 @@ let SHOP_BANK_BALANCE = 0;
 let SHOP_MERCHANT_LEVEL = 0;
 let SHOP_PURCHASES = [];
 let SHOP_LOAD_ERROR = null;
+let SHOP_PRICE_TIERS = [];
+let SHOP_SALES = [];
+let SHOP_TRIPS = new Set();
+let SHOP_INVENTORY = [];
+let SELL_QTY_STATE = {};
+let INV_SELL_QTY_STATE = {};
 
 let TRAIN_ALL_SKILLS = [];
 let TRAIN_CATEGORY = null;
@@ -614,17 +620,23 @@ async function loadEventInfoTags(){
     const rows = craftRows || [];
     const owedCraftIds = rows.filter(r => r.tag_turned_in).map(r => r.id);
 
-    const [consumedRes, requestRes] = await Promise.all([
+    const [consumedRes, requestRes, soldRes] = await Promise.all([
       owedCraftIds.length
         ? membersSupabase.from('crafting_materials_consumed').select('material_name, quantity').in('crafting_log_id', owedCraftIds)
         : Promise.resolve({ data: [] }),
       membersSupabase.from('character_tag_requests').select('item_name, quantity')
-        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).eq('status', 'pending')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).eq('status', 'pending'),
+      membersSupabase.from('shoppe_sales').select('item_name, quantity')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).eq('tag_turned_in', true)
     ]);
 
     const owedMap = {};
     (consumedRes.data || []).forEach(r => {
       const key = r.material_name.trim();
+      owedMap[key] = (owedMap[key] || 0) + r.quantity;
+    });
+    (soldRes.data || []).forEach(r => {
+      const key = r.item_name.trim();
       owedMap[key] = (owedMap[key] || 0) + r.quantity;
     });
     INFO_TAGS_OWED = Object.entries(owedMap).map(([name, qty]) => ({ name, qty })).sort((a, b) => a.name.localeCompare(b.name));
@@ -767,6 +779,9 @@ async function loadShopData(){
       const categories = shoppeOrderedCategories(SHOP_ALL_ITEMS);
       SHOP_CATEGORY = categories.length ? categories[0] : null;
     }
+    if(!SHOP_PRICE_TIERS.length){
+      SHOP_PRICE_TIERS = await shoppeLoadPriceTiers();
+    }
     const tasks = [
       membersSupabase.rpc('bank_my_balance'),
       membersSupabase.from('shoppe_purchases').select('id, category, item_name, unit_cost_copper, quantity, total_cost_copper')
@@ -775,15 +790,29 @@ async function loadShopData(){
     if(REGISTERED_AS === 'character' && MY_CHARACTER){
       tasks.push(membersSupabase.from('character_skills').select('level')
         .eq('character_id', MY_CHARACTER.id).eq('category', 'Trade Skill').ilike('skill_name', 'Merchant'));
+      tasks.push(membersSupabase.from('shoppe_sales').select('id, category, item_name, quantity, total_copper_received, from_inventory, tag_turned_in')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true }));
+      tasks.push(membersSupabase.from('event_log_shopping_trips').select('category')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value));
+      tasks.push(membersSupabase.rpc('character_material_inventory', { p_character_id: MY_CHARACTER.id }));
+      tasks.push(refreshTrainingState());
     }
-    const [{ data: balance }, { data: purchases }, merchantRes] = await Promise.all(tasks);
+    const [{ data: balance }, { data: purchases }, merchantRes, salesRes, tripsRes, invRes] = await Promise.all(tasks);
     SHOP_BANK_BALANCE = balance || 0;
     COPPER_BALANCE = SHOP_BANK_BALANCE;
     SHOP_PURCHASES = purchases || [];
     SHOP_MERCHANT_LEVEL = merchantRes ? (merchantRes.data || []).reduce((max, r) => Math.max(max, r.level), 0) : 0;
+    SHOP_SALES = salesRes ? (salesRes.data || []) : [];
+    SHOP_TRIPS = new Set(tripsRes ? (tripsRes.data || []).map(r => r.category) : []);
+    SHOP_INVENTORY = invRes ? (invRes.data || []) : [];
   } catch(err){
     SHOP_LOAD_ERROR = err.message;
   }
+}
+
+function shoppeFindCatalogItem(name){
+  const norm = name.trim().toLowerCase();
+  return SHOP_ALL_ITEMS.find(i => i.name.trim().toLowerCase() === norm) || null;
 }
 
 function renderShopPurchasesHtml(){
@@ -813,6 +842,85 @@ function renderShopPurchasesHtml(){
   `;
 }
 
+function renderShopSalesHtml(){
+  if(!SHOP_SALES.length) return '';
+  const rows = SHOP_SALES.map(s => `
+    <tr>
+      <td>${escapeHtml(s.item_name)}</td>
+      <td>${escapeHtml(s.category)}</td>
+      <td>${s.quantity}</td>
+      <td>${s.total_copper_received} Copper</td>
+      <td>${s.from_inventory ? 'From inventory' : 'Tag owed to logistics'}</td>
+      <td><button class="btn-outline" onclick="ce_shopCancelSale('${s.id}')" title="Reverse this sale">&times;</button></td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="panel">
+      <div class="panel-head"><h2>Sold This Event</h2></div>
+      <div class="panel-body">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Item</th><th>Category</th><th>Qty</th><th>Received</th><th>Source</th><th></th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderShopInventoryHtml(){
+  if(!(REGISTERED_AS === 'character' && MY_CHARACTER)) return '';
+  if(!SHOP_INVENTORY.length) return '';
+  const pct = shoppeMerchantPct(SHOP_PRICE_TIERS, SHOP_MERCHANT_LEVEL);
+
+  const rows = SHOP_INVENTORY.map(item => {
+    const catalogItem = shoppeFindCatalogItem(item.material_name);
+    const key = 'inv::' + item.material_name;
+    INV_SELL_QTY_STATE[key] = Math.min(INV_SELL_QTY_STATE[key] || 1, item.balance);
+    const qty = INV_SELL_QTY_STATE[key];
+    const nameEsc = item.material_name.replace(/'/g, "\\'");
+
+    if(!catalogItem){
+      return `<tr><td>${escapeHtml(item.material_name)}</td><td>${item.balance}</td><td colspan="3"><span class="reg-empty-note">Not in the catalog, can't sell here</span></td></tr>`;
+    }
+
+    const sellUnit = Math.floor(catalogItem.costCopper * pct.sell_pct / 100);
+    return `
+      <tr>
+        <td>${escapeHtml(item.material_name)}</td>
+        <td>${item.balance}</td>
+        <td>${sellUnit} Copper</td>
+        <td><input type="number" min="1" max="${item.balance}" value="${qty}" class="shop-qty" onchange="ce_invSellUpdateQty('${nameEsc}', ${item.balance}, this.value)"></td>
+        <td><button class="btn-outline" onclick="ce_shopSellFromInventory('${catalogItem.category.replace(/'/g, "\\'")}', '${nameEsc}', ${catalogItem.costCopper})">Sell (${sellUnit * qty})</button></td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="panel">
+      <div class="panel-head"><h2>Sell From Your Inventory</h2></div>
+      <div class="panel-body">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Item</th><th>On Hand</th><th>Sell For</th><th>Qty</th><th></th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderShopTravelHtml(){
+  if(!(REGISTERED_AS === 'character' && MY_CHARACTER)) return '';
+  const categories = [...SHOP_TRIPS].sort();
+  return `<p class="reg-empty-note" style="margin-bottom:0.8rem;">${categories.length
+    ? `Travel paid this event (8 hrs each): ${categories.map(c => escapeHtml(c)).join(', ')}`
+    : 'Buying or selling in a new category costs 8 downtime hours of travel, once per category per event.'}</p>`;
+}
+
 function renderShopBody(){
   const body = document.getElementById('ce-tab-body');
 
@@ -821,19 +929,25 @@ function renderShopBody(){
     return;
   }
 
+  const canSell = REGISTERED_AS === 'character' && MY_CHARACTER;
+  const sellHeaderCells = canSell ? `<th>Sell For</th><th>Qty</th><th></th>` : '';
+
   body.innerHTML = `
     ${renderShopPurchasesHtml()}
+    ${renderShopSalesHtml()}
+    ${renderShopInventoryHtml()}
     <div class="panel">
       <div class="panel-head ce-event-head">
         <h2>The Shoppe</h2>
         <span class="ce-logging-as">Your Copper: ${SHOP_BANK_BALANCE}</span>
       </div>
       <div class="panel-body">
+        ${renderShopTravelHtml()}
         <input type="text" id="ce-shop-search" placeholder="Search all items..." value="${escapeHtml(SHOP_SEARCH)}" oninput="ce_shopSearch(this.value)" style="margin-bottom:0.8rem; max-width:320px;">
         <div class="day-toggle" id="ce-shop-cat-tabs"></div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th></th></tr></thead>
+            <thead><tr><th>Item</th><th>Buy Price</th><th>Qty</th><th></th>${sellHeaderCells}</tr></thead>
             <tbody id="ce-shop-grid"></tbody>
           </table>
         </div>
@@ -873,25 +987,41 @@ function renderShopGrid(){
     ? SHOP_ALL_ITEMS.filter(i => i.name.toLowerCase().includes(query))
     : SHOP_ALL_ITEMS.filter(i => i.category === SHOP_CATEGORY);
   const gated = REGISTERED_AS === 'character' && MY_CHARACTER;
+  const pct = gated ? shoppeMerchantPct(SHOP_PRICE_TIERS, SHOP_MERCHANT_LEVEL) : { buy_pct: 100, sell_pct: 25 };
 
   document.getElementById('ce-shop-grid').innerHTML = items.length ? items.map(item => {
     const key = item.category + '::' + item.name;
     SHOP_QTY_STATE[key] = SHOP_QTY_STATE[key] || 1;
     const qty = SHOP_QTY_STATE[key];
-    const total = item.costCopper * qty;
+    const buyUnit = Math.ceil(item.costCopper * pct.buy_pct / 100);
+    const total = buyUnit * qty;
     const canAfford = total <= SHOP_BANK_BALANCE;
     const locked = gated && item.availabilityTier > SHOP_MERCHANT_LEVEL;
     const keyEsc = key.replace(/'/g, "\\'");
+    const catEsc = item.category.replace(/'/g, "\\'");
+    const nameEsc = item.name.replace(/'/g, "\\'");
+
+    let sellCells = '';
+    if(gated){
+      const sellUnit = Math.floor(item.costCopper * pct.sell_pct / 100);
+      const sellQty = SELL_QTY_STATE[key] || 1;
+      sellCells = `
+        <td>${sellUnit} Copper</td>
+        <td><input type="number" min="1" value="${sellQty}" class="shop-qty" onchange="ce_sellUpdateQty('${keyEsc}', this.value)"></td>
+        <td><button class="btn-outline" onclick="ce_shopSell('${catEsc}', '${nameEsc}', ${item.costCopper})">Sell (${sellUnit * sellQty})</button></td>
+      `;
+    }
 
     return `
       <tr class="${locked ? 'skill-row-locked' : ''}">
         <td class="shop-item-name">${escapeHtml(item.name)}${locked ? `<span class="skill-missing-prereq">Requires Merchant ${item.availabilityTier}</span>` : ''}</td>
-        <td>${item.costCopper} Copper</td>
+        <td>${buyUnit} Copper</td>
         <td><input type="number" min="1" value="${qty}" class="shop-qty" onchange="ce_shopUpdateQty('${keyEsc}', this.value)"></td>
-        <td><button class="btn-outline" ${(canAfford && !locked) ? '' : 'disabled'} onclick="ce_shopBuy('${item.category.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}', ${item.costCopper}, ${item.availabilityTier})">Buy (${total})</button></td>
+        <td><button class="btn-outline" ${(canAfford && !locked) ? '' : 'disabled'} onclick="ce_shopBuy('${catEsc}', '${nameEsc}', ${item.costCopper}, ${item.availabilityTier})">Buy (${total})</button></td>
+        ${sellCells}
       </tr>
     `;
-  }).join('') : `<tr><td colspan="4">${query ? `No items match &ldquo;${escapeHtml(SHOP_SEARCH)}&rdquo;.` : 'Nothing in this category yet.'}</td></tr>`;
+  }).join('') : `<tr><td colspan="7">${query ? `No items match &ldquo;${escapeHtml(SHOP_SEARCH)}&rdquo;.` : 'Nothing in this category yet.'}</td></tr>`;
 }
 
 function ce_shopUpdateQty(key, val){
@@ -901,20 +1031,37 @@ function ce_shopUpdateQty(key, val){
   renderShopGrid();
 }
 
+function ce_sellUpdateQty(key, val){
+  let n = parseInt(val, 10);
+  if(isNaN(n) || n < 1) n = 1;
+  SELL_QTY_STATE[key] = n;
+  renderShopGrid();
+}
+
+function ce_invSellUpdateQty(name, max, val){
+  let n = parseInt(val, 10);
+  if(isNaN(n) || n < 1) n = 1;
+  if(n > max) n = max;
+  INV_SELL_QTY_STATE['inv::' + name] = n;
+  renderShopBody();
+}
+
 async function ce_shopBuy(category, itemName, unitCost, availabilityTier){
   const errorEl = document.getElementById('ce-shop-error');
   errorEl.style.display = 'none';
   const key = category + '::' + itemName;
   const qty = SHOP_QTY_STATE[key] || 1;
+  const asCharacter = REGISTERED_AS === 'character' && MY_CHARACTER;
 
   const { error } = await membersSupabase.rpc('shoppe_buy_item', {
     p_event_slug: EVENT.value,
-    p_character_id: (REGISTERED_AS === 'character' && MY_CHARACTER) ? MY_CHARACTER.id : null,
+    p_character_id: asCharacter ? MY_CHARACTER.id : null,
     p_category: category,
     p_item_name: itemName,
     p_availability_tier: availabilityTier,
     p_unit_cost_copper: unitCost,
-    p_quantity: qty
+    p_quantity: qty,
+    p_hours_budget: asCharacter ? TRAIN_BUDGET : null
   });
   if(error){ showError(errorEl, error.message); return; }
 
@@ -926,6 +1073,63 @@ async function ce_shopBuy(category, itemName, unitCost, availabilityTier){
 
 async function ce_shopCancel(purchaseId){
   const { error } = await membersSupabase.rpc('shoppe_cancel_purchase', { p_purchase_id: purchaseId });
+  if(error){ alert(error.message); return; }
+
+  await loadShopData();
+  renderShopBody();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
+async function ce_shopSell(category, itemName, unitValue){
+  const errorEl = document.getElementById('ce-shop-error');
+  errorEl.style.display = 'none';
+  const key = category + '::' + itemName;
+  const qty = SELL_QTY_STATE[key] || 1;
+
+  const { error } = await membersSupabase.rpc('shoppe_sell_item', {
+    p_event_slug: EVENT.value,
+    p_character_id: MY_CHARACTER.id,
+    p_category: category,
+    p_item_name: itemName,
+    p_unit_value_copper: unitValue,
+    p_quantity: qty,
+    p_from_inventory: false,
+    p_hours_budget: TRAIN_BUDGET
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  delete SELL_QTY_STATE[key];
+  await loadShopData();
+  renderShopBody();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
+async function ce_shopSellFromInventory(category, itemName, unitValue){
+  const errorEl = document.getElementById('ce-shop-error');
+  errorEl.style.display = 'none';
+  const key = 'inv::' + itemName;
+  const qty = INV_SELL_QTY_STATE[key] || 1;
+
+  const { error } = await membersSupabase.rpc('shoppe_sell_item', {
+    p_event_slug: EVENT.value,
+    p_character_id: MY_CHARACTER.id,
+    p_category: category,
+    p_item_name: itemName,
+    p_unit_value_copper: unitValue,
+    p_quantity: qty,
+    p_from_inventory: true,
+    p_hours_budget: TRAIN_BUDGET
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  delete INV_SELL_QTY_STATE[key];
+  await loadShopData();
+  renderShopBody();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
+async function ce_shopCancelSale(saleId){
+  const { error } = await membersSupabase.rpc('shoppe_cancel_sale', { p_sale_id: saleId });
   if(error){ alert(error.message); return; }
 
   await loadShopData();
@@ -1656,6 +1860,11 @@ window.ce_shopSearch = ce_shopSearch;
 window.ce_shopUpdateQty = ce_shopUpdateQty;
 window.ce_shopBuy = ce_shopBuy;
 window.ce_shopCancel = ce_shopCancel;
+window.ce_sellUpdateQty = ce_sellUpdateQty;
+window.ce_invSellUpdateQty = ce_invSellUpdateQty;
+window.ce_shopSell = ce_shopSell;
+window.ce_shopSellFromInventory = ce_shopSellFromInventory;
+window.ce_shopCancelSale = ce_shopCancelSale;
 window.ce_craftSelectTrade = ce_craftSelectTrade;
 window.ce_craftSearch = ce_craftSearch;
 window.ce_craftToggleTag = ce_craftToggleTag;
