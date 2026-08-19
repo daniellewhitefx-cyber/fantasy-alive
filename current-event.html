@@ -1247,6 +1247,7 @@ function renderWorkHtml(){
 
   const livingHtml = ce_workFormHtml('living', tradeSkills, hoursRemaining);
   const causeHtml = ce_workFormHtml('cause', causeSkills, hoursRemaining);
+  const formsHtml = (livingHtml && causeHtml) ? `<div class="ce-cols">${livingHtml}${causeHtml}</div>` : (livingHtml + causeHtml);
 
   const emptyHtml = (!livingHtml && !causeHtml) ? `
     <div class="panel">
@@ -1257,7 +1258,7 @@ function renderWorkHtml(){
     </div>
   ` : '';
 
-  body.innerHTML = sessionsHtml + livingHtml + causeHtml + emptyHtml;
+  body.innerHTML = sessionsHtml + formsHtml + emptyHtml;
   if(livingHtml) ce_workUpdatePreview('living');
   if(causeHtml) ce_workUpdatePreview('cause');
 }
