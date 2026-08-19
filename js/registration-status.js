@@ -176,7 +176,6 @@ window.FA_NEXT_EVENT = FA_NEXT_EVENT;
 window.FA_PAST_EVENTS = FA_PAST_EVENTS;
 window.FA_ALL_EVENTS = FA_ALL_EVENTS;
 window.faGetCurrentUser = faGetCurrentUser;
-window.faCheckRegistration = faCheckRegistration;
 window.faLogWindow = faLogWindow;
 window.faLogStatus = faLogStatus;
 window.faTrainingHoursBudget = faTrainingHoursBudget;

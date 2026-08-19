@@ -100,9 +100,11 @@ async function updateRegisterStatus(character){
 
   try{
     const user = await faGetCurrentUser();
-    if(!user) return;
-    const result = await faCheckRegistration(window.FA_NEXT_EVENT.label, 'character', character.name, user.email);
-    if(result.registered && activeCharId === character.id){
+    if(!user || !window.FA_NEXT_EVENT) return;
+    const { data } = await membersSupabase.rpc('my_event_registration', { p_event_slug: window.FA_NEXT_EVENT.value });
+    const mine = data && data.length ? data[0] : null;
+    const registered = mine && mine.who === 'character' && mine.character_id === character.id;
+    if(registered && activeCharId === character.id){
       el.innerHTML = `<a href="register.html" class="chars-registered-badge">&#10003; You're Registered for ${escapeHtml(window.FA_NEXT_EVENT.label)}</a>`;
     }
   } catch(err){
