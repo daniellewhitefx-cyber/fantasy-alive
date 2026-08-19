@@ -38,6 +38,13 @@
 </div>
 </div>
 
+<div class="panel" id="pe-history-panel" style="display:none;">
+<div class="panel-body">
+<div class="reg-section-label">History from Previous Seasons</div>
+<div id="pe-history-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -56,9 +63,101 @@ function emptyState(msg){
   return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
 
+function fmtSigned(n){
+  return (n > 0 ? '+' : '') + n;
+}
+
+async function loadHistoryFromOldSite(){
+  const panel = document.getElementById('pe-history-panel');
+  const target = document.getElementById('pe-history-list');
+  const me = window.faCurrentUser;
+
+  const [charsRes, xpRes, ocRes, kudosRes] = await Promise.all([
+    membersSupabase.from('characters').select('id, name').eq('player_id', me.id),
+    membersSupabase.from('xp_transactions').select('character_id, amount, note, legacy_event_id, legacy_events(name, event_date)')
+      .eq('player_id', me.id).not('legacy_event_id', 'is', null),
+    membersSupabase.from('oc_transactions').select('amount, note, legacy_event_id, legacy_events(name, event_date)')
+      .eq('player_id', me.id).not('legacy_event_id', 'is', null),
+    membersSupabase.from('kudos').select('message, from_player_id, to_character_id, to_player_id, legacy_event_id, legacy_events(name, event_date)')
+      .or(`from_player_id.eq.${me.id},to_player_id.eq.${me.id}`).not('legacy_event_id', 'is', null)
+  ]);
+
+  const charName = {};
+  (charsRes.data || []).forEach(c => { charName[c.id] = c.name; });
+  const myCharIds = new Set((charsRes.data || []).map(c => c.id));
+
+  // Kudos aimed at one of my characters, but sent from someone else's
+  // account, won't show up in the .or() filter above (that only checks
+  // from/to player id) -- fetch those separately.
+  let charKudos = [];
+  if(myCharIds.size){
+    const { data } = await membersSupabase.from('kudos')
+      .select('message, from_player_id, to_character_id, legacy_event_id, legacy_events(name, event_date)')
+      .in('to_character_id', [...myCharIds]).not('legacy_event_id', 'is', null);
+    charKudos = data || [];
+  }
+
+  const groups = {};
+  function group(eid, info){
+    if(!groups[eid]) groups[eid] = { name: info.name, date: info.event_date, xp: [], oc: [], kudosIn: [], kudosOut: [] };
+    return groups[eid];
+  }
+
+  (xpRes.data || []).forEach(r => {
+    if(!r.legacy_events) return;
+    group(r.legacy_event_id, r.legacy_events).xp.push({ charName: charName[r.character_id] || 'Unknown', amount: r.amount, note: r.note });
+  });
+  (ocRes.data || []).forEach(r => {
+    if(!r.legacy_events) return;
+    group(r.legacy_event_id, r.legacy_events).oc.push({ amount: r.amount, note: r.note });
+  });
+  const allKudos = [...(kudosRes.data || []), ...charKudos];
+  const seenKudos = new Set();
+  allKudos.forEach(r => {
+    if(!r.legacy_events) return;
+    const key = r.message + '|' + r.legacy_event_id + '|' + r.to_character_id + '|' + r.from_player_id;
+    if(seenKudos.has(key)) return;
+    seenKudos.add(key);
+    const g = group(r.legacy_event_id, r.legacy_events);
+    if(r.from_player_id === me.id){
+      g.kudosOut.push({ to: charName[r.to_character_id] || 'a Cast member', message: r.message });
+    } else {
+      g.kudosIn.push({ toChar: charName[r.to_character_id], message: r.message });
+    }
+  });
+
+  const eventIds = Object.keys(groups).sort((a, b) => new Date(groups[b].date) - new Date(groups[a].date));
+
+  if(eventIds.length === 0){
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+
+  target.innerHTML = eventIds.map(eid => {
+    const g = groups[eid];
+    const dateLabel = g.date ? new Date(g.date + 'T00:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+    const xpLine = g.xp.length ? 'XP: ' + g.xp.map(x => `${escapeHtml(x.charName)} ${fmtSigned(x.amount)}`).join(', ') : '';
+    const ocLine = g.oc.length ? 'OC: ' + g.oc.map(o => `${fmtSigned(o.amount)}${o.note ? ' (' + escapeHtml(o.note.replace(' (from old site)', '')) + ')' : ''}`).join(', ') : '';
+    const kudosInLine = g.kudosIn.length ? 'Kudos received: ' + g.kudosIn.map(k => escapeHtml(k.message)).join('; ') : '';
+    const kudosOutLine = g.kudosOut.length ? 'Kudos given: ' + g.kudosOut.map(k => `${escapeHtml(k.to)} - ${escapeHtml(k.message)}`).join('; ') : '';
+    return `
+      <div class="submitted-item">
+        <div class="who">${escapeHtml(g.name)}${dateLabel ? ' (' + dateLabel + ')' : ''}</div>
+        ${xpLine ? `<div>${xpLine}</div>` : ''}
+        ${ocLine ? `<div>${ocLine}</div>` : ''}
+        ${kudosInLine ? `<div>${kudosInLine}</div>` : ''}
+        ${kudosOutLine ? `<div>${kudosOutLine}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
 document.addEventListener('fa-members-ready', async () => {
   const events = window.FA_PAST_EVENTS || [];
   const list = document.getElementById('pe-list');
+
+  loadHistoryFromOldSite();
 
   if(events.length === 0){
     list.innerHTML = emptyState('No past events yet.');
