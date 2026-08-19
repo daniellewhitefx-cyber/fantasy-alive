@@ -1291,7 +1291,10 @@ function trainFocusFieldHtml(idx, s, state, isLeveled, focusLocked){
 // is already known, or level 1 if it isn't known at all), and the full
 // SP/Hours cost of that level -- leveling up is a fresh full-price
 // purchase of the new level, not just the increase over what's already
-// been paid.
+// been paid. This applies to flat-cost skills too -- some (Dodge, Iron
+// Will, Master Dodge, ...) are meant to be bought multiple times, each
+// purchase adding another rank at the same flat cost -- so a skill
+// already known isn't blocked, it's just aimed at the next rank up.
 function ce_trainRowInfo(idx){
   const { s, state } = ce_trainRowState(idx);
   const race = MY_CHARACTER.race;
@@ -1303,9 +1306,9 @@ function ce_trainRowInfo(idx){
   const isLeveled = isLeveledCost(s, race, focusVal);
 
   const known = (s.focusTypeId && !focusVal) ? null : ce_trainFindKnown(s.category, s.title, focusVal);
-  const isRelevel = isLeveled && !!known;
+  const isRelevel = !!known;
 
-  const level = isLeveled ? (known ? known.level + 1 : 1) : 1;
+  const level = known ? known.level + 1 : 1;
 
   const hoursRemaining = Math.max(0, TRAIN_BUDGET - TRAIN_SUMMARY.hours_spent);
   const spendableSp = TRAIN_SUMMARY.spendable_sp;
@@ -1314,28 +1317,21 @@ function ce_trainRowInfo(idx){
   const hoursCost = cost === null ? null : cost * 5;
 
   const missing = unmetPrereqText(s, race, focusVal, TRAIN_KNOWN, TRAIN_STATS);
-  const alreadyKnownFlat = !isLeveled && !!known;
   const canAct = !missing && cost !== null && cost > 0 && cost <= spendableSp && hoursCost <= hoursRemaining
-    && !(s.focusTypeId && !focusVal) && !alreadyKnownFlat;
+    && !(s.focusTypeId && !focusVal);
 
-  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, missing, alreadyKnownFlat, canAct };
+  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, missing, canAct };
 }
 
 function trainCostLabel(info){
-  if(info.alreadyKnownFlat) return '-';
   if(info.cost === null) return '-';
   return `${info.cost} SP (${info.hoursCost} hrs)`;
 }
 
 function renderTrainBrowser(){
-  const race = MY_CHARACTER.race;
   const rows = TRAIN_ALL_SKILLS
     .map((s, idx) => ({ s, idx }))
-    .filter(({ s }) => s.category === TRAIN_CATEGORY)
-    .filter(({ s }) => {
-      if(s.focusTypeId || isLeveledCost(s, race, '')) return true;
-      return !ce_trainFindKnown(s.category, s.title, '');
-    });
+    .filter(({ s }) => s.category === TRAIN_CATEGORY);
 
   document.getElementById('ce-train-browser-body').innerHTML = rows.length ? rows.map(({ idx }) => {
     const info = ce_trainRowInfo(idx);
@@ -1353,7 +1349,7 @@ function renderTrainBrowser(){
     const nameLabel = escapeHtml(s.title)
       + (info.isRelevel ? ` <span class="reg-empty-note" style="display:inline;">(currently level ${info.known.level})</span>` : '')
       + (info.missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(info.missing)}</span>` : '');
-    const actionLabel = info.alreadyKnownFlat ? 'Known' : (info.isRelevel ? 'Level Up' : 'Learn');
+    const actionLabel = info.isRelevel ? 'Level Up' : 'Learn';
 
     return `
       <tr class="${info.missing ? 'skill-row-locked' : ''}">
@@ -1375,7 +1371,7 @@ function ce_trainUpdateRowLive(idx){
   const btn = document.getElementById('ce-train-learn-' + idx);
   if(btn){
     btn.disabled = !info.canAct;
-    btn.textContent = info.alreadyKnownFlat ? 'Known' : (info.isRelevel ? 'Level Up' : 'Learn');
+    btn.textContent = info.isRelevel ? 'Level Up' : 'Learn';
   }
 }
 
