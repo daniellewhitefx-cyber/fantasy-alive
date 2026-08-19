@@ -21,16 +21,14 @@
 <script src="js/vendor/supabase-js.min.js"></script>
 <style>
 .ab-deposit-grid{
-  display:grid;
-  grid-template-columns: 1fr auto;
+  display:flex;
+  flex-wrap:wrap;
   gap: 0.8rem;
   align-items:end;
   margin-bottom: 0.9rem;
 }
+.ab-deposit-player{ max-width: 280px; }
 .ab-deposit-amount{ max-width: 110px; }
-@media (max-width: 700px){
-  .ab-deposit-grid{ grid-template-columns: 1fr; }
-}
 </style>
 </head>
 <body>
@@ -57,7 +55,7 @@
 <div class="ab-deposit-grid">
   <div>
     <label class="field-label" for="ab-deposit-player">Player</label>
-    <select id="ab-deposit-player" onchange="ab_pickRecipient(this.value)">
+    <select id="ab-deposit-player" class="ab-deposit-player" onchange="ab_pickRecipient(this.value)">
       <option value="">Choose a player</option>
     </select>
   </div>
