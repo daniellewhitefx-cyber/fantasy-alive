@@ -2,7 +2,7 @@
 // the legacy database into Supabase; see supabase/item-catalog-schema.sql).
 
 const SHOPPE_CATEGORY_ORDER = [
-  'Weapon', 'Armour', 'Equipment', 'Mechanical',
+  'Weapon', 'Armour', 'Equipment', 'Mechanical', 'Luxuries',
   'Herb', 'Ingredient', 'Magical Comp.', 'Mixture - Alch', 'Mixture - Herb', 'Potion/Oil',
   'Formula', 'Recipe', 'Scroll', 'Spell', 'Instruction', 'Tutor Book'
 ];
