@@ -1851,7 +1851,7 @@ function renderOtherTaskHtml(){
       <div class="panel-body">
         <p class="page-subhead">For downtime actions that don't fit Training, Work, Crafting, or Shopping -- describe what your character is doing and how many hours it takes.</p>
         <div style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap; margin-bottom:0.9rem;">
-          <div style="flex:1 1 260px;">
+          <div style="width:320px; max-width:100%;">
             <label class="field-label" for="ce-other-task-desc">Description</label>
             <input type="text" id="ce-other-task-desc" value="${escapeHtml(OTHER_TASK_DESC)}" oninput="ce_otherTaskUpdateDesc(this.value)" placeholder="What is your character doing?">
           </div>
