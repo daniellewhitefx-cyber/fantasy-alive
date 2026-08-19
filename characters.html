@@ -67,6 +67,7 @@ let CHARACTERS = [];
 let activeCharId = null;
 let remortByChar = {};
 let xpByChar = {};
+let statusEffectsByChar = {};
 let showDatesLearned = false;
 
 function chars_selectChar(id){
@@ -146,7 +147,9 @@ function renderCharPanel(c){
   const spent = c.skills.reduce((sum, s) => sum + s.sp, 0);
   const experience = xpByChar[c.id] || 0;
   const conv = faConvertXpToSp(experience, c.startingSp, spent);
-  const stats = faDeriveStats(c.race, c.skills.map(s => ({ name: s.name, level: s.level })));
+  const statusEffectTotals = statusEffectsByChar[c.id] || {};
+  const stats = faDeriveStats(c.race, c.skills.map(s => ({ name: s.name, level: s.level })), statusEffectTotals);
+  const otherEffects = Object.keys(statusEffectTotals).filter(name => name !== 'Resurrections' && name !== 'LP' && statusEffectTotals[name]);
 
   document.getElementById('chars-char-panel').innerHTML = `
     <div>
@@ -162,6 +165,12 @@ function renderCharPanel(c){
         <div class="stat-row"><span class="stat-label">XP Converted</span><span class="stat-value">${(conv.xpConvertedSp * conv.rate).toLocaleString()} / ${conv.xpBalance.toLocaleString()} Exp</span></div>
         <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${conv.rate}:1</span></div>
       </div>
+      ${otherEffects.length ? `
+        <div class="reg-section" style="margin-top:1rem;">
+          <div class="reg-section-label">Other Status Effects</div>
+          ${otherEffects.map(name => `<div class="stat-row"><span class="stat-label">${escapeHtml(name)}</span><span class="stat-value">${statusEffectTotals[name]}</span></div>`).join('')}
+        </div>
+      ` : ''}
     </div>
     <div>
       <div class="table-scroll">
@@ -290,6 +299,11 @@ async function loadCharacters(){
   await Promise.all(CHARACTERS.map(async ch => {
     const { data: xp } = await membersSupabase.rpc('xp_my_character_balance', { p_character_id: ch.id });
     xpByChar[ch.id] = xp || 0;
+
+    const { data: effects } = await membersSupabase.rpc('character_my_status_effects', { p_character_id: ch.id });
+    const totals = {};
+    (effects || []).forEach(e => { totals[e.stat_name] = e.total; });
+    statusEffectsByChar[ch.id] = totals;
   }));
 
   await loadRemortStatus();
