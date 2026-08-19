@@ -150,6 +150,7 @@ let REG_ERROR = null;
 let REGISTERED_AS = null;
 let MY_CHARACTER = null;
 let OC_BALANCE = 0;
+let COPPER_BALANCE = 0;
 let SPENT = { xp_spent: 0, copper_spent: 0 };
 let ALLOWANCE_JUST_GRANTED = null;
 let ACTIVE_TAB = 'info';
@@ -316,6 +317,12 @@ async function loadOcAndTraining(){
 
   OC_BALANCE = (ocRows || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
   SPENT = summary || { xp_spent: 0, copper_spent: 0 };
+
+  // Fetched after claimAllowance() (above) has already settled, so a
+  // just-granted allowance is reflected in this total, not one request
+  // behind it.
+  const { data: copperBalance } = await membersSupabase.rpc('bank_my_balance');
+  COPPER_BALANCE = Number(copperBalance || 0);
 }
 
 // A Social Class allowance is a standing entitlement, not something a
@@ -351,6 +358,7 @@ function renderHeaderStatsHtml(){
     ${allowanceNote}
     <div class="ce-header-stats">
       <div class="ce-stat"><div class="ce-stat-label">Your Ogre Chips</div><div class="ce-stat-value">${OC_BALANCE}</div></div>
+      <div class="ce-stat"><div class="ce-stat-label">Your Copper</div><div class="ce-stat-value">${COPPER_BALANCE}</div></div>
       ${trainingTiles}
     </div>
   `;
@@ -770,6 +778,7 @@ async function loadShopData(){
     }
     const [{ data: balance }, { data: purchases }, merchantRes] = await Promise.all(tasks);
     SHOP_BANK_BALANCE = balance || 0;
+    COPPER_BALANCE = SHOP_BANK_BALANCE;
     SHOP_PURCHASES = purchases || [];
     SHOP_MERCHANT_LEVEL = merchantRes ? (merchantRes.data || []).reduce((max, r) => Math.max(max, r.level), 0) : 0;
   } catch(err){
@@ -912,6 +921,7 @@ async function ce_shopBuy(category, itemName, unitCost, availabilityTier){
   delete SHOP_QTY_STATE[key];
   await loadShopData();
   renderShopBody();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
 }
 
 async function ce_shopCancel(purchaseId){
@@ -920,6 +930,7 @@ async function ce_shopCancel(purchaseId){
 
   await loadShopData();
   renderShopBody();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
 }
 
 // --- Training tab ---
@@ -1203,10 +1214,14 @@ async function loadWorkData(){
   WORK_LOAD_ERROR = null;
   try{
     await refreshTrainingState();
-    const { data: sessions } = await membersSupabase.from('event_log_working_sessions')
-      .select('id, skill_name, focus, level, hours_worked, copper_earned')
-      .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true });
+    const [{ data: sessions }, { data: copperBalance }] = await Promise.all([
+      membersSupabase.from('event_log_working_sessions')
+        .select('id, skill_name, focus, level, hours_worked, copper_earned')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true }),
+      membersSupabase.rpc('bank_my_balance')
+    ]);
     WORK_SESSIONS = sessions || [];
+    COPPER_BALANCE = Number(copperBalance || 0);
   } catch(err){
     WORK_LOAD_ERROR = err.message;
   }
