@@ -162,6 +162,56 @@
 }
 .tag-cell-code{ font-family: monospace; font-size: 0.72rem; white-space:nowrap; }
 
+.recipe-tag-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 3.7in);
+  gap: 0.15in;
+  margin-bottom: 0.4rem;
+}
+.recipe-tag-cell{
+  width: 3.7in;
+  box-sizing: border-box;
+  border: 1px solid #000;
+  padding: 0.12in 0.18in;
+  overflow: hidden;
+  page-break-inside: avoid;
+}
+.recipe-tag-name{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.15;
+  margin-bottom: 0.15rem;
+}
+.recipe-tag-produces{
+  font-style: italic;
+  font-size: 0.78rem;
+  margin-bottom: 0.3rem;
+}
+.recipe-tag-rows{
+  width:100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+}
+.recipe-tag-rows td{
+  padding: 0.06rem 0;
+  vertical-align: top;
+  line-height: 1.25;
+}
+.recipe-tag-rows td.recipe-tag-label{
+  font-weight: 700;
+  white-space: nowrap;
+  padding-right: 0.4rem;
+  width: 1%;
+}
+.recipe-tag-copy-head{
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  border-top: 1px solid #999;
+  margin-top: 0.3rem;
+  padding-top: 0.2rem;
+}
+
 @media print{
   @page{ margin: 0.25in; }
   div[data-include="partials/header.html"],
@@ -239,9 +289,9 @@
 </div>
 
 <div class="panel">
-<div class="panel-head"><h2>Custom / Loot Tags</h2></div>
+<div class="panel-head"><h2>Search &amp; Print Any Tag</h2></div>
 <div class="panel-body">
-<p class="page-subhead">Pick any item that exists in game, or make one up on the spot, to print a batch of tags not tied to a player.</p>
+<p class="page-subhead">Search the full item and recipe catalog, or make up an item on the spot, to print a batch of tags not tied to a player. Recipe/Formula/Instruction items print as a larger structured card automatically.</p>
 <div class="bank-form-grid">
 <div>
 <label class="field-label" for="ct-item-name">Item Name</label>
@@ -295,8 +345,6 @@
 <script src="js/include.js"></script>
 <script src="js/registration-status.js"></script>
 <script src="js/crafting-data.js"></script>
-<script src="js/recipes-data.js"></script>
-<script src="js/shoppe-data.js"></script>
 <script src="js/members-auth.js"></script>
 <script>
 (function(){
@@ -582,6 +630,172 @@ function tagCellHtml(itemName, quantity, code, modifierType, useCount){
   return Array.from({ length: Math.max(1, quantity || 1) }, () => cell).join('');
 }
 
+/* ---------- real item/recipe catalog (backs search across both tag panels) ---------- */
+
+let CATALOG = [];              // item_catalog: appraisal code + modifier per item name
+let REAL_ITEMS = [];           // items joined with category name (loaded once per session)
+let REAL_ITEMS_BY_NAME = new Map();
+let REAL_ITEMS_BY_ID = new Map();
+const RECIPE_KIND_CATEGORIES = new Set(['Recipe', 'Formula', 'Instruction']);
+
+// Recipe/Formula/Instruction items are the paperwork a character carries for
+// knowing a formula -- they need the larger structured Recipe Tag layout,
+// not the small physical-prop Item Tag. Everything else (Armour, Weapon,
+// Potion/Oil, Ingredient, etc.) prints as a normal item tag.
+function ct_tagKindForName(name){
+  const item = REAL_ITEMS_BY_NAME.get((name || '').trim().toLowerCase());
+  return item && RECIPE_KIND_CATEGORIES.has(item.category) ? 'recipe' : 'item';
+}
+
+// A Recipe/Formula/Instruction item's own name is the base item's name with
+// " - Recipe"/" - Formula"/" - Instruction" appended, e.g. "Heroes Last
+// Stand" (the potion) / "Heroes Last Stand - Recipe" (the formula card) --
+// there's no foreign key linking them, just this naming convention.
+function ct_stripRecipeSuffix(name){
+  return name.replace(/\s*-\s*(Recipe|Formula|Instruction)$/i, '').trim();
+}
+
+async function ct_loadItemCatalogTable(){
+  const { data } = await membersSupabase.from('item_catalog').select('item_name, code, modifier_type, use_count').order('item_name');
+  CATALOG = data || [];
+}
+
+async function ct_loadRealCatalog(){
+  if(REAL_ITEMS.length) return;
+
+  const { data: categories } = await membersSupabase.from('item_category').select('id, name');
+  const categoryNameById = {};
+  (categories || []).forEach(c => { categoryNameById[c.id] = c.name; });
+
+  const rows = await craftingFetchAllRows('items', 'id, name, category_id, level, energy');
+  REAL_ITEMS = rows.map(r => ({ id: r.id, name: r.name, category: categoryNameById[r.category_id] || '', level: r.level, energy: r.energy }));
+  REAL_ITEMS.forEach(item => {
+    REAL_ITEMS_BY_NAME.set(item.name.trim().toLowerCase(), item);
+    REAL_ITEMS_BY_ID.set(item.id, item);
+  });
+}
+
+function ct_rebuildDatalist(){
+  const set = new Set();
+  CATALOG.forEach(i => i.item_name && set.add(i.item_name));
+  REAL_ITEMS.forEach(i => i.name && set.add(i.name));
+  const allNames = Array.from(set).sort((a, b) => a.localeCompare(b));
+  document.getElementById('ct-item-options').innerHTML = allNames.map(n => `<option value="${escapeHtml(n)}">`).join('');
+}
+
+async function ct_loadCatalogAndItems(){
+  await Promise.all([ct_loadItemCatalogTable(), ct_loadRealCatalog()]);
+  ct_rebuildDatalist();
+}
+
+function ct_catalogMatch(name){
+  const lower = name.trim().toLowerCase();
+  return CATALOG.find(i => i.item_name.trim().toLowerCase() === lower);
+}
+
+// A recipe's own downtime/materials/skill requirements, read from the real
+// items/recipes/recipe_materials/recipe_skill_requirements catalog. Returns
+// null when the item has no recipe row at all (e.g. a raw-material item).
+async function ct_fetchRecipeDetail(itemId){
+  const { data: recipes, error } = await membersSupabase.from('recipes')
+    .select('id, hours, rep, me_cost, se_cost, e_cost').eq('item_id', itemId).limit(1);
+  if(error) throw new Error(error.message);
+  const recipe = (recipes || [])[0];
+  if(!recipe) return null;
+
+  const [{ data: materials }, { data: skills }] = await Promise.all([
+    membersSupabase.from('recipe_materials').select('item_id, quantity').eq('recipe_id', recipe.id),
+    membersSupabase.from('recipe_skill_requirements').select('skill_name, focus_name, level').eq('recipe_id', recipe.id)
+  ]);
+
+  const materialsText = (materials || [])
+    .map(m => `${(REAL_ITEMS_BY_ID.get(m.item_id) || {}).name || 'Unknown'}: ${m.quantity}`)
+    .join(', ') || 'None';
+  const skillsText = (skills || [])
+    .map(s => `${s.skill_name}${s.focus_name ? ' (' + s.focus_name + ')' : ''}: ${s.level}`)
+    .join(', ') || 'None';
+
+  return { hours: recipe.hours, rep: recipe.rep, meCost: recipe.me_cost, seCost: recipe.se_cost, eCost: recipe.e_cost, materialsText, skillsText };
+}
+
+// A Recipe/Formula Tag shows two sets of requirements: making the item
+// itself ("make", from the base item's own recipe row, found by stripping
+// the " - Recipe"/" - Formula" suffix) and copying the formula paperwork
+// ("copy", from the Recipe/Formula item's own, separate recipe row) --
+// matching the legacy tag sheet's "Downtime Required" vs "Downtime
+// Required to Copy" split. Instruction items (e.g. Magical Components) are
+// crafted directly rather than copied from a base item -- their own
+// recipe row IS the "make" data, with no base item or "copy" concept.
+async function ct_buildRecipeCardData(name){
+  const recipeItem = REAL_ITEMS_BY_NAME.get(name.trim().toLowerCase());
+  if(!recipeItem) throw new Error('Item not found in catalog');
+
+  if(recipeItem.category === 'Instruction'){
+    const make = await ct_fetchRecipeDetail(recipeItem.id);
+    return { name: recipeItem.name, produces: null, level: recipeItem.level, energy: recipeItem.energy, make, copy: null };
+  }
+
+  const copy = await ct_fetchRecipeDetail(recipeItem.id);
+
+  const baseName = ct_stripRecipeSuffix(recipeItem.name);
+  const baseItem = baseName.toLowerCase() !== recipeItem.name.trim().toLowerCase()
+    ? REAL_ITEMS_BY_NAME.get(baseName.toLowerCase())
+    : null;
+  const make = baseItem ? await ct_fetchRecipeDetail(baseItem.id) : null;
+
+  return {
+    name: recipeItem.name,
+    produces: baseItem ? baseItem.name : null,
+    level: (baseItem || recipeItem).level,
+    energy: (baseItem || recipeItem).energy,
+    make,
+    copy
+  };
+}
+
+/* ---------- recipe tag cell rendering ---------- */
+
+function recipeMakeRowsHtml(cardData){
+  const d = cardData.make;
+  if(!d) return `<tr><td class="recipe-tag-label">Skill(s) Required:</td><td>Unknown</td></tr>`;
+  const energyLine = (d.meCost || d.seCost || d.eCost)
+    ? [d.meCost ? `${d.meCost} ME` : null, d.seCost ? `${d.seCost} SE` : null, d.eCost ? `${d.eCost} Energy` : null].filter(Boolean).join(', ')
+    : 'N/A';
+  return `
+    <tr><td class="recipe-tag-label">Skill(s) Required:</td><td>${escapeHtml(d.skillsText)}</td></tr>
+    <tr><td class="recipe-tag-label">Downtime Required:</td><td>${d.hours} hours</td></tr>
+    <tr><td class="recipe-tag-label">ME/SE Required:</td><td>${escapeHtml(energyLine)}</td></tr>
+    <tr><td class="recipe-tag-label">Materials:</td><td>${escapeHtml(d.materialsText)}</td></tr>
+    ${d.rep ? `<tr><td class="recipe-tag-label">Phys-Rep Required for Result:</td><td>${escapeHtml(d.rep)}</td></tr>` : ''}
+  `;
+}
+
+function recipeCopyRowsHtml(cardData){
+  const d = cardData.copy;
+  if(!d) return '';
+  return `
+    <tr><td colspan="2" class="recipe-tag-copy-head">To Copy</td></tr>
+    <tr><td class="recipe-tag-label">Skill(s) Required to Copy:</td><td>${escapeHtml(d.skillsText)}</td></tr>
+    <tr><td class="recipe-tag-label">Downtime Required to Copy:</td><td>${d.hours} hours</td></tr>
+    <tr><td class="recipe-tag-label">Materials Required to Copy:</td><td>${escapeHtml(d.materialsText)}</td></tr>
+  `;
+}
+
+function recipeTagCellHtml(cardData, quantity){
+  const cell = `
+    <div class="recipe-tag-cell">
+      <div class="recipe-tag-name">${escapeHtml(cardData.name)}</div>
+      ${cardData.produces ? `<div class="recipe-tag-produces">Produces: ${escapeHtml(cardData.produces)}</div>` : ''}
+      <table class="recipe-tag-rows"><tbody>
+        <tr><td class="recipe-tag-label">Level:</td><td>${cardData.level != null ? cardData.level : 'N/A'}</td></tr>
+        ${recipeMakeRowsHtml(cardData)}
+        ${recipeCopyRowsHtml(cardData)}
+      </tbody></table>
+    </div>
+  `;
+  return Array.from({ length: Math.max(1, quantity || 1) }, () => cell).join('');
+}
+
 /* ---------- player tag requests ---------- */
 
 let PENDING_REQUESTS = [];
@@ -608,7 +822,12 @@ async function ptr_load(){
   printBtn.disabled = false;
 }
 
-function ptr_print(){
+// Each request's item_name is checked against the real catalog so a
+// requested Recipe/Formula/Instruction item prints with the structured
+// Recipe Tag layout; anything else (or anything not in the real catalog at
+// all, e.g. a hand-typed loot item) falls back to the plain item tag exactly
+// as before.
+async function ptr_print(){
   if(!PENDING_REQUESTS.length){ alert('No pending tag requests to print.'); return; }
 
   const groups = [];
@@ -618,56 +837,53 @@ function ptr_print(){
     g.rows.push(r);
   });
 
-  const html = `
-    <div class="tag-print-page">
-      ${groups.map(g => `
-        <h3 class="tag-group-head">${escapeHtml(g.player)}</h3>
-        <div class="tag-grid">
-          ${g.rows.map(r => tagCellHtml(r.item_name, r.quantity, r.code, r.modifier_type, r.use_count)).join('')}
-        </div>
-      `).join('')}
-    </div>
-  `;
-  ps_doPrint(html);
+  const groupsHtml = await Promise.all(groups.map(async g => {
+    const itemCells = [];
+    const recipeCells = [];
+    for(const r of g.rows){
+      if(ct_tagKindForName(r.item_name) === 'recipe'){
+        try{
+          const cardData = await ct_buildRecipeCardData(r.item_name);
+          recipeCells.push(recipeTagCellHtml(cardData, r.quantity));
+          continue;
+        } catch(err){ /* fall through to plain item card below */ }
+      }
+      itemCells.push(tagCellHtml(r.item_name, r.quantity, r.code, r.modifier_type, r.use_count));
+    }
+    return `
+      <h3 class="tag-group-head">${escapeHtml(g.player)}</h3>
+      ${itemCells.length ? `<div class="tag-grid">${itemCells.join('')}</div>` : ''}
+      ${recipeCells.length ? `<div class="recipe-tag-grid">${recipeCells.join('')}</div>` : ''}
+    `;
+  }));
+
+  ps_doPrint(`<div class="tag-print-page">${groupsHtml.join('')}</div>`);
 }
 
-/* ---------- custom / loot tags ---------- */
+/* ---------- search & print any tag ---------- */
 
-let CATALOG = [];
 let BATCH = [];
-
-async function ct_loadCatalogAndItems(){
-  const { data: catalog } = await membersSupabase.from('item_catalog').select('item_name, code, modifier_type, use_count').order('item_name');
-  CATALOG = catalog || [];
-
-  let craftingNames = [], recipeNames = [], shoppeNames = [];
-  try{ craftingNames = (await craftingLoadFromSheet()).map(i => i.name); } catch(err){}
-  try{ recipeNames = (await recipesLoadFromSheet()).map(i => i.title); } catch(err){}
-  try{ shoppeNames = (await shoppeLoadFromSheet()).map(i => i.name); } catch(err){}
-
-  const set = new Set();
-  CATALOG.forEach(i => i.item_name && set.add(i.item_name));
-  craftingNames.forEach(n => n && set.add(n));
-  recipeNames.forEach(n => n && set.add(n));
-  shoppeNames.forEach(n => n && set.add(n));
-  const allNames = Array.from(set).sort((a, b) => a.localeCompare(b));
-
-  document.getElementById('ct-item-options').innerHTML = allNames.map(n => `<option value="${escapeHtml(n)}">`).join('');
-}
-
-function ct_catalogMatch(name){
-  const lower = name.trim().toLowerCase();
-  return CATALOG.find(i => i.item_name.trim().toLowerCase() === lower);
-}
 
 function ct_onNameInput(){
   const name = document.getElementById('ct-item-name').value;
   const fieldsEl = document.getElementById('ct-new-item-fields');
-  fieldsEl.style.display = (name.trim() && !ct_catalogMatch(name)) ? 'block' : 'none';
+  const isNewCustomItem = name.trim() && ct_tagKindForName(name) !== 'recipe' && !ct_catalogMatch(name);
+  fieldsEl.style.display = isNewCustomItem ? 'block' : 'none';
 }
 
 function ct_onModifierChange(){
   document.getElementById('ct-uses-row').style.display = document.getElementById('ct-modifier').value === 'uses' ? 'block' : 'none';
+}
+
+function ct_resetForm(){
+  document.getElementById('ct-item-name').value = '';
+  document.getElementById('ct-qty').value = '1';
+  document.getElementById('ct-code').value = '';
+  document.getElementById('ct-modifier').value = 'none';
+  document.getElementById('ct-use-count').value = '5';
+  document.getElementById('ct-save-catalog').checked = true;
+  ct_onNameInput();
+  ct_onModifierChange();
 }
 
 async function ct_addToBatch(){
@@ -677,6 +893,19 @@ async function ct_addToBatch(){
   const qty = parseInt(document.getElementById('ct-qty').value, 10) || 0;
   if(!name){ errorEl.textContent = 'Enter an item name.'; errorEl.style.display = 'block'; return; }
   if(qty < 1){ errorEl.textContent = 'Enter a quantity of at least 1.'; errorEl.style.display = 'block'; return; }
+
+  if(ct_tagKindForName(name) === 'recipe'){
+    let cardData;
+    try{
+      cardData = await ct_buildRecipeCardData(name);
+    } catch(err){
+      errorEl.textContent = err.message; errorEl.style.display = 'block'; return;
+    }
+    BATCH.push({ kind: 'recipe', quantity: qty, data: cardData });
+    ct_renderBatch();
+    ct_resetForm();
+    return;
+  }
 
   let match = ct_catalogMatch(name);
   if(!match){
@@ -690,24 +919,17 @@ async function ct_addToBatch(){
         p_item_name: name, p_code: code || null, p_modifier_type: modifierType, p_use_count: useCount
       });
       if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
-      await ct_loadCatalogAndItems();
+      await ct_loadItemCatalogTable();
+      ct_rebuildDatalist();
       match = ct_catalogMatch(name);
     } else {
       match = { item_name: name, code: code || null, modifier_type: modifierType, use_count: useCount };
     }
   }
 
-  BATCH.push({ item_name: match.item_name, quantity: qty, code: match.code, modifier_type: match.modifier_type, use_count: match.use_count });
+  BATCH.push({ kind: 'item', item_name: match.item_name, quantity: qty, code: match.code, modifier_type: match.modifier_type, use_count: match.use_count });
   ct_renderBatch();
-
-  document.getElementById('ct-item-name').value = '';
-  document.getElementById('ct-qty').value = '1';
-  document.getElementById('ct-code').value = '';
-  document.getElementById('ct-modifier').value = 'none';
-  document.getElementById('ct-use-count').value = '5';
-  document.getElementById('ct-save-catalog').checked = true;
-  ct_onNameInput();
-  ct_onModifierChange();
+  ct_resetForm();
 }
 
 function ct_renderBatch(){
@@ -718,8 +940,11 @@ function ct_renderBatch(){
     printBtn.disabled = true;
     return;
   }
-  el.innerHTML = '<table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th></th></tr></thead><tbody>' +
-    BATCH.map((b, i) => `<tr><td>${escapeHtml(b.item_name)}</td><td>${b.quantity}</td><td><button class="btn-outline" onclick="ct_removeFromBatch(${i})">Remove</button></td></tr>`).join('') +
+  el.innerHTML = '<table class="data-table"><thead><tr><th>Item</th><th>Type</th><th>Qty</th><th></th></tr></thead><tbody>' +
+    BATCH.map((b, i) => {
+      const name = b.kind === 'recipe' ? b.data.name : b.item_name;
+      return `<tr><td>${escapeHtml(name)}</td><td>${b.kind === 'recipe' ? 'Recipe' : 'Item'}</td><td>${b.quantity}</td><td><button class="btn-outline" onclick="ct_removeFromBatch(${i})">Remove</button></td></tr>`;
+    }).join('') +
     '</tbody></table>';
   printBtn.disabled = false;
 }
@@ -731,12 +956,14 @@ function ct_removeFromBatch(i){
 
 function ct_printBatch(){
   if(!BATCH.length) return;
+  const itemEntries = BATCH.filter(b => b.kind !== 'recipe');
+  const recipeEntries = BATCH.filter(b => b.kind === 'recipe');
+
   const html = `
     <div class="tag-print-page">
-      <div class="tag-print-head"><h2>Loot / Custom Tags</h2></div>
-      <div class="tag-grid">
-        ${BATCH.map(b => tagCellHtml(b.item_name, b.quantity, b.code, b.modifier_type, b.use_count)).join('')}
-      </div>
+      <div class="tag-print-head"><h2>Search &amp; Print Any Tag</h2></div>
+      ${itemEntries.length ? `<div class="tag-grid">${itemEntries.map(b => tagCellHtml(b.item_name, b.quantity, b.code, b.modifier_type, b.use_count)).join('')}</div>` : ''}
+      ${recipeEntries.length ? `<div class="recipe-tag-grid">${recipeEntries.map(b => recipeTagCellHtml(b.data, b.quantity)).join('')}</div>` : ''}
     </div>
   `;
   ps_doPrint(html);
