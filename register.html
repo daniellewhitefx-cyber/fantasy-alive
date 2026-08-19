@@ -100,8 +100,6 @@
 <script src="js/registration-status.js"></script>
 <script>
 (function(){
-const REGISTRATION_ENDPOINT = window.FA_REGISTRATION_ENDPOINT;
-
 const ACCOUNT = {
   firstTime: true
 };
@@ -189,13 +187,12 @@ function reg_selectEvent(value){
 
 async function refreshRegisteredCount(){
   const el = document.getElementById('reg-registered-count');
-  if(!REGISTRATION_ENDPOINT || !el || !state.event) return;
+  if(!el || !state.event) return;
   try{
-    const res = await fetch(REGISTRATION_ENDPOINT + '?action=count&event=' + encodeURIComponent(state.event.label), { cache: 'no-store' });
-    if(!res.ok) throw new Error('count failed');
-    const data = await res.json();
-    if(typeof data.count !== 'number') throw new Error('count not available yet');
-    el.textContent = `${data.count} player${data.count === 1 ? '' : 's'} registered so far.`;
+    const { data, error } = await membersSupabase.rpc('event_roster', { p_event_slug: state.event.value });
+    if(error) throw new Error(error.message);
+    const count = (data || []).length;
+    el.textContent = `${count} player${count === 1 ? '' : 's'} registered so far.`;
   } catch(err){
     el.textContent = '';
   }
@@ -215,9 +212,7 @@ function reg_selectWho(mode, characterId){
 }
 
 async function checkExistingRegistration(){
-  const character = CHARACTERS.find(c => c.id === state.character);
-  const characterName = state.who === 'cast' ? 'Cast' : (state.who === 'townsperson' ? 'Townsperson' : (character ? character.name : ''));
-  if(!characterName) return;
+  if(!state.who) return;
 
   checkingRegistration = true;
   render();
@@ -225,8 +220,9 @@ async function checkExistingRegistration(){
   try{
     const user = await faGetCurrentUser();
     if(!user) return;
-    const result = await faCheckRegistration(state.event.label, state.who, characterName, user.email);
-    existingRegistration = result.registered ? (result.registration || {}) : null;
+    const { data, error } = await membersSupabase.rpc('my_event_registration', { p_event_slug: state.event.value });
+    if(error) throw new Error(error.message);
+    existingRegistration = (data && data.length) ? data[0] : null;
   } catch(err){
     existingRegistration = null;
   } finally {
@@ -384,9 +380,9 @@ function render(){
       <h3>&#10003; You're Registered!</h3>
       <p>${escapeHtml(state.who === 'cast' || state.who === 'townsperson' ? 'You' : (CHARACTERS.find(c=>c.id===state.character)||{}).name || 'This character')}
       ${state.who === 'cast' || state.who === 'townsperson' ? "are" : "is"} already signed up for <strong>${escapeHtml(state.event.label)}</strong>
-      ${r.passName ? ` with the <strong>${escapeHtml(r.passName)}</strong> pass` : ''}.</p>
-      ${r.mealName && r.mealName !== 'None' ? `<p>Meal plan: ${escapeHtml(r.mealName)}</p>` : ''}
-      ${r.daysAttending ? `<p>Days attending: ${escapeHtml(r.daysAttending)}</p>` : ''}
+      ${r.pass_name ? ` with the <strong>${escapeHtml(r.pass_name)}</strong> pass` : ''}.</p>
+      ${r.meal_name ? `<p>Meal plan: ${escapeHtml(r.meal_name)}</p>` : ''}
+      ${r.days_attending && r.days_attending.length ? `<p>Days attending: ${escapeHtml(r.days_attending.join(', '))}</p>` : ''}
       <p class="reg-empty-note">Need to change something? Contact us directly - there's no self-serve edit yet.</p>
     `;
     formSections.forEach(el => { if(el) el.style.display = 'none'; });
@@ -612,6 +608,7 @@ async function buildRegistrationPayload(){
       ? currentUser.user_metadata.display_name
       : (currentUser ? currentUser.email : ''),
     who: state.who,
+    characterId: state.who === 'character' ? state.character : null,
     characterName: state.who === 'character' ? (character ? character.name : '') : (state.who === 'cast' ? 'Cast' : 'Townsperson'),
     passId: selectedPass,
     passName: selectedPass === 'flex-used' ? 'Flex Pass' : (passObj ? passObj.name : ''),
@@ -659,33 +656,34 @@ function showRegistrationSuccess(payload){
   `;
 }
 
-async function submitRegistrationToSheet(payload){
-  const errorNote = document.getElementById('reg-error-note');
-
-  if(!REGISTRATION_ENDPOINT){
-    errorNote.textContent = "Registration isn't connected to the spreadsheet yet - this part still needs a one-time setup step.";
-    errorNote.style.display = 'block';
-    return false;
-  }
-
-  const res = await fetch(REGISTRATION_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(payload)
+// Flex credit redemption happens inside register_for_event itself
+// (atomic with the registration insert), so a failed registration
+// never silently spends a Flex Pass and a failed redemption never
+// leaves a registration behind with nothing paid for it.
+async function submitRegistration(payload){
+  const { error } = await membersSupabase.rpc('register_for_event', {
+    p_event_slug: payload.eventValue,
+    p_who: payload.who,
+    p_character_id: payload.characterId,
+    p_character_name: payload.characterName,
+    p_pass_id: payload.passId,
+    p_pass_name: payload.passName,
+    p_pass_price: payload.passPrice,
+    p_pass_is_flex: payload.passIsFlex,
+    p_combat_status: payload.combatStatus,
+    p_days_attending: payload.daysAttending,
+    p_meal_name: payload.mealName,
+    p_meal_price: payload.mealPrice,
+    p_meal_is_flex: payload.mealIsFlex,
+    p_single_meal_choice: payload.singleMealChoice,
+    p_meal_slots: payload.mealSlots,
+    p_total: payload.total,
+    p_payment_method: payload.paymentMethod,
+    p_allergy_notes: payload.allergyNotes,
+    p_disability_notes: payload.disabilityNotes
   });
-  if(!res.ok) throw new Error('Request failed (' + res.status + ')');
-  return true;
-}
+  if(error) throw new Error(error.message);
 
-// Only burns a credit once the registration itself is confirmed
-// submitted, so a failed submission never silently spends a Flex Pass.
-async function redeemFlexCreditsFor(payload){
-  if(payload.passIsFlex){
-    await membersSupabase.rpc('flex_pass_redeem', { p_kind: 'event' });
-  }
-  if(payload.mealIsFlex){
-    await membersSupabase.rpc('flex_pass_redeem', { p_kind: 'meal' });
-  }
   if(payload.passIsFlex || payload.mealIsFlex){
     await loadFlexBalance();
   }
@@ -694,12 +692,6 @@ async function redeemFlexCreditsFor(payload){
 async function reg_submit(){
   const errorNote = document.getElementById('reg-error-note');
   errorNote.style.display = 'none';
-
-  if(!REGISTRATION_ENDPOINT){
-    errorNote.textContent = "Registration isn't connected to the spreadsheet yet - this part still needs a one-time setup step.";
-    errorNote.style.display = 'block';
-    return;
-  }
 
   const payload = await buildRegistrationPayload();
 
@@ -725,8 +717,7 @@ async function reg_submit(){
       return;
     }
 
-    await submitRegistrationToSheet(payload);
-    await redeemFlexCreditsFor(payload);
+    await submitRegistration(payload);
     showRegistrationSuccess(payload);
   } catch(err){
     localStorage.removeItem(PENDING_REGISTRATION_KEY);
@@ -762,8 +753,7 @@ async function handlePaymentReturn(){
       throw new Error('Payment could not be confirmed');
     }
     localStorage.removeItem(PENDING_REGISTRATION_KEY);
-    await submitRegistrationToSheet(payload);
-    await redeemFlexCreditsFor(payload);
+    await submitRegistration(payload);
     showRegistrationSuccess(payload);
   } catch(err){
     localStorage.removeItem(PENDING_REGISTRATION_KEY);

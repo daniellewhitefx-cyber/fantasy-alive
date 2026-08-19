@@ -1,5 +1,3 @@
-const FA_REGISTRATION_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzDzyi7jPDy_EwueBo_q8CPeOUY2sBVjWPBKRBBPoY5wKJpX8WMdzerUKOnI3Kx6614pA/exec';
-
 const FA_EVENT_DEFS = [
   { start: '2026-01-24', end: '2026-01-24' },
   { start: '2026-02-13', end: '2026-02-15' },
@@ -173,20 +171,6 @@ function faGetCurrentUser(){
     setTimeout(() => resolve(window.faCurrentUser || null), 5000);
   });
 }
-
-async function faCheckRegistration(eventLabel, who, characterName, playerEmail){
-  const url = FA_REGISTRATION_ENDPOINT
-    + '?action=check'
-    + '&event=' + encodeURIComponent(eventLabel)
-    + '&who=' + encodeURIComponent(who)
-    + '&character=' + encodeURIComponent(characterName || '')
-    + '&email=' + encodeURIComponent(playerEmail || '');
-  const res = await fetch(url, { cache: 'no-store' });
-  if(!res.ok) throw new Error('Registration check failed (' + res.status + ')');
-  return res.json();
-}
-
-window.FA_REGISTRATION_ENDPOINT = FA_REGISTRATION_ENDPOINT;
 window.FA_EVENTS = FA_EVENTS;
 window.FA_NEXT_EVENT = FA_NEXT_EVENT;
 window.FA_PAST_EVENTS = FA_PAST_EVENTS;

@@ -196,6 +196,11 @@ function emptyState(msg){
   return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
 
+function selectedEventLabel(){
+  const sel = document.getElementById('ps-event-select');
+  return sel.selectedOptions.length ? sel.selectedOptions[0].textContent : '';
+}
+
 function ps_doPrint(html){
   document.getElementById('ps-print-area').innerHTML = html;
   setTimeout(() => window.print(), 200);
@@ -242,8 +247,8 @@ function xpPerSp(currentSp){
 
 function populateEventSelect(){
   const sel = document.getElementById('ps-event-select');
-  sel.innerHTML = (window.FA_EVENTS || []).map(e => `<option value="${escapeHtml(e.label)}">${escapeHtml(e.longLabel)}</option>`).join('');
-  if(window.FA_NEXT_EVENT) sel.value = window.FA_NEXT_EVENT.label;
+  sel.innerHTML = (window.FA_EVENTS || []).map(e => `<option value="${escapeHtml(e.value)}">${escapeHtml(e.longLabel)}</option>`).join('');
+  if(window.FA_NEXT_EVENT) sel.value = window.FA_NEXT_EVENT.value;
 }
 
 function ps_onEventChange(){
@@ -258,19 +263,19 @@ async function ps_loadRoster(){
   ROSTER = [];
   UNMATCHED = [];
 
-  const eventLabel = document.getElementById('ps-event-select').value;
-  if(!eventLabel || !window.FA_REGISTRATION_ENDPOINT) return;
+  const eventSlug = document.getElementById('ps-event-select').value;
+  const eventLabel = selectedEventLabel();
+  if(!eventSlug) return;
 
   summaryEl.innerHTML = '<p class="reg-empty-note">Loading registrants&hellip;</p>';
 
   let registrants;
   try{
-    const res = await fetch(window.FA_REGISTRATION_ENDPOINT + '?action=list&event=' + encodeURIComponent(eventLabel), { cache: 'no-store' });
-    if(!res.ok) throw new Error('Registration list request failed (' + res.status + ')');
-    const data = await res.json();
-    registrants = (data.registrants || []).filter(r => r.who === 'character');
+    const { data, error } = await membersSupabase.rpc('staff_event_registrations', { p_event_slug: eventSlug });
+    if(error) throw new Error(error.message);
+    registrants = (data || []).filter(r => r.who === 'character');
   } catch(err){
-    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load the registration list: ${escapeHtml(err.message)}. The registration Sheet needs a "list" action added (see supabase/print-sheets-schema.sql for the expected request/response shape).</p>`;
+    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load the registration list: ${escapeHtml(err.message)}.</p>`;
     return;
   }
 
@@ -279,31 +284,10 @@ async function ps_loadRoster(){
     return;
   }
 
-  const [{ data: players, error: playersErr }, { data: chars, error: charsErr }] = await Promise.all([
-    membersSupabase.rpc('admin_list_players_with_email'),
-    membersSupabase.rpc('character_names').select('id, name, player_id')
-  ]);
-  if(playersErr || charsErr){
-    const detail = [playersErr && `players: ${playersErr.message}`, charsErr && `characters: ${charsErr.message}`].filter(Boolean).join(' / ');
-    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load players or characters to match against (${escapeHtml(detail)}).</p>`;
-    return;
-  }
-
-  const playerByEmail = {};
-  (players || []).forEach(p => { if(p.email) playerByEmail[p.email.trim().toLowerCase()] = p; });
-
-  const charsByPlayer = {};
-  (chars || []).forEach(c => {
-    (charsByPlayer[c.player_id] = charsByPlayer[c.player_id] || []).push(c);
-  });
-
   registrants.forEach(r => {
-    const player = playerByEmail[(r.email || '').trim().toLowerCase()];
-    const myChars = player ? (charsByPlayer[player.id] || []) : [];
-    const match = myChars.find(c => c.name.trim().toLowerCase() === (r.characterName || '').trim().toLowerCase());
-    if(!player || !match){ UNMATCHED.push(r); return; }
-    if(!ROSTER.some(x => x.id === match.id)){
-      ROSTER.push({ id: match.id, name: match.name, playerName: player.display_name });
+    if(!r.character_id){ UNMATCHED.push(r); return; }
+    if(!ROSTER.some(x => x.id === r.character_id)){
+      ROSTER.push({ id: r.character_id, name: r.character_name, playerName: r.player_name });
     }
   });
 
@@ -311,7 +295,7 @@ async function ps_loadRoster(){
 
   let summaryHtml = `<p><strong>${ROSTER.length}</strong> character${ROSTER.length === 1 ? '' : 's'} found for ${escapeHtml(eventLabel)}.</p>`;
   if(UNMATCHED.length){
-    summaryHtml += `<p class="reg-error-note">${UNMATCHED.length} registrant${UNMATCHED.length === 1 ? '' : 's'} couldn't be matched to a character: ${UNMATCHED.map(r => escapeHtml(r.characterName || 'unknown') + ' (' + escapeHtml(r.email || 'no email') + ')').join(', ')}</p>`;
+    summaryHtml += `<p class="reg-error-note">${UNMATCHED.length} registrant${UNMATCHED.length === 1 ? '' : 's'} couldn't be matched to a character: ${UNMATCHED.map(r => escapeHtml(r.character_name || 'unknown') + ' (' + escapeHtml(r.player_name || 'unknown player') + ')').join(', ')}</p>`;
   }
   summaryEl.innerHTML = summaryHtml;
   printBtn.disabled = ROSTER.length === 0;
@@ -380,18 +364,21 @@ async function ps_loadKitchen(){
   dietBtn.disabled = true;
   DINERS = [];
 
-  const eventLabel = document.getElementById('ps-event-select').value;
-  if(!eventLabel || !window.FA_REGISTRATION_ENDPOINT) return;
+  const eventSlug = document.getElementById('ps-event-select').value;
+  const eventLabel = selectedEventLabel();
+  if(!eventSlug) return;
 
   summaryEl.innerHTML = '<p class="reg-empty-note">Loading diners&hellip;</p>';
 
   try{
-    const res = await fetch(window.FA_REGISTRATION_ENDPOINT + '?action=kitchen&event=' + encodeURIComponent(eventLabel), { cache: 'no-store' });
-    if(!res.ok) throw new Error('Kitchen list request failed (' + res.status + ')');
-    const data = await res.json();
-    DINERS = (data.diners || []).slice().sort((a, b) => a.name.localeCompare(b.name));
+    const { data, error } = await membersSupabase.rpc('staff_event_registrations', { p_event_slug: eventSlug });
+    if(error) throw new Error(error.message);
+    DINERS = (data || [])
+      .filter(r => r.meal_name)
+      .map(r => ({ name: r.character_name, playerName: r.player_name, allergies: r.allergy_notes, meals: r.meal_slots }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   } catch(err){
-    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load the kitchen list: ${escapeHtml(err.message)}. The registration Sheet needs a "kitchen" action added.</p>`;
+    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load the kitchen list: ${escapeHtml(err.message)}.</p>`;
     return;
   }
 
@@ -408,7 +395,7 @@ async function ps_loadKitchen(){
 }
 
 function ps_printMeals(){
-  const eventLabel = document.getElementById('ps-event-select').value;
+  const eventLabel = selectedEventLabel();
   const rows = DINERS.map(d => {
     const cells = MEAL_SLOTS.map(slot => `<td class="kp-checkbox">${d.meals && d.meals[slot] ? '&#9744;' : ''}</td>`).join('');
     return `<tr><td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.playerName)}</td>${cells}</tr>`;
@@ -427,7 +414,7 @@ function ps_printMeals(){
 }
 
 function ps_printDietary(){
-  const eventLabel = document.getElementById('ps-event-select').value;
+  const eventLabel = selectedEventLabel();
   const withDiet = DINERS.filter(d => d.allergies && d.allergies.trim());
   const rows = withDiet.map(d => `<tr><td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.playerName)}</td><td>${escapeHtml(d.allergies)}</td></tr>`).join('');
 
