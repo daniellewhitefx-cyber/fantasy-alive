@@ -66,7 +66,7 @@
 <div class="reg-section-label">Choose Skills</div>
 <p class="page-subhead" id="ce-budget-line"></p>
 
-<div id="ce-skills-loading" class="page-subhead">Loading the skill list from the spreadsheet&hellip;</div>
+<div id="ce-skills-loading" class="page-subhead">Loading the skill list&hellip;</div>
 <div id="ce-skills-error" class="reg-error-note" style="display:none;">Couldn't load the skill list. Refresh to try again.</div>
 
 <div id="ce-skills-area" style="display:none;">
@@ -146,13 +146,13 @@ function rowState(idx){
 
 function updateRowLive(idx){
   const { s, state } = rowState(idx);
-  const parts = skillNameParts(s.title);
+  const race = character ? character.race : null;
   const remaining = startingSP() - spentSP();
-  const cost = skillsParseCost(s.cost, state.level);
-  const canAdd = cost !== null && cost <= remaining && !(parts.placeholder && !state.focus.trim());
+  const cost = skillsParseCost(s, state.level, race, state.focus);
+  const canAdd = cost !== null && cost <= remaining && !(s.focusTypeId && !state.focus.trim());
 
   const costEl = document.getElementById('ce-cost-' + idx);
-  if(costEl) costEl.textContent = cost === null ? s.cost : cost + ' SP';
+  if(costEl) costEl.textContent = cost === null ? '-' : cost + ' SP';
 
   const btn = document.getElementById('ce-add-' + idx);
   if(btn) btn.disabled = !canAdd;
@@ -172,17 +172,17 @@ function ce_updateLevel(idx, val){
 
 function ce_addSkill(idx){
   const { s, key, state } = rowState(idx);
-  const parts = skillNameParts(s.title);
-  const cost = skillsParseCost(s.cost, state.level);
+  const race = character ? character.race : null;
+  const cost = skillsParseCost(s, state.level, race, state.focus);
   if(cost === null) return;
-  if(parts.placeholder && !state.focus.trim()) return;
+  if(s.focusTypeId && !state.focus.trim()) return;
   if(spentSP() + cost > startingSP()) return;
 
   chosen.push({
     category: s.category,
-    title: parts.base,
-    focus: parts.placeholder ? state.focus.trim() : '',
-    level: isLeveledCost(s.cost) ? state.level : 1,
+    title: s.title,
+    focus: s.focusTypeId ? state.focus.trim() : '',
+    level: isLeveledCost(s, race, state.focus) ? state.level : 1,
     cost: cost
   });
 
@@ -208,10 +208,9 @@ function renderTabs(){
 }
 
 function focusFieldHtml(idx, s, state, isLeveled){
-  const parts = skillNameParts(s.title);
   const widthStyle = `style="max-width:${isLeveled ? 140 : 180}px;display:inline-block;${isLeveled ? 'margin-right:0.5rem;' : ''}"`;
 
-  if(parts.base === 'Clerical Investment'){
+  if(s.title === 'Clerical Investment'){
     const locked = clericalInvestmentLockedFocus(chosen);
     if(locked){
       state.focus = locked;
@@ -219,46 +218,42 @@ function focusFieldHtml(idx, s, state, isLeveled){
     }
   }
 
-  const options = focusOptionsFor(s, allSkills, chosen);
-
-  if(options){
-    return `<select onchange="ce_updateFocus(${idx}, this.value)" ${widthStyle}>`
-      + `<option value="">Choose&hellip;</option>`
-      + options.map(o => `<option value="${escapeHtml(o)}" ${state.focus === o ? 'selected' : ''}>${escapeHtml(o)}</option>`).join('')
-      + `</select>`;
-  }
-  return `<input type="text" placeholder="${escapeHtml(parts.placeholder)}" value="${escapeHtml(state.focus)}" oninput="ce_updateFocus(${idx}, this.value)" ${widthStyle}>`;
+  const options = focusOptionsFor(s, chosen, character ? character.race : null) || [];
+  return `<select onchange="ce_updateFocus(${idx}, this.value)" ${widthStyle}>`
+    + `<option value="">Choose&hellip;</option>`
+    + options.map(o => `<option value="${escapeHtml(o)}" ${state.focus === o ? 'selected' : ''}>${escapeHtml(o)}</option>`).join('')
+    + `</select>`;
 }
 
 function renderBrowser(){
   const remaining = startingSP() - spentSP();
   const stats = currentStats();
+  const race = character ? character.race : null;
 
   const rows = allSkills
     .map((s, idx) => ({ s, idx }))
     .filter(({ s }) => s.category === activeCategory);
 
   document.getElementById('ce-browser-body').innerHTML = rows.map(({ s, idx }) => {
-    const parts = skillNameParts(s.title);
     const key = skillKey(s);
     const state = browseState[key] || { level: 1, focus: '' };
-    const isLeveled = isLeveledCost(s.cost);
-    const cost = skillsParseCost(s.cost, state.level);
-    const missing = unmetPrereqText(s.prereq, chosen, stats);
+    const isLeveled = isLeveledCost(s, race, state.focus);
+    const cost = skillsParseCost(s, state.level, race, state.focus);
+    const missing = unmetPrereqText(s, race, state.focus, chosen, stats);
 
     let focusCell = '-';
-    if(parts.placeholder && isLeveled){
+    if(s.focusTypeId && isLeveled){
       focusCell = focusFieldHtml(idx, s, state, true)
         + `<input type="number" min="1" value="${state.level}" oninput="ce_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
-    } else if(parts.placeholder){
+    } else if(s.focusTypeId){
       focusCell = focusFieldHtml(idx, s, state, false);
     } else if(isLeveled){
       focusCell = `Level <input type="number" min="1" value="${state.level}" oninput="ce_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
     }
 
-    const canAdd = !missing && cost !== null && cost <= remaining && !(parts.placeholder && !state.focus.trim());
-    const costLabel = cost === null ? s.cost : cost + ' SP';
-    const nameCell = escapeHtml(parts.base) + (missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(missing)}</span>` : '');
+    const canAdd = !missing && cost !== null && cost <= remaining && !(s.focusTypeId && !state.focus.trim());
+    const costLabel = cost === null ? '-' : cost + ' SP';
+    const nameCell = escapeHtml(s.title) + (missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(missing)}</span>` : '');
 
     return `
       <tr class="${missing ? 'skill-row-locked' : ''}">
@@ -394,7 +389,7 @@ async function init(){
   updateBudgetLine();
 
   try{
-    allSkills = await skillsLoadFromSheet();
+    allSkills = await skillsLoadCatalog();
     document.getElementById('ce-skills-loading').style.display = 'none';
     document.getElementById('ce-skills-area').style.display = 'block';
     const categories = skillsOrderedCategories(allSkills);

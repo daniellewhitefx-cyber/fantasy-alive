@@ -17,6 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script src="js/vendor/supabase-js.min.js"></script>
 <style>
 :root{
   --skill-row-a: #ece1cd;
@@ -314,7 +315,7 @@
 <div id="skill-sidebar-content"><p class="skill-empty" style="padding:1rem;">Loading skill categories&hellip;</p></div>
 </nav>
 <article class="skill-article" id="skill-display">
-<p class="skill-empty">Loading the skill list from the spreadsheet&hellip;</p>
+<p class="skill-empty">Loading the skill list&hellip;</p>
 </article>
 </div>
 
@@ -322,6 +323,14 @@
 
 <script src="js/include.js"></script>
 <script src="js/registration-status.js"></script>
+<script>
+// This page is public (linked from the main site nav, not the members
+// area), so it reads the skill catalog with a plain anonymous client --
+// js/skills-data.js expects a global named membersSupabase, the same
+// convention the members area's own pages use, just without a signed-in
+// session attached. The catalog's RLS policies allow anonymous reads.
+const membersSupabase = window.supabase.createClient('https://xdchluuvicuuqyqsejnq.supabase.co', 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99');
+</script>
 <script src="js/skills-data.js"></script>
 <script>
 (function(){
@@ -332,9 +341,49 @@ let highlightedSkill = null;
 let allSkills = [];
 let loadError = null;
 
+// This page has no logged-in character or race context, so costs and
+// prerequisites are shown as reference text covering every race rather
+// than resolved for one specific purchase -- unlike the interactive
+// purchase flows (Character Creator, Training tab), which resolve a
+// single applicable cost/prerequisite via skillDetailFor().
+function costFormula(detail){
+  if(!detail || detail.value === null || detail.value === undefined) return null;
+  if(detail.levelCost === '+') return `${detail.value}+lvl SP`;
+  if(detail.levelCost === '*') return `${detail.value}xlvl SP`;
+  return `${detail.value} SP`;
+}
+
+function displayCostString(s){
+  const base = costFormula(s.costDefault);
+  const raceOverrides = Object.keys(s.costByRace || {})
+    .map(race => ({ race, text: costFormula(s.costByRace[race]) }))
+    .filter(r => r.text !== null);
+
+  if(base === null){
+    if(s.focusOptions && s.focusOptions.length) return 'Varies by focus chosen';
+    return raceOverrides.length ? raceOverrides.map(r => `${r.race}: ${r.text}`).join(', ') : '-';
+  }
+  return raceOverrides.length ? `${base} (${raceOverrides.map(r => `${r.race}: ${r.text}`).join(', ')})` : base;
+}
+
+function describePrereqPartPublic(s){ return s.level > 1 ? `${s.name} ${s.level}` : s.name; }
+function describePrereqGroupPublic(g){
+  return g.skill2 ? `${describePrereqPartPublic(g.skill1)} and ${describePrereqPartPublic(g.skill2)}` : describePrereqPartPublic(g.skill1);
+}
+
+function displayPrereqString(s){
+  const detail = s.costDefault;
+  if(!detail) return 'None';
+  const parts = [];
+  if(detail.prereqGroups.length) parts.push(detail.prereqGroups.map(describePrereqGroupPublic).join(' or '));
+  if(detail.energyPrereq) parts.push(`${detail.energyPrereq} SE or ME`);
+  if(detail.lpPrereq) parts.push(`${detail.lpPrereq} LP`);
+  return parts.length ? parts.join(', ') : 'None';
+}
+
 async function loadSkills(){
   try{
-    allSkills = await skillsLoadFromSheet();
+    allSkills = await skillsLoadCatalog();
     const categories = orderedCategories();
     if(categories.length && !categories.includes(activeCategory)) activeCategory = categories[0];
   } catch(err){
@@ -399,7 +448,7 @@ function renderSidebar(){
 
   const categories = orderedCategories();
   if(categories.length === 0){
-    target.innerHTML = '<p class="skill-empty" style="padding:1rem;">No skills found in the spreadsheet yet.</p>';
+    target.innerHTML = '<p class="skill-empty" style="padding:1rem;">No skills found yet.</p>';
     return;
   }
 
@@ -467,7 +516,7 @@ function renderDisplay(){
   const display = document.getElementById('skill-display');
 
   if(loadError){
-    display.innerHTML = '<p class="skill-empty">Couldn\'t load the skill list from the spreadsheet. Refresh to try again.</p>';
+    display.innerHTML = '<p class="skill-empty">Couldn\'t load the skill list. Refresh to try again.</p>';
     return;
   }
 
@@ -483,8 +532,8 @@ function renderDisplay(){
     return `
       <tr id="${rowId}" class="${isHighlighted ? 'highlighted' : ''}">
         <td class="col-name" data-label="Name">${escapeHtml(s.title)}</td>
-        <td data-label="Cost">${escapeHtml(s.cost)}</td>
-        <td class="col-prereq" data-label="Prerequisite">${escapeHtml(s.prereq)}</td>
+        <td data-label="Cost">${escapeHtml(displayCostString(s))}</td>
+        <td class="col-prereq" data-label="Prerequisite">${escapeHtml(displayPrereqString(s))}</td>
         <td class="col-desc" data-label="Description">${escapeHtml(s.desc)}</td>
       </tr>
     `;

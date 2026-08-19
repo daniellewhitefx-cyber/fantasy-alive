@@ -3,11 +3,38 @@ const RECIPE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1ItjkOYamXr
 const RECIPE_CATEGORY_ORDER = ['Alchemical', 'Herbal'];
 const RECIPE_CATEGORY_LABELS = { 'Alchemical': 'Alchemist', 'Herbal': 'Herbalist' };
 
+function recipesParseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i + 1] === '"'){ field += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        field += c;
+      }
+    } else if(c === '"'){
+      inQuotes = true;
+    } else if(c === ','){
+      row.push(field); field = '';
+    } else if(c === '\n'){
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if(c === '\r'){
+    } else {
+      field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
 async function recipesLoadFromSheet(){
   const res = await fetch(RECIPE_SHEET_CSV_URL, { cache: 'no-store' });
   if(!res.ok) throw new Error('Sheet request failed (' + res.status + ')');
   const csvText = await res.text();
-  const rows = skillsParseCSV(csvText).filter(r => r.some(cell => (cell || '').trim() !== ''));
+  const rows = recipesParseCSV(csvText).filter(r => r.some(cell => (cell || '').trim() !== ''));
   const header = (rows.shift() || []).map(h => h.trim().toLowerCase());
   const col = name => header.indexOf(name);
 
