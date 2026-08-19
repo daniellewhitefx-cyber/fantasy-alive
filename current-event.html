@@ -186,6 +186,10 @@ let CRAFT_INVENTORY = [];
 let CRAFT_TAG_STATE = {};
 let CRAFT_LOAD_ERROR = null;
 
+let LUX_ITEMS = [];
+let LUX_OWNED = new Set();
+let LUX_LOAD_ERROR = null;
+
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -337,6 +341,7 @@ function renderTabBar(){
     <button class="${ACTIVE_TAB === 'work' ? 'active' : ''}" onclick="ce_selectTab('work')">Work</button>
     <button class="${ACTIVE_TAB === 'crafting' ? 'active' : ''}" onclick="ce_selectTab('crafting')">Crafting</button>
     <button class="${ACTIVE_TAB === 'shoppe' ? 'active' : ''}" onclick="ce_selectTab('shoppe')">Shoppe</button>
+    <button class="${ACTIVE_TAB === 'luxuries' ? 'active' : ''}" onclick="ce_selectTab('luxuries')">Luxuries</button>
   `;
 }
 
@@ -396,8 +401,8 @@ async function renderTabBody(){
     return;
   }
 
-  const tabLabel = ACTIVE_TAB === 'work' ? 'Work' : (ACTIVE_TAB === 'crafting' ? 'Crafting' : 'Training');
-  const tabVerb = ACTIVE_TAB === 'work' ? 'work' : (ACTIVE_TAB === 'crafting' ? 'craft' : 'train');
+  const tabLabel = ACTIVE_TAB === 'work' ? 'Work' : (ACTIVE_TAB === 'crafting' ? 'Crafting' : (ACTIVE_TAB === 'luxuries' ? 'Luxuries' : 'Training'));
+  const tabVerb = ACTIVE_TAB === 'work' ? 'work' : (ACTIVE_TAB === 'crafting' ? 'craft' : (ACTIVE_TAB === 'luxuries' ? 'declare Luxuries for' : 'train'));
   if(REGISTERED_AS === 'cast'){
     body.innerHTML = `<div class="panel"><div class="panel-head"><h2>${tabLabel}</h2></div><div class="panel-body">${emptyState(`You're registered as Cast this event, so there's no character to ${tabVerb}.`)}</div></div>`;
     return;
@@ -418,6 +423,13 @@ async function renderTabBody(){
     body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Loading&hellip;</p></div></div>`;
     await loadCraftData();
     renderCraftHtml();
+    return;
+  }
+
+  if(ACTIVE_TAB === 'luxuries'){
+    body.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-empty-note">Loading&hellip;</p></div></div>`;
+    await loadLuxuriesData();
+    renderLuxuriesHtml();
     return;
   }
 
@@ -1517,6 +1529,78 @@ async function ce_craftCancel(logId){
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
 }
 
+// --- Luxuries tab ---
+// A per-event checklist, not a purchase -- matches how the old site
+// tracked Luxuries (labs, forges, a horse, ammunition, bandages, and so
+// on) as boxes a character checked off each event, rather than a
+// one-time Copper purchase.
+
+async function loadLuxuriesData(){
+  LUX_LOAD_ERROR = null;
+  try{
+    const [items, { data: owned }] = await Promise.all([
+      LUX_ITEMS.length ? Promise.resolve(LUX_ITEMS) : shoppeLoadLuxuries(),
+      membersSupabase.from('event_log_luxuries').select('item_id')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value)
+    ]);
+    LUX_ITEMS = items;
+    LUX_OWNED = new Set((owned || []).map(r => r.item_id));
+  } catch(err){
+    LUX_LOAD_ERROR = err.message;
+  }
+}
+
+function renderLuxuriesHtml(){
+  const body = document.getElementById('ce-tab-body');
+
+  if(LUX_LOAD_ERROR){
+    body.innerHTML = `<div class="panel"><div class="panel-head"><h2>Luxuries</h2></div><div class="panel-body"><p class="reg-error-note">Couldn't load Luxuries: ${escapeHtml(LUX_LOAD_ERROR)}</p></div></div>`;
+    return;
+  }
+
+  const rows = LUX_ITEMS.map(item => {
+    const checked = LUX_OWNED.has(item.id);
+    return `
+      <tr>
+        <td><label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer;">
+          <input type="checkbox" ${checked ? 'checked' : ''} onchange="ce_luxToggle(${item.id}, this.checked)">
+          ${escapeHtml(item.name)}
+        </label></td>
+        <td>${item.costCopper} Copper</td>
+      </tr>
+    `;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h2>Luxuries</h2></div>
+      <div class="panel-body">
+        <p class="reg-empty-note" style="margin-bottom:0.8rem;">Check off what ${escapeHtml(MY_CHARACTER.name)} has this event. Copper cost shown is for reference, not a purchase.</p>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Luxury</th><th>Reference Cost</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="2">No Luxuries in the catalog yet.</td></tr>'}</tbody>
+          </table>
+        </div>
+        <p class="reg-error-note" id="ce-lux-error" style="display:none; margin-top:0.6rem;"></p>
+      </div>
+    </div>
+  `;
+}
+
+async function ce_luxToggle(itemId, checked){
+  const { error } = await membersSupabase.rpc('event_log_toggle_luxury', {
+    p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id, p_item_id: itemId, p_has: checked
+  });
+  if(error){
+    renderLuxuriesHtml();
+    showError(document.getElementById('ce-lux-error'), error.message);
+    return;
+  }
+
+  if(checked) LUX_OWNED.add(itemId); else LUX_OWNED.delete(itemId);
+}
+
 window.ce_updateXp = ce_updateXp;
 window.ce_updateCopper = ce_updateCopper;
 window.ce_selectTab = ce_selectTab;
@@ -1539,6 +1623,7 @@ window.ce_craftSearch = ce_craftSearch;
 window.ce_craftToggleTag = ce_craftToggleTag;
 window.ce_craftMake = ce_craftMake;
 window.ce_craftCancel = ce_craftCancel;
+window.ce_luxToggle = ce_luxToggle;
 
 document.addEventListener('fa-members-ready', async () => {
   EVENT = window.FA_NEXT_EVENT;

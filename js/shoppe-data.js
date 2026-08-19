@@ -2,10 +2,15 @@
 // the legacy database into Supabase; see supabase/item-catalog-schema.sql).
 
 const SHOPPE_CATEGORY_ORDER = [
-  'Weapon', 'Armour', 'Equipment', 'Mechanical', 'Luxuries',
+  'Weapon', 'Armour', 'Equipment', 'Mechanical',
   'Herb', 'Ingredient', 'Magical Comp.', 'Mixture - Alch', 'Mixture - Herb', 'Potion/Oil',
   'Formula', 'Recipe', 'Scroll', 'Spell', 'Instruction', 'Tutor Book'
 ];
+
+// Luxuries aren't a Copper purchase like everything else here -- they're
+// a per-event checklist (see the Luxuries tab / event_log_luxuries),
+// matching how the old site tracked them. Keep them out of the Shoppe.
+const SHOPPE_EXCLUDED_CATEGORIES = ['Luxuries'];
 
 // The item catalog's own availability tier (1=Common up to 8=Super
 // Powered), gated against a character's Merchant trade skill level.
@@ -46,6 +51,7 @@ async function shoppeLoadFromSheet(){
 
   return items
     .filter(item => categoryNameById[item.category_id] && availabilityById[item.availability_id])
+    .filter(item => !SHOPPE_EXCLUDED_CATEGORIES.includes(categoryNameById[item.category_id]))
     .map(item => ({
       category: categoryNameById[item.category_id],
       name: item.name,
@@ -53,6 +59,20 @@ async function shoppeLoadFromSheet(){
       availabilityText: availabilityById[item.availability_id],
       availabilityTier: item.availability_id
     }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// The Luxuries item list (id + name + reference Copper cost), for the
+// per-event Luxuries checklist rather than the Shoppe purchase flow.
+async function shoppeLoadLuxuries(){
+  const [items, categories] = await Promise.all([
+    shoppeFetchAllRows('items', 'id, name, copper_value, category_id'),
+    shoppeFetchAllRows('item_category', 'id, name')
+  ]);
+  const luxuryCategoryId = (categories.find(c => c.name === 'Luxuries') || {}).id;
+  return items
+    .filter(item => item.category_id === luxuryCategoryId)
+    .map(item => ({ id: item.id, name: item.name, costCopper: item.copper_value }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
@@ -68,4 +88,5 @@ window.SHOPPE_CATEGORY_ORDER = SHOPPE_CATEGORY_ORDER;
 window.SHOPPE_AVAILABILITY_ORDER = SHOPPE_AVAILABILITY_ORDER;
 window.shoppeAvailabilityTier = shoppeAvailabilityTier;
 window.shoppeLoadFromSheet = shoppeLoadFromSheet;
+window.shoppeLoadLuxuries = shoppeLoadLuxuries;
 window.shoppeOrderedCategories = shoppeOrderedCategories;
