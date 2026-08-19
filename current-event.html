@@ -1172,9 +1172,6 @@ function ce_workFormHtml(kind, skills, hoursRemaining){
   const idSuffix = kind === 'cause' ? 'cause' : 'living';
   const label = kind === 'cause' ? 'Clerical Investment' : 'Trade Skill';
   const title = kind === 'cause' ? 'Work for a Cause' : 'Work for a Living';
-  const blurb = kind === 'cause'
-    ? "Use your Clerical Investment to earn money for your faith: 5 Copper per level for every 8 hours worked, prorated and rounded up for any other amount of time."
-    : 'Earn 5 Copper per level of a Trade Skill for every 8 hours worked, prorated and rounded up for any other amount of time.';
 
   if(!skills.length || hoursRemaining <= 0) return '';
 
@@ -1182,7 +1179,6 @@ function ce_workFormHtml(kind, skills, hoursRemaining){
     <div class="panel">
       <div class="panel-head"><h2>${title}</h2></div>
       <div class="panel-body">
-        <p class="page-subhead">${blurb}</p>
         <label class="field-label" for="ce-work-skill-${idSuffix}">${label}</label>
         <select id="ce-work-skill-${idSuffix}" onchange="ce_workUpdatePreview('${idSuffix}')">
           ${skills.map(k => `<option value="${escapeHtml(k.id)}">${escapeHtml(k.title)}${k.focus ? ' (' + escapeHtml(k.focus) + ')' : ''} - Level ${k.level}</option>`).join('')}
