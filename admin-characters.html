@@ -310,6 +310,7 @@ let profileMap = {};
 let selected = null;
 let lastSpCost = 0;
 let lastXpBalance = 0;
+let knownSkills = [];
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -406,7 +407,8 @@ async function loadSkills(){
     .select('id, category, skill_name, focus, level, sp_cost, total_sp_paid')
     .eq('character_id', selected.id);
 
-  lastSpCost = (data || []).reduce((sum, s) => sum + s.sp_cost, 0);
+  knownSkills = data || [];
+  lastSpCost = knownSkills.reduce((sum, s) => sum + s.sp_cost, 0);
   updateSpStat();
 
   document.getElementById('ac-skills-body').innerHTML = (data && data.length) ? data.map(s => `
@@ -720,6 +722,13 @@ function renderBrowser(){
   }).join('');
 }
 
+// Skills like Dodge or Iron Will are meant to be taken multiple times
+// and shown as one entry at a higher level (the rulebook writes builds
+// as "Dodge x5", not five separate Dodge lines) -- so granting a
+// flat-cost skill the character already knows adds one more rank to
+// the existing row instead of creating a second one. A skill whose
+// cost scales with level already has the level typed in directly as
+// the new target, so that case just replaces the level outright.
 async function ac_addSkill(idx){
   const { s, key, state } = rowState(idx);
   if(s.focusTypeId && !state.focus.trim()){
@@ -728,13 +737,21 @@ async function ac_addSkill(idx){
   }
   const costInput = document.getElementById('ac-costinput-' + idx);
   const cost = parseInt(costInput.value, 10) || 0;
+  const focus = s.focusTypeId ? state.focus.trim() : null;
+  const isLeveled = isLeveledCost(s, selected.race, state.focus);
+
+  let level = state.level;
+  if(!isLeveled){
+    const existing = knownSkills.find(k => k.skill_name === s.title && (k.focus || null) === focus);
+    level = existing ? existing.level + 1 : 1;
+  }
 
   const { error } = await membersSupabase.rpc('character_staff_add_skill', {
     p_character_id: selected.id,
     p_category: s.category,
     p_skill_name: s.title,
-    p_focus: s.focusTypeId ? state.focus.trim() : null,
-    p_level: isLeveledCost(s, selected.race, state.focus) ? state.level : 1,
+    p_focus: focus,
+    p_level: level,
     p_sp_cost: cost
   });
   if(error){ alert(error.message); return; }

@@ -79,6 +79,16 @@ begin
 end;
 $$;
 
+-- Some skills (Dodge, Iron Will, Parry <weapon>, ...) are meant to be
+-- taken multiple times -- the rulebook itself writes builds as "Dodge
+-- x5" rather than five separate Dodge lines. When staff grant a skill
+-- the character already knows (same name and focus), this updates that
+-- existing row -- level/sp_cost set to whatever the caller passes (the
+-- client already computes the right value: +1 rank for a flat-cost
+-- skill, or the new target level and its full price for a skill that
+-- scales with level) -- instead of inserting a second row for it.
+-- total_sp_paid always accumulates, since a relevel is a full-price
+-- purchase, not a discounted top-up.
 create or replace function character_staff_add_skill(
   p_character_id uuid,
   p_category text,
@@ -93,6 +103,9 @@ as $$
 declare
   v_owner uuid;
   v_skill_id uuid;
+  v_focus text := nullif(p_focus, '');
+  v_level integer := greatest(1, coalesce(p_level, 1));
+  v_sp_cost integer := greatest(0, coalesce(p_sp_cost, 0));
 begin
   if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
     raise exception 'Staff only';
@@ -102,18 +115,32 @@ begin
   select player_id into v_owner from characters where id = p_character_id;
   if v_owner is null then raise exception 'Character not found'; end if;
 
-  insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost, total_sp_paid)
-    values (
-      p_character_id,
-      v_owner,
-      coalesce(nullif(trim(p_category), ''), 'Skill'),
-      trim(p_skill_name),
-      nullif(p_focus, ''),
-      greatest(1, coalesce(p_level, 1)),
-      greatest(0, coalesce(p_sp_cost, 0)),
-      greatest(0, coalesce(p_sp_cost, 0))
-    )
-    returning id into v_skill_id;
+  select id into v_skill_id
+    from character_skills
+    where character_id = p_character_id
+      and skill_name = trim(p_skill_name)
+      and focus is not distinct from v_focus;
+
+  if v_skill_id is not null then
+    update character_skills set
+      level = v_level,
+      sp_cost = v_sp_cost,
+      total_sp_paid = total_sp_paid + v_sp_cost
+    where id = v_skill_id;
+  else
+    insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost, total_sp_paid)
+      values (
+        p_character_id,
+        v_owner,
+        coalesce(nullif(trim(p_category), ''), 'Skill'),
+        trim(p_skill_name),
+        v_focus,
+        v_level,
+        v_sp_cost,
+        v_sp_cost
+      )
+      returning id into v_skill_id;
+  end if;
 
   return v_skill_id;
 end;
