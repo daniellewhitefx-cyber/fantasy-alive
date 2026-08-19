@@ -191,48 +191,48 @@
 <tbody id="tb-grid"></tbody>
 </table>
 </div>
+</div>
+</div>
 
-<div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--line);">
-<p class="page-subhead">Or add an item that isn't in the catalog yet:</p>
+<div class="panel">
+<div class="panel-head"><h2>Custom Tag</h2></div>
+<div class="panel-body">
+<p class="page-subhead">Build a completely custom tag from scratch, any name, code, and any number of custom modifier lines, for plot items, quest props, or anything that isn't in the catalog.</p>
 <div class="bank-form-grid">
 <div>
-<label class="field-label" for="ct-item-name">Item Name</label>
-<input type="text" id="ct-item-name" list="ct-item-options" placeholder="New item name" oninput="ct_onNameInput()">
-<datalist id="ct-item-options"></datalist>
+<label class="field-label" for="ct-item-name">Tag Name</label>
+<input type="text" id="ct-item-name" placeholder="Type any name">
 </div>
 <div>
 <label class="field-label" for="ct-qty">Quantity</label>
 <input type="number" id="ct-qty" step="1" value="1" min="1">
 </div>
 </div>
-<div id="ct-new-item-fields" style="display:none; margin-top:0.8rem;">
 <div class="bank-form-grid">
 <div>
 <label class="field-label" for="ct-code">Appraisal Code (optional)</label>
-<input type="text" id="ct-code" placeholder="Leave blank if none yet">
-</div>
-<div>
-<label class="field-label" for="ct-modifier">Modifier</label>
-<select id="ct-modifier" onchange="ct_onModifierChange()">
-<option value="none">None</option>
-<option value="shatter">Shattered checkbox</option>
-<option value="uses">Uses boxes (consumable)</option>
-</select>
-</div>
-<div id="ct-uses-row" style="display:none;">
-<label class="field-label" for="ct-use-count">Number of Uses</label>
-<input type="number" id="ct-use-count" step="1" value="5" min="1">
+<input type="text" id="ct-code" placeholder="Leave blank if none">
 </div>
 </div>
-<label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem;">
+
+<div style="margin-top:1rem;">
+<label class="field-label">Modifier Lines</label>
+<div id="ct-modifier-lines"></div>
+<button class="btn-outline" type="button" style="margin-top:0.4rem;" onclick="ctm_addLine()">+ Add Modifier Line</button>
+</div>
+
+<label style="display:flex; align-items:center; gap:0.5rem; margin-top:1rem;">
 <input type="checkbox" id="ct-save-catalog" checked> Save this item to the catalog for reuse
 </label>
-</div>
 <button class="btn-gold" style="margin-top:1rem;" onclick="ct_addToBatch()">Add to Print Batch</button>
 <p class="reg-error-note" id="ct-error" style="display:none;"></p>
 </div>
+</div>
 
-<div id="ct-batch-list" style="margin-top:1.5rem;"></div>
+<div class="panel">
+<div class="panel-head"><h2>Print Batch</h2></div>
+<div class="panel-body">
+<div id="ct-batch-list"></div>
 <div style="margin-top:1rem; display:flex; gap:0.6rem;">
 <button class="btn-gold" id="ct-print-btn" onclick="ct_printBatch()" disabled>Print Batch</button>
 <button class="btn-outline" id="ct-clear-btn" onclick="ct_clearBatch()" disabled>Clear Batch</button>
@@ -390,17 +390,8 @@ async function ct_loadRealCatalog(){
   });
 }
 
-function ct_rebuildDatalist(){
-  const set = new Set();
-  CATALOG.forEach(i => i.item_name && set.add(i.item_name));
-  REAL_ITEMS.forEach(i => i.name && set.add(i.name));
-  const allNames = Array.from(set).sort((a, b) => a.localeCompare(b));
-  document.getElementById('ct-item-options').innerHTML = allNames.map(n => `<option value="${escapeHtml(n)}">`).join('');
-}
-
 async function ct_loadCatalogAndItems(){
   await Promise.all([ct_loadItemCatalogTable(), ct_loadRealCatalog()]);
-  ct_rebuildDatalist();
 }
 
 function ct_catalogMatch(name){
@@ -619,30 +610,76 @@ async function tb_addToBatch(id){
   ct_renderBatch();
 }
 
-/* ---------- custom item form + batch ---------- */
+/* ---------- custom tag: flexible modifier-line builder ---------- */
+
+let CT_MODIFIER_LINES = [];
+let CT_LINE_SEQ = 0;
+
+function ctm_addLine(){
+  CT_MODIFIER_LINES.push({ id: ++CT_LINE_SEQ, label: '', type: 'boxes', count: 1 });
+  ctm_renderLines();
+}
+
+function ctm_removeLine(id){
+  CT_MODIFIER_LINES = CT_MODIFIER_LINES.filter(l => l.id !== id);
+  ctm_renderLines();
+}
+
+function ctm_updateLine(id, field, value){
+  const line = CT_MODIFIER_LINES.find(l => l.id === id);
+  if(line) line[field] = value;
+}
+
+function ctm_renderLines(){
+  const el = document.getElementById('ct-modifier-lines');
+  if(!CT_MODIFIER_LINES.length){
+    el.innerHTML = '<p class="reg-empty-note">No modifier lines yet. Add one for things like &ldquo;Shattered&rdquo; or &ldquo;Used&rdquo;.</p>';
+    return;
+  }
+  el.innerHTML = CT_MODIFIER_LINES.map(line => `
+    <div style="display:flex; align-items:end; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.6rem;">
+      <div style="flex:2; min-width:160px;">
+        <label class="field-label">Label</label>
+        <input type="text" value="${escapeHtml(line.label)}" placeholder="e.g. Shattered" oninput="ctm_updateLine(${line.id}, 'label', this.value)">
+      </div>
+      <div style="flex:1; min-width:140px;">
+        <label class="field-label">Type</label>
+        <select onchange="ctm_updateLine(${line.id}, 'type', this.value); ctm_renderLines();">
+          <option value="boxes" ${line.type === 'boxes' ? 'selected' : ''}>Checkbox boxes</option>
+          <option value="blank" ${line.type === 'blank' ? 'selected' : ''}>Write-in blank</option>
+        </select>
+      </div>
+      ${line.type === 'boxes' ? `
+      <div style="flex:0 0 90px;">
+        <label class="field-label">Boxes</label>
+        <input type="number" min="1" value="${line.count}" oninput="ctm_updateLine(${line.id}, 'count', this.value)">
+      </div>` : ''}
+      <button class="btn-outline" type="button" onclick="ctm_removeLine(${line.id})">Remove</button>
+    </div>
+  `).join('');
+}
+
+function ctm_collectLines(){
+  return CT_MODIFIER_LINES
+    .filter(l => l.label.trim())
+    .map(l => ({ label: l.label.trim(), count: l.type === 'blank' ? 0 : Math.max(1, parseInt(l.count, 10) || 1) }));
+}
+
+function ctm_resetLines(){
+  CT_MODIFIER_LINES = [];
+  ctm_renderLines();
+}
+
+/* ---------- custom tag form + batch ---------- */
 
 let BATCH = [];
-
-function ct_onNameInput(){
-  const name = document.getElementById('ct-item-name').value;
-  const fieldsEl = document.getElementById('ct-new-item-fields');
-  const isNewCustomItem = name.trim() && ct_tagKindForName(name) !== 'recipe' && !ct_catalogMatch(name);
-  fieldsEl.style.display = isNewCustomItem ? 'block' : 'none';
-}
-
-function ct_onModifierChange(){
-  document.getElementById('ct-uses-row').style.display = document.getElementById('ct-modifier').value === 'uses' ? 'block' : 'none';
-}
 
 function ct_resetForm(){
   document.getElementById('ct-item-name').value = '';
   document.getElementById('ct-qty').value = '1';
   document.getElementById('ct-code').value = '';
-  document.getElementById('ct-modifier').value = 'none';
-  document.getElementById('ct-use-count').value = '5';
   document.getElementById('ct-save-catalog').checked = true;
-  ct_onNameInput();
-  ct_onModifierChange();
+  ctm_resetLines();
 }
 
 async function ct_addToBatch(){
@@ -650,43 +687,23 @@ async function ct_addToBatch(){
   errorEl.style.display = 'none';
   const name = document.getElementById('ct-item-name').value.trim();
   const qty = parseInt(document.getElementById('ct-qty').value, 10) || 0;
-  if(!name){ errorEl.textContent = 'Enter an item name.'; errorEl.style.display = 'block'; return; }
+  const code = document.getElementById('ct-code').value.trim();
+  if(!name){ errorEl.textContent = 'Enter a tag name.'; errorEl.style.display = 'block'; return; }
   if(qty < 1){ errorEl.textContent = 'Enter a quantity of at least 1.'; errorEl.style.display = 'block'; return; }
 
-  if(ct_tagKindForName(name) === 'recipe'){
-    let cardData;
-    try{
-      cardData = await ct_buildRecipeCardData(name);
-    } catch(err){
-      errorEl.textContent = err.message; errorEl.style.display = 'block'; return;
-    }
-    BATCH.push({ kind: 'recipe', quantity: qty, data: cardData });
-    ct_renderBatch();
-    ct_resetForm();
-    return;
+  const modifiers = ctm_collectLines();
+  const saveToCatalog = document.getElementById('ct-save-catalog').checked;
+
+  if(saveToCatalog){
+    const { error } = await membersSupabase.rpc('logistics_upsert_catalog_item', {
+      p_item_name: name, p_code: code || null, p_modifier_type: 'none', p_use_count: null,
+      p_modifiers: modifiers.length ? modifiers : null
+    });
+    if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+    await ct_loadItemCatalogTable();
   }
 
-  let match = ct_catalogMatch(name);
-  if(!match){
-    const code = document.getElementById('ct-code').value.trim();
-    const modifierType = document.getElementById('ct-modifier').value;
-    const useCount = modifierType === 'uses' ? (parseInt(document.getElementById('ct-use-count').value, 10) || null) : null;
-    const saveToCatalog = document.getElementById('ct-save-catalog').checked;
-
-    if(saveToCatalog){
-      const { error } = await membersSupabase.rpc('logistics_upsert_catalog_item', {
-        p_item_name: name, p_code: code || null, p_modifier_type: modifierType, p_use_count: useCount
-      });
-      if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
-      await ct_loadItemCatalogTable();
-      ct_rebuildDatalist();
-      match = ct_catalogMatch(name);
-    } else {
-      match = { item_name: name, code: code || null, modifier_type: modifierType, use_count: useCount, modifiers: null };
-    }
-  }
-
-  BATCH.push({ kind: 'item', item_name: match.item_name, quantity: qty, code: match.code, modifier_type: match.modifier_type, use_count: match.use_count, modifiers: match.modifiers });
+  BATCH.push({ kind: 'item', item_name: name, quantity: qty, code: code || null, modifier_type: 'none', use_count: null, modifiers: modifiers.length ? modifiers : null });
   ct_renderBatch();
   ct_resetForm();
 }
@@ -725,7 +742,6 @@ function ct_printBatch(){
 
   const html = `
     <div class="tag-print-page">
-      <div class="tag-print-head"><h2>Search &amp; Print Any Tag</h2></div>
       ${itemEntries.length ? `<div class="tag-grid">${itemEntries.map(b => tagCellHtml(b.item_name, b.quantity, b.code, b.modifier_type, b.use_count, b.modifiers)).join('')}</div>` : ''}
       ${recipeEntries.length ? `<div class="recipe-tag-grid">${recipeEntries.map(b => recipeTagCellHtml(b.data, b.quantity)).join('')}</div>` : ''}
     </div>
@@ -743,8 +759,9 @@ window.tb_search = tb_search;
 window.tb_selectCategory = tb_selectCategory;
 window.tb_updateQty = tb_updateQty;
 window.tb_addToBatch = tb_addToBatch;
-window.ct_onNameInput = ct_onNameInput;
-window.ct_onModifierChange = ct_onModifierChange;
+window.ctm_addLine = ctm_addLine;
+window.ctm_removeLine = ctm_removeLine;
+window.ctm_updateLine = ctm_updateLine;
 window.ct_addToBatch = ct_addToBatch;
 window.ct_removeFromBatch = ct_removeFromBatch;
 window.ct_printBatch = ct_printBatch;
@@ -762,6 +779,7 @@ document.addEventListener('fa-members-ready', async () => {
   TAG_CATEGORY = categories.length ? categories[0] : null;
   renderTagCatTabs();
   renderTagGrid();
+  ctm_renderLines();
   ct_renderBatch();
 });
 })();

@@ -37,8 +37,12 @@ grant select on item_catalog to authenticated;
 -- Adds or updates a catalog entry by item name (case-insensitive), so the
 -- same physical item always prints with the same appraisal code and
 -- modifier style, while staff can still edit either at any time.
+-- p_modifiers carries the flexible custom modifier-line array a staffer
+-- builds on a Custom Tag (label + box count per line, count 0 = write-in
+-- blank); when provided it takes priority over modifier_type/use_count at
+-- print time, same as the imported legacy modifier lines.
 create or replace function logistics_upsert_catalog_item(
-  p_item_name text, p_code text, p_modifier_type text, p_use_count integer
+  p_item_name text, p_code text, p_modifier_type text, p_use_count integer, p_modifiers jsonb default null
 )
 returns uuid language plpgsql security definer
 set search_path = public
@@ -55,18 +59,20 @@ begin
     raise exception 'Number of uses is required for a multi-use item';
   end if;
 
-  insert into item_catalog (item_name, code, modifier_type, use_count, created_by)
+  insert into item_catalog (item_name, code, modifier_type, use_count, modifiers, created_by)
     values (
       trim(p_item_name),
       nullif(trim(p_code), ''),
       p_modifier_type,
       case when p_modifier_type = 'uses' then p_use_count else null end,
+      p_modifiers,
       auth.uid()
     )
   on conflict (lower(item_name)) do update set
     code = excluded.code,
     modifier_type = excluded.modifier_type,
     use_count = excluded.use_count,
+    modifiers = excluded.modifiers,
     updated_at = now()
   returning id into v_id;
 
@@ -74,8 +80,8 @@ begin
 end;
 $$;
 
-revoke all on function logistics_upsert_catalog_item(text, text, text, integer) from public, anon;
-grant execute on function logistics_upsert_catalog_item(text, text, text, integer) to authenticated;
+revoke all on function logistics_upsert_catalog_item(text, text, text, integer, jsonb) from public, anon;
+grant execute on function logistics_upsert_catalog_item(text, text, text, integer, jsonb) to authenticated;
 
 -- Marks a pending tag request as fulfilled once its physical tag has been
 -- printed and handed off.
