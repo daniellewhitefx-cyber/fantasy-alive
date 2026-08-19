@@ -180,14 +180,21 @@ function focusOptionsFor(skill, knownSkills, race, opts){
   if(opts.unrestricted) return names;
 
   const detail = skillDetailFor(skill, race);
-  const matchGroup = detail && detail.prereqGroups.find(g => g.mustMatchFocus);
-  if(!matchGroup) return names;
+  const matchGroups = detail ? detail.prereqGroups.filter(g => g.mustMatchFocus) : [];
+  if(!matchGroups.length) return names;
 
-  const norm = (matchGroup.skill1.name || '').trim().toLowerCase();
-  const knownFociForSkill = (knownSkills || [])
-    .filter(k => k.title.trim().toLowerCase() === norm && k.focus)
-    .map(k => k.focus);
-  return names.filter(n => knownFociForSkill.includes(n));
+  // Groups are alternatives (an "or"): e.g. Weapon Mastery accepts either
+  // Counter Attack or Aim in the same focus, so a focus should unlock as
+  // soon as ANY one of the alternative prerequisite skills is known in
+  // it, not just the first group's.
+  const knownFoci = new Set();
+  matchGroups.forEach(g => {
+    const norm = (g.skill1.name || '').trim().toLowerCase();
+    (knownSkills || [])
+      .filter(k => k.title.trim().toLowerCase() === norm && k.focus)
+      .forEach(k => knownFoci.add(k.focus));
+  });
+  return names.filter(n => knownFoci.has(n));
 }
 
 // Adds a skill purchase to a locally-built chosen-skills list (Character
