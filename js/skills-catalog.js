@@ -190,6 +190,34 @@ function focusOptionsFor(skill, knownSkills, race, opts){
   return names.filter(n => knownFociForSkill.includes(n));
 }
 
+// Adds a skill purchase to a locally-built chosen-skills list (Character
+// Creator, remort), merging it into an existing entry for the same skill
+// (and same focus, if it takes one) instead of listing repeat purchases
+// as separate rows -- some skills (Dodge, Iron Will, Parry <weapon>, ...)
+// are meant to be taken multiple times and shown as one entry at a
+// higher level (the rulebook itself writes these as "Dodge x5").
+//
+// A skill whose cost scales with level (isLeveled) already has the
+// player choose their target level up front and pay its full price, so
+// re-adding it replaces the existing entry with the new target level/
+// cost outright rather than stacking. A flat-cost skill has no level
+// input -- each Add is one more rank, so it stacks: level +1, cost
+// added on top of what's already there.
+function mergeChosenSkill(chosen, entry, isLeveled){
+  const existing = chosen.find(c => c.title === entry.title && c.focus === entry.focus);
+  if(!existing){
+    chosen.push(entry);
+    return;
+  }
+  if(isLeveled){
+    existing.level = entry.level;
+    existing.cost = entry.cost;
+  } else {
+    existing.level += entry.level;
+    existing.cost += entry.cost;
+  }
+}
+
 // Clerical Investment locks a character to one deity: "A character may
 // not be invested with more than 1 deity at any time and switching
 // religions means losing all spells and abilities gained from the
@@ -202,6 +230,7 @@ function clericalInvestmentLockedFocus(knownSkills){
   return existing ? existing.focus : null;
 }
 
+window.mergeChosenSkill = mergeChosenSkill;
 window.skillKey = skillKey;
 window.skillDetailFor = skillDetailFor;
 window.skillsParseCost = skillsParseCost;

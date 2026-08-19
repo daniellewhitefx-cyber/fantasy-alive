@@ -178,13 +178,14 @@ function ce_addSkill(idx){
   if(s.focusTypeId && !state.focus.trim()) return;
   if(spentSP() + cost > startingSP()) return;
 
-  chosen.push({
+  const isLeveled = isLeveledCost(s, race, state.focus);
+  mergeChosenSkill(chosen, {
     category: s.category,
     title: s.title,
     focus: s.focusTypeId ? state.focus.trim() : '',
-    level: isLeveledCost(s, race, state.focus) ? state.level : 1,
+    level: isLeveled ? state.level : 1,
     cost: cost
-  });
+  }, isLeveled);
 
   browseState[key] = { level: 1, focus: '' };
 
