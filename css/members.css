@@ -396,6 +396,8 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
   font-size: 1.05rem;
   display:flex;
   flex-direction:column;
+  justify-content: space-between;
+  height: 100%;
 }
 .stat-panel .stat-row{
   display:flex;
