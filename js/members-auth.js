@@ -3,6 +3,25 @@ const SUPABASE_URL = 'https://xdchluuvicuuqyqsejnq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99';
 const membersSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Supabase caps a single request at 1000 rows. Any unfiltered (or loosely
+// filtered) full-table fetch -- profiles chief among them, since it's one
+// row per registered player -- needs to page through in full rather than
+// silently dropping everything past the cutoff.
+async function faFetchAllRows(table, select){
+  const pageSize = 1000;
+  let rows = [];
+  let from = 0;
+  while(true){
+    const { data, error } = await membersSupabase.from(table).select(select).range(from, from + pageSize - 1);
+    if(error) throw new Error(error.message);
+    rows = rows.concat(data || []);
+    if(!data || data.length < pageSize) break;
+    from += pageSize;
+  }
+  return rows;
+}
+window.faFetchAllRows = faFetchAllRows;
+
 function loadTutorialScript(){
   return new Promise(resolve => {
     if(window.faTutorialLoaded){ resolve(); return; }

@@ -71,11 +71,11 @@ function escapeHtml(str){
 async function loadAllCandidates(){
   const myUserId = window.faCurrentUser ? window.faCurrentUser.id : null;
 
-  const [{ data: chars }, { data: profiles }, { data: castRows }] = await Promise.all([
+  const [{ data: chars }, profiles] = await Promise.all([
     membersSupabase.rpc('character_names').select('id, name, player_id'),
-    membersSupabase.from('profiles').select('id, display_name'),
-    membersSupabase.from('profiles').select('id, display_name').eq('is_cast', true)
+    faFetchAllRows('profiles', 'id, display_name, is_cast')
   ]);
+  const castRows = profiles.filter(p => p.is_cast);
 
   const nameByPlayer = {};
   (profiles || []).forEach(p => { nameByPlayer[p.id] = p.display_name; });

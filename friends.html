@@ -98,9 +98,9 @@ let EXCLUDED_CANDIDATE_IDS = new Set();
 async function loadAllCandidates(){
   const myUserId = window.faCurrentUser ? window.faCurrentUser.id : null;
 
-  const [{ data: chars }, { data: profiles }] = await Promise.all([
+  const [{ data: chars }, profiles] = await Promise.all([
     membersSupabase.rpc('character_names').select('id, name, player_id'),
-    membersSupabase.from('profiles').select('id, display_name')
+    faFetchAllRows('profiles', 'id, display_name')
   ]);
 
   const nameByPlayer = {};

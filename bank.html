@@ -172,11 +172,10 @@ function fmtDate(iso){
 }
 
 async function loadProfiles(){
-  const [{ data: profiles, error }, { data: chars }] = await Promise.all([
-    membersSupabase.from('profiles').select('id, display_name'),
+  const [profiles, { data: chars }] = await Promise.all([
+    faFetchAllRows('profiles', 'id, display_name'),
     membersSupabase.rpc('character_names').select('name, player_id')
   ]);
-  if(error) return;
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
   charsByPlayer = {};

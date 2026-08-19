@@ -338,7 +338,7 @@ async function handleAuctionPaymentReturn(){
 window.auction_placeBid = auction_placeBid;
 
 document.addEventListener('fa-members-ready', async () => {
-  const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
+  const profiles = await faFetchAllRows('profiles', 'id, display_name');
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
 

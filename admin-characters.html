@@ -670,7 +670,7 @@ document.addEventListener('fa-members-ready', async (e) => {
   }
   document.getElementById('ac-wrap').style.display = 'block';
 
-  const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name');
+  const profiles = await faFetchAllRows('profiles', 'id, display_name');
   profileMap = {};
   (profiles || []).forEach(p => { profileMap[p.id] = p.display_name; });
 
