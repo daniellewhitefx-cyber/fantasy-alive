@@ -28,6 +28,114 @@
   margin: 0 0 0.9rem;
 }
 .sb-known-row{ opacity: 0.55; }
+
+.sb-print-btn-wrap{ margin: -0.4rem 0 1.2rem; }
+
+#sb-print-area{ display:none; }
+
+.sb-print-title{
+  font-family: 'Cinzel', serif;
+  color: #000;
+  text-align:center;
+  margin: 0 0 0.3in;
+}
+
+.sb-print-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 0.18in;
+  justify-content:center;
+}
+
+.sb-spell-card{
+  position:relative;
+  width: 3.5in;
+  height: 2in;
+  box-sizing:border-box;
+  padding: 0.3in 0.26in 0.13in;
+  border: 1px solid var(--gold-dark);
+  background: var(--cream);
+  color: var(--brown-dark);
+  font-family: 'EB Garamond', serif;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  overflow: hidden;
+  display:flex;
+  flex-direction:column;
+}
+.sb-corner{ position:absolute; width: 30px; height: 30px; }
+.sb-corner-tl{ top: 0.07in; left: 0.07in; }
+.sb-corner-tr{ top: 0.07in; right: 0.07in; }
+.sb-corner-bl{ bottom: 0.07in; left: 0.07in; }
+.sb-corner-br{ bottom: 0.07in; right: 0.07in; }
+
+.sb-spell-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap: 0.4rem;
+}
+.sb-spell-card h3{
+  font-family: 'Cinzel', serif;
+  font-size: 0.92rem;
+  margin: 0;
+  line-height: 1.15;
+  color: var(--brown-dark);
+}
+.sb-spell-card-level{
+  font-family: 'Cinzel', serif;
+  font-size: 0.56rem;
+  font-weight:700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  white-space:nowrap;
+}
+.sb-spell-card-incant{
+  font-style: italic;
+  font-size: 0.66rem;
+  line-height: 1.15;
+  margin: 0.1rem 0 0.2rem;
+}
+.sb-spell-card-stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 0.05rem 0.5rem;
+  border-top: 1px dotted var(--gold-dark);
+  border-bottom: 1px dotted var(--gold-dark);
+  padding: 0.12rem 0;
+  margin-bottom: 0.2rem;
+}
+.sb-spell-card-stats div{ font-size: 0.58rem; white-space:nowrap; }
+.sb-spell-card-stats span{
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-right: 0.15rem;
+}
+.sb-spell-card-desc{
+  font-size: 0.6rem;
+  line-height: 1.2;
+  flex: 1;
+  overflow: hidden;
+}
+.sb-spell-card-desc.sb-desc-md{ font-size: 0.5rem; line-height: 1.14; }
+.sb-spell-card-desc.sb-desc-sm{ font-size: 0.42rem; line-height: 1.05; }
+
+@media print{
+  div[data-include="partials/header.html"],
+  div[data-include="partials/members-sidebar.html"],
+  div[data-include="partials/footer.html"],
+  .page-title,
+  #sb-char-switcher,
+  .sb-print-btn-wrap,
+  #sb-content{ display:none !important; }
+  .dashboard{ display:block !important; }
+  #sb-print-area{ display:block; width:100%; }
+  @page{ margin: 0.3in; }
+}
 </style>
 </head>
 <body>
@@ -44,7 +152,13 @@
 
 <h1 class="page-title">Spellbook</h1>
 
+<div class="sb-print-btn-wrap" id="sb-print-btn-wrap" style="display:none;">
+<button class="btn-outline" onclick="sb_printCards()">Print Spell Cards</button>
+</div>
+
 <div id="sb-content"></div>
+
+<div id="sb-print-area"></div>
 
 </div>
 </div>
@@ -75,6 +189,143 @@ function emptyState(msg){
 function costLabel(spell, unit, surcharge){
   const total = (spell.energy || 0) + (surcharge || 0);
   return total + ' ' + unit;
+}
+
+// Four corner ornaments (eye / sunburst / orb / crescent moon) for the
+// printable spell cards, each self-contained artwork oriented for its own
+// corner so they can just be dropped in without any rotation math.
+const SB_CORNER_TL = `
+<svg class="sb-corner sb-corner-tl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<line x1="34" y1="9" x2="70" y2="9" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="34" y1="13" x2="70" y2="13" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="9" y1="34" x2="9" y2="70" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="13" y1="34" x2="13" y2="70" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<rect x="50.5" y="8.5" width="5" height="5" transform="rotate(45 53 11)" fill="var(--gold-dark)"/>
+<rect x="8.5" y="50.5" width="5" height="5" transform="rotate(45 11 53)" fill="var(--gold-dark)"/>
+<circle cx="21" cy="21" r="14.5" fill="var(--cream)" stroke="var(--gold-dark)" stroke-width="1.5"/>
+<path d="M9 21 Q21 11 33 21 Q21 31 9 21 Z" fill="none" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<circle cx="21" cy="21" r="3.2" fill="var(--gold-dark)"/>
+</svg>`;
+
+const SB_CORNER_TR = `
+<svg class="sb-corner sb-corner-tr" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<line x1="30" y1="9" x2="66" y2="9" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="30" y1="13" x2="66" y2="13" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="91" y1="34" x2="91" y2="70" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="87" y1="34" x2="87" y2="70" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<rect x="44.5" y="8.5" width="5" height="5" transform="rotate(45 47 11)" fill="var(--gold-dark)"/>
+<rect x="86.5" y="50.5" width="5" height="5" transform="rotate(45 89 53)" fill="var(--gold-dark)"/>
+<circle cx="79" cy="21" r="14.5" fill="var(--cream)" stroke="var(--gold-dark)" stroke-width="1.5"/>
+<g stroke="var(--gold-dark)" stroke-width="1.3">
+<line x1="79" y1="9.5" x2="79" y2="13.5"/>
+<line x1="79" y1="28.5" x2="79" y2="32.5"/>
+<line x1="67.5" y1="21" x2="71.5" y2="21"/>
+<line x1="86.5" y1="21" x2="90.5" y2="21"/>
+<line x1="70.2" y1="12.2" x2="73" y2="15"/>
+<line x1="85" y1="27" x2="87.8" y2="29.8"/>
+<line x1="87.8" y1="12.2" x2="85" y2="15"/>
+<line x1="73" y1="27" x2="70.2" y2="29.8"/>
+</g>
+<circle cx="79" cy="21" r="3.6" fill="var(--gold-dark)"/>
+</svg>`;
+
+const SB_CORNER_BL = `
+<svg class="sb-corner sb-corner-bl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<line x1="34" y1="91" x2="70" y2="91" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="34" y1="87" x2="70" y2="87" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="9" y1="30" x2="9" y2="66" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="13" y1="30" x2="13" y2="66" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<rect x="50.5" y="86.5" width="5" height="5" transform="rotate(45 53 89)" fill="var(--gold-dark)"/>
+<rect x="8.5" y="44.5" width="5" height="5" transform="rotate(45 11 47)" fill="var(--gold-dark)"/>
+<circle cx="21" cy="79" r="14.5" fill="var(--brown-dark)" stroke="var(--gold-dark)" stroke-width="1.5"/>
+</svg>`;
+
+const SB_CORNER_BR = `
+<svg class="sb-corner sb-corner-br" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<line x1="30" y1="91" x2="66" y2="91" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="30" y1="87" x2="66" y2="87" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="91" y1="30" x2="91" y2="66" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<line x1="87" y1="30" x2="87" y2="66" stroke="var(--gold-dark)" stroke-width="1.3"/>
+<rect x="44.5" y="86.5" width="5" height="5" transform="rotate(45 47 89)" fill="var(--gold-dark)"/>
+<rect x="86.5" y="44.5" width="5" height="5" transform="rotate(45 89 47)" fill="var(--gold-dark)"/>
+<circle cx="79" cy="79" r="14.5" fill="var(--cream)" stroke="var(--gold-dark)" stroke-width="1.5"/>
+<path d="M85.5 68.5a11.5 11.5 0 1 0 0 21 9 9 0 0 1 0-21Z" fill="var(--gold-dark)"/>
+</svg>`;
+
+// Every spell a character actually has -- Clerical Investment's automatic
+// grants (tagged with their domain and SE surcharge) plus whatever they've
+// marked known through Magery (ME) -- deduped so a spell reachable through
+// both shows once, at its Clerical (free-er) source.
+function sb_buildCardList(c){
+  const cards = [];
+  const seen = new Set();
+
+  if(c.hasClerical && DEITIES[c.ciFocus]){
+    window.spellbookClericalSpells(DEITIES, c.ciFocus, c.ciLevel).forEach(g => {
+      const spell = COMPENDIUM[g.name.toLowerCase()];
+      if(!spell || seen.has(spell.name.toLowerCase())) return;
+      seen.add(spell.name.toLowerCase());
+      const source = g.surcharge === 0 ? 'Home Domain'
+        : (g.surcharge === window.SPELLBOOK_SHARED_DOMAIN_SURCHARGE ? 'Shared Domain' : 'Opposed Domain');
+      cards.push({ spell, unit: 'SE', surcharge: g.surcharge, source });
+    });
+  }
+
+  if(c.hasMagery){
+    Object.values(COMPENDIUM).forEach(spell => {
+      if(!c.knownSpells.has(spell.name.toLowerCase()) || seen.has(spell.name.toLowerCase())) return;
+      seen.add(spell.name.toLowerCase());
+      cards.push({ spell, unit: 'ME', surcharge: 0, source: 'Magery' });
+    });
+  }
+
+  return cards.sort((a, b) => a.spell.level - b.spell.level || a.spell.name.localeCompare(b.spell.name));
+}
+
+// Most spell descriptions are a sentence or two and read fine at full
+// size, but a handful (Resurrect, Command, Contingency...) run 500-750
+// characters -- a fixed business-card size can't grow to fit those, so
+// the description shrinks in tiers instead of silently truncating.
+function sbDescSizeClass(desc){
+  const len = (desc || '').length;
+  if(len > 380) return 'sb-desc-sm';
+  if(len > 220) return 'sb-desc-md';
+  return '';
+}
+
+function sbCardHtml({ spell, unit, surcharge, source }){
+  const cost = (spell.energy || 0) + (surcharge || 0);
+  return `
+    <div class="sb-spell-card">
+      ${SB_CORNER_TL}${SB_CORNER_TR}${SB_CORNER_BL}${SB_CORNER_BR}
+      <div class="sb-spell-card-head">
+        <h3>${escapeHtml(spell.name)}</h3>
+        <span class="sb-spell-card-level">Level ${spell.level}</span>
+      </div>
+      <p class="sb-spell-card-incant">&ldquo;${escapeHtml(spell.incant)}&rdquo;</p>
+      <div class="sb-spell-card-stats">
+        <div><span>Cost</span>${cost} ${unit}</div>
+        <div><span>Source</span>${escapeHtml(source)}</div>
+        <div><span>Duration</span>${escapeHtml(spell.duration || '-')}</div>
+        <div><span>Category</span>${escapeHtml(spell.category || '-')}</div>
+        <div><span>MEL</span>${escapeHtml(spell.mel || '0')}</div>
+        <div><span>Mix</span>${escapeHtml(spell.mix || 'No')}</div>
+      </div>
+      <p class="sb-spell-card-desc ${sbDescSizeClass(spell.desc)}">${escapeHtml(spell.desc)}</p>
+    </div>
+  `;
+}
+
+function sb_printCards(){
+  const c = CHARACTERS.find(ch => ch.id === activeCharId);
+  if(!c) return;
+
+  const cards = sb_buildCardList(c);
+  document.getElementById('sb-print-area').innerHTML = `
+    <h2 class="sb-print-title">${escapeHtml(c.name)}'s Spellbook</h2>
+    <div class="sb-print-grid">${cards.map(sbCardHtml).join('')}</div>
+  `;
+  window.print();
 }
 
 function sb_selectChar(id){
@@ -227,22 +478,28 @@ function render(){
   ).join('');
 
   const content = document.getElementById('sb-content');
+  const printBtnWrap = document.getElementById('sb-print-btn-wrap');
   const c = CHARACTERS.find(ch => ch.id === activeCharId);
 
   if(!c){
+    printBtnWrap.style.display = 'none';
     content.innerHTML = `<div class="panel"><div class="panel-body">${emptyState('You have no characters yet.')}</div></div>`;
     return;
   }
 
   if(LOAD_ERROR){
+    printBtnWrap.style.display = 'none';
     content.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-error-note">Couldn't load the Spellbook: ${escapeHtml(LOAD_ERROR)}</p></div></div>`;
     return;
   }
 
   if(!c.hasMagery && !c.hasClerical){
+    printBtnWrap.style.display = 'none';
     content.innerHTML = `<div class="panel"><div class="panel-body">${emptyState('This character has no Magery or Clerical Investment yet.')}</div></div>`;
     return;
   }
+
+  printBtnWrap.style.display = sb_buildCardList(c).length ? 'block' : 'none';
 
   let html = '';
   if(c.hasClerical) html += renderClericalPanel(c);
@@ -294,6 +551,7 @@ window.sb_selectChar = sb_selectChar;
 window.sb_setMageryFilter = sb_setMageryFilter;
 window.sb_learnSpell = sb_learnSpell;
 window.sb_unlearnSpell = sb_unlearnSpell;
+window.sb_printCards = sb_printCards;
 
 document.addEventListener('fa-members-ready', async () => {
   try{
