@@ -211,6 +211,11 @@ let OTHER_TASK_LOAD_ERROR = null;
 let OTHER_TASK_DESC = '';
 let OTHER_TASK_HOURS = '';
 
+let UPKEEP_LOG = [];
+let UPKEEP_DESC = '';
+let UPKEEP_COST = '';
+let UPKEEP_REPEATING = false;
+
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -1819,13 +1824,30 @@ async function loadOtherTaskData(){
   OTHER_TASK_LOAD_ERROR = null;
   try{
     await refreshTrainingState();
-    const { data, error } = await membersSupabase
-      .from('event_log_other_tasks')
-      .select('id, description, hours, created_at')
-      .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value)
-      .order('created_at', { ascending: true });
+
+    // Continues any of this character's repeating Upkeep costs into
+    // this event before loading the list, the same way the Social
+    // Class allowance auto-grants itself on page load.
+    await membersSupabase.rpc('event_log_apply_repeating_upkeep', {
+      p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id
+    });
+
+    const [{ data, error }, { data: upkeepRows, error: upkeepError }, { data: copperBalance }] = await Promise.all([
+      membersSupabase.from('event_log_other_tasks')
+        .select('id, description, hours, created_at')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value)
+        .order('created_at', { ascending: true }),
+      membersSupabase.from('event_log_upkeep_costs')
+        .select('id, description, copper_cost, repeating, created_at')
+        .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value)
+        .order('created_at', { ascending: true }),
+      membersSupabase.rpc('bank_my_balance')
+    ]);
     if(error) throw new Error(error.message);
+    if(upkeepError) throw new Error(upkeepError.message);
     OTHER_TASK_LOG = data || [];
+    UPKEEP_LOG = upkeepRows || [];
+    COPPER_BALANCE = Number(copperBalance || 0);
   } catch(err){
     OTHER_TASK_LOAD_ERROR = err.message;
   }
@@ -1861,6 +1883,29 @@ function renderOtherTaskHtml(){
     </div>
   ` : '';
 
+  const upkeepLogHtml = UPKEEP_LOG.length ? `
+    <div class="panel">
+      <div class="panel-head"><h2>Upkeep Logged This Event</h2></div>
+      <div class="panel-body">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Description</th><th>Copper</th><th>Repeating</th><th></th></tr></thead>
+            <tbody>${UPKEEP_LOG.map(u => `
+              <tr>
+                <td>${escapeHtml(u.description)}</td>
+                <td>${u.copper_cost}</td>
+                <td>${u.repeating
+                  ? `Yes <button class="btn-outline" onclick="ce_upkeepStopRepeat('${u.id}')" title="Stop this from repeating next event">Stop Repeating</button>`
+                  : 'No'}</td>
+                <td><button class="btn-outline" onclick="ce_upkeepCancel('${u.id}')" title="Undo and refund this entry">&times;</button></td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
   body.innerHTML = `
     ${logHtml}
     <div class="panel">
@@ -1882,6 +1927,32 @@ function renderOtherTaskHtml(){
         </div>
         <button class="btn-gold" onclick="ce_otherTaskSubmit()">Log It</button>
         <p class="reg-error-note" id="ce-other-task-error" style="display:none; margin-top:0.6rem;"></p>
+      </div>
+    </div>
+    ${upkeepLogHtml}
+    <div class="panel">
+      <div class="panel-head ce-event-head">
+        <h2>Log an Upkeep Cost</h2>
+        <span class="ce-logging-as">Your Copper: ${COPPER_BALANCE}</span>
+      </div>
+      <div class="panel-body">
+        <p class="page-subhead">For an in-game cost that comes out of your Copper -- maintaining a horse, a shrine, a forge, and so on. Mark it Repeating to have the same cost automatically deducted again at every future event until you stop it.</p>
+        <div style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap; margin-bottom:0.9rem;">
+          <div style="width:320px; max-width:100%;">
+            <label class="field-label" for="ce-upkeep-desc">Description</label>
+            <input type="text" id="ce-upkeep-desc" value="${escapeHtml(UPKEEP_DESC)}" oninput="ce_upkeepUpdateDesc(this.value)" placeholder="What is this cost for?">
+          </div>
+          <div>
+            <label class="field-label" for="ce-upkeep-cost">Copper</label>
+            <input type="number" id="ce-upkeep-cost" min="1" step="1" value="${escapeHtml(UPKEEP_COST)}" oninput="ce_upkeepUpdateCost(this.value)" style="width:90px; max-width:90px;">
+          </div>
+          <label style="display:flex; align-items:center; gap:0.4rem; font-family:'EB Garamond', serif;">
+            <input type="checkbox" ${UPKEEP_REPEATING ? 'checked' : ''} onchange="ce_upkeepToggleRepeating(this.checked)">
+            Repeating
+          </label>
+        </div>
+        <button class="btn-gold" onclick="ce_upkeepSubmit()">Log It</button>
+        <p class="reg-error-note" id="ce-upkeep-error" style="display:none; margin-top:0.6rem;"></p>
       </div>
     </div>
   `;
@@ -1923,6 +1994,54 @@ async function ce_otherTaskCancel(id){
   await loadOtherTaskData();
   renderOtherTaskHtml();
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
+function ce_upkeepUpdateDesc(val){ UPKEEP_DESC = val; }
+function ce_upkeepUpdateCost(val){ UPKEEP_COST = val; }
+function ce_upkeepToggleRepeating(val){ UPKEEP_REPEATING = val; }
+
+async function ce_upkeepSubmit(){
+  const errorEl = document.getElementById('ce-upkeep-error');
+  errorEl.style.display = 'none';
+
+  const description = UPKEEP_DESC.trim();
+  const cost = parseFloat(UPKEEP_COST);
+
+  if(!description){ showError(errorEl, 'Enter a description.'); return; }
+  if(!cost || cost <= 0){ showError(errorEl, 'Enter a positive Copper cost.'); return; }
+
+  const { error } = await membersSupabase.rpc('event_log_log_upkeep', {
+    p_event_slug: EVENT.value,
+    p_character_id: MY_CHARACTER.id,
+    p_description: description,
+    p_copper_cost: cost,
+    p_repeating: UPKEEP_REPEATING
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  UPKEEP_DESC = '';
+  UPKEEP_COST = '';
+  UPKEEP_REPEATING = false;
+  await loadOtherTaskData();
+  renderOtherTaskHtml();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
+async function ce_upkeepCancel(id){
+  const { error } = await membersSupabase.rpc('event_log_cancel_upkeep', { p_id: id });
+  if(error){ alert(error.message); return; }
+
+  await loadOtherTaskData();
+  renderOtherTaskHtml();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+}
+
+async function ce_upkeepStopRepeat(id){
+  const { error } = await membersSupabase.rpc('event_log_stop_upkeep_repeat', { p_id: id });
+  if(error){ alert(error.message); return; }
+
+  await loadOtherTaskData();
+  renderOtherTaskHtml();
 }
 
 // --- Luxuries tab ---
@@ -2033,6 +2152,12 @@ window.ce_otherTaskUpdateDesc = ce_otherTaskUpdateDesc;
 window.ce_otherTaskUpdateHours = ce_otherTaskUpdateHours;
 window.ce_otherTaskSubmit = ce_otherTaskSubmit;
 window.ce_otherTaskCancel = ce_otherTaskCancel;
+window.ce_upkeepUpdateDesc = ce_upkeepUpdateDesc;
+window.ce_upkeepUpdateCost = ce_upkeepUpdateCost;
+window.ce_upkeepToggleRepeating = ce_upkeepToggleRepeating;
+window.ce_upkeepSubmit = ce_upkeepSubmit;
+window.ce_upkeepCancel = ce_upkeepCancel;
+window.ce_upkeepStopRepeat = ce_upkeepStopRepeat;
 
 document.addEventListener('fa-members-ready', async () => {
   EVENT = window.FA_NEXT_EVENT;
