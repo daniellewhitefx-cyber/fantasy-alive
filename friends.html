@@ -20,20 +20,29 @@
 <link rel="stylesheet" href="css/members.css">
 <script src="js/vendor/supabase-js.min.js"></script>
 <style>
+#friends-incoming-list, #friends-outgoing-list, #friends-list{
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+.friends-card{
+  position:relative;
+  border: 2px solid var(--gold);
+  background: var(--row-b);
+  padding: 1rem 5.4rem 1rem 1.1rem;
+}
 .friends-card-row{
   display:flex;
   align-items:center;
-  gap: 0.7rem;
+  gap: 0.9rem;
 }
 .friends-avatar{
-  width: 52px; height: 52px;
+  width: 78px; height: 78px;
   flex-shrink:0;
   border: 2px solid var(--brown-dark);
   background: var(--ink);
   color: var(--gold);
   font-family: 'Cinzel', serif;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.7rem;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -41,6 +50,42 @@
 }
 .friends-avatar img{ width:100%; height:100%; object-fit:cover; }
 .friends-card-body{ flex:1; min-width:0; }
+.friends-card-name{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.1;
+  color: var(--brown-dark);
+}
+.friends-card-sub{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--gold-dark);
+  margin-top: 0.35rem;
+}
+.friends-card-actions{
+  position:absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display:flex;
+  gap: 0.4rem;
+}
+.friends-icon-btn{
+  width: 32px; height: 32px;
+  border: 2px solid var(--bad);
+  background: #fff;
+  color: var(--bad);
+  font-size: 1rem;
+  line-height:1;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.friends-icon-btn:hover{ background: var(--bad); color:#fff; }
+.friends-icon-btn.accept{ border-color: var(--good); color: var(--good); }
+.friends-icon-btn.accept:hover{ background: var(--good); color:#fff; }
 </style>
 </head>
 <body>
@@ -58,11 +103,12 @@
 <h1 class="page-title">Friends</h1>
 
 <div class="section-block">
-<div class="bank-recipient-picker" data-picker="friends">
-<label class="field-label" for="friends-search-input">Send a friend request</label>
-<input type="text" id="friends-search-input" placeholder="Search player or character name..." autocomplete="off"
-  oninput="friends_search(this.value)" onfocus="friends_search(this.value)" onblur="friends_hideResults()">
-<div class="member-search-list" id="friends-search-results"></div>
+<label class="field-label" for="friends-request-select">Send a friend request</label>
+<div class="row-inline" style="gap:0.6rem; align-items:flex-end; flex-wrap:wrap;">
+<select id="friends-request-select" style="flex:1; min-width:220px;">
+<option value="">Choose a character</option>
+</select>
+<button class="btn-gold" onclick="friends_sendRequestFromSelect()">Send Request</button>
 </div>
 </div>
 
@@ -106,8 +152,6 @@ function initials(name){
 
 function selectChar(id){
   activeCharId = id;
-  document.getElementById('friends-search-input').value = '';
-  document.getElementById('friends-search-results').innerHTML = '';
   renderSwitcher();
   loadFriends();
 }
@@ -143,33 +187,16 @@ async function loadAllCandidates(){
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-function renderCandidates(query){
-  const q = query.trim().toLowerCase();
-  const resultsEl = document.getElementById('friends-search-results');
-
-  const matches = (q
-    ? ALL_CANDIDATES.filter(c => c.name.toLowerCase().includes(q) || c.playerName.toLowerCase().includes(q))
-    : ALL_CANDIDATES
-  ).filter(c => !EXCLUDED_CANDIDATE_IDS.has(c.id));
-
-  if(matches.length === 0){
-    resultsEl.innerHTML = '<div class="bank-recipient-empty">No matching characters.</div>';
-    return;
-  }
-
-  resultsEl.innerHTML = matches.map(c =>
-    `<button class="bank-recipient-result" onclick="friends_sendRequest('${c.id}')">${escapeHtml(c.label)}</button>`
-  ).join('');
+function renderRequestSelect(){
+  const select = document.getElementById('friends-request-select');
+  const candidates = ALL_CANDIDATES.filter(c => !EXCLUDED_CANDIDATE_IDS.has(c.id));
+  select.innerHTML = '<option value="">Choose a character</option>'
+    + candidates.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.label)}</option>`).join('');
 }
 
-function friends_search(query){
-  renderCandidates(query);
-}
-
-function friends_hideResults(){
-  setTimeout(() => {
-    document.getElementById('friends-search-results').innerHTML = '';
-  }, 150);
+async function friends_sendRequestFromSelect(){
+  const select = document.getElementById('friends-request-select');
+  if(select.value) await friends_sendRequest(select.value);
 }
 
 async function friends_sendRequest(charId){
@@ -191,8 +218,6 @@ async function friends_sendRequest(charId){
       .upsert({ character_id: activeCharId, friend_character_id: charId, status: 'pending' }, { onConflict: 'character_id,friend_character_id', ignoreDuplicates: true });
     if(error){ alert('Could not send friend request: ' + error.message); return; }
   }
-  document.getElementById('friends-search-input').value = '';
-  document.getElementById('friends-search-results').innerHTML = '';
   await loadFriends();
 }
 
@@ -232,23 +257,24 @@ async function friends_removeFriend(otherCharId){
   await loadFriends();
 }
 
-function friends_renderNamedCards(ids, charById, nameByPlayer, buttonsFor){
+function friends_renderNamedCards(ids, charById, nameByPlayer, actionsFor){
   return ids.map(id => {
     const c = charById[id];
     if(!c) return '';
     const avatar = c.portrait_url
       ? `<img src="${escapeHtml(c.portrait_url)}" alt="${escapeHtml(c.name)} portrait">`
       : escapeHtml(initials(c.name));
+    const playerName = nameByPlayer[c.player_id] || 'Unknown player';
     return `
-    <div class="info-card">
+    <div class="friends-card">
+      <div class="friends-card-actions">${actionsFor(id)}</div>
       <div class="friends-card-row">
         <div class="friends-avatar">${avatar}</div>
         <div class="friends-card-body">
-          <div>${escapeHtml(c.name)}</div>
-          <div class="friends-player-name">${escapeHtml(nameByPlayer[c.player_id] || 'Unknown player')}</div>
+          <div class="friends-card-name">${escapeHtml(c.name)}</div>
+          <div class="friends-card-sub">${escapeHtml(c.name)} (${escapeHtml(playerName)})</div>
         </div>
       </div>
-      ${buttonsFor(id)}
     </div>`;
   }).join('');
 }
@@ -265,6 +291,7 @@ async function loadFriends(){
     incomingBlock.style.display = 'none';
     outgoingBlock.style.display = 'none';
     EXCLUDED_CANDIDATE_IDS = new Set();
+    renderRequestSelect();
     return;
   }
 
@@ -289,6 +316,7 @@ async function loadFriends(){
     listEl.innerHTML = emptyState('No friends added yet for this character.');
     incomingBlock.style.display = 'none';
     outgoingBlock.style.display = 'none';
+    renderRequestSelect();
     return;
   }
 
@@ -303,10 +331,9 @@ async function loadFriends(){
   if(incoming.length){
     incomingBlock.style.display = '';
     incomingList.innerHTML = friends_renderNamedCards(incoming, charById, nameByPlayer, id => `
-      <div class="row-inline" style="margin:0.7rem 0 0;">
-        <button class="btn-gold friends-remove-btn" onclick="friends_acceptRequest('${id}')">Accept</button>
-        <button class="btn-outline friends-remove-btn" onclick="friends_declineRequest('${id}')">Decline</button>
-      </div>`);
+      <button class="friends-icon-btn accept" title="Accept" onclick="friends_acceptRequest('${id}')">&#10003;</button>
+      <button class="friends-icon-btn" title="Decline" onclick="friends_declineRequest('${id}')">&times;</button>
+    `);
   } else {
     incomingBlock.style.display = 'none';
   }
@@ -314,17 +341,19 @@ async function loadFriends(){
   if(outgoing.length){
     outgoingBlock.style.display = '';
     outgoingList.innerHTML = friends_renderNamedCards(outgoing, charById, nameByPlayer, id =>
-      `<button class="btn-outline friends-remove-btn" onclick="friends_cancelRequest('${id}')">Cancel Request</button>`);
+      `<button class="friends-icon-btn" title="Cancel Request" onclick="friends_cancelRequest('${id}')">&times;</button>`);
   } else {
     outgoingBlock.style.display = 'none';
   }
 
   if(accepted.length){
     listEl.innerHTML = friends_renderNamedCards(accepted, charById, nameByPlayer, id =>
-      `<button class="btn-outline friends-remove-btn" onclick="friends_removeFriend('${id}')">Remove</button>`);
+      `<button class="friends-icon-btn" title="Remove Friend" onclick="friends_removeFriend('${id}')">&times;</button>`);
   } else {
     listEl.innerHTML = emptyState('No friends added yet for this character.');
   }
+
+  renderRequestSelect();
 }
 
 async function loadCharacters(){
@@ -341,8 +370,7 @@ async function loadCharacters(){
 }
 
 window.selectChar = selectChar;
-window.friends_search = friends_search;
-window.friends_hideResults = friends_hideResults;
+window.friends_sendRequestFromSelect = friends_sendRequestFromSelect;
 window.friends_sendRequest = friends_sendRequest;
 window.friends_acceptRequest = friends_acceptRequest;
 window.friends_declineRequest = friends_declineRequest;
