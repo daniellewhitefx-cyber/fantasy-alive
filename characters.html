@@ -189,6 +189,29 @@ function renderCharPanel(c){
       </div>
     </div>
   `;
+
+  // A CSS height:100% on the table-scroll column is circular inside
+  // this auto-sized grid row, so the target height is set directly in
+  // pixels via JS instead -- and it has to be measured from a detached
+  // clone, not the live portrait column, because by the time the grid
+  // has laid out a long skill list, align-items:stretch has already
+  // inflated the portrait column to match the table's full unclipped
+  // height (a real Chromium behavior, confirmed by direct testing --
+  // reading the live column's height here just reads that inflation
+  // straight back).
+  if(c.portraitUrl){
+    const leftCol = panel.children[0];
+    const tableScroll = panel.querySelector('.table-scroll');
+    if(leftCol && tableScroll){
+      const clone = leftCol.cloneNode(true);
+      clone.style.cssText = `position:absolute; visibility:hidden; width:${leftCol.offsetWidth}px; height:auto;`;
+      document.body.appendChild(clone);
+      const naturalHeight = clone.offsetHeight;
+      document.body.removeChild(clone);
+      tableScroll.style.maxHeight = 'none';
+      tableScroll.style.height = naturalHeight + 'px';
+    }
+  }
 }
 
 function renderPanelExtras(c){
