@@ -200,11 +200,23 @@ function rowState(idx){
   return { s, key, state: browseState[key] };
 }
 
+// A skill already in the chosen list gets REPLACED (not added to) when
+// re-picked at a new level -- see mergeChosenSkill -- so its current
+// cost has to come back out of spentSP() before checking the new
+// cumulative cost against the SP budget, or every relevel-by-rebrowsing
+// would look like it costs its old price on top of its new one.
+function existingChosenCost(s, race, focus){
+  if(!isLeveledCost(s, race, focus)) return 0;
+  const key = s.focusTypeId ? focus.trim() : '';
+  const existing = chosen.find(c => c.title === s.title && c.focus === key);
+  return existing ? existing.cost : 0;
+}
+
 function updateRowLive(idx){
   const { s, state } = rowState(idx);
   const race = currentRace();
-  const remaining = startingSP() - spentSP();
-  const cost = skillsParseCost(s, state.level, race, state.focus);
+  const remaining = startingSP() - spentSP() + existingChosenCost(s, race, state.focus);
+  const cost = skillsCumulativeCost(s, state.level, race, state.focus);
   const canAdd = race && cost !== null && cost <= remaining && !(s.focusTypeId && !state.focus.trim());
 
   const costEl = document.getElementById('cc-cost-' + idx);
@@ -221,18 +233,24 @@ function cc_updateFocus(idx, val){
 }
 
 function cc_updateLevel(idx, val){
-  const { state } = rowState(idx);
-  state.level = Math.max(1, parseInt(val, 10) || 1);
+  const { s, state } = rowState(idx);
+  const race = currentRace();
+  const limit = skillsLevelLimit(s, race, state.focus);
+  let level = Math.max(1, parseInt(val, 10) || 1);
+  if(limit != null) level = Math.min(level, limit);
+  state.level = level;
   updateRowLive(idx);
 }
 
 function cc_addSkill(idx){
   const { s, key, state } = rowState(idx);
   const race = currentRace();
-  const cost = skillsParseCost(s, state.level, race, state.focus);
+  const limit = skillsLevelLimit(s, race, state.focus);
+  if(limit != null && state.level > limit) return;
+  const cost = skillsCumulativeCost(s, state.level, race, state.focus);
   if(cost === null) return;
   if(s.focusTypeId && !state.focus.trim()) return;
-  if(spentSP() + cost > startingSP()) return;
+  if(spentSP() - existingChosenCost(s, race, state.focus) + cost > startingSP()) return;
 
   const isLeveled = isLeveledCost(s, race, state.focus);
   mergeChosenSkill(chosen, {
@@ -296,7 +314,7 @@ function cc_loadTemplate(){
   for(const row of rows){
     const skillObj = allSkills.find(s => s.title === row.skill_name);
     if(!skillObj) continue;
-    const cost = skillsParseCost(skillObj, row.level, race, row.focus_name);
+    const cost = skillsCumulativeCost(skillObj, row.level, race, row.focus_name);
     if(cost === null) continue;
 
     newChosen.push({
@@ -347,8 +365,6 @@ function focusFieldHtml(idx, s, state, isLeveled){
 
 function renderBrowser(){
   const race = currentRace();
-  const budget = startingSP();
-  const remaining = budget - spentSP();
 
   const stats = currentStats();
   const rows = allSkills
@@ -359,17 +375,19 @@ function renderBrowser(){
     const key = skillKey(s);
     const state = browseState[key] || { level: 1, focus: '' };
     const isLeveled = isLeveledCost(s, race, state.focus);
-    const cost = skillsParseCost(s, state.level, race, state.focus);
+    const cost = skillsCumulativeCost(s, state.level, race, state.focus);
+    const limit = skillsLevelLimit(s, race, state.focus);
+    const remaining = startingSP() - spentSP() + existingChosenCost(s, race, state.focus);
     const missing = unmetPrereqText(s, race, state.focus, chosen, stats);
 
     let focusCell = '-';
     if(s.focusTypeId && isLeveled){
       focusCell = focusFieldHtml(idx, s, state, true)
-        + `<input type="number" min="1" value="${state.level}" oninput="cc_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+        + `<input type="number" min="1" ${limit != null ? `max="${limit}"` : ''} value="${state.level}" oninput="cc_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
     } else if(s.focusTypeId){
       focusCell = focusFieldHtml(idx, s, state, false);
     } else if(isLeveled){
-      focusCell = `Level <input type="number" min="1" value="${state.level}" oninput="cc_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+      focusCell = `Level <input type="number" min="1" ${limit != null ? `max="${limit}"` : ''} value="${state.level}" oninput="cc_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
     }
 
     const canAdd = !missing && race && cost !== null && cost <= remaining && !(s.focusTypeId && !state.focus.trim());
