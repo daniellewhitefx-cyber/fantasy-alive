@@ -78,6 +78,32 @@ function isLeveledCost(skill, race, focusName){
   return !!(detail && detail.levelCost);
 }
 
+// skillsParseCost gives the price of one specific level -- correct for
+// releveling a skill you already know one step at a time (the live
+// Training tab always does this), but NOT the right price for buying a
+// leveled skill directly at a starting level higher than 1 (Character
+// Creator, Remort), which owes the full price of every level from 1 up
+// to that one, not just the last step's. Returns null under the same
+// conditions skillsParseCost does.
+function skillsCumulativeCost(skill, level, race, focusName){
+  if(!isLeveledCost(skill, race, focusName)) return skillsParseCost(skill, 1, race, focusName);
+  const lvl = Math.max(1, parseInt(level, 10) || 1);
+  let total = 0;
+  for(let l = 1; l <= lvl; l++){
+    const cost = skillsParseCost(skill, l, race, focusName);
+    if(cost === null) return null;
+    total += cost;
+  }
+  return total;
+}
+
+// The highest level this skill can be bought/releveled to, or null if
+// uncapped.
+function skillsLevelLimit(skill, race, focusName){
+  const detail = resolveCostDetail(skill, null, race, focusName);
+  return detail ? detail.levelLimit : null;
+}
+
 // focusName, when given, requires the known skill to have been learned
 // with that specific focus -- e.g. Lethal Hands needs Weapon Skill known
 // specifically in Hand to Hand, not just any weapon type. This is

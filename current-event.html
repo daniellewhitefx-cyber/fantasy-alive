@@ -1337,10 +1337,12 @@ function ce_trainRowInfo(idx){
   const hoursCost = cost === null ? null : (taught ? Math.ceil(cost * 2.5) : cost * 5);
 
   const missing = unmetPrereqText(s, race, focusVal, TRAIN_KNOWN, TRAIN_STATS);
-  const canAct = !missing && cost !== null && cost > 0 && cost <= spendableSp && hoursCost <= hoursRemaining
+  const levelLimit = skillsLevelLimit(s, race, focusVal);
+  const atCap = levelLimit != null && level > levelLimit;
+  const canAct = !missing && !atCap && cost !== null && cost > 0 && cost <= spendableSp && hoursCost <= hoursRemaining
     && !(s.focusTypeId && !focusVal);
 
-  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, taught, missing, canAct };
+  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, taught, missing, levelLimit, atCap, canAct };
 }
 
 function trainCostLabel(info){
@@ -1368,11 +1370,12 @@ function renderTrainBrowser(){
 
     const nameLabel = escapeHtml(s.title)
       + (info.isRelevel ? ` <span class="reg-empty-note" style="display:inline;">(currently level ${info.known.level})</span>` : '')
-      + (info.missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(info.missing)}</span>` : '');
+      + (info.missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(info.missing)}</span>` : '')
+      + (info.atCap ? `<span class="skill-missing-prereq">Rank cap reached (max level ${info.levelLimit})</span>` : '');
     const actionLabel = info.isRelevel ? 'Level Up' : 'Learn';
 
     return `
-      <tr class="${info.missing ? 'skill-row-locked' : ''}">
+      <tr class="${info.missing || info.atCap ? 'skill-row-locked' : ''}">
         <td>${nameLabel}</td>
         <td id="ce-train-cost-${idx}">${escapeHtml(trainCostLabel(info))}</td>
         <td>${focusCell}</td>
