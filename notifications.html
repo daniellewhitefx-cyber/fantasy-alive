@@ -211,6 +211,29 @@ async function init(){
     (isNew(b.decided_at) ? newItems : previousItems).push(entry);
   });
 
+  if(charIds.length){
+    const { data: receivedItems } = await membersSupabase
+      .from('character_item_transfers')
+      .select('to_character_id, from_character_id, item_name, quantity, note, created_at')
+      .in('to_character_id', charIds)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    const senderCharIds = [...new Set((receivedItems || []).map(t => t.from_character_id))];
+    const senderCharMap = {};
+    if(senderCharIds.length){
+      const { data: senderChars } = await membersSupabase.rpc('character_names').select('id, name').in('id', senderCharIds);
+      (senderChars || []).forEach(c => { senderCharMap[c.id] = c.name; });
+    }
+    (receivedItems || []).forEach(t => {
+      const entry = {
+        type: 'item',
+        date: t.created_at,
+        html: `<strong>${t.quantity}x ${escapeHtml(t.item_name)}</strong> sent to ${escapeHtml(charMap[t.to_character_id] || 'a character')} by ${escapeHtml(senderCharMap[t.from_character_id] || 'a character')}${t.note ? ' - ' + escapeHtml(t.note) : ''}`
+      };
+      (isNew(t.created_at) ? newItems : previousItems).push(entry);
+    });
+  }
+
   const { data: bankTxRows } = await membersSupabase
     .from('bank_transactions')
     .select('type, amount, note, counterparty_id, created_by, created_at')

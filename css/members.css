@@ -466,6 +466,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 .log-type.kudos{ background: #8a4b6b; }
 .log-type.remort{ background: #4a6b8a; }
 .log-type.backstory{ background: #6b7a3f; }
+.log-type.item{ background: #3f7a6b; }
 
 .status-pill{
   display:inline-block;
