@@ -157,6 +157,7 @@ async function bugrep_resolve(id){
   const r = ALL_REPORTS.find(x => x.id === id);
   if(r){ r.status = 'resolved'; r.resolved_at = new Date().toISOString(); }
   render();
+  if(typeof refreshBugReportsBadge === 'function') refreshBugReportsBadge();
 }
 
 document.addEventListener('fa-members-ready', async (e) => {

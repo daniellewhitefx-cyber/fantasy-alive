@@ -205,6 +205,22 @@ async function refreshRequestsBadge(){
   }
 }
 
+async function refreshBugReportsBadge(){
+  const badge = document.getElementById('member-bug-reports-badge');
+  if(!badge) return;
+  try{
+    const { data } = await membersSupabase.rpc('bug_reports_open_count');
+    const count = data || 0;
+    if(count > 0){
+      badge.textContent = count;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(err){
+  }
+}
+
 async function initMembersPage(){
   const current = location.pathname.split('/').pop();
 
@@ -337,6 +353,7 @@ async function initMembersPage(){
   refreshNotifBadge();
   refreshMessagesBadge();
   refreshRequestsBadge();
+  refreshBugReportsBadge();
 
   // The walkthrough tutorial auto-plays once, the first time a player
   // reaches the members area -- which for a brand-new account is the
