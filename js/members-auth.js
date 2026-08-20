@@ -205,22 +205,6 @@ async function refreshRequestsBadge(){
   }
 }
 
-async function refreshBackstoryBadge(){
-  const badge = document.getElementById('member-backstory-requests-badge');
-  if(!badge) return;
-  try{
-    const { data } = await membersSupabase.rpc('lore_pending_backstory_count');
-    const count = data || 0;
-    if(count > 0){
-      badge.textContent = count;
-      badge.style.display = 'inline-block';
-    } else {
-      badge.style.display = 'none';
-    }
-  } catch(err){
-  }
-}
-
 async function initMembersPage(){
   const current = location.pathname.split('/').pop();
 
@@ -316,8 +300,7 @@ async function initMembersPage(){
     ['member-manage-characters-link', meta.character_staff || isSiteAdmin],
     ['member-banking-tools-link', meta.bank_staff || isSiteAdmin],
     ['member-manage-auctions-link', meta.auction_staff || isSiteAdmin],
-    ['member-requests-link', canSeeRequests],
-    ['member-backstory-requests-link', canSeeBackstoryRequests],
+    ['member-requests-link', canSeeRequests || canSeeBackstoryRequests],
     ['member-permissions-link', isSiteAdmin],
     ['member-print-sheets-link', canSeeRequests],
     ['member-registrations-link', canSeeRequests],
@@ -342,7 +325,6 @@ async function initMembersPage(){
   refreshNotifBadge();
   refreshMessagesBadge();
   refreshRequestsBadge();
-  refreshBackstoryBadge();
 
   // The walkthrough tutorial auto-plays once, the first time a player
   // reaches the members area -- which for a brand-new account is the

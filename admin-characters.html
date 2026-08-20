@@ -59,43 +59,11 @@
   cursor: pointer;
   color: var(--brown-dark);
 }
-.ac-bs-item{
-  border-bottom: 1px solid var(--line);
-  padding: 0.9rem 0;
-}
-.ac-bs-item:last-child{ border-bottom: none; }
-.ac-bs-item-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.4rem;
-}
-.ac-bs-item-meta{
-  font-family: 'EB Garamond', serif;
-  font-style: italic;
-  font-size: 0.85rem;
-  color: var(--brown-dark);
-}
 .ac-bs-item-body{
   font-size: 0.92rem;
   line-height: 1.5;
   white-space: pre-wrap;
-  margin: 0 0 0.5rem;
-}
-.ac-bs-item-notes{
-  font-size: 0.9rem;
-  font-style: italic;
-  background: var(--row-b);
-  border-left: 3px solid var(--gold-dark);
-  padding: 0.5rem 0.8rem;
-}
-.ac-bs-xp-tag{
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--good);
+  margin: 0;
 }
 </style>
 </head>
@@ -437,22 +405,6 @@ function renderCharacterList(list){
   `).join('');
 }
 
-function bsKindLabel(kind){
-  if(kind === 'remort') return 'Remort';
-  if(kind === 'resubmission') return 'Revision';
-  return 'First submission';
-}
-
-function bsStatusLabel(status){
-  if(status === 'revision_requested') return 'Revision Requested';
-  return status.charAt(0).toUpperCase() + status.slice(1);
-}
-
-function bsStatusClass(status){
-  if(status === 'revision_requested') return 'revision';
-  return status;
-}
-
 async function ac_bs_view(charId, charName){
   const modal = document.getElementById('ac-bs-modal');
   modal.style.display = 'block';
@@ -467,41 +419,28 @@ async function ac_bs_view(charId, charName){
 
   const { data, error } = await membersSupabase
     .from('character_backstories')
-    .select('id, body, status, kind, xp_awarded, lore_notes, submitted_at, decided_at')
+    .select('body')
     .eq('character_id', charId)
-    .order('submitted_at', { ascending: false });
+    .eq('status', 'approved')
+    .order('decided_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   const body = document.querySelector('#ac-bs-modal .ac-bs-modal');
+  const emptyEl = document.querySelector('#ac-bs-modal .reg-empty-note');
   if(error){
     body.insertAdjacentHTML('beforeend', `<p class="reg-error-note">Couldn't load backstory: ${escapeHtml(error.message)}</p>`);
-    document.querySelector('#ac-bs-modal .reg-empty-note').remove();
+    emptyEl.remove();
     return;
   }
 
-  const submissions = data || [];
-  const emptyEl = document.querySelector('#ac-bs-modal .reg-empty-note');
-  if(!submissions.length){
-    emptyEl.textContent = 'No backstory submitted yet.';
+  if(!data){
+    emptyEl.textContent = 'No approved backstory yet.';
     return;
   }
   emptyEl.remove();
 
-  const items = submissions.map(s => {
-    const notes = s.lore_notes ? `<div class="ac-bs-item-notes">Lore notes: ${escapeHtml(s.lore_notes)}</div>` : '';
-    const xp = (s.status === 'approved' && s.xp_awarded != null) ? `<span class="ac-bs-xp-tag">+${s.xp_awarded} XP</span>` : '';
-    return `
-      <div class="ac-bs-item">
-        <div class="ac-bs-item-head">
-          <div><span class="status-pill ${bsStatusClass(s.status)}">${bsStatusLabel(s.status)}</span> ${xp}</div>
-          <div class="ac-bs-item-meta">${fmtDate(s.submitted_at)} &middot; ${bsKindLabel(s.kind)}</div>
-        </div>
-        <p class="ac-bs-item-body">${escapeHtml(s.body)}</p>
-        ${notes}
-      </div>
-    `;
-  }).join('');
-
-  body.insertAdjacentHTML('beforeend', items);
+  body.insertAdjacentHTML('beforeend', `<p class="ac-bs-item-body">${escapeHtml(data.body)}</p>`);
 }
 
 function ac_bs_close(){
