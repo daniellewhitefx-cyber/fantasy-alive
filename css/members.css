@@ -423,6 +423,17 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
   text-align:right;
 }
 .char-panel .table-scroll{ max-height: 460px; overflow-y: auto; }
+
+/* A portrait makes the stat column taller than the skills table needs
+   to be, so the grid's shared row height stretches the table to match
+   and leaves blank space beneath it. Stacking the skills table below
+   the whole photo+stats box instead avoids that wasted space; the
+   photo+stats column keeps its original width rather than stretching
+   to fill the row. */
+.char-panel.has-portrait{ grid-template-columns: minmax(0, 1fr); }
+.char-panel.has-portrait > div:first-child{ max-width: 280px; }
+.char-panel.has-portrait .table-scroll{ max-height: none; overflow-y: visible; }
+
 @media (max-width: 900px){
   .char-panel{ grid-template-columns: minmax(0, 1fr); }
   .char-panel .table-scroll{ max-height: none; overflow-y: visible; }

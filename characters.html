@@ -153,7 +153,9 @@ function renderCharPanel(c){
   const stats = faDeriveStats(c.race, c.skills.map(s => ({ name: s.name, level: s.level })), statusEffectTotals);
   const otherEffects = Object.keys(statusEffectTotals).filter(name => name !== 'Resurrections' && name !== 'LP' && statusEffectTotals[name]);
 
-  document.getElementById('chars-char-panel').innerHTML = `
+  const panel = document.getElementById('chars-char-panel');
+  panel.className = 'char-panel' + (c.portraitUrl ? ' has-portrait' : '');
+  panel.innerHTML = `
     <div>
       <div class="stat-panel">
         ${c.portraitUrl ? `<img src="${escapeHtml(c.portraitUrl)}" alt="${escapeHtml(c.name)} portrait" style="width:100%; display:block; aspect-ratio:1; object-fit:cover; border-bottom:2px solid var(--gold);">` : ''}
