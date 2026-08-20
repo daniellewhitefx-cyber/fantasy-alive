@@ -40,6 +40,7 @@
   color: var(--brown-dark);
 }
 .bs-rubric-card ul{
+  font-family: 'EB Garamond', serif;
   margin: 0.6rem 0 0;
   padding-left: 1.2rem;
 }
@@ -197,15 +198,15 @@ async function bs_submit(){
 function rubricHtml(hasApproved){
   if(!hasApproved){
     return `
-      <p class="bs-note">Lore staff will read your submission against the rubric below and score it out of 50 points, awarded straight to your character as XP.</p>
+      <p class="bs-note">By submitting a backstory to Fantasy Alive, you can earn up to 50 XP for your character. This backstory is intended to give you a place to start from in the world, and reflects your character's origins, history, and to encourage you to think about how your character came to be who they are today, and what they might hope to do in the future. It also can give the Plot Team some idea of your character's past and ambitions, and to allow them to better engage with your character on the level of personalized plot.</p>
       <p class="bs-note">In crafting your backstory, we encourage you to look at our public-facing setting materials, as well as the rulebook. Consider where your character was born, how they learned to do the things that they can do, and why they chose to come to the area in which the game is set. While your motivations may change over the course of play, as you interact with the game world and grow as a character, knowing where you're coming from can help to determine where you end up.</p>
       <p class="bs-note">Your character is exceptional, after all, not everyone ends up seeking adventure, or becoming a wise cleric, a powerful mage, an expert warrior or a skillful merchant or craftsperson. It is therefore possible and even likely that your character has had opportunities, and even small adventures that are unlike what the average person has had. Something to bear in mind however: opportunities for adventure abound when in-game, and your adventures as a player character should be more exciting than adventures that existed solely in your character history.</p>
-      <p class="bs-note">If your character history is incompatible with the world-as-written, violates our Code of Conduct, or otherwise is in need of revision, Lore staff will reach out with notes. LARP is an exercise in collaborative storytelling, and we want to give you every opportunity to succeed and thrive.</p>
+      <p class="bs-note">If your character history is incompatible with the world-as-written, violates our Code of Conduct, or otherwise is in need of revision, we will reach out to you. LARP is an exercise in collaborative storytelling, and we want to give you every opportunity to succeed and thrive.</p>
       <p class="bs-note">Finally, we are not awarding marks for spelling or grammar, nor are we withholding them for that reason. Some of our players may have learned English as a second language, or may not be adept in writing as an art-form. As long as their story is coherent, we have no burning need for excellence of prose.</p>
 
       <div class="bs-rubric-card">
         <h3>Basic Points: /30</h3>
-        <p class="bs-note" style="margin-bottom:0;">In order to get the 30 basic points for a character history, consider the following questions in your background. You can even summarize your answer to this in a single paragraph if you wish to, but we urge you to give them due consideration.</p>
+        <p class="bs-note" style="margin-bottom:0;">In order to get the 30 basic points for a character history, we would like you to consider the following questions in your background. You can even summarize your answer to this in a single paragraph if you wish to, but we urge you to give them due consideration.</p>
         <ul>
           <li>Where is your character coming from in life? This can include geographic location (nation, town, etc.), parentage/upbringing, and what your character considers to be their most important accomplishment to date.</li>
           <li>Why is your character coming to Yorik? There are any number of potential reasons, it's a town famous for its adventurers, heroes, and villains, and your character may be seeking their fortune, trying to stay hidden, or trying to earn a place in the growing legend of the area.</li>
@@ -227,13 +228,15 @@ function rubricHtml(hasApproved){
           <li>What does your character enjoy doing?</li>
           <li>What does your character believe?</li>
         </ul>
+        <p class="bs-note" style="margin-bottom:0;">Answering these questions, or otherwise showing that you have put thought into your character's motivations, can help you to earn these 20 bonus points.</p>
       </div>
     `;
   }
 
   return `
-    <p class="bs-note">Creating a character can be a lot of fun, starting from a blank canvas, coloured only by your imagination. As time moves on however, a character will grow and change. It can be helpful for the Plot Team to know what adventures were meaningful to that character, and how they changed as a result of their experiences.</p>
-    <p class="bs-note">Every eighteen months, a player may resubmit their backstory with additions and updates from time in-play. We strongly encourage you to take the time to think about who your character is, and who they are in the process of becoming. Lore staff will score your submission out of 25 points below, awarded as XP.</p>
+    <p class="bs-note">Creating a character can be a lot of fun, starting from a blank canvas, coloured only by your imagination, a character's original backstory tells where they come from and what their hopes, dreams, and ambitions might come to be.</p>
+    <p class="bs-note">As time moves on however, a character will grow and change. Exposed to new ideas, new experiences, and a world that might well be greater or worse than they would ever have imagined, they will have developed new traits and gone on new adventures. It can be helpful for the Plot Team to know what adventures were meaningful to that character, and how they changed as a result of their experiences.</p>
+    <p class="bs-note">To this end, Fantasy Alive would like to offer the opportunity for players to update the record. This has the potential to allow for tailored plot that is specific to a character as-they-are-now, and to ensure that new achievements are recorded, for stories as yet untold to acknowledge. As a way to sweeten the deal, there's also a small OC bonus associated. Every eighteen months, a player may resubmit their backstory with additions and updates from time in-play. We strongly encourage you to take the time to think about who your character is, and who they are in the process of becoming. A character may earn up to 25 Ogre Chips following the rubric below.</p>
 
     <div class="bs-rubric-card">
       <h3>Basic Points: /5</h3>
@@ -247,7 +250,7 @@ function rubricHtml(hasApproved){
 
     <div class="bs-rubric-card">
       <h3>Bonus Points: /5</h3>
-      <p class="bs-note" style="margin-bottom:0;">You can get up to 5 bonus points overall by considering any or all of the following ideas, or others that show character:</p>
+      <p class="bs-note" style="margin-bottom:0;">You don't have to select any of these in particular, but you can get up to 5 bonus points overall by considering any or all of the following ideas, or others that show character:</p>
       <ul>
         <li>What is your character's current ambition?</li>
         <li>What does your character regret?</li>
@@ -257,6 +260,7 @@ function rubricHtml(hasApproved){
         <li>What does your character enjoy doing?</li>
         <li>What does your character believe?</li>
       </ul>
+      <p class="bs-note" style="margin-bottom:0;">Having this information can help our Plot Team to tailor your future adventures and experiences to the character that you have now, rather than the one you first submitted.</p>
     </div>
   `;
 }
