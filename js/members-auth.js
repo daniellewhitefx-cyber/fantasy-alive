@@ -296,11 +296,20 @@ async function initMembersPage(){
     } catch(err){
     }
   }
+  let canSeePlot = isSiteAdmin;
+  if(!canSeePlot){
+    try{
+      const { data } = await membersSupabase.rpc('fa_is_plot_or_admin');
+      canSeePlot = !!data;
+    } catch(err){
+    }
+  }
   const staffLinks = [
     ['member-manage-characters-link', meta.character_staff || isSiteAdmin],
     ['member-banking-tools-link', meta.bank_staff || isSiteAdmin],
     ['member-manage-auctions-link', meta.auction_staff || isSiteAdmin],
     ['member-requests-link', canSeeRequests || canSeeBackstoryRequests],
+    ['member-plot-link', canSeePlot],
     ['member-permissions-link', isSiteAdmin],
     ['member-print-sheets-link', canSeeRequests],
     ['member-registrations-link', canSeeRequests],

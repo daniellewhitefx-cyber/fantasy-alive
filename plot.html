@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plotlines (Staff) - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Plotlines (Staff) - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/plot.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Plotlines (Staff) - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.plot-list-item{
+  display:block;
+  width:100%;
+  text-align:left;
+  background: var(--row-a);
+  border:none;
+  border-bottom: 1px solid var(--line);
+  padding: 0.7rem 0.9rem;
+  cursor:pointer;
+  font-family: 'EB Garamond', serif;
+}
+.plot-list-item:hover{ background: var(--cream-deep); }
+.plot-list-item.active{ background: var(--gold); }
+.plot-list-title{
+  font-family:'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--brown-dark);
+}
+.plot-list-item.active .plot-list-title{ color: var(--ink); }
+.plot-list-desc{
+  font-size: 0.85rem;
+  color: var(--brown-dark);
+  margin-top: 0.15rem;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.plot-new-form{
+  padding: 0.8rem;
+  border-bottom: 2px solid var(--gold);
+  display:flex;
+  flex-direction:column;
+  gap: 0.5rem;
+}
+.plot-new-form input, .plot-new-form textarea{ max-width:none; }
+.plot-new-form textarea{ min-height: 60px; }
+.plot-new-actions{ display:flex; gap: 0.5rem; }
+.plot-thread-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 2px solid var(--gold);
+}
+.plot-thread-title{
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  font-size: 1.15rem;
+}
+.plot-thread-desc{
+  font-family:'EB Garamond', serif;
+  font-size: 0.9rem;
+  color: var(--brown-dark);
+  margin-top: 0.2rem;
+}
+.plot-note{
+  margin-bottom: 0.8rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0;
+  border-left: 4px solid var(--line);
+  background: var(--cream-deep);
+  font-family: 'EB Garamond', serif;
+  white-space: pre-wrap;
+}
+.plot-note.mine{ border-left-color: var(--gold); }
+.plot-note-meta{
+  font-family:'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight:700;
+  color: var(--brown-dark);
+  margin-bottom: 0.25rem;
+}
+.plot-compose{
+  display:flex;
+  gap: 0.6rem;
+  align-items:flex-end;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 2px solid var(--gold);
+}
+.plot-compose textarea{
+  flex:1;
+  min-height: 54px;
+  max-width:none;
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Plotlines</h1>
+
+<div class="reg-already-registered" id="plot-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to the Plot team and site admins.</p>
+</div>
+
+<div id="plot-wrap" style="display:none;">
+
+<div class="msg-layout">
+
+<div class="msg-list-pane">
+<div class="msg-list-pane-header">
+<button class="btn-gold" style="width:100%;" onclick="plot_toggleNewForm()">+ New Plotline</button>
+</div>
+<div class="plot-new-form" id="plot-new-form" style="display:none;">
+<input type="text" id="plot-new-title" placeholder="Plotline title">
+<textarea id="plot-new-desc" placeholder="Short summary (optional)"></textarea>
+<p class="reg-error-note" id="plot-new-error" style="display:none;"></p>
+<div class="plot-new-actions">
+<button class="btn-gold" onclick="plot_createPlotline()">Create</button>
+<button class="btn-outline" onclick="plot_toggleNewForm()">Cancel</button>
+</div>
+</div>
+<div class="msg-list-items" id="plot-list"><p class="reg-empty-note" style="padding:1rem;">Loading&hellip;</p></div>
+</div>
+
+<div class="msg-reading-pane" id="plot-reading-pane">
+<p class="msg-reading-empty">Select a plotline, or create a new one.</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let plotlines = [];
+let notes = [];
+let activePlotlineId = null;
+let profileMap = {};
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtDateTime(iso){
+  return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+async function loadNames(playerIds){
+  const missing = [...new Set(playerIds)].filter(id => id && !profileMap[id]);
+  if(!missing.length) return;
+  const { data } = await membersSupabase.from('profiles').select('id, display_name').in('id', missing);
+  (data || []).forEach(p => { profileMap[p.id] = p.display_name; });
+}
+function nameFor(id){ return profileMap[id] || 'Unknown'; }
+
+async function plot_loadPlotlines(){
+  const { data, error } = await membersSupabase
+    .from('plotlines')
+    .select('id, title, description, created_by, created_at')
+    .order('title', { ascending: true });
+  if(error){
+    document.getElementById('plot-list').innerHTML = `<p class="reg-error-note" style="padding:1rem;">Couldn't load plotlines: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+  plotlines = data || [];
+  plot_renderPlotlineList();
+}
+
+function plot_renderPlotlineList(){
+  const target = document.getElementById('plot-list');
+  if(plotlines.length === 0){
+    target.innerHTML = '<p class="reg-empty-note" style="padding:1rem;">No plotlines yet. Create the first one.</p>';
+    return;
+  }
+  target.innerHTML = plotlines.map(p => `
+    <button class="plot-list-item ${p.id === activePlotlineId ? 'active' : ''}" onclick="plot_selectPlotline('${p.id}')">
+      <div class="plot-list-title">${escapeHtml(p.title)}</div>
+      ${p.description ? `<div class="plot-list-desc">${escapeHtml(p.description)}</div>` : ''}
+    </button>
+  `).join('');
+}
+
+window.plot_selectPlotline = async function(id){
+  activePlotlineId = id;
+  plot_renderPlotlineList();
+  await plot_loadNotes(id);
+};
+
+async function plot_loadNotes(id){
+  const pane = document.getElementById('plot-reading-pane');
+  pane.innerHTML = '<p class="reg-empty-note" style="padding:1rem;">Loading&hellip;</p>';
+
+  const { data, error } = await membersSupabase
+    .from('plotline_notes')
+    .select('id, author_id, body, created_at')
+    .eq('plotline_id', id)
+    .order('created_at', { ascending: true });
+
+  if(error){
+    pane.innerHTML = `<p class="reg-error-note">Couldn't load notes: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+
+  notes = data || [];
+  await loadNames(notes.map(n => n.author_id));
+  plot_renderThread();
+}
+
+function plot_renderThread(){
+  const pane = document.getElementById('plot-reading-pane');
+  const plotline = plotlines.find(p => p.id === activePlotlineId);
+  if(!plotline) return;
+
+  const me = window.faCurrentUser ? window.faCurrentUser.id : null;
+  const notesHtml = notes.length
+    ? notes.map(n => `
+        <div class="plot-note ${n.author_id === me ? 'mine' : ''}">
+          <div class="plot-note-meta">${escapeHtml(nameFor(n.author_id))} &middot; ${fmtDateTime(n.created_at)}</div>
+          <div>${escapeHtml(n.body)}</div>
+        </div>
+      `).join('')
+    : '<p class="reg-empty-note">No notes yet. Start the discussion below.</p>';
+
+  pane.innerHTML = `
+    <div class="plot-thread-header">
+      <div>
+        <div class="plot-thread-title">${escapeHtml(plotline.title)}</div>
+        ${plotline.description ? `<div class="plot-thread-desc">${escapeHtml(plotline.description)}</div>` : ''}
+      </div>
+    </div>
+    <div id="plot-notes-list">${notesHtml}</div>
+    <div class="plot-compose">
+      <textarea id="plot-note-body" placeholder="Post a note or comment..."></textarea>
+      <button class="btn-gold" onclick="plot_postNote()">Post</button>
+    </div>
+  `;
+
+  pane.scrollTop = pane.scrollHeight;
+}
+
+window.plot_postNote = async function(){
+  const input = document.getElementById('plot-note-body');
+  const body = input.value.trim();
+  if(!body) return;
+
+  const { error } = await membersSupabase.rpc('plot_post_note', { p_plotline_id: activePlotlineId, p_body: body });
+  if(error){ alert(error.message); return; }
+
+  input.value = '';
+  await plot_loadNotes(activePlotlineId);
+};
+
+window.plot_toggleNewForm = function(){
+  const form = document.getElementById('plot-new-form');
+  const showing = form.style.display !== 'none';
+  form.style.display = showing ? 'none' : 'flex';
+  if(!showing){
+    document.getElementById('plot-new-title').value = '';
+    document.getElementById('plot-new-desc').value = '';
+    document.getElementById('plot-new-error').style.display = 'none';
+  }
+};
+
+window.plot_createPlotline = async function(){
+  const title = document.getElementById('plot-new-title').value.trim();
+  const description = document.getElementById('plot-new-desc').value.trim();
+  const errorEl = document.getElementById('plot-new-error');
+  errorEl.style.display = 'none';
+
+  if(!title){
+    errorEl.textContent = 'Title is required.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const { data, error } = await membersSupabase.rpc('plot_create_plotline', { p_title: title, p_description: description || null });
+  if(error){
+    errorEl.textContent = error.message;
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  plot_toggleNewForm();
+  await plot_loadPlotlines();
+  window.plot_selectPlotline(data);
+};
+
+document.addEventListener('fa-members-ready', async () => {
+  const { data: allowed, error } = await membersSupabase.rpc('fa_is_plot_or_admin');
+  if(error || !allowed){
+    document.getElementById('plot-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('plot-wrap').style.display = 'block';
+  await plot_loadPlotlines();
+});
+})();
+</script>
+
+</body>
+</html>
