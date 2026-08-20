@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Market - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/market.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Market - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.mkt-status-banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border: 2px solid var(--gold);
+  padding: 0.7rem 1rem;
+  margin-bottom: 1rem;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+}
+.mkt-status-banner.open{ background: var(--good); color: #fff; }
+.mkt-status-banner.closed{ background: var(--row-b); color: var(--brown-dark); }
+.mkt-sell-mode{
+  display:flex;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.mkt-row-buy{
+  display:flex;
+  align-items:center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.mkt-row-buy select{ width: auto; }
+.reg-section-label.mkt-sub{ margin-top: 1.6rem; }
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Market</h1>
+
+<div id="mkt-staff-controls" style="display:none;"></div>
+
+<div id="mkt-status-banner" class="mkt-status-banner closed">Loading&hellip;</div>
+
+<div class="bank-tabs" role="tablist">
+<button class="bank-tab active" data-tab="browse" onclick="mkt_switchTab('browse')">Browse &amp; Buy</button>
+<button class="bank-tab" data-tab="sell" onclick="mkt_switchTab('sell')">Sell an Item</button>
+<button class="bank-tab" data-tab="mine" onclick="mkt_switchTab('mine')">My Listings</button>
+</div>
+
+<div class="bank-tab-panel" data-panel="browse">
+<div id="mkt-browse-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+<div class="bank-tab-panel" data-panel="sell" style="display:none;">
+<div class="panel">
+<div class="panel-body">
+<div class="mkt-sell-mode" id="mkt-sell-mode" style="display:none;">
+<button class="btn-gold" id="mkt-sell-mode-char" onclick="mkt_setSellMode('character')">Sell My Item</button>
+<button class="btn-outline" id="mkt-sell-mode-npc" onclick="mkt_setSellMode('npc')">Sell as an NPC</button>
+</div>
+<div id="mkt-sell-form"></div>
+<p class="reg-error-note" id="mkt-sell-error" style="display:none; margin-top:0.6rem;"></p>
+<p class="reg-success-note" id="mkt-sell-success" style="display:none; margin-top:0.6rem;"></p>
+</div>
+</div>
+</div>
+
+<div class="bank-tab-panel" data-panel="mine" style="display:none;">
+<div class="reg-section-label">Listings I've Posted</div>
+<div id="mkt-mine-posted"><p class="reg-empty-note">Loading&hellip;</p></div>
+<div class="reg-section-label mkt-sub">Things I've Bought</div>
+<div id="mkt-mine-bought"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let IS_LOGISTICS = false;
+let IS_LISTER = false;
+let MARKET_OPEN = false;
+let MY_CHARACTERS = [];
+let ALL_CHARACTERS = [];
+let PROFILE_MAP = {};
+let SELL_MODE = 'character';
+let listings = [];
+let myListings = [];
+let myPurchases = [];
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
+function fmtCoin(n){
+  return Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+function fmtDateTime(iso){
+  return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+function charName(id){ const c = ALL_CHARACTERS.find(x => x.id === id); return c ? c.name : 'Unknown character'; }
+function sellerLabel(l){ return l.npc_seller_name ? `${l.npc_seller_name} (NPC)` : charName(l.seller_character_id); }
+
+function mkt_switchTab(tab){
+  document.querySelectorAll('.bank-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+  document.querySelectorAll('.bank-tab-panel').forEach(p => { p.style.display = p.dataset.panel === tab ? 'block' : 'none'; });
+}
+
+async function loadStatus(){
+  const { data } = await membersSupabase.from('market_settings').select('is_open').eq('id', true).maybeSingle();
+  MARKET_OPEN = !!(data && data.is_open);
+  const banner = document.getElementById('mkt-status-banner');
+  banner.className = 'mkt-status-banner ' + (MARKET_OPEN ? 'open' : 'closed');
+  banner.textContent = MARKET_OPEN
+    ? 'The Market is open -- browse and buy below.'
+    : 'The Market is closed. You can still list items to sell -- come back when it opens to browse and buy.';
+}
+
+async function mkt_toggleOpen(){
+  const btn = document.getElementById('mkt-toggle-btn');
+  btn.disabled = true;
+  const { error } = await membersSupabase.rpc('market_set_open', { p_is_open: !MARKET_OPEN });
+  btn.disabled = false;
+  if(error){ alert(error.message); return; }
+  await loadStatus();
+  renderStaffControls();
+  await loadBrowse();
+}
+
+function renderStaffControls(){
+  const wrap = document.getElementById('mkt-staff-controls');
+  if(!IS_LOGISTICS){ wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  wrap.innerHTML = `
+    <div class="panel" style="margin-bottom:1rem;">
+      <div class="panel-body" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.8rem;">
+        <div><strong>Market Controls</strong> &middot; currently <strong>${MARKET_OPEN ? 'OPEN' : 'CLOSED'}</strong></div>
+        <button id="mkt-toggle-btn" class="${MARKET_OPEN ? 'btn-outline' : 'btn-gold'}" onclick="mkt_toggleOpen()">${MARKET_OPEN ? 'Close the Market' : 'Open the Market'}</button>
+      </div>
+    </div>
+  `;
+}
+
+async function loadBrowse(){
+  const target = document.getElementById('mkt-browse-list');
+  if(!MARKET_OPEN){
+    target.innerHTML = emptyState('The market is closed right now.');
+    return;
+  }
+
+  const { data, error } = await membersSupabase
+    .from('market_listings')
+    .select('id, seller_character_id, npc_seller_name, item_name, quantity, price_coin, created_at')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+  if(error){
+    target.innerHTML = `<p class="reg-error-note">Couldn't load the market: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+  listings = data || [];
+
+  if(!listings.length){
+    target.innerHTML = emptyState('Nothing for sale right now.');
+    return;
+  }
+
+  const charOptions = MY_CHARACTERS.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
+
+  const rows = listings.map(l => `
+    <tr>
+      <td>${escapeHtml(l.item_name)}</td>
+      <td>${l.quantity}</td>
+      <td>${fmtCoin(l.price_coin)} coin</td>
+      <td>${escapeHtml(sellerLabel(l))}</td>
+      <td>
+        ${MY_CHARACTERS.length ? `
+          <div class="mkt-row-buy">
+            <select id="mkt-buy-char-${l.id}">${charOptions}</select>
+            <button class="btn-gold" onclick="mkt_buy('${l.id}')">Buy</button>
+          </div>
+        ` : '<span class="reg-empty-note">You need a character first</span>'}
+      </td>
+    </tr>
+  `).join('');
+
+  target.innerHTML = `
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Seller</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.mkt_buy = async function(listingId){
+  const listing = listings.find(l => l.id === listingId);
+  if(listing && !confirm(`Buy ${listing.quantity}x ${listing.item_name} for ${fmtCoin(listing.price_coin)} coin?`)) return;
+
+  const select = document.getElementById('mkt-buy-char-' + listingId);
+  const buyerCharId = select.value;
+  const { error } = await membersSupabase.rpc('market_buy_item', {
+    p_listing_id: listingId,
+    p_buyer_character_id: buyerCharId
+  });
+  if(error){ alert(error.message); return; }
+  await loadBrowse();
+};
+
+function mkt_setSellMode(mode){
+  SELL_MODE = mode;
+  document.getElementById('mkt-sell-mode-char').className = mode === 'character' ? 'btn-gold' : 'btn-outline';
+  document.getElementById('mkt-sell-mode-npc').className = mode === 'npc' ? 'btn-gold' : 'btn-outline';
+  renderSellForm();
+}
+
+async function renderSellForm(){
+  const wrap = document.getElementById('mkt-sell-form');
+  document.getElementById('mkt-sell-error').style.display = 'none';
+  document.getElementById('mkt-sell-success').style.display = 'none';
+
+  if(SELL_MODE === 'npc'){
+    wrap.innerHTML = `
+      <label class="field-label" for="mkt-npc-name">NPC seller's name</label>
+      <input type="text" id="mkt-npc-name" placeholder="e.g. Old Man Withers">
+      <label class="field-label" for="mkt-npc-item">Item name</label>
+      <input type="text" id="mkt-npc-item" placeholder="e.g. Rumor Scroll">
+      <label class="field-label" for="mkt-npc-qty">Quantity</label>
+      <input type="number" id="mkt-npc-qty" min="1" value="1">
+      <label class="field-label" for="mkt-npc-price">Price (coin)</label>
+      <input type="number" id="mkt-npc-price" min="0" step="0.01" value="0">
+      <button class="btn-gold" style="margin-top:1rem;" onclick="mkt_submitNpcListing()">List Item</button>
+    `;
+    return;
+  }
+
+  if(!MY_CHARACTERS.length){
+    wrap.innerHTML = `<p class="reg-empty-note">You need a character before you can sell anything.</p>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <label class="field-label" for="mkt-sell-char">Character</label>
+    <select id="mkt-sell-char" onchange="mkt_loadSellerInventory()">
+      ${MY_CHARACTERS.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('')}
+    </select>
+    <label class="field-label" for="mkt-sell-item">Item</label>
+    <select id="mkt-sell-item"><option value="">Loading&hellip;</option></select>
+    <label class="field-label" for="mkt-sell-qty">Quantity</label>
+    <input type="number" id="mkt-sell-qty" min="1" value="1">
+    <label class="field-label" for="mkt-sell-price">Price (coin)</label>
+    <input type="number" id="mkt-sell-price" min="0" step="0.01" value="0">
+    <button class="btn-gold" style="margin-top:1rem;" onclick="mkt_submitCharListing()">List Item</button>
+  `;
+  await mkt_loadSellerInventory();
+}
+
+window.mkt_loadSellerInventory = async function(){
+  const charSelect = document.getElementById('mkt-sell-char');
+  const itemSelect = document.getElementById('mkt-sell-item');
+  if(!charSelect || !itemSelect) return;
+  itemSelect.innerHTML = '<option value="">Loading&hellip;</option>';
+
+  const { data } = await membersSupabase.rpc('character_material_inventory', { p_character_id: charSelect.value });
+  const items = data || [];
+  if(!items.length){
+    itemSelect.innerHTML = '<option value="">No items on hand</option>';
+    return;
+  }
+  itemSelect.innerHTML = items.map(i => `<option value="${escapeHtml(i.material_name)}" data-balance="${i.balance}">${escapeHtml(i.material_name)} (${i.balance} on hand)</option>`).join('');
+};
+
+window.mkt_submitCharListing = async function(){
+  const errorEl = document.getElementById('mkt-sell-error');
+  const successEl = document.getElementById('mkt-sell-success');
+  errorEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  const characterId = document.getElementById('mkt-sell-char').value;
+  const itemName = document.getElementById('mkt-sell-item').value;
+  const qty = parseInt(document.getElementById('mkt-sell-qty').value, 10);
+  const price = parseFloat(document.getElementById('mkt-sell-price').value);
+
+  if(!itemName){ errorEl.textContent = 'Choose an item to sell.'; errorEl.style.display = 'block'; return; }
+  if(!qty || qty < 1){ errorEl.textContent = 'Enter a quantity of at least 1.'; errorEl.style.display = 'block'; return; }
+  if(isNaN(price) || price < 0){ errorEl.textContent = 'Enter a price of 0 or more.'; errorEl.style.display = 'block'; return; }
+
+  const { error } = await membersSupabase.rpc('market_create_listing', {
+    p_item_name: itemName,
+    p_quantity: qty,
+    p_price_coin: price,
+    p_character_id: characterId,
+    p_npc_seller_name: null
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  successEl.textContent = 'Listed.';
+  successEl.style.display = 'block';
+  await mkt_loadSellerInventory();
+  await loadMine();
+};
+
+window.mkt_submitNpcListing = async function(){
+  const errorEl = document.getElementById('mkt-sell-error');
+  const successEl = document.getElementById('mkt-sell-success');
+  errorEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  const npcName = document.getElementById('mkt-npc-name').value.trim();
+  const itemName = document.getElementById('mkt-npc-item').value.trim();
+  const qty = parseInt(document.getElementById('mkt-npc-qty').value, 10);
+  const price = parseFloat(document.getElementById('mkt-npc-price').value);
+
+  if(!npcName){ errorEl.textContent = "Enter the NPC seller's name."; errorEl.style.display = 'block'; return; }
+  if(!itemName){ errorEl.textContent = 'Enter an item name.'; errorEl.style.display = 'block'; return; }
+  if(!qty || qty < 1){ errorEl.textContent = 'Enter a quantity of at least 1.'; errorEl.style.display = 'block'; return; }
+  if(isNaN(price) || price < 0){ errorEl.textContent = 'Enter a price of 0 or more.'; errorEl.style.display = 'block'; return; }
+
+  const { error } = await membersSupabase.rpc('market_create_listing', {
+    p_item_name: itemName,
+    p_quantity: qty,
+    p_price_coin: price,
+    p_character_id: null,
+    p_npc_seller_name: npcName
+  });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  successEl.textContent = 'Listed.';
+  successEl.style.display = 'block';
+  document.getElementById('mkt-npc-name').value = '';
+  document.getElementById('mkt-npc-item').value = '';
+  document.getElementById('mkt-npc-qty').value = '1';
+  document.getElementById('mkt-npc-price').value = '0';
+  await loadMine();
+};
+
+function statusLabel(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+function statusClass(s){ return s; }
+
+async function loadMine(){
+  const me = window.faCurrentUser.id;
+
+  const { data: posted } = await membersSupabase
+    .from('market_listings')
+    .select('id, seller_character_id, npc_seller_name, item_name, quantity, price_coin, status, buyer_character_id, created_at, sold_at')
+    .eq('listed_by', me)
+    .order('created_at', { ascending: false });
+  myListings = posted || [];
+
+  const postedTarget = document.getElementById('mkt-mine-posted');
+  if(!myListings.length){
+    postedTarget.innerHTML = emptyState("You haven't listed anything yet.");
+  } else {
+    postedTarget.innerHTML = `
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Seller</th><th>Status</th><th></th></tr></thead>
+          <tbody>${myListings.map(l => `
+            <tr>
+              <td>${escapeHtml(l.item_name)}</td>
+              <td>${l.quantity}</td>
+              <td>${fmtCoin(l.price_coin)} coin</td>
+              <td>${escapeHtml(sellerLabel(l))}</td>
+              <td><span class="status-pill ${statusClass(l.status)}">${statusLabel(l.status)}</span></td>
+              <td>${l.status === 'active' ? `<button class="btn-outline" onclick="mkt_cancel('${l.id}')">Cancel</button>` : ''}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  const buyerCharIds = MY_CHARACTERS.map(c => c.id);
+  let bought = [];
+  if(buyerCharIds.length){
+    const { data } = await membersSupabase
+      .from('market_listings')
+      .select('id, seller_character_id, npc_seller_name, item_name, quantity, price_coin, buyer_character_id, sold_at')
+      .in('buyer_character_id', buyerCharIds)
+      .eq('status', 'sold')
+      .order('sold_at', { ascending: false });
+    bought = data || [];
+  }
+  myPurchases = bought;
+
+  const boughtTarget = document.getElementById('mkt-mine-bought');
+  boughtTarget.innerHTML = myPurchases.length ? `
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Seller</th><th>Bought By</th><th>Date</th></tr></thead>
+        <tbody>${myPurchases.map(l => `
+          <tr>
+            <td>${escapeHtml(l.item_name)}</td>
+            <td>${l.quantity}</td>
+            <td>${fmtCoin(l.price_coin)} coin</td>
+            <td>${escapeHtml(sellerLabel(l))}</td>
+            <td>${escapeHtml(charName(l.buyer_character_id))}</td>
+            <td>${fmtDateTime(l.sold_at)}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    </div>
+  ` : emptyState("You haven't bought anything yet.");
+}
+
+window.mkt_cancel = async function(listingId){
+  const { error } = await membersSupabase.rpc('market_cancel_listing', { p_listing_id: listingId });
+  if(error){ alert(error.message); return; }
+  await loadMine();
+  await loadBrowse();
+};
+
+window.mkt_switchTab = mkt_switchTab;
+window.mkt_toggleOpen = mkt_toggleOpen;
+window.mkt_setSellMode = mkt_setSellMode;
+
+async function init(){
+  const me = window.faCurrentUser.id;
+
+  const [{ data: chars }, { data: logistics }, { data: plot }, profiles] = await Promise.all([
+    membersSupabase.from('characters').select('id, name').eq('player_id', me).order('created_at', { ascending: true }),
+    membersSupabase.rpc('fa_is_logistics_or_admin'),
+    membersSupabase.rpc('fa_is_plot_or_admin'),
+    faFetchAllRows('profiles', 'id, display_name')
+  ]);
+
+  MY_CHARACTERS = chars || [];
+  IS_LOGISTICS = !!logistics;
+  IS_LISTER = IS_LOGISTICS || !!plot;
+
+  PROFILE_MAP = {};
+  (profiles || []).forEach(p => { PROFILE_MAP[p.id] = p.display_name; });
+
+  const { data: allChars } = await membersSupabase.rpc('character_names');
+  ALL_CHARACTERS = allChars || [];
+
+  if(IS_LISTER){
+    document.getElementById('mkt-sell-mode').style.display = 'flex';
+  }
+
+  await loadStatus();
+  renderStaffControls();
+  await Promise.all([loadBrowse(), loadMine()]);
+  renderSellForm();
+}
+
+document.addEventListener('fa-members-ready', init);
+})();
+</script>
+
+</body>
+</html>

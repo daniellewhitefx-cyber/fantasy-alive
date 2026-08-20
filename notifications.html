@@ -248,6 +248,7 @@ async function init(){
     else if(t.type === 'withdrawal') html = `<strong>-${t.amount} coin</strong> withdrawal fulfilled by staff${note}`;
     else if(t.type === 'transfer_in') html = `<strong>+${t.amount} coin</strong> from ${escapeHtml(profileMap[t.counterparty_id] || 'another player')}${note}`;
     else if(t.type === 'bill_payment_in') html = `<strong>+${t.amount} coin</strong> - ${escapeHtml(profileMap[t.counterparty_id] || 'a player')} paid your bill${note}`;
+    else if(t.type === 'market_sale_in') html = `<strong>+${t.amount} coin</strong> - your Market listing sold${note}`;
     else html = `<strong>${t.amount} coin</strong> bank update${note}`;
     (isNew(t.created_at) ? newItems : previousItems).push({ type: 'bank', date: t.created_at, html });
   });
