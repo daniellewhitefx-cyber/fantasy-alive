@@ -19,13 +19,6 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/members.css">
 <script src="js/vendor/supabase-js.min.js"></script>
-<style>
-.inv-qty{
-  width: 60px;
-  text-align: center;
-  padding: 0.25rem;
-}
-</style>
 </head>
 <body>
 
@@ -96,24 +89,24 @@ function render(){
   const nextEvent = window.FA_NEXT_EVENT;
 
   const rows = c.items.map(item => {
-    const pending = c.requests.find(r => r.item_name.trim().toLowerCase() === item.material_name.trim().toLowerCase());
+    const request = c.requests.find(r => r.item_name.trim().toLowerCase() === item.material_name.trim().toLowerCase());
     const nameEsc = item.material_name.replace(/'/g, "\\'");
 
     let actionCell;
-    if(pending){
+    if(request && request.status === 'pending'){
       actionCell = `
-        <span class="reg-empty-note" style="display:inline;">Tag requested for ${escapeHtml(pending.event_slug)}</span>
-        <button class="btn-outline" onclick="inv_cancelRequest('${pending.id}')" title="Cancel this request">&times;</button>
+        <span class="reg-empty-note" style="display:inline;">Tag requested for ${escapeHtml(request.event_slug)}</span>
+        <button class="btn-outline" onclick="inv_cancelRequest('${request.id}')" title="Skip a tag for this item">Don't Need a Tag</button>
+      `;
+    } else if(request && request.status === 'cancelled'){
+      actionCell = `
+        <span class="reg-empty-note" style="display:inline;">Skipping a tag for ${escapeHtml(request.event_slug)}</span>
+        <button class="btn-outline" onclick="inv_requestTag('${c.id}', '${nameEsc}', ${item.balance})">Request Tag After All</button>
       `;
     } else if(!nextEvent){
       actionCell = `<span class="reg-empty-note">No upcoming event scheduled</span>`;
     } else {
-      const key = c.id + '::' + item.material_name;
-      const inputId = 'inv-qty-' + key;
-      actionCell = `
-        <input type="number" min="1" max="${item.balance}" value="${item.balance}" class="inv-qty" id="${inputId}">
-        <button class="btn-outline" onclick="inv_requestTag('${c.id}', '${nameEsc}', '${inputId.replace(/'/g, "\\'")}')">Receive Tag at Next Event</button>
-      `;
+      actionCell = `<span class="reg-empty-note">Queuing a tag&hellip;</span>`;
     }
 
     return `
@@ -128,6 +121,7 @@ function render(){
   content.innerHTML = `
     <div class="panel">
       <div class="panel-body">
+        <p class="reg-empty-note" style="margin-bottom:0.8rem;">Everything on hand automatically gets a tag queued for the next event -- use "Don't Need a Tag" for anything you don't want printed.</p>
         <div class="table-scroll">
           <table class="data-table">
             <thead><tr><th>Item</th><th>On Hand</th><th>Tag Status</th></tr></thead>
@@ -140,11 +134,10 @@ function render(){
   `;
 }
 
-async function inv_requestTag(characterId, itemName, qtyInputId){
+async function inv_requestTag(characterId, itemName, quantity){
   const errorEl = document.getElementById('inv-error');
   errorEl.style.display = 'none';
-  const qtyInput = document.getElementById(qtyInputId);
-  const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+  const qty = Math.max(1, parseInt(quantity, 10) || 1);
   const nextEvent = window.FA_NEXT_EVENT;
   if(!nextEvent) return;
 
@@ -175,10 +168,18 @@ async function loadCharacterInventory(characterId){
 
   c.loadError = null;
   try{
+    const nextEvent = window.FA_NEXT_EVENT;
+    if(nextEvent){
+      const { error: ensureError } = await membersSupabase.rpc('character_ensure_tag_requests', {
+        p_character_id: characterId, p_event_slug: nextEvent.value
+      });
+      if(ensureError) throw new Error(ensureError.message);
+    }
+
     const [invRes, reqRes] = await Promise.all([
       membersSupabase.rpc('character_material_inventory', { p_character_id: characterId }),
-      membersSupabase.from('character_tag_requests').select('id, item_name, quantity, event_slug')
-        .eq('character_id', characterId).eq('status', 'pending')
+      membersSupabase.from('character_tag_requests').select('id, item_name, quantity, event_slug, status')
+        .eq('character_id', characterId).in('status', ['pending', 'cancelled'])
     ]);
     if(invRes.error) throw new Error(invRes.error.message);
     if(reqRes.error) throw new Error(reqRes.error.message);

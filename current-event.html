@@ -1704,10 +1704,7 @@ function renderCraftGrid(){
   document.getElementById('ce-craft-grid').innerHTML = items.length ? items.map(item => {
     const key = item.trade + '::' + item.name;
     const keyEsc = key.replace(/'/g, "\\'");
-    // Defaults to checked (opt-out): most crafts get covered by tags
-    // owed to Logistics at the next event unless a player explicitly
-    // unchecks this to prove they have the materials on hand instead.
-    const tagChecked = CRAFT_TAG_STATE[key] !== false;
+    const tagChecked = !!CRAFT_TAG_STATE[key];
     const knownSkill = TRAIN_KNOWN.find(k => k.category === 'Trade Skill' && k.title.trim().toLowerCase() === item.trade.trim().toLowerCase());
 
     const levelOk = !!knownSkill && knownSkill.level >= item.levelRequired;
@@ -1770,7 +1767,7 @@ async function ce_craftMake(trade, itemName){
     p_hours: item.hours,
     p_qty_produced: item.qtyProduced,
     p_materials: item.materials.map(m => ({ name: m.name, qty: m.qty })),
-    p_tag_turned_in: CRAFT_TAG_STATE[key] !== false
+    p_tag_turned_in: !!CRAFT_TAG_STATE[key]
   });
   if(error){ showError(errorEl, error.message); return; }
 
