@@ -19,6 +19,29 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/members.css">
 <script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.friends-card-row{
+  display:flex;
+  align-items:center;
+  gap: 0.7rem;
+}
+.friends-avatar{
+  width: 52px; height: 52px;
+  flex-shrink:0;
+  border: 2px solid var(--brown-dark);
+  background: var(--ink);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.friends-avatar img{ width:100%; height:100%; object-fit:cover; }
+.friends-card-body{ flex:1; min-width:0; }
+</style>
 </head>
 <body>
 
@@ -76,6 +99,9 @@ function escapeHtml(str){
 }
 function emptyState(msg){
   return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
+function initials(name){
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
 }
 
 function selectChar(id){
@@ -210,10 +236,18 @@ function friends_renderNamedCards(ids, charById, nameByPlayer, buttonsFor){
   return ids.map(id => {
     const c = charById[id];
     if(!c) return '';
+    const avatar = c.portrait_url
+      ? `<img src="${escapeHtml(c.portrait_url)}" alt="${escapeHtml(c.name)} portrait">`
+      : escapeHtml(initials(c.name));
     return `
     <div class="info-card">
-      <div>${escapeHtml(c.name)}</div>
-      <div class="friends-player-name">${escapeHtml(nameByPlayer[c.player_id] || 'Unknown player')}</div>
+      <div class="friends-card-row">
+        <div class="friends-avatar">${avatar}</div>
+        <div class="friends-card-body">
+          <div>${escapeHtml(c.name)}</div>
+          <div class="friends-player-name">${escapeHtml(nameByPlayer[c.player_id] || 'Unknown player')}</div>
+        </div>
+      </div>
       ${buttonsFor(id)}
     </div>`;
   }).join('');
@@ -258,7 +292,7 @@ async function loadFriends(){
     return;
   }
 
-  const { data: chars } = await membersSupabase.rpc('character_names').select('id, name, player_id').in('id', allIds);
+  const { data: chars } = await membersSupabase.rpc('character_names').select('id, name, player_id, portrait_url').in('id', allIds);
   const playerIds = [...new Set((chars || []).map(c => c.player_id))];
   const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', playerIds);
   const nameByPlayer = {};
