@@ -700,7 +700,11 @@ insert into skill_prerequisites (id, skill_detail_id, prerequisite_skill_id, pre
   (213, 105, 2, 1, null, null, true, null, null),
   (214, 14, 18, 1, null, null, false, null, null),
   (215, 15, 42, 1, null, null, false, null, null),
-  (216, 98, 42, 1, null, null, false, null, null),
+  -- id 216 intentionally omitted: it duplicated row 215's Weapon Mastery
+  -- prerequisite onto skill_detail_id 98, D'Shunn's own Channel Spell
+  -- cost override -- but the rulebook (lore-import.sql, playable-races.html)
+  -- says D'Shunn get Channel Spell "without any pre-requisites", so their
+  -- override row should carry none at all.
   (217, 72, 76, 1, null, null, false, null, null),
   (218, 59, 45, 1, null, null, false, null, null),
   (219, 97, 45, 1, null, null, false, null, null),
