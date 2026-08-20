@@ -124,8 +124,8 @@
 <h1 class="page-title">Backstory Requests</h1>
 
 <div class="reg-already-registered" id="ab-blocked-notice" style="display:none;">
-<h3>Lore access required</h3>
-<p>This page is only available to the Lore team and site admins.</p>
+<h3>Staff access required</h3>
+<p>This page is only available to the Lore, Logistics, and Plot teams, and site admins.</p>
 </div>
 
 <div id="ab-wrap" style="display:none;">
@@ -158,6 +158,7 @@
 (function(){
 let PENDING = [];
 let PAST = [];
+let IS_LORE = false;
 const charMap = {};
 const profileMap = {};
 
@@ -176,6 +177,12 @@ function fmtDateTime(iso){
 function statusLabel(status){
   if(status === 'revision_requested') return 'Revision Requested';
   return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function kindLabel(kind){
+  if(kind === 'remort') return 'Remort';
+  if(kind === 'resubmission') return 'Revision';
+  return 'First submission';
 }
 
 async function loadNames(playerIds, characterIds){
@@ -197,7 +204,7 @@ function charFor(charId){ return charMap[charId] || { name: 'Unknown character',
 async function loadPending(){
   const { data } = await membersSupabase
     .from('character_backstories')
-    .select('id, character_id, player_id, body, is_resubmission, submitted_at')
+    .select('id, character_id, player_id, body, kind, submitted_at')
     .eq('status', 'pending')
     .order('submitted_at', { ascending: true });
   PENDING = data || [];
@@ -214,36 +221,45 @@ function renderPending(){
 
   target.innerHTML = PENDING.map(r => {
     const c = charFor(r.character_id);
-    return `
-      <div class="ab-row">
-        <div class="ab-row-head">
-          <div>
-            <div class="ab-row-who">${escapeHtml(c.name)} (${escapeHtml(c.race || '')})</div>
-            <div class="ab-row-meta">Played by ${escapeHtml(nameFor(r.player_id))} &middot; ${r.is_resubmission ? 'Revision' : 'First submission'} &middot; ${fmtDateTime(r.submitted_at)}</div>
-          </div>
-        </div>
-        <div class="ab-row-body">${escapeHtml(r.body)}</div>
+    const reviewControls = !IS_LORE ? '' : `
         <div class="ab-review-grid">
           <div class="ab-notes-field">
             <label for="ab-notes-${r.id}">Notes to player</label>
             <textarea id="ab-notes-${r.id}" placeholder="Optional notes..."></textarea>
           </div>
-          <div class="ab-xp-field">
-            <label for="ab-xp-${r.id}">XP to award</label>
-            <input type="number" id="ab-xp-${r.id}" min="0" step="1" placeholder="0">
-          </div>
+          ${r.kind === 'remort' ? `
+            <p class="reg-empty-note" style="margin:0;">No XP is awarded for a remort backstory.</p>
+          ` : `
+            <div class="ab-xp-field">
+              <label for="ab-xp-${r.id}">XP to award</label>
+              <input type="number" id="ab-xp-${r.id}" min="0" step="1" placeholder="0">
+            </div>
+          `}
         </div>
         <div class="ab-row-actions">
-          <button class="btn-gold" data-approve="${escapeHtml(r.id)}">Approve</button>
+          <button class="btn-gold" data-approve="${escapeHtml(r.id)}" data-kind="${escapeHtml(r.kind)}">Approve</button>
           <button class="btn-outline" data-revise="${escapeHtml(r.id)}">Request Revisions</button>
           <button class="btn-outline" data-deny="${escapeHtml(r.id)}">Deny</button>
         </div>
+    `;
+    return `
+      <div class="ab-row">
+        <div class="ab-row-head">
+          <div>
+            <div class="ab-row-who">${escapeHtml(c.name)} (${escapeHtml(c.race || '')})</div>
+            <div class="ab-row-meta">Played by ${escapeHtml(nameFor(r.player_id))} &middot; ${kindLabel(r.kind)} &middot; ${fmtDateTime(r.submitted_at)}</div>
+          </div>
+        </div>
+        <div class="ab-row-body">${escapeHtml(r.body)}</div>
+        ${reviewControls}
       </div>
     `;
   }).join('');
 
+  if(!IS_LORE) return;
+
   target.querySelectorAll('[data-approve]').forEach(btn => {
-    btn.addEventListener('click', () => decide(btn.dataset.approve, 'approved'));
+    btn.addEventListener('click', () => decide(btn.dataset.approve, 'approved', btn.dataset.kind));
   });
   target.querySelectorAll('[data-revise]').forEach(btn => {
     btn.addEventListener('click', () => decide(btn.dataset.revise, 'revision_requested'));
@@ -253,10 +269,10 @@ function renderPending(){
   });
 }
 
-async function decide(id, status){
+async function decide(id, status, kind){
   const notes = document.getElementById('ab-notes-' + id).value.trim();
   let xp = null;
-  if(status === 'approved'){
+  if(status === 'approved' && kind !== 'remort'){
     const xpInput = document.getElementById('ab-xp-' + id);
     xp = parseInt(xpInput.value, 10);
     if(isNaN(xp) || xp < 0){
@@ -280,7 +296,7 @@ async function decide(id, status){
 async function loadPast(){
   const { data } = await membersSupabase
     .from('character_backstories')
-    .select('id, character_id, player_id, status, xp_awarded, lore_notes, is_resubmission, decided_at')
+    .select('id, character_id, player_id, status, xp_awarded, lore_notes, kind, decided_at')
     .neq('status', 'pending')
     .order('decided_at', { ascending: false })
     .limit(30);
@@ -305,7 +321,7 @@ function renderPast(){
         <div class="ab-row-head">
           <div>
             <div class="ab-row-who">${escapeHtml(c.name)} (${escapeHtml(c.race || '')})</div>
-            <div class="ab-row-meta">Played by ${escapeHtml(nameFor(r.player_id))} &middot; ${r.is_resubmission ? 'Revision' : 'First submission'} &middot; ${fmtDateTime(r.decided_at)}</div>
+            <div class="ab-row-meta">Played by ${escapeHtml(nameFor(r.player_id))} &middot; ${kindLabel(r.kind)} &middot; ${fmtDateTime(r.decided_at)}</div>
           </div>
           <div><span class="status-pill ${r.status === 'revision_requested' ? 'revision' : r.status}">${statusLabel(r.status)}</span>${xp}</div>
         </div>
@@ -316,12 +332,18 @@ function renderPast(){
 }
 
 document.addEventListener('fa-members-ready', async () => {
-  const { data: allowed, error } = await membersSupabase.rpc('fa_is_lore_or_admin');
+  const { data: allowed, error } = await membersSupabase.rpc('fa_is_backstory_viewer');
   if(error || !allowed){
     document.getElementById('ab-blocked-notice').style.display = 'block';
     return;
   }
   document.getElementById('ab-wrap').style.display = 'block';
+
+  const { data: isLore } = await membersSupabase.rpc('fa_is_lore_or_admin');
+  IS_LORE = !!isLore;
+  if(!IS_LORE){
+    document.getElementById('ab-pending-list').insertAdjacentHTML('beforebegin', '<p class="reg-empty-note">You have view-only access to backstory submissions.</p>');
+  }
 
   await Promise.all([loadPending(), loadPast()]);
 });

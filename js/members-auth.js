@@ -304,7 +304,14 @@ async function initMembersPage(){
     } catch(err){
     }
   }
-  const canSeeBackstoryRequests = isSiteAdmin || meta.role === 'lore_editor';
+  let canSeeBackstoryRequests = isSiteAdmin || meta.role === 'lore_editor';
+  if(!canSeeBackstoryRequests){
+    try{
+      const { data } = await membersSupabase.rpc('fa_is_backstory_viewer');
+      canSeeBackstoryRequests = !!data;
+    } catch(err){
+    }
+  }
   const staffLinks = [
     ['member-manage-characters-link', meta.character_staff || isSiteAdmin],
     ['member-banking-tools-link', meta.bank_staff || isSiteAdmin],
