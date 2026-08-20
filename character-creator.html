@@ -79,7 +79,7 @@
 </div>
 <div>
 <label class="field-label" for="cc-birthday">Birthday</label>
-<input type="date" id="cc-birthday">
+<input type="text" id="cc-birthday" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric">
 </div>
 </div>
 </div>
@@ -435,10 +435,12 @@ async function cc_submit(){
   const name = document.getElementById('cc-name').value.trim();
   const race = currentRace();
   const pronouns = document.getElementById('cc-pronouns').value.trim();
-  const birthday = document.getElementById('cc-birthday').value || null;
+  const birthdayRaw = document.getElementById('cc-birthday').value.trim();
+  const birthday = birthdayRaw || null;
 
   if(!name){ errorEl.textContent = 'Character name cannot be empty.'; errorEl.style.display = 'block'; return; }
   if(!race){ errorEl.textContent = 'Please choose a race.'; errorEl.style.display = 'block'; return; }
+  if(birthdayRaw && !/^\d{4}-\d{2}-\d{2}$/.test(birthdayRaw)){ errorEl.textContent = 'Birthday must be in YYYY-MM-DD format.'; errorEl.style.display = 'block'; return; }
   if(spentSP() > startingSP()){ errorEl.textContent = 'Chosen skills exceed your starting Skill Points.'; errorEl.style.display = 'block'; return; }
 
   const p_skills = chosen.map(s => ({

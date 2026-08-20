@@ -57,7 +57,7 @@
 </div>
 <div>
 <label class="field-label" for="ce-birthday">Birthday</label>
-<input type="date" id="ce-birthday">
+<input type="text" id="ce-birthday" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric">
 </div>
 </div>
 </div>
@@ -315,9 +315,11 @@ async function ce_save(){
 
   const name = document.getElementById('ce-name').value.trim();
   const pronouns = document.getElementById('ce-pronouns').value.trim();
-  const birthday = document.getElementById('ce-birthday').value || null;
+  const birthdayRaw = document.getElementById('ce-birthday').value.trim();
+  const birthday = birthdayRaw || null;
 
   if(!name){ errorEl.textContent = 'Character name cannot be empty.'; errorEl.style.display = 'block'; return; }
+  if(birthdayRaw && !/^\d{4}-\d{2}-\d{2}$/.test(birthdayRaw)){ errorEl.textContent = 'Birthday must be in YYYY-MM-DD format.'; errorEl.style.display = 'block'; return; }
   if(spentSP() > startingSP()){ errorEl.textContent = 'Chosen skills exceed this character\'s Skill Points.'; errorEl.style.display = 'block'; return; }
 
   const p_skills = chosen.map(s => ({
