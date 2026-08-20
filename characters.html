@@ -156,6 +156,7 @@ function renderCharPanel(c){
   document.getElementById('chars-char-panel').innerHTML = `
     <div>
       <div class="stat-panel">
+        ${c.portraitUrl ? `<img src="${escapeHtml(c.portraitUrl)}" alt="${escapeHtml(c.name)} portrait" style="width:100%; display:block; aspect-ratio:1; object-fit:cover; border-bottom:2px solid var(--gold);">` : ''}
         <div class="stat-row"><span class="stat-label">Race</span><span class="stat-value">${escapeHtml(c.race)}</span></div>
         <div class="stat-row"><span class="stat-label">Social Class</span><span class="stat-value">${c.socialClass ? escapeHtml(c.socialClass) : '-'}</span></div>
         <div class="stat-row"><span class="stat-label">Birthday</span><span class="stat-value">${c.birthday ? escapeHtml(c.birthday) : '-'}</span></div>
@@ -194,6 +195,15 @@ function renderPanelExtras(c){
       <button class="btn-outline" style="font-size:0.8rem; padding:0.35rem 0.7rem;" onclick="chars_toggleDatesLearned()">${showDatesLearned ? 'Hide' : 'Show'} Dates Learned</button>
     </div>
     <div class="reg-section" style="margin-top:1rem;">
+      <div class="reg-section-label">Character Portrait</div>
+      ${c.portraitUrl ? `<img src="${escapeHtml(c.portraitUrl)}" alt="${escapeHtml(c.name)} portrait" style="max-width:160px; display:block; margin-bottom:0.6rem; border:2px solid var(--gold);">` : ''}
+      <input type="file" id="chars-portrait-file" accept="image/*">
+      <button class="btn-outline" style="margin-top:0.6rem;" onclick="chars_uploadPortrait('${c.id}')">${c.portraitUrl ? 'Replace Portrait' : 'Upload Portrait'}</button>
+      ${c.portraitUrl ? `<button class="btn-outline" style="margin-top:0.6rem; margin-left:0.5rem;" onclick="chars_removePortrait('${c.id}')">Remove Portrait</button>` : ''}
+      <p class="reg-success-note" id="chars-portrait-success" style="display:none;"></p>
+      <p class="reg-error-note" id="chars-portrait-error" style="display:none;"></p>
+    </div>
+    <div class="reg-section" style="margin-top:1rem;">
       <div class="reg-section-label">Event Splash Page Privacy</div>
       <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem; cursor:pointer;">
         <input type="checkbox" id="chars-privacy-anonymous" ${c.isAnonymous ? 'checked' : ''}>
@@ -229,6 +239,54 @@ async function chars_savePrivacy(charId){
 
   successEl.textContent = 'Privacy settings saved.';
   successEl.style.display = 'block';
+}
+
+async function chars_uploadPortrait(charId){
+  const successEl = document.getElementById('chars-portrait-success');
+  const errorEl = document.getElementById('chars-portrait-error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  const file = document.getElementById('chars-portrait-file').files[0];
+  if(!file){ errorEl.textContent = 'Choose an image file first.'; errorEl.style.display = 'block'; return; }
+
+  try{
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+    const path = charId + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+    const { error: uploadError } = await membersSupabase.storage.from('character-portraits').upload(path, file);
+    if(uploadError) throw uploadError;
+    const { data } = membersSupabase.storage.from('character-portraits').getPublicUrl(path);
+
+    const { error } = await membersSupabase.rpc('character_set_portrait', { p_character_id: charId, p_url: data.publicUrl });
+    if(error) throw error;
+
+    const c = CHARACTERS.find(ch => ch.id === charId);
+    if(c) c.portraitUrl = data.publicUrl;
+
+    successEl.textContent = 'Portrait uploaded.';
+    successEl.style.display = 'block';
+    render();
+  } catch(err){
+    errorEl.textContent = err.message;
+    errorEl.style.display = 'block';
+  }
+}
+
+async function chars_removePortrait(charId){
+  const successEl = document.getElementById('chars-portrait-success');
+  const errorEl = document.getElementById('chars-portrait-error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  const { error } = await membersSupabase.rpc('character_set_portrait', { p_character_id: charId, p_url: null });
+  if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+
+  const c = CHARACTERS.find(ch => ch.id === charId);
+  if(c) c.portraitUrl = null;
+
+  successEl.textContent = 'Portrait removed.';
+  successEl.style.display = 'block';
+  render();
 }
 
 function renderRemortArea(c){
@@ -269,7 +327,7 @@ async function loadRemortStatus(){
 async function loadCharacters(){
   const { data: chars, error } = await membersSupabase
     .from('characters')
-    .select('id, name, race, pronouns, birthday, starting_sp, social_class, created_at, is_anonymous, hide_trades')
+    .select('id, name, race, pronouns, birthday, starting_sp, social_class, created_at, is_anonymous, hide_trades, portrait_url')
     .eq('player_id', window.faCurrentUser.id)
     .order('created_at', { ascending: true });
 
@@ -293,6 +351,7 @@ async function loadCharacters(){
     socialClass: ch.social_class,
     isAnonymous: !!ch.is_anonymous,
     hideTrades: !!ch.hide_trades,
+    portraitUrl: ch.portrait_url || null,
     skills: (skillRows || [])
       .filter(sk => sk.character_id === ch.id)
       .map(sk => ({ name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, sp: sk.sp_cost, learnedAt: sk.created_at }))
@@ -318,6 +377,8 @@ window.chars_selectChar = chars_selectChar;
 window.chars_requestRemort = chars_requestRemort;
 window.chars_toggleDatesLearned = chars_toggleDatesLearned;
 window.chars_savePrivacy = chars_savePrivacy;
+window.chars_uploadPortrait = chars_uploadPortrait;
+window.chars_removePortrait = chars_removePortrait;
 
 document.addEventListener('fa-members-ready', async () => {
   await loadCharacters();

@@ -45,7 +45,9 @@
   display:flex;
   align-items:center;
   justify-content:center;
+  overflow:hidden;
 }
+.home-hero-badge img{ width:100%; height:100%; object-fit:cover; }
 .home-hero-body{ flex:1; min-width:0; }
 .home-hero-eyebrow{
   font-family: 'Cinzel', serif;
@@ -280,7 +282,7 @@ async function loadHero(){
 
   const { data: chars } = await membersSupabase
     .from('characters')
-    .select('id, name, race, social_class, created_at')
+    .select('id, name, race, social_class, created_at, portrait_url')
     .eq('player_id', me)
     .order('created_at', { ascending: true })
     .limit(1);
@@ -340,7 +342,7 @@ async function loadHero(){
   const stats = deriveStats(char.race, skills);
 
   hero.innerHTML = `
-    <div class="home-hero-badge">${escapeHtml(initials(char.name))}</div>
+    <div class="home-hero-badge">${char.portrait_url ? `<img src="${escapeHtml(char.portrait_url)}" alt="${escapeHtml(char.name)} portrait">` : escapeHtml(initials(char.name))}</div>
     <div class="home-hero-body">
       <div class="home-hero-eyebrow">Welcome back</div>
       <div class="home-hero-name">${escapeHtml(char.name)}</div>
