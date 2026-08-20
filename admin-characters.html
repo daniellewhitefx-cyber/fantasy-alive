@@ -19,6 +19,85 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/members.css">
 <script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.ac-bs-modal-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+.ac-bs-modal-backdrop{
+  position: absolute;
+  inset: 0;
+  background: rgba(20,18,15,0.6);
+}
+.ac-bs-modal{
+  position: relative;
+  max-width: 680px;
+  margin: 3rem auto;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--cream);
+  border: 3px solid var(--gold);
+  box-shadow: 10px 10px 0 0 var(--gold);
+  padding: 1.8rem 2rem 2rem;
+  font-family: 'EB Garamond', serif;
+  color: var(--brown);
+}
+.ac-bs-modal h3{
+  font-family: 'Cinzel', serif;
+  color: var(--brown-dark);
+  margin: 0 0 1.2rem;
+}
+.ac-bs-modal-close{
+  position: absolute;
+  top: 1.2rem;
+  right: 1.4rem;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--brown-dark);
+}
+.ac-bs-item{
+  border-bottom: 1px solid var(--line);
+  padding: 0.9rem 0;
+}
+.ac-bs-item:last-child{ border-bottom: none; }
+.ac-bs-item-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+.ac-bs-item-meta{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--brown-dark);
+}
+.ac-bs-item-body{
+  font-size: 0.92rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin: 0 0 0.5rem;
+}
+.ac-bs-item-notes{
+  font-size: 0.9rem;
+  font-style: italic;
+  background: var(--row-b);
+  border-left: 3px solid var(--gold-dark);
+  padding: 0.5rem 0.8rem;
+}
+.ac-bs-xp-tag{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--good);
+}
+</style>
 </head>
 <body>
 
@@ -42,11 +121,13 @@
 <div class="reg-section">
 <label class="field-label" for="ac-search">Search by character or player name</label>
 <input type="text" id="ac-search" placeholder="Start typing..." oninput="ac_search(this.value)">
-<table class="data-table" id="ac-results-table" style="margin-top:0.8rem; max-width:640px;">
-<thead><tr><th>Player</th><th>Character</th><th>Race</th><th></th></tr></thead>
+<table class="data-table" id="ac-results-table" style="margin-top:0.8rem; max-width:760px;">
+<thead><tr><th>Player</th><th>Character</th><th>Race</th><th>Backstory</th><th></th></tr></thead>
 <tbody id="ac-results"></tbody>
 </table>
 </div>
+
+<div id="ac-bs-modal" class="ac-bs-modal-overlay" style="display:none;"></div>
 
 <div id="ac-detail" style="display:none;">
 
@@ -340,18 +421,93 @@ function renderCharacterList(list){
   document.getElementById('ac-results-table').style.display = '';
 
   if(list.length === 0){
-    results.innerHTML = '<tr><td colspan="4">No characters found.</td></tr>';
+    results.innerHTML = '<tr><td colspan="5">No characters found.</td></tr>';
     return;
   }
 
+  const nameEsc = c => c.name.replace(/'/g, "\\'");
   results.innerHTML = list.map(c => `
     <tr>
       <td>${escapeHtml(nameFor(c.player_id))}</td>
       <td>${escapeHtml(c.name)}</td>
       <td>${escapeHtml(c.race)}</td>
+      <td><button class="btn-outline" onclick="ac_bs_view('${c.id}', '${nameEsc(c)}')">View Backstory</button></td>
       <td style="text-align:right;"><button class="btn-gold" onclick="ac_selectCharacter('${c.id}')">Manage</button></td>
     </tr>
   `).join('');
+}
+
+function bsKindLabel(kind){
+  if(kind === 'remort') return 'Remort';
+  if(kind === 'resubmission') return 'Revision';
+  return 'First submission';
+}
+
+function bsStatusLabel(status){
+  if(status === 'revision_requested') return 'Revision Requested';
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function bsStatusClass(status){
+  if(status === 'revision_requested') return 'revision';
+  return status;
+}
+
+async function ac_bs_view(charId, charName){
+  const modal = document.getElementById('ac-bs-modal');
+  modal.style.display = 'block';
+  modal.innerHTML = `
+    <div class="ac-bs-modal-backdrop" onclick="ac_bs_close()"></div>
+    <div class="ac-bs-modal">
+      <button class="ac-bs-modal-close" onclick="ac_bs_close()">&times;</button>
+      <h3>${escapeHtml(charName)}'s Backstory</h3>
+      <p class="reg-empty-note">Loading&hellip;</p>
+    </div>
+  `;
+
+  const { data, error } = await membersSupabase
+    .from('character_backstories')
+    .select('id, body, status, kind, xp_awarded, lore_notes, submitted_at, decided_at')
+    .eq('character_id', charId)
+    .order('submitted_at', { ascending: false });
+
+  const body = document.querySelector('#ac-bs-modal .ac-bs-modal');
+  if(error){
+    body.insertAdjacentHTML('beforeend', `<p class="reg-error-note">Couldn't load backstory: ${escapeHtml(error.message)}</p>`);
+    document.querySelector('#ac-bs-modal .reg-empty-note').remove();
+    return;
+  }
+
+  const submissions = data || [];
+  const emptyEl = document.querySelector('#ac-bs-modal .reg-empty-note');
+  if(!submissions.length){
+    emptyEl.textContent = 'No backstory submitted yet.';
+    return;
+  }
+  emptyEl.remove();
+
+  const items = submissions.map(s => {
+    const notes = s.lore_notes ? `<div class="ac-bs-item-notes">Lore notes: ${escapeHtml(s.lore_notes)}</div>` : '';
+    const xp = (s.status === 'approved' && s.xp_awarded != null) ? `<span class="ac-bs-xp-tag">+${s.xp_awarded} XP</span>` : '';
+    return `
+      <div class="ac-bs-item">
+        <div class="ac-bs-item-head">
+          <div><span class="status-pill ${bsStatusClass(s.status)}">${bsStatusLabel(s.status)}</span> ${xp}</div>
+          <div class="ac-bs-item-meta">${fmtDate(s.submitted_at)} &middot; ${bsKindLabel(s.kind)}</div>
+        </div>
+        <p class="ac-bs-item-body">${escapeHtml(s.body)}</p>
+        ${notes}
+      </div>
+    `;
+  }).join('');
+
+  body.insertAdjacentHTML('beforeend', items);
+}
+
+function ac_bs_close(){
+  const modal = document.getElementById('ac-bs-modal');
+  modal.style.display = 'none';
+  modal.innerHTML = '';
 }
 
 function ac_search(query){
@@ -776,6 +932,8 @@ window.ac_adjustXp = ac_adjustXp;
 window.ac_adjustOc = ac_adjustOc;
 window.ac_grantItem = ac_grantItem;
 window.ac_addStatusEffect = ac_addStatusEffect;
+window.ac_bs_view = ac_bs_view;
+window.ac_bs_close = ac_bs_close;
 
 document.addEventListener('fa-members-ready', async (e) => {
   const user = e.detail.user;
