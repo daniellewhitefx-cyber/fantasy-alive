@@ -23,3 +23,14 @@ as $$
     where dm.player_id = auth.uid() and d.name = 'Logistics'
   );
 $$;
+
+-- Lore is gated by the 'lore_editor' app_metadata role (set via
+-- admin-permissions.html), matching how lore-schema.sql's lore_entries
+-- policies and js/lore-cms.js already check Lore access -- not by
+-- department_members membership like fa_is_logistics_or_admin() above.
+create or replace function fa_is_lore_or_admin()
+returns boolean language sql stable
+set search_path = public
+as $$
+  select fa_is_site_admin() or coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'lore_editor', false);
+$$;

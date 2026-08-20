@@ -3,296 +3,101 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Character Backstories - Fantasy Alive</title>
+<title>Backstory - Fantasy Alive</title>
 <link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Character Backstories - Fantasy Alive">
+<meta property="og:title" content="Backstory - Fantasy Alive">
 <meta property="og:description" content="Don't be afraid to live more than once!">
 <meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
 <meta property="og:url" content="https://fantasy-alive.vercel.app/backstory.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Character Backstories - Fantasy Alive">
+<meta name="twitter:title" content="Backstory - Fantasy Alive">
 <meta name="twitter:description" content="Don't be afraid to live more than once!">
 <meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
 <script src="js/vendor/supabase-js.min.js"></script>
 <style>
-.page-hero{
-display:grid;
-grid-template-columns: 1fr 1fr;
-align-items:center;
-height: 320px;
-overflow: hidden;
-}
-.page-hero-content{
-padding: 2rem 3rem 2rem 5.5rem;
-text-align: center;
-}
-.page-hero .logo-img{ width:100%; max-width: 440px; height:auto; display:block; margin: 0 auto; }
-.page-hero h1{
-font-family: 'EB Garamond', serif;
-font-weight: 500;
-font-size: 3rem;
-margin: 0.5rem 0 0;
-color: var(--brown);
-text-align: center;
-}
-.page-hero-image{
-position:relative;
-overflow:hidden;
-height: 100%;
-min-height: 320px;
-}
-.page-hero-image::after{
-content:"";
-position:absolute;
-top:0; left:0;
-width: 45%; height:100%;
-background: linear-gradient(to left, rgba(236,225,205,0) 0%, var(--cream) 100%);
-pointer-events: none;
-}
-.page-hero-image img{
-width:100%; height:100%; object-fit:cover; display:block;
-}
-
-.backstory-section{
-padding: 3rem 3rem 4rem;
-display:flex;
-justify-content:center;
-}
-.backstory-layout{
-  width:100%;
-  max-width: 1080px;
-  display:grid;
-  grid-template-columns: 200px 1fr;
-  gap: 3rem;
-  align-items:start;
-}
-.backstory-toc{
-  position:sticky;
-  top: 1.5rem;
-  display:flex;
-  flex-direction:column;
-  gap: 0.15rem;
-}
-.backstory-toc-label{
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gold-dark);
-  margin-bottom: 0.5rem;
-}
-.backstory-toc a{
-  font-family: 'Cinzel', serif;
-  font-weight: 600;
-  font-size: 0.82rem;
-  color: var(--brown-dark);
-  text-decoration: none;
-  padding: 0.4rem 0 0.4rem 0.8rem;
-  border-left: 3px solid var(--line);
-  line-height: 1.3;
-}
-.backstory-toc a:hover{ color: var(--gold-dark); border-left-color: var(--gold); }
-
-.backstory-wrap{ width:100%; max-width: 820px; }
-
-.backstory-prose{
+.bs-note{
   font-family: 'EB Garamond', serif;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--brown);
-  margin-bottom: 2.2rem;
-}
-.backstory-prose h2{
-  font-family: 'Cinzel', serif;
-  font-size: 1.3rem;
-  color: var(--brown-dark);
-  margin: 1.8rem 0 0.6rem;
-}
-.backstory-prose h2:first-child{ margin-top: 0; }
-.backstory-prose h3{
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
   font-size: 0.95rem;
-  letter-spacing: 0.02em;
-  color: var(--gold-dark);
-  margin: 0 0 0.4rem;
+  line-height: 1.55;
+  color: var(--brown);
+  margin: 0 0 1rem;
 }
-.backstory-prose p{ margin: 0 0 0.9rem; }
-.backstory-prose ul{ margin: 0 0 0.9rem; padding-left: 1.4rem; }
-.backstory-prose li{ margin-bottom: 0.4rem; }
-
-.backstory-pullquote{
-  font-family: 'Cinzel', serif;
-  font-weight: 600;
-  font-size: 1.15rem;
-  line-height: 1.4;
-  color: var(--brown-dark);
-  border-left: 4px solid var(--gold);
-  padding: 0.3rem 0 0.3rem 1.3rem;
-  margin: 1.8rem 0;
-}
-
-.backstory-divider{
-  display:flex;
-  align-items:center;
-  gap: 1rem;
-  margin: 3rem 0 1.8rem;
-  color: var(--gold-dark);
-}
-.backstory-divider::before,
-.backstory-divider::after{
-  content:"";
-  flex:1;
-  height: 2px;
-  background: var(--line);
-}
-.backstory-divider svg{ width:20px; height:20px; flex-shrink:0; }
-
-.rubric-card{
-  display:flex;
-  gap: 1.2rem;
-  align-items:flex-start;
+.bs-rubric-card{
   border: 2px solid var(--gold-dark);
   background: var(--row-a);
-  padding: 1.4rem 1.6rem;
-  margin: 1.6rem 0;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
 }
-.rubric-badge{
-  flex-shrink:0;
-  width: 58px;
-  height: 58px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  background: var(--ink);
-  border: 2px solid var(--gold);
-}
-.rubric-badge .num{
+.bs-rubric-card h3{
   font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: 1.3rem;
-  line-height: 1;
-  color: var(--gold);
-}
-.rubric-badge .lbl{
-  font-family: 'Cinzel', serif;
-  font-size: 0.5rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--cream);
-  margin-top: 0.2rem;
-}
-.rubric-card-body{ min-width:0; }
-.rubric-card-body h3{ margin: 0 0 0.5rem; }
-.rubric-card-body > p:last-child,
-.rubric-card-body > ul:last-child{ margin-bottom: 0; }
-
-.rubric-list{
-  list-style: none;
-  margin: 0 0 0.9rem;
-  padding: 0;
-  display:flex;
-  flex-direction:column;
-  gap: 0.55rem;
-}
-.rubric-list li{
-  position:relative;
-  padding-left: 1.4rem;
-  margin: 0;
-}
-.rubric-list li::before{
-  content:"";
-  position:absolute;
-  left: 0;
-  top: 0.4em;
-  width: 8px;
-  height: 8px;
-  background: var(--gold);
-  transform: rotate(45deg);
-}
-
-@media (max-width: 900px){
-  .backstory-toc{ display:none; }
-  .backstory-layout{ grid-template-columns: 1fr; }
-}
-
-.backstory-form-wrap{
-  box-shadow: 10px 10px 0 0 var(--gold);
-  border: 3px solid var(--gold);
-  background: var(--row-a);
-  padding: 2rem 2.2rem;
-}
-.backstory-form-wrap > p{
-  font-family: 'EB Garamond', serif;
   font-size: 1.05rem;
-  line-height: 1.5;
-  color: var(--brown);
-  margin: 0 0 1.6rem;
-}
-.backstory-row{
-  display:flex;
-  gap: 1.2rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.2rem;
-}
-.contact-field{ flex: 1 1 240px; margin-bottom: 0; }
-.contact-field label{
-  display:block;
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.03em;
+  margin: 0 0 0.5rem;
   color: var(--brown-dark);
-  margin-bottom: 0.4rem;
 }
-.contact-field input,
-.contact-field select{
+.bs-rubric-card ul{
+  margin: 0.6rem 0 0;
+  padding-left: 1.2rem;
+}
+.bs-rubric-card li{ margin-bottom: 0.5rem; line-height: 1.45; }
+.bs-textarea{
   width: 100%;
+  min-height: 260px;
   font-family: 'EB Garamond', serif;
-  font-size: 1.05rem;
-  padding: 0.65rem 0.8rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0.8rem;
   border: 2px solid var(--gold-dark);
   border-radius: 4px;
   background: #fff;
   color: var(--brown);
+  box-sizing: border-box;
+  resize: vertical;
 }
-.backstory-file-name{
+.bs-history-item{
+  border-bottom: 1px solid var(--line);
+  padding: 0.9rem 0;
+}
+.bs-history-item:last-child{ border-bottom: none; }
+.bs-history-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+.bs-history-date{
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--brown-dark);
+}
+.bs-history-body{
   font-family: 'EB Garamond', serif;
   font-size: 0.92rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
   color: var(--brown);
-  margin-top: 0.4rem;
+  margin: 0 0 0.5rem;
 }
-.backstory-submit{
+.bs-history-notes{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  background: var(--row-b);
+  border-left: 3px solid var(--gold-dark);
+  padding: 0.5rem 0.8rem;
+}
+.bs-xp-tag{
   font-family: 'Cinzel', serif;
   font-weight: 700;
-  font-size: 1rem;
-  padding: 0.8rem 1.8rem;
-  background: var(--gold);
-  color: var(--ink);
-  border: 2px solid var(--gold-dark);
-  border-radius: 4px;
-  cursor: pointer;
-}
-.backstory-submit:hover{ background: var(--gold-dark); }
-.backstory-submit:disabled{ opacity: 0.6; cursor: default; }
-.backstory-status{
-  margin-top: 1rem;
-  font-family: 'EB Garamond', serif;
-  font-size: 0.95rem;
-}
-.backstory-status.ok{ color: var(--good); }
-.backstory-status.err{ color: var(--bad); }
-
-@media (max-width: 900px){
-.page-hero{ grid-template-columns: 1fr; }
-.backstory-section{ padding: 2rem 1.2rem 3rem; }
-.backstory-form-wrap{ padding: 1.5rem 1.4rem; }
+  font-size: 0.8rem;
+  color: var(--good);
 }
 </style>
 </head>
@@ -300,257 +105,276 @@ justify-content:center;
 
 <div data-include="partials/header.html"></div>
 
-<section class="page-hero">
-<div class="page-hero-content">
-<img src="https://i.imgur.com/zcnx0lm.png" alt="Fantasy Alive" class="logo-img">
-<h1>Character Backstories</h1>
-</div>
-<div class="page-hero-image">
-<img src="https://i.imgur.com/zOtOU6q.png" alt="A bard playing lute in costume">
-</div>
-</section>
+<div class="dashboard">
 
-<section class="backstory-section">
-<div class="backstory-layout">
+<div data-include="partials/members-sidebar.html"></div>
 
-<nav class="backstory-toc">
-<div class="backstory-toc-label">On This Page</div>
-<a href="#rubric">Backstory XP Rubric</a>
-<a href="#resubmit">Resubmitting a Backstory</a>
-<a href="#submit">Submit Your Backstory</a>
-</nav>
+<div>
 
-<div class="backstory-wrap">
+<div class="char-switcher" id="bs-char-switcher"></div>
 
-<div class="backstory-prose">
+<h1 class="page-title">Backstory</h1>
 
-<h2 id="rubric">Backstory XP Rubric</h2>
-<p>By submitting a backstory to Fantasy Alive, you can earn up to 50 XP for your character. This backstory is intended to give you a place to start from in the world, and reflects your character's origins, history, and to encourage you to think about how your character came to be who they are today, and what they might hope to do in the future. It also can give the Plot Team some idea of your character's past and ambitions, and to allow them to better engage with your character on the level of personalized plot.</p>
-<p>In crafting your backstory, we encourage you to look at our public-facing setting materials, as well as the rulebook. Consider where your character was born, how they learned to do the things that they can do, and why they chose to come to the area in which the game is set. While your motivations may change over the course of play, as you interact with the game world and grow as a character, knowing where you're coming from can help to determine where you end up.</p>
-<p>Your character is exceptional, after all, not everyone ends up seeking adventure, or becoming a wise cleric, a powerful mage, an expert warrior or a skillful merchant or craftsperson. It is therefore possible and even likely that your character has had opportunities, and even small adventures that are unlike what the average person has had. Something to bear in mind however: opportunities for adventure abound when in-game, and your adventures as a player character should be more exciting than adventures that existed solely in your character history.</p>
-<p>If your character history is incompatible with the world-as-written, violates our Code of Conduct, or otherwise is in need of revision, we will reach out to you. LARP is an exercise in collaborative storytelling, and we want to give you every opportunity to succeed and thrive.</p>
-<div class="backstory-pullquote">LARP is an exercise in collaborative storytelling, and we want to give you every opportunity to succeed and thrive.</div>
-<p>Finally, we are not awarding marks for spelling or grammar, nor are we withholding them for that reason. Some of our players may have learned English as a second language, or may not be adept in writing as an art-form. As long as their story is coherent, we have no burning need for excellence of prose.</p>
-
-<div class="rubric-card">
-<div class="rubric-badge"><span class="num">30</span><span class="lbl">pts</span></div>
-<div class="rubric-card-body">
-<h3>Basic Points: /30</h3>
-<p>In order to get the 30 basic points for a character history, we would like you to consider the following questions in your background. You can even summarize your answer to this in a single paragraph if you wish to, but we urge you to give them due consideration.</p>
-<ul class="rubric-list">
-<li>Where is your character coming from in life? This can include geographic location (nation, town, etc.), parentage/upbringing, and what your character considers to be their most important accomplishment to date.</li>
-<li>Why is your character coming to Yorik? There are any number of potential reasons, it's a town famous for its adventurers, heroes, and villains, and your character may be seeking their fortune, trying to stay hidden, or trying to earn a place in the growing legend of the area.</li>
-<li>How did your character acquire the skills on their character sheet? This doesn't have to be complicated, a melee fighter may have served in the army, been taught by a master, or learned from a relative. A scholarly character may have spent years in study, or been an apprentice in a merchant house. The main goal is to have some idea as to how you became the person you are today.</li>
-</ul>
-</div>
-</div>
-
-<div class="rubric-card">
-<div class="rubric-badge"><span class="num">20</span><span class="lbl">pts</span></div>
-<div class="rubric-card-body">
-<h3>Bonus Points: /20</h3>
-<p>These points are discretionary, and are awarded for adding in details that can really bring your character to life! You don't have to select any of these in particular, but you can get up to 20 bonus points overall by considering any or all of the following ideas, or others that show character:</p>
-<ul class="rubric-list">
-<li>What does your character most want to accomplish in life?</li>
-<li>Does your character consider themself to be a good person?</li>
-<li>What is your character afraid of?</li>
-<li>Is your character religious? (They don't need to be an invested cleric to follow a faith)</li>
-<li>Is there anyone in your character's history that deeply influenced them?</li>
-<li>Why will your character stay in a dangerous region of the kingdom?</li>
-<li>What makes your character angry?</li>
-<li>What does your character enjoy doing?</li>
-<li>What does your character believe?</li>
-</ul>
-<p>Answering these questions, or otherwise showing that you have put thought into your character's motivations, can help you to earn these 20 bonus points.</p>
-</div>
-</div>
-
-<div class="backstory-divider"><svg viewBox="0 0 24 24"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z" fill="currentColor"/></svg></div>
-
-<h2 id="resubmit">Resubmitting a Backstory</h2>
-<p>Creating a character can be a lot of fun, starting from a blank canvas, coloured only by your imagination, a character's original backstory tells where they come from and what their hopes, dreams, and ambitions might come to be.</p>
-<p>As time moves on however, a character will grow and change. Exposed to new ideas, new experiences, and a world that might well be greater or worse than they would ever have imagined, they will have developed new traits and gone on new adventures. It can be helpful for the Plot Team to know what adventures were meaningful to that character, and how they changed as a result of their experiences.</p>
-<p>To this end, Fantasy Alive would like to offer the opportunity for players to update the record. This has the potential to allow for tailored plot that is specific to a character as-they-are-now, and to ensure that new achievements are recorded, for stories as yet untold to acknowledge. As a way to sweeten the deal, there's also a small OC bonus associated. Every eighteen months, a player may resubmit their backstory with additions and updates from time in-play. We strongly encourage you to take the time to think about who your character is, and who they are in the process of becoming. A character may earn up to 25 Ogre Chips following the rubric below.</p>
-
-<div class="rubric-card">
-<div class="rubric-badge"><span class="num">5</span><span class="lbl">pts</span></div>
-<div class="rubric-card-body">
-<h3>Basic Points: /5</h3>
-<p>You will receive a base of 5 points for including your original or previous backstory, or a summary of your original backstory, in your resubmission. This helps us to ensure that our records are up to date, and will give you an opportunity to refresh yourself on what has been important to your character up to this point.</p>
-</div>
-</div>
-
-<div class="rubric-card">
-<div class="rubric-badge"><span class="num">15</span><span class="lbl">pts</span></div>
-<div class="rubric-card-body">
-<h3>Meaningful Adventures: /15</h3>
-<p>You will receive up to 15 points for describing experiences or adventures that have been meaningful to your character in your time in-game. Such descriptions should give a brief summary of events, and also include some description of how your character thought or felt about their experiences.</p>
-</div>
-</div>
-
-<div class="rubric-card">
-<div class="rubric-badge"><span class="num">5</span><span class="lbl">pts</span></div>
-<div class="rubric-card-body">
-<h3>Bonus Points: /5</h3>
-<p>You don't have to select any of these in particular, but you can get up to 5 bonus points overall by considering any or all of the following ideas, or others that show character:</p>
-<ul class="rubric-list">
-<li>What is your character's current ambition?</li>
-<li>What does your character regret?</li>
-<li>What is your character afraid of?</li>
-<li>Why has your character stayed in this dangerous region of the kingdom?</li>
-<li>What makes your character angry?</li>
-<li>What does your character enjoy doing?</li>
-<li>What does your character believe?</li>
-</ul>
-<p>Having this information can help our Plot Team to tailor your future adventures and experiences to the character that you have now, rather than the one you first submitted.</p>
-</div>
-</div>
+<div id="bs-content"></div>
 
 </div>
-
-<div class="backstory-form-wrap" id="submit">
-<p>Fill this out and we'll get your backstory to the Plot Team.</p>
-
-<form id="backstory-form">
-
-<div class="backstory-row">
-<div class="contact-field">
-<label for="bs-first-name">Player First Name</label>
-<input type="text" id="bs-first-name" autocomplete="given-name">
 </div>
-<div class="contact-field">
-<label for="bs-last-name">Player Last Name</label>
-<input type="text" id="bs-last-name" autocomplete="family-name">
-</div>
-</div>
-
-<div class="backstory-row">
-<div class="contact-field" style="flex-basis:100%;">
-<label for="bs-email">Email*</label>
-<input type="email" id="bs-email" required autocomplete="email">
-</div>
-</div>
-
-<div class="backstory-row">
-<div class="contact-field">
-<label for="bs-full-name">Full Character Name*</label>
-<input type="text" id="bs-full-name" required>
-</div>
-<div class="contact-field">
-<label for="bs-common-name">Name Character commonly goes by:*</label>
-<input type="text" id="bs-common-name" required>
-</div>
-</div>
-
-<div class="backstory-row">
-<div class="contact-field">
-<label for="bs-age">Characters Age (As of Submission)</label>
-<input type="text" id="bs-age">
-</div>
-<div class="contact-field">
-<label for="bs-race">Characters Race:*</label>
-<select id="bs-race" required>
-<option value="">Please Select</option>
-<option>Curtainborn</option>
-<option>D'Shunn</option>
-<option>Dwarf</option>
-<option>Elf</option>
-<option>Gnome</option>
-<option>Goblin</option>
-<option>Human</option>
-<option>Lizardfolk</option>
-<option>Malkin</option>
-<option>Minotaur</option>
-<option>Orc</option>
-</select>
-</div>
-</div>
-
-<div class="backstory-row">
-<div class="contact-field" style="flex-basis:100%;">
-<label for="bs-file">Attach a copy of your history here!*</label>
-<input type="file" id="bs-file" required accept=".pdf,.doc,.docx,.txt,.rtf,.odt">
-<div class="backstory-file-name" id="bs-file-name"></div>
-</div>
-</div>
-
-<button type="submit" class="backstory-submit" id="bs-submit-btn">Submit</button>
-<div class="backstory-status" id="bs-status"></div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-</section>
 
 <div data-include="partials/footer.html"></div>
 
 <script src="js/include.js"></script>
 <script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
 <script>
-const backstorySupabase = window.supabase.createClient(
-  'https://xdchluuvicuuqyqsejnq.supabase.co',
-  'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99'
-);
+(function(){
+let CHARACTERS = [];
+let activeCharId = null;
 
-document.getElementById('bs-file').addEventListener('change', function(){
-  const f = this.files[0];
-  document.getElementById('bs-file-name').textContent = f ? f.name : '';
-});
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
-document.getElementById('backstory-form').addEventListener('submit', async function(e){
-  e.preventDefault();
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><path d="M4 3.5A1.5 1.5 0 0 1 5.5 2h9L20 7.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 20.5Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11h8M8 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
 
-  const statusEl = document.getElementById('bs-status');
+function fmtDateTime(iso){
+  return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function statusLabel(status){
+  if(status === 'revision_requested') return 'Revision Requested';
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function statusClass(status){
+  if(status === 'revision_requested') return 'revision';
+  return status;
+}
+
+function bs_selectChar(id){
+  activeCharId = id;
+  render();
+}
+
+async function bs_submit(){
+  const c = CHARACTERS.find(ch => ch.id === activeCharId);
+  if(!c) return;
+
+  const errorEl = document.getElementById('bs-error');
   const submitBtn = document.getElementById('bs-submit-btn');
-  const file = document.getElementById('bs-file').files[0];
+  const textarea = document.getElementById('bs-body');
+  errorEl.style.display = 'none';
 
-  statusEl.className = 'backstory-status';
-  statusEl.textContent = '';
-
-  if(!file){
-    statusEl.className = 'backstory-status err';
-    statusEl.textContent = 'Please attach a copy of your history.';
+  const body = textarea.value.trim();
+  if(!body){
+    errorEl.textContent = 'Please write your backstory before submitting.';
+    errorEl.style.display = 'block';
     return;
   }
-  if(file.size > 15 * 1024 * 1024){
-    statusEl.className = 'backstory-status err';
-    statusEl.textContent = 'That file is too large (15MB max).';
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('playerFirstName', document.getElementById('bs-first-name').value.trim());
-  formData.append('playerLastName', document.getElementById('bs-last-name').value.trim());
-  formData.append('email', document.getElementById('bs-email').value.trim());
-  formData.append('fullCharacterName', document.getElementById('bs-full-name').value.trim());
-  formData.append('commonName', document.getElementById('bs-common-name').value.trim());
-  formData.append('characterAge', document.getElementById('bs-age').value.trim());
-  formData.append('characterRace', document.getElementById('bs-race').value);
-  formData.append('historyFile', file);
 
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Sending...';
+  submitBtn.textContent = 'Submitting...';
 
-  const { data, error } = await backstorySupabase.functions.invoke('submit-backstory', { body: formData });
+  const { error } = await membersSupabase.rpc('character_submit_backstory', {
+    p_character_id: c.id,
+    p_body: body
+  });
 
   submitBtn.disabled = false;
-  submitBtn.textContent = 'Submit';
+  submitBtn.textContent = 'Submit Backstory';
 
-  if(error || (data && data.error)){
-    statusEl.className = 'backstory-status err';
-    statusEl.textContent = 'Could not send your backstory: ' + (data && data.error ? data.error : error.message);
+  if(error){
+    errorEl.textContent = error.message;
+    errorEl.style.display = 'block';
     return;
   }
 
-  statusEl.className = 'backstory-status ok';
-  statusEl.textContent = 'Your backstory has been sent. Thank you!';
-  this.reset();
-  document.getElementById('bs-file-name').textContent = '';
-});
+  await loadSubmissions(c);
+  render();
+}
+
+function rubricHtml(hasApproved){
+  if(!hasApproved){
+    return `
+      <p class="bs-note">Lore staff will read your submission against the rubric below and score it out of 50 points, awarded straight to your character as XP.</p>
+      <p class="bs-note">In crafting your backstory, we encourage you to look at our public-facing setting materials, as well as the rulebook. Consider where your character was born, how they learned to do the things that they can do, and why they chose to come to the area in which the game is set. While your motivations may change over the course of play, as you interact with the game world and grow as a character, knowing where you're coming from can help to determine where you end up.</p>
+      <p class="bs-note">Your character is exceptional, after all, not everyone ends up seeking adventure, or becoming a wise cleric, a powerful mage, an expert warrior or a skillful merchant or craftsperson. It is therefore possible and even likely that your character has had opportunities, and even small adventures that are unlike what the average person has had. Something to bear in mind however: opportunities for adventure abound when in-game, and your adventures as a player character should be more exciting than adventures that existed solely in your character history.</p>
+      <p class="bs-note">If your character history is incompatible with the world-as-written, violates our Code of Conduct, or otherwise is in need of revision, Lore staff will reach out with notes. LARP is an exercise in collaborative storytelling, and we want to give you every opportunity to succeed and thrive.</p>
+      <p class="bs-note">Finally, we are not awarding marks for spelling or grammar, nor are we withholding them for that reason. Some of our players may have learned English as a second language, or may not be adept in writing as an art-form. As long as their story is coherent, we have no burning need for excellence of prose.</p>
+
+      <div class="bs-rubric-card">
+        <h3>Basic Points: /30</h3>
+        <p class="bs-note" style="margin-bottom:0;">In order to get the 30 basic points for a character history, consider the following questions in your background. You can even summarize your answer to this in a single paragraph if you wish to, but we urge you to give them due consideration.</p>
+        <ul>
+          <li>Where is your character coming from in life? This can include geographic location (nation, town, etc.), parentage/upbringing, and what your character considers to be their most important accomplishment to date.</li>
+          <li>Why is your character coming to Yorik? There are any number of potential reasons, it's a town famous for its adventurers, heroes, and villains, and your character may be seeking their fortune, trying to stay hidden, or trying to earn a place in the growing legend of the area.</li>
+          <li>How did your character acquire the skills on their character sheet? This doesn't have to be complicated, a melee fighter may have served in the army, been taught by a master, or learned from a relative. A scholarly character may have spent years in study, or been an apprentice in a merchant house. The main goal is to have some idea as to how you became the person you are today.</li>
+        </ul>
+      </div>
+
+      <div class="bs-rubric-card">
+        <h3>Bonus Points: /20</h3>
+        <p class="bs-note" style="margin-bottom:0;">These points are discretionary, and are awarded for adding in details that can really bring your character to life! You don't have to select any of these in particular, but you can get up to 20 bonus points overall by considering any or all of the following ideas, or others that show character:</p>
+        <ul>
+          <li>What does your character most want to accomplish in life?</li>
+          <li>Does your character consider themself to be a good person?</li>
+          <li>What is your character afraid of?</li>
+          <li>Is your character religious? (They don't need to be an invested cleric to follow a faith)</li>
+          <li>Is there anyone in your character's history that deeply influenced them?</li>
+          <li>Why will your character stay in a dangerous region of the kingdom?</li>
+          <li>What makes your character angry?</li>
+          <li>What does your character enjoy doing?</li>
+          <li>What does your character believe?</li>
+        </ul>
+      </div>
+    `;
+  }
+
+  return `
+    <p class="bs-note">Creating a character can be a lot of fun, starting from a blank canvas, coloured only by your imagination. As time moves on however, a character will grow and change. It can be helpful for the Plot Team to know what adventures were meaningful to that character, and how they changed as a result of their experiences.</p>
+    <p class="bs-note">Every eighteen months, a player may resubmit their backstory with additions and updates from time in-play. We strongly encourage you to take the time to think about who your character is, and who they are in the process of becoming. Lore staff will score your submission out of 25 points below, awarded as XP.</p>
+
+    <div class="bs-rubric-card">
+      <h3>Basic Points: /5</h3>
+      <p class="bs-note" style="margin-bottom:0;">You will receive a base of 5 points for including your original or previous backstory, or a summary of your original backstory, in your resubmission. This helps us to ensure that our records are up to date, and will give you an opportunity to refresh yourself on what has been important to your character up to this point.</p>
+    </div>
+
+    <div class="bs-rubric-card">
+      <h3>Meaningful Adventures: /15</h3>
+      <p class="bs-note" style="margin-bottom:0;">You will receive up to 15 points for describing experiences or adventures that have been meaningful to your character in your time in-game. Such descriptions should give a brief summary of events, and also include some description of how your character thought or felt about their experiences.</p>
+    </div>
+
+    <div class="bs-rubric-card">
+      <h3>Bonus Points: /5</h3>
+      <p class="bs-note" style="margin-bottom:0;">You can get up to 5 bonus points overall by considering any or all of the following ideas, or others that show character:</p>
+      <ul>
+        <li>What is your character's current ambition?</li>
+        <li>What does your character regret?</li>
+        <li>What is your character afraid of?</li>
+        <li>Why has your character stayed in this dangerous region of the kingdom?</li>
+        <li>What makes your character angry?</li>
+        <li>What does your character enjoy doing?</li>
+        <li>What does your character believe?</li>
+      </ul>
+    </div>
+  `;
+}
+
+function historyHtml(c){
+  if(!c.submissions.length) return '';
+
+  const items = c.submissions.map(s => {
+    const notes = s.lore_notes
+      ? `<div class="bs-history-notes">Lore notes: ${escapeHtml(s.lore_notes)}</div>`
+      : '';
+    const xp = (s.status === 'approved' && s.xp_awarded != null)
+      ? `<span class="bs-xp-tag">+${s.xp_awarded} XP</span>`
+      : '';
+    return `
+      <div class="bs-history-item">
+        <div class="bs-history-head">
+          <div><span class="status-pill ${statusClass(s.status)}">${statusLabel(s.status)}</span> ${xp}</div>
+          <div class="bs-history-date">${fmtDateTime(s.submitted_at)}${s.is_resubmission ? ' &middot; revision' : ''}</div>
+        </div>
+        <p class="bs-history-body">${escapeHtml(s.body)}</p>
+        ${notes}
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="panel">
+      <div class="panel-head"><h2>Submission History</h2></div>
+      <div class="panel-body">${items}</div>
+    </div>
+  `;
+}
+
+function render(){
+  const switcher = document.getElementById('bs-char-switcher');
+  switcher.innerHTML = CHARACTERS.map(ch =>
+    `<button class="${ch.id===activeCharId?'active':''}" onclick="bs_selectChar('${ch.id}')">${escapeHtml(ch.name)}</button>`
+  ).join('');
+
+  const content = document.getElementById('bs-content');
+  const c = CHARACTERS.find(ch => ch.id === activeCharId);
+
+  if(!c){
+    content.innerHTML = `<div class="panel"><div class="panel-body">${emptyState('You have no characters yet.')}</div></div>`;
+    return;
+  }
+
+  if(c.loadError){
+    content.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-error-note">Couldn't load Backstory: ${escapeHtml(c.loadError)}</p></div></div>`;
+    return;
+  }
+
+  const pending = c.submissions.find(s => s.status === 'pending');
+  const hasApproved = c.submissions.some(s => s.status === 'approved');
+
+  let html = `
+    <div class="panel">
+      <div class="panel-head"><h2>${hasApproved ? 'Resubmitting a Backstory' : 'Backstory Rubric'}</h2></div>
+      <div class="panel-body">${rubricHtml(hasApproved)}</div>
+    </div>
+  `;
+
+  html += `
+    <div class="panel">
+      <div class="panel-head"><h2>${hasApproved ? 'Submit an Update' : 'Submit Your Backstory'}</h2></div>
+      <div class="panel-body">
+        ${pending ? `
+          <p class="bs-note">Your backstory for ${escapeHtml(c.name)} is awaiting Lore review. You'll see their decision here and in your Notifications once it's ready.</p>
+        ` : `
+          <label class="field-label" for="bs-body">${hasApproved ? 'Your updated backstory' : 'Your backstory'}</label>
+          <textarea class="bs-textarea" id="bs-body" placeholder="Write your character's story here..."></textarea>
+          <button class="btn-gold" id="bs-submit-btn" style="margin-top:1rem;" onclick="bs_submit()">Submit Backstory</button>
+          <p class="reg-error-note" id="bs-error" style="display:none; margin-top:0.6rem;"></p>
+        `}
+      </div>
+    </div>
+  `;
+
+  html += historyHtml(c);
+
+  content.innerHTML = html;
+}
+
+async function loadSubmissions(c){
+  const { data, error } = await membersSupabase
+    .from('character_backstories')
+    .select('id, body, status, is_resubmission, xp_awarded, lore_notes, submitted_at')
+    .eq('character_id', c.id)
+    .order('submitted_at', { ascending: false });
+  if(error){ c.loadError = error.message; c.submissions = []; return; }
+  c.submissions = data || [];
+}
+
+async function loadCharacters(){
+  const me = window.faCurrentUser.id;
+
+  const { data: chars } = await membersSupabase
+    .from('characters')
+    .select('id, name')
+    .eq('player_id', me)
+    .order('created_at', { ascending: true });
+
+  CHARACTERS = (chars || []).map(ch => ({ id: ch.id, name: ch.name, submissions: [], loadError: null }));
+  activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
+
+  if(CHARACTERS.length){
+    await Promise.all(CHARACTERS.map(loadSubmissions));
+  }
+
+  render();
+}
+
+window.bs_selectChar = bs_selectChar;
+window.bs_submit = bs_submit;
+
+document.addEventListener('fa-members-ready', loadCharacters);
+})();
 </script>
 
 </body>
