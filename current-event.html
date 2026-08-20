@@ -189,6 +189,7 @@ let TRAIN_SUMMARY = { spendable_sp: 0, hours_spent: 0 };
 let TRAIN_BUDGET = 0;
 let TRAIN_BROWSE_STATE = {};
 let TRAIN_LOAD_ERROR = null;
+let TRAIN_TAUGHT = new Set();
 
 let WORK_SESSIONS = [];
 let WORK_LOAD_ERROR = null;
@@ -1164,18 +1165,25 @@ async function ensureTrainingCatalogLoaded(){
   TRAIN_CATEGORY = categories.length ? categories[0] : null;
 }
 
+function taughtKey(category, skillName, focus){
+  return [category, skillName, focus].map(v => (v || '').trim().toLowerCase()).join('|');
+}
+
 async function refreshTrainingState(){
-  const [{ data: skillRows }, { data: summary }, { data: purchases }] = await Promise.all([
+  const [{ data: skillRows }, { data: summary }, { data: purchases }, { data: teachRows }] = await Promise.all([
     membersSupabase.from('character_skills').select('id, category, skill_name, focus, level, sp_cost').eq('character_id', MY_CHARACTER.id),
     membersSupabase.rpc('event_log_training_summary', { p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id }),
     membersSupabase.from('event_log_training_purchases').select('id, category, skill_name, focus, level, sp_cost, hours_cost, is_relevel, prev_level')
-      .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true })
+      .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true }),
+    membersSupabase.from('character_teach_requests').select('category, skill_name, focus')
+      .eq('student_character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).eq('status', 'approved')
   ]);
   TRAIN_KNOWN = (skillRows || []).map(sk => ({ id: sk.id, category: sk.category, title: sk.skill_name, focus: sk.focus || '', level: sk.level, spCost: sk.sp_cost }));
   TRAIN_STATS = faDeriveStats(MY_CHARACTER.race, TRAIN_KNOWN.map(k => ({ name: k.title, level: k.level })));
   TRAIN_SUMMARY = summary || { spendable_sp: 0, hours_spent: 0 };
   TRAIN_PURCHASES = purchases || [];
   TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT);
+  TRAIN_TAUGHT = new Set((teachRows || []).map(r => taughtKey(r.category, r.skill_name, r.focus)));
 }
 
 async function loadTrainingData(){
@@ -1314,18 +1322,19 @@ function ce_trainRowInfo(idx){
   const spendableSp = TRAIN_SUMMARY.spendable_sp;
 
   const cost = skillsParseCost(s, level, race, focusVal);
-  const hoursCost = cost === null ? null : cost * 5;
+  const taught = TRAIN_TAUGHT.has(taughtKey(s.category, s.title, focusVal));
+  const hoursCost = cost === null ? null : (taught ? Math.ceil(cost * 2.5) : cost * 5);
 
   const missing = unmetPrereqText(s, race, focusVal, TRAIN_KNOWN, TRAIN_STATS);
   const canAct = !missing && cost !== null && cost > 0 && cost <= spendableSp && hoursCost <= hoursRemaining
     && !(s.focusTypeId && !focusVal);
 
-  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, missing, canAct };
+  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, taught, missing, canAct };
 }
 
 function trainCostLabel(info){
   if(info.cost === null) return '-';
-  return `${info.cost} SP (${info.hoursCost} hrs)`;
+  return `${info.cost} SP (${info.hoursCost} hrs${info.taught ? ', taught' : ''})`;
 }
 
 function renderTrainBrowser(){
