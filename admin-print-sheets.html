@@ -71,6 +71,12 @@
   line-height: 1.2;
 }
 .print-sheet-table th{ background:#eee; font-family:'Cinzel', serif; }
+.print-sheet-skill-cols{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 0.5rem;
+  align-items: start;
+}
 
 .kp-print-title{
   font-family: 'EB Garamond', serif;
@@ -342,17 +348,33 @@ async function ps_printAll(){
           <div><span>Experience</span><strong>${s.xp}</strong></div>
           <div><span>XP:SP Ratio</span><strong>${ratio}</strong></div>
         </div>
-        <table class="print-sheet-table">
-          <thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th><th>SP</th></tr></thead>
-          <tbody>
-            ${skills.length ? skills.map(sk => `<tr><td>${escapeHtml(sk.name)}</td><td>${escapeHtml(sk.type || '')}</td><td>${escapeHtml(sk.focus || '')}</td><td>${sk.level}</td><td>${sk.sp}</td></tr>`).join('') : '<tr><td colspan="5">No skills chosen.</td></tr>'}
-          </tbody>
-        </table>
+        ${printSkillColumnsHtml(skills)}
       </div>
     `;
   }).join('');
 
   ps_doPrint(html);
+}
+
+// Skill/Focus/Level only (Type and SP dropped) split across two side-by-side
+// tables instead of one tall single-column list, so a character with a full
+// build fits in roughly half the vertical space on the printed sheet.
+function printSkillColumnsHtml(skills){
+  if(!skills.length) return '<p class="print-sheet-player">No skills chosen.</p>';
+
+  const mid = Math.ceil(skills.length / 2);
+  const columns = [skills.slice(0, mid), skills.slice(mid)];
+
+  const tableHtml = col => `
+    <table class="print-sheet-table">
+      <thead><tr><th>Skill</th><th>Focus</th><th>Level</th></tr></thead>
+      <tbody>
+        ${col.map(sk => `<tr><td>${escapeHtml(sk.name)}</td><td>${escapeHtml(sk.focus || '')}</td><td>${sk.level}</td></tr>`).join('')}
+      </tbody>
+    </table>
+  `;
+
+  return `<div class="print-sheet-skill-cols">${columns.map(tableHtml).join('')}</div>`;
 }
 
 /* ---------- kitchen sheets ---------- */
