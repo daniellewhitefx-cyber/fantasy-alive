@@ -52,77 +52,61 @@
   width: 3.5in;
   height: 2in;
   box-sizing:border-box;
-  padding: 0.3in 0.26in 0.13in;
-  border: 1px solid var(--gold-dark);
-  background: var(--cream);
-  color: var(--brown-dark);
+  background: #fff;
+  color: #000;
   font-family: 'EB Garamond', serif;
   break-inside: avoid;
   page-break-inside: avoid;
   overflow: hidden;
   display:flex;
-  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 }
-.sb-corner{ position:absolute; width: 30px; height: 30px; }
-.sb-corner-tl{ top: 0.07in; left: 0.07in; }
-.sb-corner-tr{ top: 0.07in; right: 0.07in; }
-.sb-corner-bl{ bottom: 0.07in; left: 0.07in; }
-.sb-corner-br{ bottom: 0.07in; right: 0.07in; }
-
-.sb-spell-card-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  gap: 0.4rem;
+.sb-card-border{
+  position:absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events:none;
+}
+.sb-spell-card-inner{
+  position:relative;
+  z-index: 1;
+  width: 1.55in;
+  text-align:center;
 }
 .sb-spell-card h3{
   font-family: 'Cinzel', serif;
-  font-size: 0.92rem;
+  font-size: 1.05rem;
   margin: 0;
   line-height: 1.15;
-  color: var(--brown-dark);
+  color: #000;
 }
 .sb-spell-card-level{
   font-family: 'Cinzel', serif;
-  font-size: 0.56rem;
+  font-size: 0.66rem;
   font-weight:700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--gold-dark);
-  white-space:nowrap;
+  color: #000;
+  margin-bottom: 0.28rem;
 }
 .sb-spell-card-incant{
   font-style: italic;
-  font-size: 0.66rem;
-  line-height: 1.15;
-  margin: 0.1rem 0 0.2rem;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  margin: 0 0 0.32rem;
 }
 .sb-spell-card-stats{
   display:flex;
-  flex-wrap:wrap;
-  gap: 0.05rem 0.5rem;
-  border-top: 1px dotted var(--gold-dark);
-  border-bottom: 1px dotted var(--gold-dark);
-  padding: 0.12rem 0;
-  margin-bottom: 0.2rem;
+  flex-direction:column;
+  gap: 0.1rem;
+  border-top: 1px solid #000;
+  padding-top: 0.22rem;
+  font-size: 0.74rem;
+  line-height: 1.25;
 }
-.sb-spell-card-stats div{ font-size: 0.58rem; white-space:nowrap; }
-.sb-spell-card-stats span{
-  font-family: 'Cinzel', serif;
-  font-size: 0.5rem;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--gold-dark);
-  margin-right: 0.15rem;
-}
-.sb-spell-card-desc{
-  font-size: 0.6rem;
-  line-height: 1.2;
-  flex: 1;
-  overflow: hidden;
-}
-.sb-spell-card-desc.sb-desc-md{ font-size: 0.5rem; line-height: 1.14; }
-.sb-spell-card-desc.sb-desc-sm{ font-size: 0.42rem; line-height: 1.05; }
 
 @media print{
   div[data-include="partials/header.html"],
@@ -191,66 +175,11 @@ function costLabel(spell, unit, surcharge){
   return total + ' ' + unit;
 }
 
-// Four corner ornaments (eye / sunburst / orb / crescent moon) for the
-// printable spell cards, each self-contained artwork oriented for its own
-// corner so they can just be dropped in without any rotation math.
-const SB_CORNER_TL = `
-<svg class="sb-corner sb-corner-tl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-<line x1="34" y1="9" x2="70" y2="9" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="34" y1="13" x2="70" y2="13" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="9" y1="34" x2="9" y2="70" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="13" y1="34" x2="13" y2="70" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<rect x="50.5" y="8.5" width="5" height="5" transform="rotate(45 53 11)" fill="var(--gold-dark)"/>
-<rect x="8.5" y="50.5" width="5" height="5" transform="rotate(45 11 53)" fill="var(--gold-dark)"/>
-<circle cx="21" cy="21" r="14.5" fill="var(--cream)" stroke="var(--gold-dark)" stroke-width="1.5"/>
-<path d="M9 21 Q21 11 33 21 Q21 31 9 21 Z" fill="none" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<circle cx="21" cy="21" r="3.2" fill="var(--gold-dark)"/>
-</svg>`;
-
-const SB_CORNER_TR = `
-<svg class="sb-corner sb-corner-tr" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-<line x1="30" y1="9" x2="66" y2="9" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="30" y1="13" x2="66" y2="13" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="91" y1="34" x2="91" y2="70" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="87" y1="34" x2="87" y2="70" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<rect x="44.5" y="8.5" width="5" height="5" transform="rotate(45 47 11)" fill="var(--gold-dark)"/>
-<rect x="86.5" y="50.5" width="5" height="5" transform="rotate(45 89 53)" fill="var(--gold-dark)"/>
-<circle cx="79" cy="21" r="14.5" fill="var(--cream)" stroke="var(--gold-dark)" stroke-width="1.5"/>
-<g stroke="var(--gold-dark)" stroke-width="1.3">
-<line x1="79" y1="9.5" x2="79" y2="13.5"/>
-<line x1="79" y1="28.5" x2="79" y2="32.5"/>
-<line x1="67.5" y1="21" x2="71.5" y2="21"/>
-<line x1="86.5" y1="21" x2="90.5" y2="21"/>
-<line x1="70.2" y1="12.2" x2="73" y2="15"/>
-<line x1="85" y1="27" x2="87.8" y2="29.8"/>
-<line x1="87.8" y1="12.2" x2="85" y2="15"/>
-<line x1="73" y1="27" x2="70.2" y2="29.8"/>
-</g>
-<circle cx="79" cy="21" r="3.6" fill="var(--gold-dark)"/>
-</svg>`;
-
-const SB_CORNER_BL = `
-<svg class="sb-corner sb-corner-bl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-<line x1="34" y1="91" x2="70" y2="91" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="34" y1="87" x2="70" y2="87" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="9" y1="30" x2="9" y2="66" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="13" y1="30" x2="13" y2="66" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<rect x="50.5" y="86.5" width="5" height="5" transform="rotate(45 53 89)" fill="var(--gold-dark)"/>
-<rect x="8.5" y="44.5" width="5" height="5" transform="rotate(45 11 47)" fill="var(--gold-dark)"/>
-<circle cx="21" cy="79" r="14.5" fill="var(--brown-dark)" stroke="var(--gold-dark)" stroke-width="1.5"/>
-</svg>`;
-
-const SB_CORNER_BR = `
-<svg class="sb-corner sb-corner-br" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-<line x1="30" y1="91" x2="66" y2="91" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="30" y1="87" x2="66" y2="87" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="91" y1="30" x2="91" y2="66" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<line x1="87" y1="30" x2="87" y2="66" stroke="var(--gold-dark)" stroke-width="1.3"/>
-<rect x="44.5" y="86.5" width="5" height="5" transform="rotate(45 47 89)" fill="var(--gold-dark)"/>
-<rect x="86.5" y="44.5" width="5" height="5" transform="rotate(45 89 47)" fill="var(--gold-dark)"/>
-<circle cx="79" cy="79" r="14.5" fill="var(--cream)" stroke="var(--gold-dark)" stroke-width="1.5"/>
-<path d="M85.5 68.5a11.5 11.5 0 1 0 0 21 9 9 0 0 1 0-21Z" fill="var(--gold-dark)"/>
-</svg>`;
+// The user's own border artwork -- an eye/sunburst/orb/crescent-moon
+// corner frame drawn at exactly the card's 3.5:2 aspect ratio, so it's
+// meant to be stretched to fill the card edge-to-edge rather than
+// recreated as separate corner pieces.
+const SB_CARD_BORDER_URL = 'https://i.imgur.com/pn7oMpz.png';
 
 // Every spell a character actually has -- Clerical Investment's automatic
 // grants (tagged with their domain and SE surcharge) plus whatever they've
@@ -282,36 +211,22 @@ function sb_buildCardList(c){
   return cards.sort((a, b) => a.spell.level - b.spell.level || a.spell.name.localeCompare(b.spell.name));
 }
 
-// Most spell descriptions are a sentence or two and read fine at full
-// size, but a handful (Resurrect, Command, Contingency...) run 500-750
-// characters -- a fixed business-card size can't grow to fit those, so
-// the description shrinks in tiers instead of silently truncating.
-function sbDescSizeClass(desc){
-  const len = (desc || '').length;
-  if(len > 380) return 'sb-desc-sm';
-  if(len > 220) return 'sb-desc-md';
-  return '';
-}
-
 function sbCardHtml({ spell, unit, surcharge, source }){
   const cost = (spell.energy || 0) + (surcharge || 0);
   return `
     <div class="sb-spell-card">
-      ${SB_CORNER_TL}${SB_CORNER_TR}${SB_CORNER_BL}${SB_CORNER_BR}
-      <div class="sb-spell-card-head">
+      <img class="sb-card-border" src="${SB_CARD_BORDER_URL}" alt="">
+      <div class="sb-spell-card-inner">
         <h3>${escapeHtml(spell.name)}</h3>
-        <span class="sb-spell-card-level">Level ${spell.level}</span>
+        <div class="sb-spell-card-level">Level ${spell.level} &middot; ${escapeHtml(spell.category || '-')}</div>
+        <p class="sb-spell-card-incant">&ldquo;${escapeHtml(spell.incant)}&rdquo;</p>
+        <div class="sb-spell-card-stats">
+          <div>${cost} ${unit}</div>
+          <div>${escapeHtml(source)}</div>
+          <div>${escapeHtml(spell.duration || '-')}</div>
+          <div>MEL ${escapeHtml(spell.mel || '0')}</div>
+        </div>
       </div>
-      <p class="sb-spell-card-incant">&ldquo;${escapeHtml(spell.incant)}&rdquo;</p>
-      <div class="sb-spell-card-stats">
-        <div><span>Cost</span>${cost} ${unit}</div>
-        <div><span>Source</span>${escapeHtml(source)}</div>
-        <div><span>Duration</span>${escapeHtml(spell.duration || '-')}</div>
-        <div><span>Category</span>${escapeHtml(spell.category || '-')}</div>
-        <div><span>MEL</span>${escapeHtml(spell.mel || '0')}</div>
-        <div><span>Mix</span>${escapeHtml(spell.mix || 'No')}</div>
-      </div>
-      <p class="sb-spell-card-desc ${sbDescSizeClass(spell.desc)}">${escapeHtml(spell.desc)}</p>
     </div>
   `;
 }
