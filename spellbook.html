@@ -231,11 +231,27 @@ function sbCardHtml({ spell, unit, surcharge, source }){
   `;
 }
 
-function sb_printCards(){
+// Every card uses the same border image; preloading it before print()
+// guarantees it's already in the browser cache by the time the <img> tags
+// below reference it. Without this, window.print() can fire before the
+// image has finished its first network fetch and capture a blank corner
+// instead -- calling print() right after setting innerHTML doesn't wait
+// for images the new markup just introduced.
+function sb_preloadBorderImage(){
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = resolve;
+    img.onerror = resolve;
+    img.src = SB_CARD_BORDER_URL;
+  });
+}
+
+async function sb_printCards(){
   const c = CHARACTERS.find(ch => ch.id === activeCharId);
   if(!c) return;
 
   const cards = sb_buildCardList(c);
+  await sb_preloadBorderImage();
   document.getElementById('sb-print-area').innerHTML = `
     <h2 class="sb-print-title">${escapeHtml(c.name)}'s Spellbook</h2>
     <div class="sb-print-grid">${cards.map(sbCardHtml).join('')}</div>
