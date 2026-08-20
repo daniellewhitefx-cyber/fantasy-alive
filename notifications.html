@@ -194,6 +194,23 @@ async function init(){
     (isNew(r.decided_at) ? newItems : previousItems).push(entry);
   });
 
+  const { data: myBackstories } = await membersSupabase
+    .from('character_backstories')
+    .select('character_id, status, xp_awarded, decided_at')
+    .eq('player_id', me)
+    .in('status', ['approved', 'denied', 'revision_requested'])
+    .order('decided_at', { ascending: false })
+    .limit(50);
+  (myBackstories || []).forEach(b => {
+    const xpNote = b.status === 'approved' && b.xp_awarded != null ? ` (+${b.xp_awarded} XP)` : '';
+    const entry = {
+      type: 'backstory',
+      date: b.decided_at,
+      html: `<strong>Backstory for ${escapeHtml(charMap[b.character_id] || 'a character')}</strong> ${b.status.replace('_', ' ')}${xpNote}`
+    };
+    (isNew(b.decided_at) ? newItems : previousItems).push(entry);
+  });
+
   const { data: bankTxRows } = await membersSupabase
     .from('bank_transactions')
     .select('type, amount, note, counterparty_id, created_by, created_at')

@@ -465,6 +465,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 .log-type.bank{ background: var(--brown); }
 .log-type.kudos{ background: #8a4b6b; }
 .log-type.remort{ background: #4a6b8a; }
+.log-type.backstory{ background: #6b7a3f; }
 
 .status-pill{
   display:inline-block;
@@ -480,6 +481,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 .status-pill.approved{ color: var(--good); }
 .status-pill.denied{ color: var(--bad); }
 .status-pill.pending{ color: var(--gold-dark); }
+.status-pill.revision{ color: #b5652f; }
 
 .empty-state{
   display:flex;
