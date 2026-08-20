@@ -46,6 +46,45 @@
 <span class="saved-note" id="teach-saved-note">Saved.</span>
 </div>
 
+<div class="section-block">
+<h3>Incoming Requests</h3>
+<p class="page-subhead">Other players asking to learn a skill you've marked teachable. Approving one halves that student's Training hours cost for this exact skill at the event shown, for the rest of that event's log.</p>
+<div class="table-scroll">
+<table class="data-table">
+<thead><tr><th>Student</th><th>Skill</th><th>Event</th><th>Status</th><th></th></tr></thead>
+<tbody id="teach-incoming-body"></tbody>
+</table>
+</div>
+</div>
+
+<div class="section-block">
+<h3>Learn From a Teacher</h3>
+<p class="page-subhead">Browse skills other players have marked teachable, and request to learn one for <strong id="teach-learn-event-label"></strong>. The teacher has to approve before it takes effect.</p>
+<div class="row-inline" style="gap:0.6rem; align-items:flex-end; flex-wrap:wrap; margin-bottom:0.8rem;">
+<div>
+<label class="field-label" for="teach-learn-char-select">Learning as</label>
+<select id="teach-learn-char-select" onchange="teach_learnCharChanged(this.value)" style="min-width:200px;"></select>
+</div>
+<input type="text" id="teach-directory-search" placeholder="Search skill or teacher..." oninput="teach_renderDirectory()" style="flex:1; min-width:220px;">
+</div>
+<div class="table-scroll">
+<table class="data-table">
+<thead><tr><th>Skill</th><th>Focus</th><th>Level</th><th>Teacher</th><th></th></tr></thead>
+<tbody id="teach-directory-body"></tbody>
+</table>
+</div>
+</div>
+
+<div class="section-block">
+<h3>My Outgoing Requests</h3>
+<div class="table-scroll">
+<table class="data-table">
+<thead><tr><th>Skill</th><th>Teacher</th><th>Event</th><th>Status</th><th></th></tr></thead>
+<tbody id="teach-outgoing-body"></tbody>
+</table>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -139,11 +178,163 @@ async function loadCharacters(){
 
   activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
   render();
+
+  renderLearnCharSelect();
+  document.getElementById('teach-learn-event-label').textContent = window.FA_NEXT_EVENT ? window.FA_NEXT_EVENT.label : 'the next event';
+  await Promise.all([teach_loadDirectory(), teach_loadRequests()]);
+}
+
+// --- Learn From a Teacher / Incoming Requests ---
+
+let LEARN_CHAR_ID = null;
+let DIRECTORY = [];
+let OUTGOING = [];
+let INCOMING = [];
+let NAME_BY_CHAR_ID = {};
+
+function renderLearnCharSelect(){
+  LEARN_CHAR_ID = CHARACTERS.length ? CHARACTERS[0].id : null;
+  document.getElementById('teach-learn-char-select').innerHTML = CHARACTERS.map(ch =>
+    `<option value="${ch.id}">${escapeHtml(ch.name)}</option>`
+  ).join('');
+}
+
+function teach_learnCharChanged(id){
+  LEARN_CHAR_ID = id;
+  teach_renderDirectory();
+}
+
+async function teach_loadDirectory(){
+  const { data, error } = await membersSupabase.rpc('teachable_skills_directory');
+  DIRECTORY = error ? [] : (data || []);
+  teach_renderDirectory();
+}
+
+function teach_isRequested(characterSkillId){
+  return OUTGOING.some(r => r.teacher_character_skill_id === characterSkillId && (r.status === 'pending' || r.status === 'approved'));
+}
+
+function teach_renderDirectory(){
+  const query = document.getElementById('teach-directory-search').value.trim().toLowerCase();
+  const rows = !query ? DIRECTORY : DIRECTORY.filter(d =>
+    d.skill_name.toLowerCase().includes(query) || (d.focus || '').toLowerCase().includes(query) ||
+    d.character_name.toLowerCase().includes(query) || (d.player_name || '').toLowerCase().includes(query)
+  );
+
+  document.getElementById('teach-directory-body').innerHTML = rows.length ? rows.map(d => {
+    const requested = teach_isRequested(d.character_skill_id);
+    return `
+      <tr>
+        <td>${escapeHtml(d.skill_name)}</td>
+        <td>${escapeHtml(d.focus || '-')}</td>
+        <td>${d.level}</td>
+        <td>${escapeHtml(d.character_name)} (${escapeHtml(d.player_name)})</td>
+        <td><button class="btn-outline" ${requested || !LEARN_CHAR_ID ? 'disabled' : ''} onclick="teach_requestLearn('${d.character_skill_id}')">${requested ? 'Requested' : 'Request'}</button></td>
+      </tr>`;
+  }).join('') : `<tr><td colspan="5">${DIRECTORY.length ? 'No skills match your search.' : 'No one has marked a skill teachable yet.'}</td></tr>`;
+}
+
+async function teach_requestLearn(teacherSkillId){
+  if(!LEARN_CHAR_ID || !window.FA_NEXT_EVENT) return;
+  const { error } = await membersSupabase.rpc('teach_request_create', {
+    p_event_slug: window.FA_NEXT_EVENT.value,
+    p_student_character_id: LEARN_CHAR_ID,
+    p_teacher_character_skill_id: teacherSkillId
+  });
+  if(error){ alert(error.message); return; }
+  await teach_loadRequests();
+}
+
+function eventLabelFor(slug){
+  const ev = (window.FA_ALL_EVENTS || []).find(e => e.value === slug);
+  return ev ? ev.label : slug;
+}
+
+function statusPillClass(status){
+  if(status === 'approved') return 'approved';
+  if(status === 'declined') return 'denied';
+  if(status === 'cancelled') return 'cancelled';
+  return 'pending';
+}
+
+async function teach_loadRequests(){
+  const me = window.faCurrentUser.id;
+  const { data } = await membersSupabase.from('character_teach_requests')
+    .select('id, event_slug, student_player_id, student_character_id, teacher_player_id, teacher_character_id, teacher_character_skill_id, category, skill_name, focus, level, status, requested_at')
+    .or(`student_player_id.eq.${me},teacher_player_id.eq.${me}`)
+    .order('requested_at', { ascending: false });
+
+  const all = data || [];
+  OUTGOING = all.filter(r => r.student_player_id === me);
+  INCOMING = all.filter(r => r.teacher_player_id === me && r.status === 'pending');
+
+  const charIds = new Set();
+  all.forEach(r => { charIds.add(r.student_character_id); charIds.add(r.teacher_character_id); });
+  if(charIds.size){
+    const { data: names } = await membersSupabase.rpc('character_names');
+    NAME_BY_CHAR_ID = {};
+    (names || []).forEach(c => { if(charIds.has(c.id)) NAME_BY_CHAR_ID[c.id] = c.name; });
+  }
+
+  teach_renderOutgoing();
+  teach_renderIncoming();
+  teach_renderDirectory();
+}
+
+function teach_renderOutgoing(){
+  document.getElementById('teach-outgoing-body').innerHTML = OUTGOING.length ? OUTGOING.map(r => `
+    <tr>
+      <td>${escapeHtml(r.skill_name)}${r.focus ? ' (' + escapeHtml(r.focus) + ')' : ''}</td>
+      <td>${escapeHtml(NAME_BY_CHAR_ID[r.teacher_character_id] || 'Unknown')}</td>
+      <td>${escapeHtml(eventLabelFor(r.event_slug))}</td>
+      <td><span class="status-pill ${statusPillClass(r.status)}">${escapeHtml(r.status)}</span></td>
+      <td>${r.status === 'pending' ? `<button class="btn-outline" onclick="teach_cancelRequest('${r.id}')">Cancel</button>` : ''}</td>
+    </tr>
+  `).join('') : `<tr><td colspan="5">You haven't requested to learn anything yet.</td></tr>`;
+}
+
+function teach_renderIncoming(){
+  document.getElementById('teach-incoming-body').innerHTML = INCOMING.length ? INCOMING.map(r => `
+    <tr>
+      <td>${escapeHtml(NAME_BY_CHAR_ID[r.student_character_id] || 'Unknown')}</td>
+      <td>${escapeHtml(r.skill_name)}${r.focus ? ' (' + escapeHtml(r.focus) + ')' : ''} level ${r.level}</td>
+      <td>${escapeHtml(eventLabelFor(r.event_slug))}</td>
+      <td><span class="status-pill pending">pending</span></td>
+      <td>
+        <button class="btn-gold" onclick="teach_approveRequest('${r.id}')">Approve</button>
+        <button class="btn-outline" onclick="teach_declineRequest('${r.id}')">Decline</button>
+      </td>
+    </tr>
+  `).join('') : `<tr><td colspan="5">No pending requests.</td></tr>`;
+}
+
+async function teach_cancelRequest(id){
+  const { error } = await membersSupabase.rpc('teach_request_cancel', { p_id: id });
+  if(error){ alert(error.message); return; }
+  await teach_loadRequests();
+}
+
+async function teach_approveRequest(id){
+  const { error } = await membersSupabase.rpc('teach_request_approve', { p_id: id });
+  if(error){ alert(error.message); return; }
+  await teach_loadRequests();
+}
+
+async function teach_declineRequest(id){
+  const { error } = await membersSupabase.rpc('teach_request_decline', { p_id: id });
+  if(error){ alert(error.message); return; }
+  await teach_loadRequests();
 }
 
 window.teach_selectChar = teach_selectChar;
 window.teach_toggleTeach = teach_toggleTeach;
 window.teach_saveTeachable = teach_saveTeachable;
+window.teach_learnCharChanged = teach_learnCharChanged;
+window.teach_renderDirectory = teach_renderDirectory;
+window.teach_requestLearn = teach_requestLearn;
+window.teach_cancelRequest = teach_cancelRequest;
+window.teach_approveRequest = teach_approveRequest;
+window.teach_declineRequest = teach_declineRequest;
 document.addEventListener('fa-members-ready', loadCharacters);
 })();
 </script>
