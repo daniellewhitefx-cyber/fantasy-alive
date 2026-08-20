@@ -618,9 +618,9 @@ insert into skill_details (id, skill_id, race, cost, tutor, level_limit, focus_l
   (133, 83, 'Minotaur', 4, 1, 10, null, null, '+', null, null, false),
   (134, 83, 'Curtainborn', 3, 1, 10, null, null, '+', null, null, false),
   (135, 83, 'Dwarf', 1, 1, 10, null, null, '+', null, null, false),
-  (139, 85, null, 1, 1, null, 10, null, '+', null, null, false),
-  (140, 85, 'Dwarf', 0, 1, null, 10, null, '+', null, null, false),
-  (141, 85, 'Curtainborn', 2, 1, null, 10, null, '+', null, null, false),
+  (139, 85, null, 1, 1, 10, null, null, '+', null, null, false),
+  (140, 85, 'Dwarf', 0, 1, 10, null, null, '+', null, null, false),
+  (141, 85, 'Curtainborn', 2, 1, 10, null, null, '+', null, null, false),
   (142, 86, null, 3, 1, 10, null, null, '+', null, null, false),
   (143, 86, 'Minotaur', 5, 1, 10, null, null, '+', null, null, false),
   (144, 86, 'Curtainborn', 4, 1, 10, null, null, '+', null, null, false),
@@ -660,7 +660,7 @@ insert into skill_details (id, skill_id, race, cost, tutor, level_limit, focus_l
   (180, 94, null, 4, 1, 1, null, null, null, null, null, false),
   (181, 93, null, 10, 1, 1, null, null, null, null, null, false),
   (182, 92, null, 4, 1, 1, null, null, null, null, null, false),
-  (183, 85, 'Minotaur', 3, 1, null, 10, null, '+', null, null, false),
+  (183, 85, 'Minotaur', 3, 1, 10, null, null, '+', null, null, false),
   (184, 53, 'Gnome', 5, 1, null, null, null, null, null, null, false)
 on conflict (id) do nothing;
 
