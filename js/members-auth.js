@@ -236,6 +236,7 @@ async function initMembersPage(){
   const user = data.session.user;
   const displayName = (user.user_metadata && user.user_metadata.display_name) || user.email;
   document.getElementById('member-account-name').textContent = displayName;
+  insertBugReportButton();
   markActiveNavLink();
 
   // Nav is trimmed down for Cast-only and Townsperson-only accounts, since
@@ -312,6 +313,7 @@ async function initMembersPage(){
     ['member-manage-downtime-link', canSeeRequests],
     ['member-plot-link', canSeePlot],
     ['member-permissions-link', isSiteAdmin],
+    ['member-bug-reports-link', isSiteAdmin],
     ['member-print-sheets-link', canSeeRequests],
     ['member-registrations-link', canSeeRequests],
     ['member-print-tags-link', canSeeRequests],
@@ -347,6 +349,85 @@ async function initMembersPage(){
     if(!skipAutoTutorialPages.includes(current) && !(acctProfile && acctProfile.has_seen_tutorial)){
       if(window.faOpenTutorial) window.faOpenTutorial();
     }
+  });
+}
+
+// A "Report a Bug" button right below the player's name in the sidebar,
+// with a small popup for describing the problem. Built here (not as
+// markup in partials/members-sidebar.html) because that partial is
+// loaded via innerHTML, so a <script> inside it would never run -- see
+// js/include.js's comment on the same issue for site-search.js.
+function insertBugReportButton(){
+  if(document.getElementById('bug-report-btn')) return;
+
+  const nameEl = document.getElementById('member-account-name');
+  if(!nameEl) return;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'bug-report-btn';
+  btn.className = 'bug-report-btn';
+  btn.textContent = 'Report a Bug';
+  nameEl.insertAdjacentElement('afterend', btn);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'bug-report-overlay';
+  overlay.className = 'bug-report-overlay';
+  overlay.style.display = 'none';
+  overlay.innerHTML = `
+    <div class="bug-report-backdrop"></div>
+    <div class="bug-report-modal">
+      <button type="button" class="bug-report-close" aria-label="Close">&times;</button>
+      <h3>Report a Bug</h3>
+      <p class="page-subhead">Tell us what went wrong -- what you were doing, what you expected, and what happened instead. It gets sent straight to the admins.</p>
+      <textarea id="bug-report-text" rows="6" placeholder="What's broken?"></textarea>
+      <div class="bug-report-actions">
+        <button type="button" class="btn-outline" id="bug-report-cancel">Cancel</button>
+        <button type="button" class="btn-gold" id="bug-report-send">Send Report</button>
+      </div>
+      <p class="reg-success-note" id="bug-report-success" style="display:none;"></p>
+      <p class="reg-error-note" id="bug-report-error" style="display:none;"></p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const textEl = document.getElementById('bug-report-text');
+  const successEl = document.getElementById('bug-report-success');
+  const errorEl = document.getElementById('bug-report-error');
+  const sendBtn = document.getElementById('bug-report-send');
+
+  const openModal = () => {
+    textEl.value = '';
+    successEl.style.display = 'none';
+    errorEl.style.display = 'none';
+    overlay.style.display = 'block';
+    textEl.focus();
+  };
+  const closeModal = () => { overlay.style.display = 'none'; };
+
+  btn.addEventListener('click', openModal);
+  document.getElementById('bug-report-cancel').addEventListener('click', closeModal);
+  document.querySelector('.bug-report-close').addEventListener('click', closeModal);
+  document.querySelector('.bug-report-backdrop').addEventListener('click', closeModal);
+
+  sendBtn.addEventListener('click', async () => {
+    successEl.style.display = 'none';
+    errorEl.style.display = 'none';
+
+    const { error } = await membersSupabase.rpc('bug_report_submit', {
+      p_description: textEl.value,
+      p_page_url: window.location.pathname
+    });
+
+    if(error){
+      errorEl.textContent = error.message;
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    textEl.value = '';
+    successEl.textContent = 'Thanks -- your report has been sent to the admins.';
+    successEl.style.display = 'block';
   });
 }
 

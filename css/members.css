@@ -27,6 +27,72 @@ body.members-ready .dashboard{ visibility:visible; }
   width: 100%;
   text-align:center;
 }
+.bug-report-btn{
+  display:block;
+  width: 100%;
+  background: none;
+  color: var(--brown-dark);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.6rem;
+  border: 2px solid var(--line);
+  border-radius: 0;
+  margin: -0.5rem 0 1.1rem;
+  cursor:pointer;
+}
+.bug-report-btn:hover{ border-color: var(--gold); color: var(--gold-dark); }
+
+.bug-report-overlay{ position: fixed; inset: 0; z-index: 200; }
+.bug-report-backdrop{ position: absolute; inset: 0; background: rgba(20,18,15,0.6); }
+.bug-report-modal{
+  position: relative;
+  max-width: 480px;
+  margin: 4rem auto;
+  background: var(--cream);
+  border: 3px solid var(--gold);
+  box-shadow: 8px 8px 0 0 var(--gold);
+  padding: 1.6rem 1.8rem 1.8rem;
+  font-family: 'EB Garamond', serif;
+  color: var(--brown);
+}
+.bug-report-modal h3{
+  font-family: 'Cinzel', serif;
+  color: var(--brown-dark);
+  margin: 0 0 0.5rem;
+}
+.bug-report-modal textarea{
+  width:100%;
+  max-width:none;
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid var(--gold);
+  border-radius: 0;
+  background: #fff;
+  color: var(--brown);
+  resize: vertical;
+  min-height: 110px;
+}
+.bug-report-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+.bug-report-close{
+  position: absolute;
+  top: 1rem;
+  right: 1.1rem;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--brown-dark);
+}
 .side-nav{
   display:flex;
   flex-direction:column;
