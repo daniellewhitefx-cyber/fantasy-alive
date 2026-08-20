@@ -74,7 +74,7 @@
 .friends-icon-btn{
   width: 32px; height: 32px;
   border: 2px solid var(--bad);
-  background: #fff;
+  background: var(--row-b);
   color: var(--bad);
   font-size: 1rem;
   line-height:1;
@@ -272,7 +272,7 @@ function friends_renderNamedCards(ids, charById, nameByPlayer, actionsFor){
         <div class="friends-avatar">${avatar}</div>
         <div class="friends-card-body">
           <div class="friends-card-name">${escapeHtml(c.name)}</div>
-          <div class="friends-card-sub">${escapeHtml(c.name)} (${escapeHtml(playerName)})</div>
+          <div class="friends-card-sub">${escapeHtml(playerName)}</div>
         </div>
       </div>
     </div>`;
