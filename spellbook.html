@@ -79,34 +79,45 @@
 }
 .sb-spell-card h3{
   font-family: 'Cinzel', serif;
-  font-size: 1.05rem;
+  font-size: 1.3rem;
   margin: 0;
   line-height: 1.15;
   color: #000;
 }
 .sb-spell-card-level{
   font-family: 'Cinzel', serif;
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-weight:700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: #000;
-  margin-bottom: 0.28rem;
+  margin-bottom: 0.12rem;
 }
 .sb-spell-card-incant{
   font-style: italic;
-  font-size: 0.82rem;
-  line-height: 1.2;
-  margin: 0 0 0.32rem;
+  font-size: 0.94rem;
+  line-height: 1.12;
+  margin: 0 0 0.16rem;
+}
+.sb-spell-card-cost{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.06rem;
 }
 .sb-spell-card-stats{
   display:flex;
   flex-direction:column;
-  gap: 0.1rem;
+  gap: 0.08rem;
   border-top: 1px solid #000;
-  padding-top: 0.22rem;
+  padding-top: 0.12rem;
   font-size: 0.74rem;
-  line-height: 1.25;
+  line-height: 1.15;
+}
+.sb-spell-card-stats-row{
+  display:flex;
+  justify-content:space-between;
+  gap: 0.5rem;
 }
 
 @media print{
@@ -222,9 +233,11 @@ function sbCardHtml({ spell, unit, surcharge, source }){
         <div class="sb-spell-card-level">Level ${spell.level} &middot; ${escapeHtml(spell.category || '-')}</div>
         <p class="sb-spell-card-incant">&ldquo;${escapeHtml(spell.incant)}&rdquo;</p>
         <div class="sb-spell-card-stats">
-          <div>${cost} ${unit}</div>
-          <div>${escapeHtml(source)}</div>
-          <div>${escapeHtml(spell.duration || '-')}</div>
+          <div class="sb-spell-card-cost">${cost} ${unit}</div>
+          <div class="sb-spell-card-stats-row">
+            <span>${escapeHtml(source)}</span>
+            <span>${escapeHtml(spell.duration || '-')}</span>
+          </div>
           <div>MEL ${escapeHtml(spell.mel || '0')}</div>
         </div>
       </div>
