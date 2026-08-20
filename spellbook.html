@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spellbook - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Spellbook - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/spellbook.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Spellbook - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.sb-source-note{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--brown-dark);
+  margin: 0 0 0.9rem;
+}
+.sb-known-row{ opacity: 0.55; }
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<div class="char-switcher" id="sb-char-switcher"></div>
+
+<h1 class="page-title">Spellbook</h1>
+
+<div id="sb-content"></div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script src="js/spellbook-data.js"></script>
+<script>
+(function(){
+let CHARACTERS = [];
+let activeCharId = null;
+let COMPENDIUM = null;
+let DEITIES = null;
+let LOAD_ERROR = null;
+let MAGERY_FILTER = 'all';
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><path d="M12 2 3 6.5v6C3 17 7 21 12 22c5-1 9-5 9-9.5v-6L12 2Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
+
+function costLabel(spell, unit, surcharge){
+  const total = (spell.energy || 0) + (surcharge || 0);
+  return total + ' ' + unit;
+}
+
+function sb_selectChar(id){
+  activeCharId = id;
+  MAGERY_FILTER = 'all';
+  render();
+}
+
+function sb_setMageryFilter(filter){
+  MAGERY_FILTER = filter;
+  render();
+}
+
+async function sb_learnSpell(characterId, spellName){
+  const errorEl = document.getElementById('sb-error');
+  const { error } = await membersSupabase.rpc('character_learn_spell', {
+    p_character_id: characterId,
+    p_spell_name: spellName
+  });
+  if(error){ if(errorEl){ errorEl.textContent = error.message; errorEl.style.display = 'block'; } return; }
+
+  const c = CHARACTERS.find(ch => ch.id === characterId);
+  if(c) c.knownSpells.add(spellName.toLowerCase());
+  render();
+}
+
+async function sb_unlearnSpell(characterId, spellName){
+  const errorEl = document.getElementById('sb-error');
+  const { error } = await membersSupabase.rpc('character_unlearn_spell', {
+    p_character_id: characterId,
+    p_spell_name: spellName
+  });
+  if(error){ if(errorEl){ errorEl.textContent = error.message; errorEl.style.display = 'block'; } return; }
+
+  const c = CHARACTERS.find(ch => ch.id === characterId);
+  if(c) c.knownSpells.delete(spellName.toLowerCase());
+  render();
+}
+
+function domainTag(source){
+  if(source === 'home') return '<span class="status-pill approved">Home</span>';
+  if(source === 'shared') return '<span class="status-pill pending">Shared Domain</span>';
+  return '<span class="status-pill denied">Opposed Domain</span>';
+}
+
+function renderClericalPanel(c){
+  const deity = c.ciFocus;
+  const home = DEITIES[deity];
+  if(!home){
+    return `
+      <div class="panel">
+        <div class="panel-head"><h2>Clerical Spells</h2></div>
+        <div class="panel-body">
+          <p class="sb-source-note">Couldn't find a lore article for ${escapeHtml(deity || 'this character\'s deity')}. Ask Lore staff to check the deity name matches a published Deities article.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  const granted = window.spellbookClericalSpells(DEITIES, deity, c.ciLevel)
+    .map(g => {
+      const spell = COMPENDIUM[g.name.toLowerCase()];
+      const source = g.surcharge === 0 ? 'home' : (g.surcharge === window.SPELLBOOK_SHARED_DOMAIN_SURCHARGE ? 'shared' : 'opposed');
+      return { g, spell, source };
+    })
+    .filter(row => row.spell)
+    .sort((a, b) => a.spell.level - b.spell.level || a.spell.name.localeCompare(b.spell.name));
+
+  const rows = granted.map(({ g, spell, source }) => `
+    <tr>
+      <td>${escapeHtml(spell.name)}</td>
+      <td>${spell.level}</td>
+      <td>${escapeHtml(spell.incant)}</td>
+      <td>${costLabel(spell, 'SE', g.surcharge)}</td>
+      <td>${domainTag(source)}</td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="panel">
+      <div class="panel-head"><h2>Clerical Spells</h2></div>
+      <div class="panel-body">
+        <p class="sb-source-note">Automatically granted by Clerical Investment (Level ${c.ciLevel}, worshipping ${escapeHtml(deity)}). Shared Domain costs +${window.SPELLBOOK_SHARED_DOMAIN_SURCHARGE} SE, Opposed Domain costs +${window.SPELLBOOK_OPPOSED_DOMAIN_SURCHARGE} SE.</p>
+        ${granted.length ? `
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Spell</th><th>Level</th><th>Incant</th><th>Cost</th><th>Domain</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        ` : emptyState('No spells found for this deity yet.')}
+      </div>
+    </div>
+  `;
+}
+
+function renderMageryPanel(c){
+  const allSpells = Object.values(COMPENDIUM).sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+  const visible = allSpells.filter(spell => {
+    const known = c.knownSpells.has(spell.name.toLowerCase());
+    if(MAGERY_FILTER === 'known') return known;
+    if(MAGERY_FILTER === 'unknown') return !known;
+    return true;
+  });
+
+  const rows = visible.map(spell => {
+    const known = c.knownSpells.has(spell.name.toLowerCase());
+    const nameEsc = spell.name.replace(/'/g, "\\'");
+    return `
+      <tr class="${known ? 'sb-known-row' : ''}">
+        <td>${escapeHtml(spell.name)}</td>
+        <td>${spell.level}</td>
+        <td>${escapeHtml(spell.incant)}</td>
+        <td>${costLabel(spell, 'ME', 0)}</td>
+        <td>${known
+          ? `<button class="btn-outline" onclick="sb_unlearnSpell('${c.id}', '${nameEsc}')">Forget</button>`
+          : `<button class="btn-gold" onclick="sb_learnSpell('${c.id}', '${nameEsc}')">Mark Known</button>`}
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="panel">
+      <div class="panel-head"><h2>Magery Spellbook</h2></div>
+      <div class="panel-body">
+        <p class="sb-source-note">Mark the spells this character personally knows from Magery.</p>
+        <div class="day-toggle">
+          <button class="${MAGERY_FILTER === 'all' ? 'active' : ''}" onclick="sb_setMageryFilter('all')">Show All</button>
+          <button class="${MAGERY_FILTER === 'known' ? 'active' : ''}" onclick="sb_setMageryFilter('known')">Show Known</button>
+          <button class="${MAGERY_FILTER === 'unknown' ? 'active' : ''}" onclick="sb_setMageryFilter('unknown')">Show Not Known</button>
+        </div>
+        ${visible.length ? `
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Spell</th><th>Level</th><th>Incant</th><th>Cost</th><th></th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        ` : emptyState('No spells match this filter.')}
+      </div>
+    </div>
+  `;
+}
+
+function render(){
+  const switcher = document.getElementById('sb-char-switcher');
+  switcher.innerHTML = CHARACTERS.map(ch =>
+    `<button class="${ch.id===activeCharId?'active':''}" onclick="sb_selectChar('${ch.id}')">${escapeHtml(ch.name)}</button>`
+  ).join('');
+
+  const content = document.getElementById('sb-content');
+  const c = CHARACTERS.find(ch => ch.id === activeCharId);
+
+  if(!c){
+    content.innerHTML = `<div class="panel"><div class="panel-body">${emptyState('You have no characters yet.')}</div></div>`;
+    return;
+  }
+
+  if(LOAD_ERROR){
+    content.innerHTML = `<div class="panel"><div class="panel-body"><p class="reg-error-note">Couldn't load the Spellbook: ${escapeHtml(LOAD_ERROR)}</p></div></div>`;
+    return;
+  }
+
+  if(!c.hasMagery && !c.hasClerical){
+    content.innerHTML = `<div class="panel"><div class="panel-body">${emptyState('This character has no Magery or Clerical Investment yet.')}</div></div>`;
+    return;
+  }
+
+  let html = '';
+  if(c.hasClerical) html += renderClericalPanel(c);
+  if(c.hasMagery) html += renderMageryPanel(c);
+  html += `<p class="reg-error-note" id="sb-error" style="display:none;"></p>`;
+
+  content.innerHTML = html;
+}
+
+async function loadCharacterKnownSpells(c){
+  const { data, error } = await membersSupabase
+    .from('character_known_spells')
+    .select('spell_name')
+    .eq('character_id', c.id);
+  c.knownSpells = new Set((error ? [] : (data || [])).map(r => r.spell_name.toLowerCase()));
+}
+
+async function loadCharacters(){
+  const me = window.faCurrentUser.id;
+
+  const [{ data: chars }, { data: skillRows }] = await Promise.all([
+    membersSupabase.from('characters').select('id, name').eq('player_id', me).order('created_at', { ascending: true }),
+    membersSupabase.from('character_skills').select('character_id, skill_name, focus, level').eq('player_id', me)
+  ]);
+
+  CHARACTERS = (chars || []).map(ch => {
+    const skills = (skillRows || []).filter(sk => sk.character_id === ch.id);
+    const magery = skills.find(sk => sk.skill_name === 'Magery');
+    const clerical = skills.find(sk => sk.skill_name === 'Clerical Investment');
+    return {
+      id: ch.id,
+      name: ch.name,
+      hasMagery: !!magery,
+      hasClerical: !!clerical,
+      ciFocus: clerical ? clerical.focus : null,
+      ciLevel: clerical ? clerical.level : 0,
+      knownSpells: new Set()
+    };
+  });
+
+  activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
+
+  await Promise.all(CHARACTERS.map(loadCharacterKnownSpells));
+
+  render();
+}
+
+window.sb_selectChar = sb_selectChar;
+window.sb_setMageryFilter = sb_setMageryFilter;
+window.sb_learnSpell = sb_learnSpell;
+window.sb_unlearnSpell = sb_unlearnSpell;
+
+document.addEventListener('fa-members-ready', async () => {
+  try{
+    const [compendium, deities] = await Promise.all([
+      window.spellbookLoadCompendium(),
+      window.spellbookLoadDeities()
+    ]);
+    COMPENDIUM = compendium;
+    DEITIES = deities;
+  } catch(err){
+    LOAD_ERROR = err.message;
+  }
+  await loadCharacters();
+});
+})();
+</script>
+
+</body>
+</html>
