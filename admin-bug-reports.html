@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bug Reports (Staff) - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bug Reports (Staff) - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/admin-bug-reports.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bug Reports (Staff) - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.bugrep-row{
+  border: 2px solid var(--line);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 0.8rem;
+  background: var(--row-b);
+}
+.bugrep-row.resolved{ opacity: 0.55; }
+.bugrep-row-who{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--brown-dark);
+  margin-bottom: 0.3rem;
+}
+.bugrep-row-desc{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.02rem;
+  color: var(--brown);
+  white-space: pre-wrap;
+  margin-bottom: 0.5rem;
+}
+.bugrep-row-meta{
+  font-size: 0.78rem;
+  color: var(--brown-dark);
+  opacity: 0.75;
+  margin-bottom: 0.6rem;
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Bug Reports</h1>
+
+<div class="reg-already-registered" id="bugrep-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to site admins.</p>
+</div>
+
+<div id="bugrep-wrap" style="display:none;">
+
+<div class="day-toggle" id="bugrep-tabs">
+<button class="active" data-tab="open" onclick="bugrep_switchTab('open')">Open</button>
+<button data-tab="resolved" onclick="bugrep_switchTab('resolved')">Resolved</button>
+</div>
+
+<div id="bugrep-list"></div>
+<p class="page-subhead" id="bugrep-empty" style="display:none;">Nothing here.</p>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+let ALL_REPORTS = [];
+let PROFILE_MAP = {};
+let ACTIVE_TAB = 'open';
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDateTime(iso){
+  if(!iso) return '';
+  return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function bugrep_switchTab(tab){
+  ACTIVE_TAB = tab;
+  document.querySelectorAll('#bugrep-tabs button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  render();
+}
+
+async function loadReports(){
+  const { data, error } = await membersSupabase
+    .from('bug_reports')
+    .select('id, player_id, page_url, description, status, created_at, resolved_at')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    document.getElementById('bugrep-list').innerHTML = `<p class="reg-error-note">Couldn't load bug reports: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+  ALL_REPORTS = data || [];
+
+  const playerIds = [...new Set(ALL_REPORTS.map(r => r.player_id))];
+  if(playerIds.length){
+    const { data: profiles } = await membersSupabase.from('profiles').select('id, display_name').in('id', playerIds);
+    (profiles || []).forEach(p => { PROFILE_MAP[p.id] = p.display_name; });
+  }
+
+  render();
+}
+
+function render(){
+  const rows = ALL_REPORTS.filter(r => ACTIVE_TAB === 'open' ? r.status === 'open' : r.status === 'resolved');
+  const listEl = document.getElementById('bugrep-list');
+  const emptyEl = document.getElementById('bugrep-empty');
+
+  if(rows.length === 0){
+    listEl.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  listEl.innerHTML = rows.map(r => `
+    <div class="bugrep-row ${r.status === 'resolved' ? 'resolved' : ''}">
+      <div class="bugrep-row-who">${escapeHtml(PROFILE_MAP[r.player_id] || 'Unknown player')}</div>
+      <div class="bugrep-row-desc">${escapeHtml(r.description)}</div>
+      <div class="bugrep-row-meta">${r.page_url ? escapeHtml(r.page_url) + ' &middot; ' : ''}${fmtDateTime(r.created_at)}${r.status === 'resolved' ? ' &middot; resolved ' + fmtDateTime(r.resolved_at) : ''}</div>
+      ${r.status === 'open' ? `<button class="btn-outline" onclick="bugrep_resolve('${r.id}')">Mark Resolved</button>` : ''}
+    </div>
+  `).join('');
+}
+
+async function bugrep_resolve(id){
+  const { error } = await membersSupabase.rpc('bug_report_mark_resolved', { p_id: id });
+  if(error){ alert(error.message); return; }
+  const r = ALL_REPORTS.find(x => x.id === id);
+  if(r){ r.status = 'resolved'; r.resolved_at = new Date().toISOString(); }
+  render();
+}
+
+document.addEventListener('fa-members-ready', async (e) => {
+  const user = e.detail.user;
+  const isSiteAdmin = !!(user.app_metadata && user.app_metadata.site_admin);
+  if(!isSiteAdmin){
+    document.getElementById('bugrep-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('bugrep-wrap').style.display = 'block';
+  await loadReports();
+});
+</script>
+
+</body>
+</html>
