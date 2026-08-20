@@ -153,6 +153,25 @@ function statusClass(status){
   return status;
 }
 
+function kindLabel(kind){
+  if(kind === 'remort') return 'Remort';
+  if(kind === 'resubmission') return 'Revision';
+  return 'First Submission';
+}
+
+// Mirrors character_submit_backstory's own kind detection: a fresh
+// character (or one that's never had a backstory approved) is a first
+// submission; if the most recent completed remort happened after the
+// most recent approval, the next submission is a remort redo; otherwise
+// it's a normal revision.
+function nextSubmissionKind(c){
+  const approvals = c.submissions.filter(s => s.status === 'approved');
+  if(!approvals.length) return 'first';
+  const lastApprovedAt = approvals.reduce((max, s) => new Date(s.decided_at) > new Date(max) ? s.decided_at : max, approvals[0].decided_at);
+  if(c.lastRemortAt && new Date(c.lastRemortAt) > new Date(lastApprovedAt)) return 'remort';
+  return 'resubmission';
+}
+
 function bs_selectChar(id){
   activeCharId = id;
   render();
@@ -195,8 +214,15 @@ async function bs_submit(){
   render();
 }
 
-function rubricHtml(hasApproved){
-  if(!hasApproved){
+function rubricHtml(kind){
+  if(kind === 'remort'){
+    return `
+      <p class="bs-note">Since your last approved backstory, this character has remorted into someone new. You can tell us who they are now, but since this character already earned backstory XP once, this submission won't earn XP again.</p>
+      <p class="bs-note">This is purely for the Plot Team's benefit, so they know who your character is now and can better engage with them on the level of personalized plot. Write as much or as little as feels right for your new character's story.</p>
+    `;
+  }
+
+  if(kind === 'first'){
     return `
       <p class="bs-note">By submitting a backstory to Fantasy Alive, you can earn up to 50 XP for your character. This backstory is intended to give you a place to start from in the world, and reflects your character's origins, history, and to encourage you to think about how your character came to be who they are today, and what they might hope to do in the future. It also can give the Plot Team some idea of your character's past and ambitions, and to allow them to better engage with your character on the level of personalized plot.</p>
       <p class="bs-note">In crafting your backstory, we encourage you to look at our public-facing setting materials, as well as the rulebook. Consider where your character was born, how they learned to do the things that they can do, and why they chose to come to the area in which the game is set. While your motivations may change over the course of play, as you interact with the game world and grow as a character, knowing where you're coming from can help to determine where you end up.</p>
@@ -279,7 +305,7 @@ function historyHtml(c){
       <div class="bs-history-item">
         <div class="bs-history-head">
           <div><span class="status-pill ${statusClass(s.status)}">${statusLabel(s.status)}</span> ${xp}</div>
-          <div class="bs-history-date">${fmtDateTime(s.submitted_at)}${s.is_resubmission ? ' &middot; revision' : ''}</div>
+          <div class="bs-history-date">${fmtDateTime(s.submitted_at)} &middot; ${kindLabel(s.kind)}</div>
         </div>
         <p class="bs-history-body">${escapeHtml(s.body)}</p>
         ${notes}
@@ -315,23 +341,26 @@ function render(){
   }
 
   const pending = c.submissions.find(s => s.status === 'pending');
-  const hasApproved = c.submissions.some(s => s.status === 'approved');
+  const kind = nextSubmissionKind(c);
+  const panelTitle = kind === 'remort' ? 'Remort Backstory' : (kind === 'resubmission' ? 'Resubmitting a Backstory' : 'Backstory Rubric');
+  const formTitle = kind === 'remort' ? "Tell Us About Your New Character" : (kind === 'resubmission' ? 'Submit an Update' : 'Submit Your Backstory');
+  const fieldLabel = kind === 'remort' ? "Your new character's story" : (kind === 'resubmission' ? 'Your updated backstory' : 'Your backstory');
 
   let html = `
     <div class="panel">
-      <div class="panel-head"><h2>${hasApproved ? 'Resubmitting a Backstory' : 'Backstory Rubric'}</h2></div>
-      <div class="panel-body">${rubricHtml(hasApproved)}</div>
+      <div class="panel-head"><h2>${panelTitle}</h2></div>
+      <div class="panel-body">${rubricHtml(kind)}</div>
     </div>
   `;
 
   html += `
     <div class="panel">
-      <div class="panel-head"><h2>${hasApproved ? 'Submit an Update' : 'Submit Your Backstory'}</h2></div>
+      <div class="panel-head"><h2>${formTitle}</h2></div>
       <div class="panel-body">
         ${pending ? `
           <p class="bs-note">Your backstory for ${escapeHtml(c.name)} is awaiting Lore review. You'll see their decision here and in your Notifications once it's ready.</p>
         ` : `
-          <label class="field-label" for="bs-body">${hasApproved ? 'Your updated backstory' : 'Your backstory'}</label>
+          <label class="field-label" for="bs-body">${fieldLabel}</label>
           <textarea class="bs-textarea" id="bs-body" placeholder="Write your character's story here..."></textarea>
           <button class="btn-gold" id="bs-submit-btn" style="margin-top:1rem;" onclick="bs_submit()">Submit Backstory</button>
           <p class="reg-error-note" id="bs-error" style="display:none; margin-top:0.6rem;"></p>
@@ -346,13 +375,23 @@ function render(){
 }
 
 async function loadSubmissions(c){
-  const { data, error } = await membersSupabase
-    .from('character_backstories')
-    .select('id, body, status, is_resubmission, xp_awarded, lore_notes, submitted_at')
-    .eq('character_id', c.id)
-    .order('submitted_at', { ascending: false });
-  if(error){ c.loadError = error.message; c.submissions = []; return; }
-  c.submissions = data || [];
+  const [bsRes, remortRes] = await Promise.all([
+    membersSupabase
+      .from('character_backstories')
+      .select('id, body, status, kind, xp_awarded, lore_notes, submitted_at')
+      .eq('character_id', c.id)
+      .order('submitted_at', { ascending: false }),
+    membersSupabase
+      .from('character_remort_requests')
+      .select('completed_at')
+      .eq('character_id', c.id)
+      .eq('status', 'completed')
+      .order('completed_at', { ascending: false })
+      .limit(1)
+  ]);
+  if(bsRes.error){ c.loadError = bsRes.error.message; c.submissions = []; return; }
+  c.submissions = bsRes.data || [];
+  c.lastRemortAt = (remortRes.data && remortRes.data[0]) ? remortRes.data[0].completed_at : null;
 }
 
 async function loadCharacters(){
@@ -364,7 +403,7 @@ async function loadCharacters(){
     .eq('player_id', me)
     .order('created_at', { ascending: true });
 
-  CHARACTERS = (chars || []).map(ch => ({ id: ch.id, name: ch.name, submissions: [], loadError: null }));
+  CHARACTERS = (chars || []).map(ch => ({ id: ch.id, name: ch.name, submissions: [], lastRemortAt: null, loadError: null }));
   activeCharId = CHARACTERS.length ? CHARACTERS[0].id : null;
 
   if(CHARACTERS.length){
