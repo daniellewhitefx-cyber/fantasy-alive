@@ -63,6 +63,95 @@
   margin-bottom: 1rem;
   flex-wrap: wrap;
 }
+.bs-row{
+  border: 2px solid var(--line);
+  background: var(--row-b);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.bs-row-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+.bs-row-who{ font-family:'Cinzel', serif; font-weight:700; font-size: 1.05rem; }
+.bs-row-meta{ font-size: 0.85rem; color: var(--brown-dark); margin-top: 0.15rem; }
+.bs-row-body{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 0.7rem 0.9rem;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 0.8rem;
+}
+.bs-review-grid{
+  display:flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.bs-notes-field{ flex: 1 1 320px; }
+.bs-xp-field{ flex: 0 0 120px; }
+.bs-review-grid label{
+  display:block;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-bottom: 0.3rem;
+  color: var(--brown-dark);
+}
+.bs-review-grid textarea{
+  width: 100%;
+  min-height: 60px;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.92rem;
+  padding: 0.5rem 0.6rem;
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown);
+  box-sizing: border-box;
+  resize: vertical;
+}
+.bs-review-grid input{
+  width: 100%;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.92rem;
+  padding: 0.5rem 0.6rem;
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--brown);
+  box-sizing: border-box;
+}
+.bs-row-actions{
+  display:flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  flex-wrap: wrap;
+}
+.bs-xp-tag{
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--good);
+}
+.bs-past-notes{
+  font-family: 'EB Garamond', serif;
+  font-size: 0.88rem;
+  font-style: italic;
+  background: #fff;
+  border-left: 3px solid var(--gold-dark);
+  padding: 0.5rem 0.8rem;
+  margin-top: 0.5rem;
+}
 </style>
 </head>
 <body>
@@ -79,16 +168,17 @@
 
 <div class="reg-already-registered" id="req-blocked-notice" style="display:none;">
 <h3>Staff access required</h3>
-<p>This page is only available to site admins and Logistics.</p>
+<p>This page is only available to staff accounts.</p>
 </div>
 
 <div id="req-wrap" style="display:none;">
 
 <div class="bank-tabs" role="tablist">
-<button class="bank-tab active" data-tab="remort" onclick="req_switchTab('remort')">Remort Requests <span id="req-count-remort"></span></button>
-<button class="bank-tab" data-tab="oc" onclick="req_switchTab('oc')">OC Submissions <span id="req-count-oc"></span></button>
-<button class="bank-tab" data-tab="kudos" onclick="req_switchTab('kudos')">Kudos <span id="req-count-kudos"></span></button>
-<button class="bank-tab" data-tab="other" onclick="req_switchTab('other')">Other Tasks <span id="req-count-other"></span></button>
+<button class="bank-tab active" data-tab="remort" id="req-tab-remort" onclick="req_switchTab('remort')">Remort Requests <span id="req-count-remort"></span></button>
+<button class="bank-tab" data-tab="oc" id="req-tab-oc" onclick="req_switchTab('oc')">OC Submissions <span id="req-count-oc"></span></button>
+<button class="bank-tab" data-tab="kudos" id="req-tab-kudos" onclick="req_switchTab('kudos')">Kudos <span id="req-count-kudos"></span></button>
+<button class="bank-tab" data-tab="other" id="req-tab-other" onclick="req_switchTab('other')">Other Tasks <span id="req-count-other"></span></button>
+<button class="bank-tab" data-tab="backstories" id="req-tab-backstories" onclick="req_switchTab('backstories')">Backstories <span id="req-count-backstories"></span></button>
 </div>
 
 <div class="bank-tab-panel" data-panel="remort">
@@ -124,6 +214,15 @@
 <div id="req-list-other"><p class="reg-empty-note">Loading&hellip;</p></div>
 </div>
 
+<div class="bank-tab-panel" data-panel="backstories" style="display:none;">
+<div class="req-tab-head">
+<div class="reg-section-label" style="margin:0;">Pending Backstory Submissions</div>
+</div>
+<div id="req-bs-pending-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+<div class="reg-section-label" style="margin-top:1.6rem;">Past Decisions</div>
+<div id="req-bs-past-list"><p class="reg-empty-note">Loading&hellip;</p></div>
+</div>
+
 </div>
 
 </div>
@@ -142,6 +241,9 @@ let remortRows = [];
 let ocRows = [];
 let kudosRows = [];
 let otherTaskRows = [];
+let bsPendingRows = [];
+let bsPastRows = [];
+let isLoreOrAdmin = false;
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -168,6 +270,7 @@ function updateCounts(){
   document.getElementById('req-count-oc').textContent = ocRows.length ? `(${ocRows.length})` : '';
   document.getElementById('req-count-kudos').textContent = kudosRows.length ? `(${kudosRows.length})` : '';
   document.getElementById('req-count-other').textContent = otherTaskRows.length ? `(${otherTaskRows.length})` : '';
+  document.getElementById('req-count-backstories').textContent = bsPendingRows.length ? `(${bsPendingRows.length})` : '';
 }
 
 function eventLabelFor(slug){
@@ -400,6 +503,150 @@ async function req_ackAllOther(){
   await loadOtherTasks();
 }
 
+/* ---------- Backstories ---------- */
+
+function bsKindLabel(kind){
+  if(kind === 'remort') return 'Remort';
+  if(kind === 'resubmission') return 'Revision';
+  return 'First submission';
+}
+
+function bsStatusLabel(status){
+  if(status === 'revision_requested') return 'Revision Requested';
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+async function loadBackstoriesPending(){
+  const { data } = await membersSupabase
+    .from('character_backstories')
+    .select('id, character_id, player_id, body, kind, submitted_at')
+    .eq('status', 'pending')
+    .order('submitted_at', { ascending: true });
+  bsPendingRows = data || [];
+  await loadNames(bsPendingRows.map(r => r.player_id), bsPendingRows.map(r => r.character_id));
+  renderBackstoriesPending();
+  updateCounts();
+}
+
+function renderBackstoriesPending(){
+  const target = document.getElementById('req-bs-pending-list');
+  if(bsPendingRows.length === 0){
+    target.innerHTML = emptyState('No backstory submissions awaiting review.');
+    return;
+  }
+
+  target.innerHTML = bsPendingRows.map(r => {
+    const c = charById[r.character_id] || { name: 'Unknown character', race: '' };
+    const reviewControls = !isLoreOrAdmin ? '' : `
+        <div class="bs-review-grid">
+          <div class="bs-notes-field">
+            <label for="req-bs-notes-${r.id}">Notes to player</label>
+            <textarea id="req-bs-notes-${r.id}" placeholder="Optional notes..."></textarea>
+          </div>
+          ${r.kind === 'remort' ? `
+            <p class="reg-empty-note" style="margin:0;">No XP is awarded for a remort backstory.</p>
+          ` : `
+            <div class="bs-xp-field">
+              <label for="req-bs-xp-${r.id}">XP to award</label>
+              <input type="number" id="req-bs-xp-${r.id}" min="0" step="1" placeholder="0">
+            </div>
+          `}
+        </div>
+        <div class="bs-row-actions">
+          <button class="btn-gold" data-approve="${escapeHtml(r.id)}" data-kind="${escapeHtml(r.kind)}">Approve</button>
+          <button class="btn-outline" data-revise="${escapeHtml(r.id)}">Request Revisions</button>
+          <button class="btn-outline" data-deny="${escapeHtml(r.id)}">Deny</button>
+        </div>
+    `;
+    return `
+      <div class="bs-row">
+        <div class="bs-row-head">
+          <div>
+            <div class="bs-row-who">${escapeHtml(c.name)} (${escapeHtml(c.race || '')})</div>
+            <div class="bs-row-meta">Played by ${escapeHtml(nameFor(r.player_id))} &middot; ${bsKindLabel(r.kind)} &middot; ${fmtDateTime(r.submitted_at)}</div>
+          </div>
+        </div>
+        <div class="bs-row-body">${escapeHtml(r.body)}</div>
+        ${reviewControls}
+      </div>
+    `;
+  }).join('');
+
+  if(!isLoreOrAdmin) return;
+
+  target.querySelectorAll('[data-approve]').forEach(btn => {
+    btn.addEventListener('click', () => decideBackstory(btn.dataset.approve, 'approved', btn.dataset.kind));
+  });
+  target.querySelectorAll('[data-revise]').forEach(btn => {
+    btn.addEventListener('click', () => decideBackstory(btn.dataset.revise, 'revision_requested'));
+  });
+  target.querySelectorAll('[data-deny]').forEach(btn => {
+    btn.addEventListener('click', () => decideBackstory(btn.dataset.deny, 'denied'));
+  });
+}
+
+async function decideBackstory(id, status, kind){
+  const notes = document.getElementById('req-bs-notes-' + id).value.trim();
+  let xp = null;
+  if(status === 'approved' && kind !== 'remort'){
+    const xpInput = document.getElementById('req-bs-xp-' + id);
+    xp = parseInt(xpInput.value, 10);
+    if(isNaN(xp) || xp < 0){
+      alert('Enter the XP to award before approving.');
+      return;
+    }
+  }
+
+  const { error } = await membersSupabase.rpc('lore_decide_backstory', {
+    p_id: id,
+    p_status: status,
+    p_notes: notes,
+    p_xp_awarded: xp
+  });
+  if(error){ alert(error.message); return; }
+
+  await Promise.all([loadBackstoriesPending(), loadBackstoriesPast()]);
+  if(typeof refreshRequestsBadge === 'function') refreshRequestsBadge();
+}
+
+async function loadBackstoriesPast(){
+  const { data } = await membersSupabase
+    .from('character_backstories')
+    .select('id, character_id, player_id, status, xp_awarded, lore_notes, kind, decided_at')
+    .neq('status', 'pending')
+    .order('decided_at', { ascending: false })
+    .limit(30);
+  bsPastRows = data || [];
+  await loadNames(bsPastRows.map(r => r.player_id), bsPastRows.map(r => r.character_id));
+  renderBackstoriesPast();
+}
+
+function renderBackstoriesPast(){
+  const target = document.getElementById('req-bs-past-list');
+  if(bsPastRows.length === 0){
+    target.innerHTML = emptyState('No decisions yet.');
+    return;
+  }
+
+  target.innerHTML = bsPastRows.map(r => {
+    const c = charById[r.character_id] || { name: 'Unknown character', race: '' };
+    const xp = (r.status === 'approved' && r.xp_awarded != null) ? ` &middot; <span class="bs-xp-tag">+${r.xp_awarded} XP</span>` : '';
+    const notes = r.lore_notes ? `<div class="bs-past-notes">${escapeHtml(r.lore_notes)}</div>` : '';
+    return `
+      <div class="bs-row">
+        <div class="bs-row-head">
+          <div>
+            <div class="bs-row-who">${escapeHtml(c.name)} (${escapeHtml(c.race || '')})</div>
+            <div class="bs-row-meta">Played by ${escapeHtml(nameFor(r.player_id))} &middot; ${bsKindLabel(r.kind)} &middot; ${fmtDateTime(r.decided_at)}</div>
+          </div>
+          <div><span class="status-pill ${r.status === 'revision_requested' ? 'revision' : r.status}">${bsStatusLabel(r.status)}</span>${xp}</div>
+        </div>
+        ${notes}
+      </div>
+    `;
+  }).join('');
+}
+
 /* ---------- Approve All ---------- */
 
 async function req_approveAll(kind){
@@ -421,14 +668,40 @@ window.req_approveAll = req_approveAll;
 window.req_ackAllOther = req_ackAllOther;
 
 document.addEventListener('fa-members-ready', async () => {
-  const { data: allowed, error } = await membersSupabase.rpc('fa_is_logistics_or_admin');
-  if(error || !allowed){
+  const [{ data: canLogistics }, { data: canBackstory }, { data: canLore }] = await Promise.all([
+    membersSupabase.rpc('fa_is_logistics_or_admin'),
+    membersSupabase.rpc('fa_is_backstory_viewer'),
+    membersSupabase.rpc('fa_is_lore_or_admin')
+  ]);
+
+  if(!canLogistics && !canBackstory){
     document.getElementById('req-blocked-notice').style.display = 'block';
     return;
   }
   document.getElementById('req-wrap').style.display = 'block';
+  isLoreOrAdmin = !!canLore;
 
-  await Promise.all([loadRemort(), loadOc(), loadKudos(), loadOtherTasks()]);
+  const loads = [];
+  if(canLogistics){
+    loads.push(loadRemort(), loadOc(), loadKudos(), loadOtherTasks());
+  } else {
+    ['remort', 'oc', 'kudos', 'other'].forEach(tab => {
+      const btn = document.getElementById('req-tab-' + tab);
+      if(btn) btn.style.display = 'none';
+    });
+  }
+  if(canBackstory){
+    loads.push(loadBackstoriesPending(), loadBackstoriesPast());
+  } else {
+    const btn = document.getElementById('req-tab-backstories');
+    if(btn) btn.style.display = 'none';
+  }
+
+  if(!canLogistics && canBackstory){
+    req_switchTab('backstories');
+  }
+
+  await Promise.all(loads);
 });
 })();
 </script>
