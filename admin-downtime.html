@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Downtime - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Manage Downtime - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/admin-downtime.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Manage Downtime - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Manage Downtime</h1>
+
+<div class="reg-already-registered" id="downtime-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to Logistics staff.</p>
+</div>
+
+<div id="downtime-wrap" style="display:none;">
+
+<div class="section-block">
+<label class="field-label" for="downtime-event-select">Event</label>
+<select id="downtime-event-select" onchange="downtime_eventChanged(this.value)" style="max-width:320px;"></select>
+</div>
+
+<div class="section-block">
+<h3>Adjust for a Character</h3>
+<p class="page-subhead">Adds or removes downtime Hours for one character at the selected event -- e.g. compensating a character who missed downtime due to a plot event. Use a negative number to remove hours.</p>
+<div class="row-inline" style="gap:0.6rem; align-items:flex-end; flex-wrap:wrap;">
+<div>
+<label class="field-label" for="downtime-char-select">Character</label>
+<select id="downtime-char-select" style="min-width:220px;"><option value="">Choose a character</option></select>
+</div>
+<div>
+<label class="field-label" for="downtime-char-hours">Hours (+/-)</label>
+<input type="number" id="downtime-char-hours" step="1" style="width:100px; max-width:100px;">
+</div>
+<div style="flex:1; min-width:220px;">
+<label class="field-label" for="downtime-char-note">Note</label>
+<input type="text" id="downtime-char-note" placeholder="Reason for this adjustment">
+</div>
+<button class="btn-gold" onclick="downtime_applyChar()">Apply</button>
+</div>
+<p class="reg-error-note" id="downtime-char-error" style="display:none; margin-top:0.6rem;"></p>
+</div>
+
+<div class="section-block">
+<h3>Adjust for the Whole Player Base</h3>
+<p class="page-subhead">Adds or removes downtime Hours for every registered character at the selected event -- e.g. docking hours site-wide for a shortened event.</p>
+<div class="row-inline" style="gap:0.6rem; align-items:flex-end; flex-wrap:wrap;">
+<div>
+<label class="field-label" for="downtime-global-hours">Hours (+/-)</label>
+<input type="number" id="downtime-global-hours" step="1" style="width:100px; max-width:100px;">
+</div>
+<div style="flex:1; min-width:220px;">
+<label class="field-label" for="downtime-global-note">Note</label>
+<input type="text" id="downtime-global-note" placeholder="Reason for this adjustment">
+</div>
+<button class="btn-gold" onclick="downtime_applyGlobal()">Apply</button>
+</div>
+<p class="reg-error-note" id="downtime-global-error" style="display:none; margin-top:0.6rem;"></p>
+</div>
+
+<div class="section-block">
+<h3>Adjustments for This Event</h3>
+<div class="table-scroll">
+<table class="data-table">
+<thead><tr><th>Applies To</th><th>Hours</th><th>Note</th><th></th></tr></thead>
+<tbody id="downtime-list-body"></tbody>
+</table>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+let CANDIDATES = [];
+let NAME_BY_CHAR_ID = {};
+let ADJUSTMENTS = [];
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function downtime_eventChanged(){
+  downtime_loadAdjustments();
+}
+
+function currentEventSlug(){
+  const select = document.getElementById('downtime-event-select');
+  return select.value;
+}
+
+async function downtime_loadCandidates(){
+  const { data } = await membersSupabase.rpc('character_names');
+  CANDIDATES = (data || []).sort((a, b) => a.name.localeCompare(b.name));
+  NAME_BY_CHAR_ID = {};
+  CANDIDATES.forEach(c => { NAME_BY_CHAR_ID[c.id] = c.name; });
+
+  document.getElementById('downtime-char-select').innerHTML = '<option value="">Choose a character</option>'
+    + CANDIDATES.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
+}
+
+async function downtime_loadAdjustments(){
+  const eventSlug = currentEventSlug();
+  const { data } = await membersSupabase.from('event_log_hours_adjustments')
+    .select('id, character_id, hours_delta, note, created_at')
+    .eq('event_slug', eventSlug)
+    .order('created_at', { ascending: false });
+  ADJUSTMENTS = data || [];
+  downtime_renderList();
+}
+
+function downtime_renderList(){
+  document.getElementById('downtime-list-body').innerHTML = ADJUSTMENTS.length ? ADJUSTMENTS.map(a => `
+    <tr>
+      <td>${a.character_id ? escapeHtml(NAME_BY_CHAR_ID[a.character_id] || 'Unknown character') : 'Everyone (event-wide)'}</td>
+      <td>${a.hours_delta > 0 ? '+' : ''}${a.hours_delta}</td>
+      <td>${escapeHtml(a.note || '-')}</td>
+      <td><button class="btn-outline" onclick="downtime_remove('${a.id}')" title="Remove this adjustment">&times;</button></td>
+    </tr>
+  `).join('') : `<tr><td colspan="4">No adjustments for this event yet.</td></tr>`;
+}
+
+async function downtime_applyChar(){
+  const errorEl = document.getElementById('downtime-char-error');
+  errorEl.style.display = 'none';
+
+  const characterId = document.getElementById('downtime-char-select').value;
+  const hours = parseInt(document.getElementById('downtime-char-hours').value, 10);
+  const note = document.getElementById('downtime-char-note').value.trim();
+
+  if(!characterId){ showError(errorEl, 'Choose a character.'); return; }
+  if(!hours){ showError(errorEl, 'Enter a non-zero number of hours.'); return; }
+
+  const { error } = await membersSupabase.rpc('event_log_admin_adjust_hours', {
+    p_event_slug: currentEventSlug(),
+    p_character_id: characterId,
+    p_hours_delta: hours,
+    p_note: note || null
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  document.getElementById('downtime-char-select').value = '';
+  document.getElementById('downtime-char-hours').value = '';
+  document.getElementById('downtime-char-note').value = '';
+  await downtime_loadAdjustments();
+}
+
+async function downtime_applyGlobal(){
+  const errorEl = document.getElementById('downtime-global-error');
+  errorEl.style.display = 'none';
+
+  const hours = parseInt(document.getElementById('downtime-global-hours').value, 10);
+  const note = document.getElementById('downtime-global-note').value.trim();
+
+  if(!hours){ showError(errorEl, 'Enter a non-zero number of hours.'); return; }
+
+  const { error } = await membersSupabase.rpc('event_log_admin_adjust_hours', {
+    p_event_slug: currentEventSlug(),
+    p_character_id: null,
+    p_hours_delta: hours,
+    p_note: note || null
+  });
+  if(error){ showError(errorEl, error.message); return; }
+
+  document.getElementById('downtime-global-hours').value = '';
+  document.getElementById('downtime-global-note').value = '';
+  await downtime_loadAdjustments();
+}
+
+async function downtime_remove(id){
+  const { error } = await membersSupabase.rpc('event_log_admin_remove_hours_adjustment', { p_id: id });
+  if(error){ alert(error.message); return; }
+  await downtime_loadAdjustments();
+}
+
+function showError(el, msg){
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+document.addEventListener('fa-members-ready', async () => {
+  const { data: canLogistics } = await membersSupabase.rpc('fa_is_logistics_or_admin');
+  if(!canLogistics){
+    document.getElementById('downtime-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('downtime-wrap').style.display = 'block';
+
+  const events = window.FA_ALL_EVENTS || [];
+  document.getElementById('downtime-event-select').innerHTML = events.map(e =>
+    `<option value="${escapeHtml(e.value)}">${escapeHtml(e.label)}</option>`
+  ).join('');
+  if(window.FA_NEXT_EVENT) document.getElementById('downtime-event-select').value = window.FA_NEXT_EVENT.value;
+
+  await downtime_loadCandidates();
+  await downtime_loadAdjustments();
+});
+
+window.downtime_eventChanged = downtime_eventChanged;
+window.downtime_applyChar = downtime_applyChar;
+window.downtime_applyGlobal = downtime_applyGlobal;
+window.downtime_remove = downtime_remove;
+</script>
+
+</body>
+</html>

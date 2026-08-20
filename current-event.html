@@ -374,8 +374,14 @@ function renderHeaderStatsHtml(){
     ? `<p class="ce-allowance-note">${escapeHtml(MY_CHARACTER.name)} received ${ALLOWANCE_JUST_GRANTED} Copper as their ${escapeHtml(MY_CHARACTER.social_class || 'Yeoman')} allowance for this event.</p>`
     : '';
 
+  const adjustment = (REGISTERED_AS === 'character' && MY_CHARACTER) ? (TRAIN_SUMMARY.hours_adjustment || 0) : 0;
+  const hoursAdjustmentNote = adjustment
+    ? `<p class="ce-allowance-note">Logistics ${adjustment > 0 ? 'added' : 'removed'} ${Math.abs(adjustment)} downtime Hours for this event.</p>`
+    : '';
+
   return `
     ${allowanceNote}
+    ${hoursAdjustmentNote}
     <div class="ce-header-stats">
       <div class="ce-stat"><div class="ce-stat-label">Your Ogre Chips</div><div class="ce-stat-value">${OC_BALANCE}</div></div>
       <div class="ce-stat"><div class="ce-stat-label">Your Copper</div><div class="ce-stat-value">${COPPER_BALANCE}</div></div>
@@ -1187,7 +1193,7 @@ async function refreshTrainingState(){
   TRAIN_STATS = faDeriveStats(MY_CHARACTER.race, TRAIN_KNOWN.map(k => ({ name: k.title, level: k.level })));
   TRAIN_SUMMARY = summary || { spendable_sp: 0, hours_spent: 0 };
   TRAIN_PURCHASES = purchases || [];
-  TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT);
+  TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT) + (TRAIN_SUMMARY.hours_adjustment || 0);
   TRAIN_TAUGHT = new Set((teachRows || []).map(r => taughtKey(r.category, r.skill_name, r.focus)));
 }
 

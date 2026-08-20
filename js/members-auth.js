@@ -309,6 +309,7 @@ async function initMembersPage(){
     ['member-banking-tools-link', meta.bank_staff || isSiteAdmin],
     ['member-manage-auctions-link', meta.auction_staff || isSiteAdmin],
     ['member-requests-link', canSeeRequests || canSeeBackstoryRequests],
+    ['member-manage-downtime-link', canSeeRequests],
     ['member-plot-link', canSeePlot],
     ['member-permissions-link', isSiteAdmin],
     ['member-print-sheets-link', canSeeRequests],
