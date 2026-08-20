@@ -147,7 +147,8 @@ create or replace function craft_item(
   p_hours integer,
   p_qty_produced integer,
   p_materials jsonb,
-  p_tag_turned_in boolean
+  p_tag_turned_in boolean,
+  p_focus_required text default null
 )
 returns uuid language plpgsql security definer
 set search_path = public
@@ -178,6 +179,9 @@ begin
   if v_skill.category != 'Trade Skill' then raise exception 'Only Trade Skills can craft'; end if;
   if v_skill.level < coalesce(p_level_required, 1) then
     raise exception 'Requires % level %, this character has level %', v_skill.skill_name, p_level_required, v_skill.level;
+  end if;
+  if p_focus_required is not null and lower(coalesce(v_skill.focus, '')) != lower(p_focus_required) then
+    raise exception 'Requires % (% focus), this character has % focus', v_skill.skill_name, p_focus_required, coalesce(nullif(v_skill.focus, ''), 'no');
   end if;
 
   select

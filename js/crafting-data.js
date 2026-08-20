@@ -115,6 +115,7 @@ async function craftingLoadFromSheet(){
         name: item.name,
         category: item.category,
         levelRequired: sr.level,
+        focusRequired: sr.focus_name || null,
         hours: r.hours === null || r.hours === undefined ? null : Number(r.hours),
         qtyProduced: r.quantity_produced,
         materialsText: materialsText,

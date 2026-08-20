@@ -1694,6 +1694,17 @@ function ce_craftSearch(value){
   renderCraftGrid();
 }
 
+// A character can hold more than one focus of the same trade (e.g.
+// Craftsman: Blacksmith and Craftsman: Mason as two separate skill
+// rows), so matching by trade name alone isn't enough -- a recipe that
+// names a required focus only unlocks for the matching discipline.
+function findTradeSkillFor(trade, focusRequired){
+  const candidates = TRAIN_KNOWN.filter(k => k.category === 'Trade Skill' && k.title.trim().toLowerCase() === trade.trim().toLowerCase());
+  if(!candidates.length) return null;
+  if(!focusRequired) return candidates[0];
+  return candidates.find(k => (k.focus || '').trim().toLowerCase() === focusRequired.trim().toLowerCase()) || null;
+}
+
 function renderCraftGrid(){
   const query = CRAFT_SEARCH.trim().toLowerCase();
   const items = query
@@ -1705,7 +1716,8 @@ function renderCraftGrid(){
     const key = item.trade + '::' + item.name;
     const keyEsc = key.replace(/'/g, "\\'");
     const tagChecked = !!CRAFT_TAG_STATE[key];
-    const knownSkill = TRAIN_KNOWN.find(k => k.category === 'Trade Skill' && k.title.trim().toLowerCase() === item.trade.trim().toLowerCase());
+    const knownSkill = findTradeSkillFor(item.trade, item.focusRequired);
+    const tradeLabel = item.focusRequired ? `${item.trade} (${item.focusRequired} focus)` : item.trade;
 
     const levelOk = !!knownSkill && knownSkill.level >= item.levelRequired;
     const missingMaterials = tagChecked ? [] : item.materials.filter(m => craftInventoryBalance(m.name) < m.qty);
@@ -1715,8 +1727,8 @@ function renderCraftGrid(){
     const canCraft = levelOk && hoursKnown && hoursOk && missingMaterials.length === 0;
 
     let lockedNote = '';
-    if(!knownSkill) lockedNote = `Requires ${escapeHtml(item.trade)}`;
-    else if(!levelOk) lockedNote = `Requires ${escapeHtml(item.trade)} level ${item.levelRequired} (this character has level ${knownSkill.level})`;
+    if(!knownSkill) lockedNote = `Requires ${escapeHtml(tradeLabel)}`;
+    else if(!levelOk) lockedNote = `Requires ${escapeHtml(tradeLabel)} level ${item.levelRequired} (this character has level ${knownSkill.level})`;
 
     const materialsNote = missingMaterials.length
       ? `<span class="skill-missing-prereq">Missing: ${missingMaterials.map(m => `${m.qty} ${escapeHtml(m.name)}`).join(', ')}</span>`
@@ -1752,7 +1764,7 @@ async function ce_craftMake(trade, itemName){
   errorEl.style.display = 'none';
   const item = CRAFT_ALL_ITEMS.find(i => i.trade === trade && i.name === itemName);
   if(!item) return;
-  const knownSkill = TRAIN_KNOWN.find(k => k.category === 'Trade Skill' && k.title.trim().toLowerCase() === trade.trim().toLowerCase());
+  const knownSkill = findTradeSkillFor(item.trade, item.focusRequired);
   if(!knownSkill) return;
   const key = trade + '::' + itemName;
 
@@ -1764,6 +1776,7 @@ async function ce_craftMake(trade, itemName){
     p_item_name: item.name,
     p_category: item.category,
     p_level_required: item.levelRequired,
+    p_focus_required: item.focusRequired,
     p_hours: item.hours,
     p_qty_produced: item.qtyProduced,
     p_materials: item.materials.map(m => ({ name: m.name, qty: m.qty })),
