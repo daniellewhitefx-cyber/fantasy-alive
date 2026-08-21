@@ -39,7 +39,7 @@ alter table event_log_training_purchases enable row level security;
 drop policy if exists "Players see their own training purchases" on event_log_training_purchases;
 create policy "Players see their own training purchases"
   on event_log_training_purchases for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
 returns jsonb language plpgsql stable security definer

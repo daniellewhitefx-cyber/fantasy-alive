@@ -21,7 +21,7 @@ alter table character_backstories enable row level security;
 drop policy if exists "Players and Lore see backstory submissions" on character_backstories;
 create policy "Players and Lore see backstory submissions"
   on character_backstories for select
-  using (player_id = auth.uid() or fa_is_lore_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_lore_or_admin());
 
 grant select on character_backstories to authenticated;
 

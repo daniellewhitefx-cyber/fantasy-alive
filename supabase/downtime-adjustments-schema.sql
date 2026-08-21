@@ -18,7 +18,7 @@ create policy "Players see adjustments that affect them, staff see all"
   on event_log_hours_adjustments for select
   using (
     character_id is null
-    or exists (select 1 from characters c where c.id = character_id and c.player_id = auth.uid())
+    or exists (select 1 from characters c where c.id = character_id and c.player_id = (select auth.uid()))
     or fa_is_logistics_or_admin()
   );
 

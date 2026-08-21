@@ -69,8 +69,8 @@ drop policy if exists "Players see their own transactions" on bank_transactions;
 create policy "Players see their own transactions"
   on bank_transactions for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'bank_staff')::boolean is true
     or fa_is_site_admin()
   );
 
@@ -148,7 +148,7 @@ alter table bank_bills enable row level security;
 drop policy if exists "Bills are visible to both parties" on bank_bills;
 create policy "Bills are visible to both parties"
   on bank_bills for select
-  using (from_player_id = auth.uid() or to_player_id = auth.uid());
+  using (from_player_id = (select auth.uid()) or to_player_id = (select auth.uid()));
 
 create or replace function bank_request_bill(p_target uuid, p_amount numeric, p_note text)
 returns void language plpgsql security definer
@@ -239,15 +239,15 @@ drop policy if exists "Players see their own withdrawal requests, staff sees all
 create policy "Players see their own withdrawal requests, staff sees all"
   on bank_withdrawal_requests for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'bank_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'bank_staff')::boolean is true
     or fa_is_site_admin()
   );
 
 drop policy if exists "Players create their own withdrawal requests" on bank_withdrawal_requests;
 create policy "Players create their own withdrawal requests"
   on bank_withdrawal_requests for insert
-  with check (player_id = auth.uid());
+  with check (player_id = (select auth.uid()));
 
 create or replace function bank_request_withdrawal(p_amount numeric, p_note text)
 returns void language plpgsql security definer

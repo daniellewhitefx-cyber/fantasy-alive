@@ -16,7 +16,7 @@ drop policy if exists "Players and staff see item grants" on staff_item_grants;
 create policy "Players and staff see item grants"
   on staff_item_grants for select
   using (
-    exists (select 1 from characters c where c.id = character_id and c.player_id = auth.uid())
+    exists (select 1 from characters c where c.id = character_id and c.player_id = (select auth.uid()))
     or fa_is_logistics_or_admin()
   );
 

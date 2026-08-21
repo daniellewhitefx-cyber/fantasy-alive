@@ -18,7 +18,7 @@ alter table event_log_oc_spends enable row level security;
 drop policy if exists "Players see their own OC spends" on event_log_oc_spends;
 create policy "Players see their own OC spends"
   on event_log_oc_spends for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 create or replace function event_log_set_oc_spend(p_event_slug text, p_kind text, p_character_id uuid, p_oc_amount integer)
 returns void language plpgsql security definer

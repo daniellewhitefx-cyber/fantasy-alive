@@ -63,8 +63,8 @@ drop policy if exists "Market listings visibility" on market_listings;
 create policy "Market listings visibility"
   on market_listings for select
   using (
-    listed_by = auth.uid()
-    or exists (select 1 from characters c where c.id = buyer_character_id and c.player_id = auth.uid())
+    listed_by = (select auth.uid())
+    or exists (select 1 from characters c where c.id = buyer_character_id and c.player_id = (select auth.uid()))
     or fa_is_logistics_or_admin()
     or fa_is_plot_or_admin()
     or (status = 'active' and coalesce((select is_open from market_settings where id = true), false))

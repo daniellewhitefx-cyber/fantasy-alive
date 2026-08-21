@@ -18,8 +18,8 @@ drop policy if exists "Players and staff see their flex pass transactions" on fl
 create policy "Players and staff see their flex pass transactions"
   on flex_pass_transactions for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'character_staff')::boolean is true
     or fa_is_site_admin()
   );
 

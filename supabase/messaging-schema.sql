@@ -23,7 +23,7 @@ alter table department_members enable row level security;
 drop policy if exists "Players see their own department memberships" on department_members;
 create policy "Players see their own department memberships"
   on department_members for select
-  using (player_id = auth.uid() or fa_is_site_admin());
+  using (player_id = (select auth.uid()) or fa_is_site_admin());
 
 create table if not exists messages (
   id uuid primary key default gen_random_uuid(),
@@ -66,12 +66,12 @@ drop policy if exists "Players see messages they sent or can receive" on message
 create policy "Players see messages they sent or can receive"
   on messages for select
   using (
-    sender_id = auth.uid()
-    or recipient_player_id = auth.uid()
+    sender_id = (select auth.uid())
+    or recipient_player_id = (select auth.uid())
     or exists (
       select 1 from department_members dm
       where dm.department_id = messages.recipient_department_id
-        and dm.player_id = auth.uid()
+        and dm.player_id = (select auth.uid())
     )
   );
 
@@ -86,7 +86,7 @@ alter table message_reads enable row level security;
 drop policy if exists "Players see their own read receipts" on message_reads;
 create policy "Players see their own read receipts"
   on message_reads for select
-  using (player_id = auth.uid());
+  using (player_id = (select auth.uid()));
 
 drop function if exists message_send(uuid, uuid, text);
 drop function if exists message_send(uuid, uuid, text, text);
@@ -231,7 +231,7 @@ alter table message_folders enable row level security;
 drop policy if exists "Players see their own folders" on message_folders;
 create policy "Players see their own folders"
   on message_folders for select
-  using (player_id = auth.uid());
+  using (player_id = (select auth.uid()));
 
 create table if not exists message_folder_assignments (
   player_id uuid not null references auth.users(id) on delete cascade,
@@ -244,7 +244,7 @@ alter table message_folder_assignments enable row level security;
 drop policy if exists "Players see their own folder assignments" on message_folder_assignments;
 create policy "Players see their own folder assignments"
   on message_folder_assignments for select
-  using (player_id = auth.uid());
+  using (player_id = (select auth.uid()));
 
 create or replace function message_folder_create(p_name text)
 returns uuid language plpgsql security definer

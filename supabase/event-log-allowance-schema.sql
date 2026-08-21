@@ -48,7 +48,7 @@ drop policy if exists "Players see their own allowance claims" on event_log_allo
 create policy "Players see their own allowance claims"
   on event_log_allowance_claims for select
   using (
-    character_id in (select id from characters where player_id = auth.uid())
+    character_id in (select id from characters where player_id = (select auth.uid()))
     or fa_is_logistics_or_admin()
   );
 

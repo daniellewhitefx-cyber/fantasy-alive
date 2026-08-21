@@ -25,7 +25,7 @@ alter table character_teach_requests enable row level security;
 drop policy if exists "Students and teachers see their own teach requests" on character_teach_requests;
 create policy "Students and teachers see their own teach requests"
   on character_teach_requests for select
-  using (student_player_id = auth.uid() or teacher_player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (student_player_id = (select auth.uid()) or teacher_player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 grant select on character_teach_requests to authenticated;
 

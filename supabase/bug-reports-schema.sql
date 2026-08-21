@@ -17,7 +17,7 @@ alter table bug_reports enable row level security;
 drop policy if exists "Players can view their own bug reports" on bug_reports;
 create policy "Players can view their own bug reports"
   on bug_reports for select
-  using (player_id = auth.uid() or fa_is_site_admin());
+  using (player_id = (select auth.uid()) or fa_is_site_admin());
 
 create or replace function bug_report_submit(p_description text, p_page_url text)
 returns uuid

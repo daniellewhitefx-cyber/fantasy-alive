@@ -25,8 +25,8 @@ drop policy if exists "Players see their own friend rows" on character_friends;
 create policy "Players see their own friend rows"
   on character_friends for select
   using (
-    character_id in (select id from characters where player_id = auth.uid())
-    or friend_character_id in (select id from characters where player_id = auth.uid())
+    character_id in (select id from characters where player_id = (select auth.uid()))
+    or friend_character_id in (select id from characters where player_id = (select auth.uid()))
     or fa_is_site_admin()
   );
 
@@ -34,7 +34,7 @@ drop policy if exists "Players send friend requests from their own characters" o
 create policy "Players send friend requests from their own characters"
   on character_friends for insert
   with check (
-    character_id in (select id from characters where player_id = auth.uid())
+    character_id in (select id from characters where player_id = (select auth.uid()))
     and status = 'pending'
   );
 
@@ -42,11 +42,11 @@ drop policy if exists "Recipients accept friend requests" on character_friends;
 create policy "Recipients accept friend requests"
   on character_friends for update
   using (
-    friend_character_id in (select id from characters where player_id = auth.uid())
+    friend_character_id in (select id from characters where player_id = (select auth.uid()))
     and status = 'pending'
   )
   with check (
-    friend_character_id in (select id from characters where player_id = auth.uid())
+    friend_character_id in (select id from characters where player_id = (select auth.uid()))
     and status = 'accepted'
   );
 
@@ -54,7 +54,7 @@ drop policy if exists "Either side can remove a request or friendship" on charac
 create policy "Either side can remove a request or friendship"
   on character_friends for delete
   using (
-    character_id in (select id from characters where player_id = auth.uid())
-    or friend_character_id in (select id from characters where player_id = auth.uid())
+    character_id in (select id from characters where player_id = (select auth.uid()))
+    or friend_character_id in (select id from characters where player_id = (select auth.uid()))
     or fa_is_site_admin()
   );

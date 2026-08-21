@@ -25,7 +25,7 @@ create policy "Auction staff can upload auction images"
   on storage.objects for insert
   with check (
     bucket_id = 'auction-images'
-    and ((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean is true or fa_is_site_admin())
+    and (((select auth.jwt()) -> 'app_metadata' ->> 'auction_staff')::boolean is true or fa_is_site_admin())
   );
 
 drop policy if exists "Auction staff can delete auction images" on storage.objects;
@@ -33,5 +33,5 @@ create policy "Auction staff can delete auction images"
   on storage.objects for delete
   using (
     bucket_id = 'auction-images'
-    and ((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean is true or fa_is_site_admin())
+    and (((select auth.jwt()) -> 'app_metadata' ->> 'auction_staff')::boolean is true or fa_is_site_admin())
   );

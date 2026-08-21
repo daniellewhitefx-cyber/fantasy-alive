@@ -2,7 +2,7 @@
 drop policy if exists "Players see their own department memberships" on department_members;
 create policy "Players see their own department memberships"
   on department_members for select
-  using (player_id = auth.uid() or fa_is_site_admin());
+  using (player_id = (select auth.uid()) or fa_is_site_admin());
 
 create or replace function admin_list_players()
 returns table(id uuid, display_name text) language plpgsql security definer

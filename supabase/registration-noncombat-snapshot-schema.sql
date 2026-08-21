@@ -19,7 +19,7 @@ create policy "Players and staff see their own registration non-combat skills"
     exists (
       select 1 from registrations r
       where r.id = registration_noncombat_skills.registration_id
-        and (r.player_id = auth.uid() or fa_is_logistics_or_admin())
+        and (r.player_id = (select auth.uid()) or fa_is_logistics_or_admin())
     )
   );
 

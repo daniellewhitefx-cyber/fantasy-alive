@@ -21,7 +21,7 @@ alter table crafting_log enable row level security;
 drop policy if exists "Players see their own crafting log" on crafting_log;
 create policy "Players see their own crafting log"
   on crafting_log for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 create table if not exists crafting_materials_consumed (
   id uuid primary key default gen_random_uuid(),
@@ -37,7 +37,7 @@ create policy "Players see their own consumed materials"
   using (
     exists (
       select 1 from crafting_log cl
-      where cl.id = crafting_log_id and (cl.player_id = auth.uid() or fa_is_logistics_or_admin())
+      where cl.id = crafting_log_id and (cl.player_id = (select auth.uid()) or fa_is_logistics_or_admin())
     )
   );
 

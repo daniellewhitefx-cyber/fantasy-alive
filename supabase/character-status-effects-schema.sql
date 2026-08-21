@@ -18,8 +18,8 @@ drop policy if exists "Players and staff see character status effects" on charac
 create policy "Players and staff see character status effects"
   on character_status_effects for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'character_staff')::boolean is true
     or fa_is_site_admin()
   );
 

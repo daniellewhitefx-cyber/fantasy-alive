@@ -20,7 +20,7 @@ alter table event_log_other_tasks enable row level security;
 drop policy if exists "Players and staff see other task log" on event_log_other_tasks;
 create policy "Players and staff see other task log"
   on event_log_other_tasks for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 grant select on event_log_other_tasks to authenticated;
 

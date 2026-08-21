@@ -21,8 +21,8 @@ drop policy if exists "Players see their own non-combat build skills" on charact
 create policy "Players see their own non-combat build skills"
   on character_noncombat_skills for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'character_staff')::boolean is true
     or fa_is_site_admin()
   );
 

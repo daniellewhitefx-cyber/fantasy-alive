@@ -27,7 +27,7 @@ alter table emergency_contact_forms enable row level security;
 drop policy if exists "Players see their own emergency contact form" on emergency_contact_forms;
 create policy "Players see their own emergency contact form"
   on emergency_contact_forms for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 grant select on emergency_contact_forms to authenticated;
 

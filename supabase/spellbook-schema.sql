@@ -15,7 +15,7 @@ alter table character_known_spells enable row level security;
 drop policy if exists "Players see their own known spells" on character_known_spells;
 create policy "Players see their own known spells"
   on character_known_spells for select
-  using (player_id = auth.uid() or fa_is_site_admin());
+  using (player_id = (select auth.uid()) or fa_is_site_admin());
 
 grant select on character_known_spells to authenticated;
 

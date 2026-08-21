@@ -18,7 +18,7 @@ alter table oc_submission_requests enable row level security;
 drop policy if exists "Players and staff see OC submissions" on oc_submission_requests;
 create policy "Players and staff see OC submissions"
   on oc_submission_requests for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 create or replace function oc_submit_request(p_amount integer, p_reason text)
 returns uuid language plpgsql security definer
@@ -90,9 +90,9 @@ drop policy if exists "Players see kudos about them" on kudos;
 create policy "Players see kudos about them"
   on kudos for select
   using (
-    from_player_id = auth.uid()
-    or to_player_id = auth.uid()
-    or to_character_id in (select id from characters where player_id = auth.uid())
+    from_player_id = (select auth.uid())
+    or to_player_id = (select auth.uid())
+    or to_character_id in (select id from characters where player_id = (select auth.uid()))
     or fa_is_logistics_or_admin()
   );
 
@@ -125,8 +125,8 @@ drop policy if exists "Players and staff see remort requests" on character_remor
 create policy "Players and staff see remort requests"
   on character_remort_requests for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'remort_staff')::boolean is true
     or fa_is_logistics_or_admin()
   );
 
