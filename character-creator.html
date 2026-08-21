@@ -57,9 +57,9 @@
 <input type="text" id="cc-name" placeholder="Your character's name">
 </div>
 <div>
-<label class="field-label" for="cc-race">Race</label>
+<label class="field-label" for="cc-race">Species</label>
 <select id="cc-race" onchange="cc_onRaceChange()">
-<option value="">Choose a race</option>
+<option value="">Choose a species</option>
 <option>Human</option>
 <option>Elf</option>
 <option>Dwarf</option>
@@ -107,7 +107,7 @@
 
 <div class="reg-section">
 <div class="reg-section-label">Choose Skills</div>
-<p class="page-subhead" id="cc-budget-line">Choose a race above to see your starting Skill Point budget.</p>
+<p class="page-subhead" id="cc-budget-line">Choose a species above to see your starting Skill Point budget.</p>
 
 <div id="cc-skills-loading" class="page-subhead">Loading the skill list&hellip;</div>
 <div id="cc-skills-error" class="reg-error-note" style="display:none;">Couldn't load the skill list. Refresh to try again.</div>
@@ -176,7 +176,7 @@ function cc_onRaceChange(){
   const race = currentRace();
   const budgetLine = document.getElementById('cc-budget-line');
   if(!race){
-    budgetLine.textContent = 'Choose a race above to see your starting Skill Point budget.';
+    budgetLine.textContent = 'Choose a species above to see your starting Skill Point budget.';
   } else if(existingCharCount === 0){
     budgetLine.textContent = `Starting Skill Points: ${spentSP()} / ${startingSP()} used (your first character starts with a flat 30 SP).`;
   } else {
@@ -293,7 +293,7 @@ function cc_loadTemplate(){
 
   const race = currentRace();
   if(!race){
-    note.textContent = 'Choose a race above before loading a template.';
+    note.textContent = 'Choose a species above before loading a template.';
     note.style.display = 'block';
     return;
   }
@@ -440,7 +440,7 @@ async function cc_submit(){
   const birthday = document.getElementById('cc-birthday').value.trim();
 
   if(!name){ errorEl.textContent = 'Character name cannot be empty.'; errorEl.style.display = 'block'; return; }
-  if(!race){ errorEl.textContent = 'Please choose a race.'; errorEl.style.display = 'block'; return; }
+  if(!race){ errorEl.textContent = 'Please choose a species.'; errorEl.style.display = 'block'; return; }
   if(!birthday){ errorEl.textContent = 'Please pick a birthday.'; errorEl.style.display = 'block'; return; }
   if(!faIsAtLeast18(birthday)){ errorEl.textContent = 'Characters must be at least 18 years old.'; errorEl.style.display = 'block'; return; }
   if(spentSP() > startingSP()){ errorEl.textContent = 'Chosen skills exceed your starting Skill Points.'; errorEl.style.display = 'block'; return; }
