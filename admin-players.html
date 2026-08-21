@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Players (Staff) - Fantasy Alive</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/ktGEBJP.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Manage Players (Staff) - Fantasy Alive">
+<meta property="og:description" content="Don't be afraid to live more than once!">
+<meta property="og:image" content="https://i.imgur.com/ljFTAph.png">
+<meta property="og:url" content="https://fantasy-alive.vercel.app/admin-players.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Manage Players (Staff) - Fantasy Alive">
+<meta name="twitter:description" content="Don't be afraid to live more than once!">
+<meta name="twitter:image" content="https://i.imgur.com/ljFTAph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/members.css">
+<script src="js/vendor/supabase-js.min.js"></script>
+<style>
+.mp-summary-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+.mp-summary-tile{
+  border: 2px solid var(--line);
+  padding: 0.7rem 0.9rem;
+  background: var(--row-b);
+}
+.mp-summary-tile .val{ font-family:'Cinzel', serif; font-weight:700; font-size: 1.4rem; }
+.mp-summary-tile .lbl{ font-size: 0.78rem; color: var(--brown-dark); }
+.mp-detail-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+.mp-detail-field{ margin-bottom: 0.6rem; }
+.mp-detail-field .k{ font-family:'Cinzel', serif; font-size: 0.72rem; text-transform:uppercase; letter-spacing:0.03em; color: var(--gold-dark); }
+.mp-detail-field .v{ font-family:'EB Garamond', serif; font-size: 1rem; }
+.mp-detail-field .v.empty{ color: var(--brown-dark); font-style:italic; }
+.mp-lock-status{ display:flex; align-items:center; gap: 0.8rem; margin-bottom: 1rem; flex-wrap:wrap; }
+.perm-toggle-row{
+  display:flex;
+  align-items:center;
+  gap: 0.7rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px dotted var(--line);
+}
+.perm-toggle-row:last-child{ border-bottom:none; }
+.perm-toggle-row input[type="checkbox"]{
+  width: 20px; height:20px;
+  accent-color: var(--gold-dark);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.perm-toggle-row label{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.02rem;
+  color: var(--brown);
+  cursor:pointer;
+  flex:1;
+}
+.perm-toggle-row .perm-status{
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--good);
+  opacity:0;
+  transition: opacity 0.2s ease;
+}
+.perm-toggle-row .perm-status.show{ opacity:1; }
+.perm-note{
+  font-family:'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--brown-dark);
+  background: var(--cream-deep);
+  border: 1px solid var(--gold-dark);
+  border-radius: 4px;
+  padding: 0.7rem 0.9rem;
+  margin: 0 0 1.4rem;
+}
+@media (max-width: 700px){
+  .mp-detail-grid{ grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div data-include="partials/header.html"></div>
+
+<div class="dashboard">
+
+<div data-include="partials/members-sidebar.html"></div>
+
+<div>
+
+<h1 class="page-title">Manage Players</h1>
+
+<div class="reg-already-registered" id="mp-blocked-notice" style="display:none;">
+<h3>Staff access required</h3>
+<p>This page is only available to site admins and Logistics.</p>
+</div>
+
+<div id="mp-wrap" style="display:none;">
+
+<div class="mp-summary-grid" id="mp-summary"></div>
+
+<div class="reg-section">
+<label class="field-label" for="mp-search">Search by player name or email</label>
+<input type="text" id="mp-search" placeholder="Start typing..." oninput="mp_renderTable()">
+<table class="data-table" id="mp-results-table" style="margin-top:0.8rem;">
+<thead><tr><th>Player</th><th>Account</th><th>Waiver</th><th>Emergency Contact</th><th></th></tr></thead>
+<tbody id="mp-results"></tbody>
+</table>
+</div>
+
+<div id="mp-detail" style="display:none;">
+
+<div class="reg-section">
+<div class="reg-section-label" id="mp-detail-name"></div>
+
+<div class="bank-tabs" role="tablist">
+<button class="bank-tab active" data-tab="account" onclick="mp_switchTab('account')">Account</button>
+<button class="bank-tab" data-tab="permissions" id="mp-tab-permissions-btn" onclick="mp_switchTab('permissions')" style="display:none;">Permissions</button>
+<button class="bank-tab" data-tab="waiver" onclick="mp_switchTab('waiver')">Waiver &amp; Contact</button>
+<button class="bank-tab" data-tab="characters" onclick="mp_switchTab('characters')">Characters</button>
+</div>
+
+<div class="bank-tab-panel" data-panel="account">
+
+<div class="mp-lock-status" id="mp-lock-status"></div>
+
+<div id="mp-lock-controls"></div>
+
+</div>
+
+<div class="bank-tab-panel" data-panel="permissions" style="display:none;">
+
+<p class="perm-note">Changes here take effect the next time this player logs in or their session refreshes, usually within an hour.</p>
+
+<div class="reg-section">
+<div class="reg-section-label">Department Memberships</div>
+<div id="mp-departments"></div>
+</div>
+
+<div class="reg-section">
+<div class="reg-section-label">Staff Permissions</div>
+<div id="mp-flags"></div>
+</div>
+
+</div>
+
+<div class="bank-tab-panel" data-panel="waiver" style="display:none;">
+
+<h3 style="font-family:'Cinzel', serif; font-size:1.05rem; margin:0 0 0.6rem;">Liability Waiver</h3>
+<div class="mp-detail-grid" id="mp-waiver-fields"></div>
+
+<h3 style="font-family:'Cinzel', serif; font-size:1.05rem; margin:1.4rem 0 0.6rem;">Emergency Contact</h3>
+<div class="mp-detail-grid" id="mp-contact-fields"></div>
+
+</div>
+
+<div class="bank-tab-panel" data-panel="characters" style="display:none;">
+
+<table class="data-table" id="mp-characters-table">
+<thead><tr><th>Character</th><th>Race</th><th>Social Class</th><th></th></tr></thead>
+<tbody id="mp-characters-body"></tbody>
+</table>
+
+</div>
+
+<button class="btn-outline" style="margin-top:1.4rem;" onclick="mp_closeDetail()">Close</button>
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+<div data-include="partials/footer.html"></div>
+
+<script src="js/include.js"></script>
+<script src="js/registration-status.js"></script>
+<script src="js/members-auth.js"></script>
+<script>
+(function(){
+let ROSTER = [];
+let isSiteAdmin = false;
+let departments = [];
+let selectedPlayer = null;
+
+const STAFF_FLAGS = [
+  { key: 'character_staff', label: 'Character Staff' },
+  { key: 'bank_staff', label: 'Bank Staff' },
+  { key: 'auction_staff', label: 'Auction Staff' },
+  { key: 'announcements_staff', label: 'Announcements Staff' },
+  { key: 'remort_staff', label: 'Remort Staff' },
+  { key: 'lore_editor', label: 'Lore Editor', isRole: true },
+  { key: 'site_admin', label: 'Site Admin' },
+];
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function emptyState(msg){
+  return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
+}
+
+function formatDate(iso){
+  if(!iso) return null;
+  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+async function mp_load(){
+  const summaryEl = document.getElementById('mp-summary');
+  summaryEl.innerHTML = '<p class="reg-empty-note">Loading roster&hellip;</p>';
+
+  const { data, error } = await membersSupabase.rpc('admin_list_waiver_status');
+  if(error){
+    summaryEl.innerHTML = `<p class="reg-error-note">Couldn't load player roster: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+  ROSTER = data || [];
+
+  const waiverSigned = ROSTER.filter(r => r.waiver_signed_at).length;
+  const contactOnFile = ROSTER.filter(r => r.contact_updated_at).length;
+  const lockedCount = ROSTER.filter(r => r.locked).length;
+  summaryEl.innerHTML = `
+    <div class="mp-summary-tile"><div class="val">${ROSTER.length}</div><div class="lbl">Total Players</div></div>
+    <div class="mp-summary-tile"><div class="val">${waiverSigned}</div><div class="lbl">Waiver Signed</div></div>
+    <div class="mp-summary-tile"><div class="val">${ROSTER.length - waiverSigned}</div><div class="lbl">Waiver Missing</div></div>
+    <div class="mp-summary-tile"><div class="val">${contactOnFile}</div><div class="lbl">Contact On File</div></div>
+    <div class="mp-summary-tile"><div class="val">${ROSTER.length - contactOnFile}</div><div class="lbl">Contact Missing</div></div>
+    <div class="mp-summary-tile"><div class="val">${lockedCount}</div><div class="lbl">Locked</div></div>
+  `;
+
+  mp_renderTable();
+}
+
+function mp_renderTable(){
+  const tbody = document.getElementById('mp-results');
+  const query = document.getElementById('mp-search').value.trim().toLowerCase();
+  const rows = ROSTER.filter(r =>
+    !query || (r.display_name || '').toLowerCase().includes(query) || (r.email || '').toLowerCase().includes(query)
+  );
+
+  if(rows.length === 0){
+    tbody.innerHTML = `<tr><td colspan="5">${emptyState(ROSTER.length === 0 ? 'No players found.' : 'No players match that search.')}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${escapeHtml(r.display_name)}</td>
+      <td>${r.locked ? '<span class="status-pill denied">Locked</span>' : '<span class="status-pill approved">Active</span>'}</td>
+      <td>${r.waiver_signed_at ? `<span class="status-pill approved">Signed ${escapeHtml(formatDate(r.waiver_signed_at))}</span>` : '<span class="status-pill denied">Missing</span>'}</td>
+      <td>${r.contact_updated_at ? `<span class="status-pill approved">On File ${escapeHtml(formatDate(r.contact_updated_at))}</span>` : '<span class="status-pill denied">Missing</span>'}</td>
+      <td style="text-align:right;"><button class="btn-gold" onclick="mp_viewDetail('${r.player_id}')">Manage</button></td>
+    </tr>
+  `).join('');
+}
+
+function detailField(label, value){
+  const has = value !== null && value !== undefined && String(value).trim() !== '';
+  return `<div class="mp-detail-field"><div class="k">${escapeHtml(label)}</div><div class="v${has ? '' : ' empty'}">${has ? escapeHtml(value) : 'Not provided'}</div></div>`;
+}
+
+function mp_switchTab(tab){
+  document.querySelectorAll('#mp-detail .bank-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  document.querySelectorAll('#mp-detail .bank-tab-panel').forEach(panel => {
+    panel.style.display = panel.dataset.panel === tab ? 'block' : 'none';
+  });
+}
+
+function renderLockStatus(r){
+  const statusEl = document.getElementById('mp-lock-status');
+  statusEl.innerHTML = r.locked
+    ? `<span class="status-pill denied">Locked</span><span>${r.locked_at ? 'Since ' + escapeHtml(formatDate(r.locked_at)) : ''}${r.locked_reason ? ' - ' + escapeHtml(r.locked_reason) : ''}</span>`
+    : `<span class="status-pill approved">Active</span>`;
+
+  const controlsEl = document.getElementById('mp-lock-controls');
+  if(!isSiteAdmin){
+    controlsEl.innerHTML = '';
+    return;
+  }
+
+  controlsEl.innerHTML = r.locked
+    ? `<button class="btn-outline" onclick="mp_unlockPlayer()">Unlock Account</button>`
+    : `
+      <label class="field-label" for="mp-lock-reason">Reason (visible to staff only)</label>
+      <input type="text" id="mp-lock-reason" placeholder="Why is this account being locked?" style="max-width:420px;">
+      <button class="btn-outline" style="margin-left:0.6rem;" onclick="mp_lockPlayer()">Lock Account</button>
+    `;
+}
+
+async function mp_lockPlayer(){
+  const reason = document.getElementById('mp-lock-reason').value.trim();
+  const { error } = await membersSupabase.rpc('admin_set_player_locked', {
+    p_player_id: selectedPlayer.player_id, p_locked: true, p_reason: reason || null
+  });
+  if(error){ alert('Could not lock this account: ' + error.message); return; }
+  selectedPlayer.locked = true;
+  selectedPlayer.locked_reason = reason || null;
+  selectedPlayer.locked_at = new Date().toISOString();
+  const idx = ROSTER.findIndex(r => r.player_id === selectedPlayer.player_id);
+  if(idx !== -1) ROSTER[idx] = selectedPlayer;
+  renderLockStatus(selectedPlayer);
+}
+
+async function mp_unlockPlayer(){
+  const { error } = await membersSupabase.rpc('admin_set_player_locked', {
+    p_player_id: selectedPlayer.player_id, p_locked: false
+  });
+  if(error){ alert('Could not unlock this account: ' + error.message); return; }
+  selectedPlayer.locked = false;
+  selectedPlayer.locked_reason = null;
+  selectedPlayer.locked_at = null;
+  const idx = ROSTER.findIndex(r => r.player_id === selectedPlayer.player_id);
+  if(idx !== -1) ROSTER[idx] = selectedPlayer;
+  renderLockStatus(selectedPlayer);
+}
+
+function renderDepartments(memberDeptIds){
+  const target = document.getElementById('mp-departments');
+  target.innerHTML = departments.map(d => `
+    <div class="perm-toggle-row">
+      <input type="checkbox" id="mp-dept-${d.id}" ${memberDeptIds.has(d.id) ? 'checked' : ''}
+        onchange="mp_toggleDepartment('${d.id}', this.checked)">
+      <label for="mp-dept-${d.id}">${escapeHtml(d.name)}</label>
+      <span class="perm-status" id="mp-dept-status-${d.id}">Saved</span>
+    </div>
+  `).join('');
+}
+
+function renderFlags(flags){
+  const target = document.getElementById('mp-flags');
+  target.innerHTML = STAFF_FLAGS.map(f => {
+    const checked = f.isRole ? flags.role === f.key : flags[f.key] === true;
+    return `
+      <div class="perm-toggle-row">
+        <input type="checkbox" id="mp-flag-${f.key}" ${checked ? 'checked' : ''}
+          onchange="mp_toggleFlag('${f.key}', this.checked, ${!!f.isRole})">
+        <label for="mp-flag-${f.key}">${escapeHtml(f.label)}</label>
+        <span class="perm-status" id="mp-flag-status-${f.key}">Saved</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function flashStatus(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = 'Saved';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+async function mp_toggleDepartment(deptId, enabled){
+  const { error } = await membersSupabase.rpc('admin_set_department_member', {
+    p_player_id: selectedPlayer.player_id, p_department_id: deptId, p_enabled: enabled
+  });
+  if(error){
+    alert('Could not save: ' + error.message);
+    document.getElementById(`mp-dept-${deptId}`).checked = !enabled;
+    return;
+  }
+  flashStatus(`mp-dept-status-${deptId}`);
+}
+
+async function mp_toggleFlag(flagKey, enabled, isRole){
+  const rpc = isRole
+    ? membersSupabase.rpc('admin_set_role', { p_player_id: selectedPlayer.player_id, p_role: enabled ? flagKey : null })
+    : membersSupabase.rpc('admin_set_staff_flag', { p_player_id: selectedPlayer.player_id, p_flag: flagKey, p_enabled: enabled });
+
+  const { error } = await rpc;
+  if(error){
+    alert('Could not save: ' + error.message);
+    document.getElementById(`mp-flag-${flagKey}`).checked = !enabled;
+    return;
+  }
+  flashStatus(`mp-flag-status-${flagKey}`);
+}
+
+async function loadCharacters(playerId){
+  const { data } = await membersSupabase
+    .from('characters')
+    .select('id, name, race, social_class')
+    .eq('player_id', playerId)
+    .order('name', { ascending: true });
+
+  const body = document.getElementById('mp-characters-body');
+  body.innerHTML = (data && data.length) ? data.map(c => `
+    <tr>
+      <td>${escapeHtml(c.name)}</td>
+      <td>${escapeHtml(c.race)}</td>
+      <td>${escapeHtml(c.social_class || '')}</td>
+      <td style="text-align:right;"><a class="btn-outline" href="admin-characters.html?character=${encodeURIComponent(c.id)}">Manage in Manage Characters</a></td>
+    </tr>
+  `).join('') : `<tr><td colspan="4">${emptyState('No characters yet.')}</td></tr>`;
+}
+
+async function mp_viewDetail(playerId){
+  const r = ROSTER.find(x => x.player_id === playerId);
+  if(!r) return;
+  selectedPlayer = r;
+
+  document.getElementById('mp-detail-name').textContent = `${r.display_name} (${r.email})`;
+  mp_switchTab('account');
+  renderLockStatus(r);
+
+  document.getElementById('mp-waiver-fields').innerHTML = r.waiver_signed_at ? [
+    detailField('Signed', formatDate(r.waiver_signed_at)),
+    detailField('Legal Name', r.waiver_legal_name),
+    detailField('Signature', r.waiver_signature_name),
+    detailField('Guardian Signature', r.waiver_guardian_signature_name)
+  ].join('') : `<p class="reg-empty-note">No liability waiver on file yet.</p>`;
+
+  document.getElementById('mp-contact-fields').innerHTML = r.contact_updated_at ? [
+    detailField('Full Name', r.contact_full_name),
+    detailField('Character(s)', r.contact_characters),
+    detailField('Home Address', r.contact_home_address),
+    detailField('City', r.contact_city),
+    detailField('Postal Code', r.contact_postal_code),
+    detailField('Phone', r.contact_phone),
+    detailField('Contact 1 Name', r.contact1_name),
+    detailField('Contact 1 Phone', r.contact1_phone),
+    detailField('Contact 1 Relationship', r.contact1_relationship),
+    detailField('Contact 1 Email', r.contact1_email),
+    detailField('Contact 2 Name', r.contact2_name),
+    detailField('Contact 2 Phone', r.contact2_phone),
+    detailField('Contact 2 Relationship', r.contact2_relationship),
+    detailField('Contact 2 Email', r.contact2_email),
+    detailField('Medical Conditions', r.medical_conditions),
+    detailField('Other Notes', r.other_notes)
+  ].join('') : `<p class="reg-empty-note">No emergency contact form on file yet.</p>`;
+
+  document.getElementById('mp-results-table').style.display = 'none';
+  document.getElementById('mp-detail').style.display = 'block';
+  document.getElementById('mp-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  await loadCharacters(playerId);
+
+  if(isSiteAdmin){
+    const { data: flags, error } = await membersSupabase.rpc('admin_get_player_flags', { p_player_id: playerId });
+    if(!error){
+      const { data: memberRows } = await membersSupabase
+        .from('department_members')
+        .select('department_id')
+        .eq('player_id', playerId);
+      const memberDeptIds = new Set((memberRows || []).map(x => x.department_id));
+      renderDepartments(memberDeptIds);
+      renderFlags(flags || {});
+    }
+  }
+}
+
+function mp_closeDetail(){
+  document.getElementById('mp-detail').style.display = 'none';
+  document.getElementById('mp-results-table').style.display = '';
+  selectedPlayer = null;
+}
+
+window.mp_renderTable = mp_renderTable;
+window.mp_viewDetail = mp_viewDetail;
+window.mp_closeDetail = mp_closeDetail;
+window.mp_switchTab = mp_switchTab;
+window.mp_lockPlayer = mp_lockPlayer;
+window.mp_unlockPlayer = mp_unlockPlayer;
+window.mp_toggleDepartment = mp_toggleDepartment;
+window.mp_toggleFlag = mp_toggleFlag;
+
+document.addEventListener('fa-members-ready', async (e) => {
+  const user = e.detail.user;
+  const { data: allowed, error } = await membersSupabase.rpc('fa_is_logistics_or_admin');
+  if(error || !allowed){
+    document.getElementById('mp-blocked-notice').style.display = 'block';
+    return;
+  }
+  document.getElementById('mp-wrap').style.display = 'block';
+
+  isSiteAdmin = !!(user.app_metadata && user.app_metadata.site_admin);
+  if(isSiteAdmin){
+    document.getElementById('mp-tab-permissions-btn').style.display = '';
+    const { data: depts } = await membersSupabase.from('departments').select('id, name').order('name');
+    departments = depts || [];
+  }
+
+  await mp_load();
+});
+})();
+</script>
+
+</body>
+</html>

@@ -235,6 +235,15 @@ async function initMembersPage(){
 
   try{ await membersSupabase.rpc('ensure_profile'); } catch(err){}
 
+  const { data: lockProfile } = await membersSupabase.from('profiles').select('locked, locked_reason').eq('id', data.session.user.id).maybeSingle();
+  if(lockProfile && lockProfile.locked){
+    await membersSupabase.auth.signOut();
+    const params = new URLSearchParams({ locked: '1' });
+    if(lockProfile.locked_reason) params.set('reason', lockProfile.locked_reason);
+    window.location.href = 'login.html?' + params.toString();
+    return;
+  }
+
   const waiverRedirect = await needsWaiverCompletion(data.session.user.id);
   if(waiverRedirect){
     window.location.href = waiverRedirect;
@@ -324,12 +333,11 @@ async function initMembersPage(){
     ['member-requests-link', canSeeRequests || canSeeBackstoryRequests],
     ['member-manage-downtime-link', canSeeRequests],
     ['member-plot-link', canSeePlot],
-    ['member-permissions-link', isSiteAdmin],
     ['member-bug-reports-link', isSiteAdmin],
     ['member-print-sheets-link', canSeeRequests],
     ['member-registrations-link', canSeeRequests],
     ['member-print-tags-link', canSeeRequests],
-    ['member-waivers-link', canSeeRequests],
+    ['member-manage-players-link', canSeeRequests],
   ];
   let anyStaffAccess = false;
   staffLinks.forEach(([id, allowed]) => {

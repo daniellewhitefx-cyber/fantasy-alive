@@ -168,15 +168,33 @@ async function handleLogin(){
     return;
   }
 
+  const { data: profile } = await supabaseClient.from('profiles').select('locked, locked_reason').eq('id', data.user.id).maybeSingle();
+  if(profile && profile.locked){
+    await supabaseClient.auth.signOut();
+    showLockedMessage(profile.locked_reason);
+    return;
+  }
+
   msg.textContent = 'Logged in! Redirecting...';
   msg.classList.add('success');
 
   window.location.href = 'home.html';
 }
 
-supabaseClient.auth.getSession().then(({ data }) => {
-  if(data.session) window.location.href = 'home.html';
-});
+function showLockedMessage(reason){
+  const msg = document.getElementById('message');
+  msg.textContent = 'This account has been locked' + (reason ? ': ' + reason : '.') + ' Contact staff if you believe this is a mistake.';
+  msg.className = 'msg error';
+}
+
+const lockedParam = new URLSearchParams(location.search);
+if(lockedParam.get('locked') === '1'){
+  showLockedMessage(lockedParam.get('reason'));
+} else {
+  supabaseClient.auth.getSession().then(({ data }) => {
+    if(data.session) window.location.href = 'home.html';
+  });
+}
 </script>
 
 </body>
