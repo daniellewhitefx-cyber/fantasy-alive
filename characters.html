@@ -220,6 +220,14 @@ function renderPanelExtras(c){
       <p class="reg-error-note" id="chars-portrait-error" style="display:none;"></p>
     </div>
     <div class="reg-section" style="margin-top:1rem;">
+      <div class="reg-section-label">Non-Combat Build</div>
+      <p class="page-subhead">Set up a fixed, ready-to-go sheet with no combat or weapon skills. Pick Non-Combat when you register for an event and it becomes ${escapeHtml(c.name)}'s character sheet for that event.</p>
+      ${c.noncombatBuildSavedAt ? `<span class="status-pill noncombat">Build Saved ${fmtDate(c.noncombatBuildSavedAt)}</span>` : ''}
+      <div style="margin-top:0.6rem;">
+        <a href="character-noncombat-build.html?id=${c.id}"><button class="btn-purple">${c.noncombatBuildSavedAt ? 'Edit Non-Combat Build' : 'Set Up Non-Combat Build'}</button></a>
+      </div>
+    </div>
+    <div class="reg-section" style="margin-top:1rem;">
       <div class="reg-section-label">Event Splash Page Privacy</div>
       <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem; cursor:pointer;">
         <input type="checkbox" id="chars-privacy-anonymous" ${c.isAnonymous ? 'checked' : ''}>
@@ -343,7 +351,7 @@ async function loadRemortStatus(){
 async function loadCharacters(){
   const { data: chars, error } = await membersSupabase
     .from('characters')
-    .select('id, name, race, pronouns, birthday, starting_sp, social_class, created_at, is_anonymous, hide_trades, portrait_url')
+    .select('id, name, race, pronouns, birthday, starting_sp, social_class, created_at, is_anonymous, hide_trades, portrait_url, noncombat_build_saved_at')
     .eq('player_id', window.faCurrentUser.id)
     .order('created_at', { ascending: true });
 
@@ -368,6 +376,7 @@ async function loadCharacters(){
     isAnonymous: !!ch.is_anonymous,
     hideTrades: !!ch.hide_trades,
     portraitUrl: ch.portrait_url || null,
+    noncombatBuildSavedAt: ch.noncombat_build_saved_at || null,
     skills: (skillRows || [])
       .filter(sk => sk.character_id === ch.id)
       .map(sk => ({ name: sk.skill_name, type: sk.category, focus: sk.focus || '', level: sk.level, sp: sk.sp_cost, learnedAt: sk.created_at }))

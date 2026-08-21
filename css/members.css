@@ -370,6 +370,18 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
   cursor:pointer;
 }
 .btn-outline:hover{ background: var(--cream-deep); }
+.btn-purple{
+  background: #6a3fa0;
+  color: #fff;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  border: 2px solid #6a3fa0;
+  border-radius: 0;
+  cursor:pointer;
+}
+.btn-purple:hover{ background: #55317f; border-color: #55317f; }
 .bank-tabs{
   display:flex;
   gap: 0.6rem;
@@ -555,6 +567,7 @@ textarea{ resize: vertical; min-height: 90px; max-width: 720px; }
 .status-pill.active{ color: var(--gold-dark); }
 .status-pill.sold{ color: var(--good); }
 .status-pill.cancelled{ color: var(--bad); }
+.status-pill.noncombat{ color: #6a3fa0; }
 
 .empty-state{
   display:flex;
@@ -1005,6 +1018,11 @@ select.reg-date-select{
 .reg-pass-card .badge.cast{ background: #7a4f9e; }
 .reg-pass-card .badge.first{ background: #b5652f; }
 .reg-pass-card .badge.townsperson{ background: #2f7a6b; }
+.reg-pass-card.disabled{
+  cursor: default;
+  opacity: 0.55;
+}
+.reg-pass-card.disabled:hover{ border-color: var(--line); }
 
 .reg-who-hint{
   font-size: 0.92rem;
