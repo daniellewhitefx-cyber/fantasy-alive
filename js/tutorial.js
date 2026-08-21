@@ -30,9 +30,6 @@ let currentStep = 0;
 let tutorialActive = false;
 let steps = TUTORIAL_STEPS;
 
-// Cast-only and Townsperson-only accounts have some sidebar links hidden
-// (see members-auth.js). Skip those steps rather than spotlighting an
-// invisible, zero-size element.
 function isNavHidden(el){
   if(el.style.display === 'none') return true;
   const group = el.closest('.side-nav-group');
@@ -89,9 +86,6 @@ function buildOverlay(){
 
 function positionTooltip(tooltip, rect){
   const margin = 16;
-  // Matches the CSS width:320px / max-width:calc(100vw - 32px) rule, so
-  // the clamps below account for the tooltip's actual footprint instead
-  // of just its top-left corner.
   const effectiveWidth = Math.min(320, window.innerWidth - margin * 2);
   const effectiveHeight = 220;
   let top = rect.top;
@@ -140,9 +134,6 @@ function positionForStep(step){
       tooltip.style.transform = 'none';
       positionTooltip(tooltip, rect);
     } else {
-      // No target for this step (the welcome/closing cards): keep the
-      // spotlight element itself as the sole darkening layer, just sized
-      // to nothing so its shadow covers the entire screen with no hole.
       spotlight.style.display = 'block';
       spotlight.style.top = '50%';
       spotlight.style.left = '50%';

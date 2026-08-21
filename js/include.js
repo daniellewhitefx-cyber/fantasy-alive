@@ -19,9 +19,6 @@ function loadIncludes(){
   });
 }
 
-// partials/header.html is loaded via innerHTML, so any <script> tag inside
-// it never runs -- the site search module is injected as a real script
-// element here instead, once the header (and its search button) exists.
 function injectSiteSearch(){
   if(document.querySelector('script[src="js/site-search.js"]')) return;
   const script = document.createElement('script');
@@ -34,10 +31,6 @@ function setFooterCopyrightYear(){
   if(el) el.textContent = new Date().getFullYear();
 }
 
-// A floating "back to top" button for long pages, shown once the reader
-// has scrolled down a bit. Added here rather than in footer.html since
-// that partial is loaded via innerHTML and any <script> inside it never
-// runs.
 function initBackToTop(){
   const btn = document.createElement('button');
   btn.type = 'button';

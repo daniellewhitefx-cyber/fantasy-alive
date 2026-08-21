@@ -1,7 +1,3 @@
--- Lets any signed-in player submit a bug report (from a popup reachable
--- sitewide via the members sidebar) and site admins review/resolve them
--- on a dedicated staff page. Requires permissions-schema.sql (for
--- fa_is_site_admin()) to already exist.
 
 create table if not exists bug_reports (
   id uuid primary key default gen_random_uuid(),

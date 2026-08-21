@@ -9,9 +9,6 @@ create table if not exists characters (
   created_at timestamptz not null default now()
 );
 
--- LP, SE, ME, and Resurrections Left are derived from race + skills
--- (see characters.html's RACE_STATS table and deriveStats()) rather than
--- stored, so the columns added for them in an earlier pass are removed here.
 alter table characters drop column if exists lp;
 alter table characters drop column if exists se;
 alter table characters drop column if exists me;
@@ -22,9 +19,6 @@ update characters set social_class = 'Yeoman' where social_class is null or trim
 
 create index if not exists characters_player_idx on characters(player_id, created_at);
 
--- Lets a brand-new player mark themselves as Cast-only from the character
--- creator instead of building a player character, so they stop being
--- redirected there on every members-area page load.
 alter table profiles add column if not exists is_cast boolean not null default false;
 
 create or replace function player_set_cast_only(p_enabled boolean)
@@ -39,10 +33,6 @@ $$;
 
 alter table characters enable row level security;
 
--- Matches character-admin-schema.sql's version of this same policy
--- exactly, so re-running either file in either order always lands on
--- the correct, staff-aware rule instead of whichever file ran last
--- silently overwriting the other's policy of the same name.
 drop policy if exists "Players see their own characters" on characters;
 create policy "Players see their own characters"
   on characters for select
@@ -65,10 +55,6 @@ create table if not exists character_skills (
   created_at timestamptz not null default now()
 );
 
--- Cumulative SP ever paid for this skill across every level (as opposed
--- to sp_cost, which is just the current level's own price) -- see
--- skill-relevel-full-cost.sql for why the two need to be tracked
--- separately now that relevels are full-price purchases.
 alter table character_skills add column if not exists total_sp_paid integer;
 update character_skills set total_sp_paid = sp_cost where total_sp_paid is null;
 alter table character_skills alter column total_sp_paid set not null;
@@ -78,8 +64,6 @@ create index if not exists character_skills_character_idx on character_skills(ch
 
 alter table character_skills enable row level security;
 
--- Matches character-admin-schema.sql's version of this same policy
--- exactly, for the same reason as the characters policy above.
 drop policy if exists "Players see their own character skills" on character_skills;
 create policy "Players see their own character skills"
   on character_skills for select
@@ -127,10 +111,6 @@ begin
     raise exception 'You already have 2 characters. Only 2 characters are allowed per player.';
   end if;
 
-  -- A player's very first character gets a flat 30 SP, since everyone is
-  -- starting fresh on the new site rather than a brand new player at their
-  -- first event. Every character after that follows the normal rulebook
-  -- starting SP for their race.
   if v_existing_count = 0 then
     v_starting_sp := 30;
   else

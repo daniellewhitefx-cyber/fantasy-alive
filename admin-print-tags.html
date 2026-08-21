@@ -136,25 +136,7 @@
   padding-top: 0.2rem;
 }
 
-/* A scroll is a full page per spell, not a small card -- matches the
-   legacy sheet's Scroll Tags layout (name / symbol / incant / footer),
-   one page each so a batch of several scrolls prints back to back.
-   height is capped a bit under a full Letter page's usable area (11in
-   minus the 0.25in @page margins = 10.5in) so the box always fits on one
-   physical page -- going right up to 10.5in with page-break-inside:avoid
-   was impossible to satisfy and produced stray blank pages. Breaks
-   between pages are adjacency-based (below) rather than a blind
-   page-break-after on every page, so there's no dangling break after the
-   last scroll either.
 
-   The symbol used to have a fixed max-height, which worked for short
-   incants but let long ones (e.g. Divine Blessing's 90+ characters,
-   wrapped across several lines at 40pt) push the page's total content
-   past 10.1in and spill onto a second physical page. The symbol area is
-   now a flexible region that fills whatever space the name/prefix/
-   incant/footer don't need, via object-fit -- the page height itself
-   never changes, so content can no longer overflow it regardless of how
-   long the incant is. */
 .scroll-tag-page{
   font-family: 'Tangerine', cursive;
   color: #000;
@@ -338,12 +320,6 @@ function emptyState(msg){
   return `<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${escapeHtml(msg)}</p></div>`;
 }
 
-// Tangerine (used by Scroll Tags) is only ever needed inside this
-// injected print HTML, so the browser hasn't fetched it yet the first
-// time a scroll prints -- a blind setTimeout was firing window.print()
-// before the web font finished loading, silently falling back to a bold
-// system font. Explicitly waiting on the Font Loading API (with a 2s cap
-// so a slow/broken connection still lets printing proceed) fixes that.
 async function pt_doPrint(html){
   document.getElementById('pt-print-area').innerHTML = html;
   const fontsReady = Promise.all([
@@ -354,11 +330,7 @@ async function pt_doPrint(html){
   window.print();
 }
 
-/* ---------- tag cell rendering ---------- */
 
-// A modifier line is either a row of checkbox-style boxes (count > 0, e.g.
-// "Shattered: [ ]" or "Used: [ ][ ][ ][ ]") or a write-in blank (count 0,
-// e.g. "Deity: ______" for items that need a name filled in at game).
 function tagModifierLineHtml(mod){
   if(mod.count > 0){
     const boxes = Array.from({ length: mod.count }, () => '<span class="tag-use-box"></span>').join('');
@@ -367,10 +339,6 @@ function tagModifierLineHtml(mod){
   return `<div class="tag-cell-modifier">${escapeHtml(mod.label)}: <span class="tag-blank-line"></span></div>`;
 }
 
-// modifiers (an array of {label, count}, imported from the legacy tag
-// catalog) takes priority when present since it can express custom labels
-// and multiple lines per item; modifierType/useCount is the simpler
-// fallback used for items staff add by hand through the print form.
 function tagCellHtml(itemName, quantity, code, modifierType, useCount, modifiers){
   let mods = modifiers && modifiers.length ? modifiers : null;
   if(!mods){
@@ -390,11 +358,6 @@ function tagCellHtml(itemName, quantity, code, modifierType, useCount, modifiers
   return Array.from({ length: Math.max(1, quantity || 1) }, () => cell).join('');
 }
 
-// A scroll is one full page per spell (name / symbol / casting prefix +
-// incant / appraisal-code footer), not a small grid card. playerLabel is
-// only set from Player Tag Requests, so a fulfilled request still shows
-// who it's for even though scrolls don't get grouped under a player
-// heading the way item/recipe grids do.
 function scrollTagCellHtml(cardData, quantity, playerLabel){
   const symbolHtml = `<div class="scroll-tag-symbol-wrap">${cardData.symbolData
     ? `<img class="scroll-tag-symbol" src="${cardData.symbolData}" alt="">`
@@ -458,20 +421,14 @@ function recipeTagCellHtml(cardData, quantity){
   return Array.from({ length: Math.max(1, quantity || 1) }, () => cell).join('');
 }
 
-/* ---------- real item/recipe catalog ---------- */
 
-let CATALOG = [];              // item_catalog: appraisal code + modifier per item name
-let REAL_ITEMS = [];           // items joined with category name (loaded once per session)
+let CATALOG = [];
+let REAL_ITEMS = [];
 let REAL_ITEMS_BY_NAME = new Map();
 let REAL_ITEMS_BY_ID = new Map();
-let SCROLL_SPELLS_BY_NAME = new Map();  // scroll_spell_tags: incant/cast_prefix/symbol per spell name
+let SCROLL_SPELLS_BY_NAME = new Map();
 const RECIPE_KIND_CATEGORIES = new Set(['Recipe', 'Formula', 'Instruction']);
 
-// Recipe/Formula/Instruction items are the paperwork a character carries for
-// knowing a formula -- they need the larger structured Recipe Tag layout,
-// not the small physical-prop Item Tag. Scrolls print as their own
-// full-page Scroll Tag (name, symbol, incant). Everything else (Armour,
-// Weapon, Potion/Oil, Ingredient, etc.) prints as a normal item tag.
 function ct_tagKindForName(name){
   const item = REAL_ITEMS_BY_NAME.get((name || '').trim().toLowerCase());
   if(!item) return 'item';
@@ -480,24 +437,14 @@ function ct_tagKindForName(name){
   return 'item';
 }
 
-// A Recipe/Formula/Instruction item's own name is the base item's name with
-// " - Recipe"/" - Formula"/" - Instruction" appended, e.g. "Heroes Last
-// Stand" (the potion) / "Heroes Last Stand - Recipe" (the formula card) --
-// there's no foreign key linking them, just this naming convention.
 function ct_stripRecipeSuffix(name){
   return name.replace(/\s*-\s*(Recipe|Formula|Instruction)$/i, '').trim();
 }
 
-// Same idea for Scrolls: "Greater Dispel - Scroll" is the catalog item;
-// "Greater Dispel" is the spell name used to look up its symbol/incant.
 function ct_stripScrollSuffix(name){
   return name.replace(/\s*-\s*Scroll$/i, '').trim();
 }
 
-// Plain .select() caps at Supabase's 1000-row limit -- item_catalog now
-// has a code for every real item (~2427 rows), so anything alphabetically
-// past that cutoff was silently never loading. craftingFetchAllRows pages
-// through the full table the same way it already does for items.
 async function ct_loadItemCatalogTable(){
   CATALOG = await craftingFetchAllRows('item_catalog', 'item_name, code, modifier_type, use_count, modifiers');
 }
@@ -531,9 +478,6 @@ function ct_catalogMatch(name){
   return CATALOG.find(i => i.item_name.trim().toLowerCase() === lower);
 }
 
-// A Scroll Tag's spell-specific content (symbol/incant) comes straight out
-// of SCROLL_SPELLS_BY_NAME, already loaded client-side -- no extra fetch
-// needed, unlike a Recipe Tag's materials/skills join.
 function ct_buildScrollCardData(itemName){
   const spellName = ct_stripScrollSuffix(itemName);
   const spell = SCROLL_SPELLS_BY_NAME.get(spellName.toLowerCase());
@@ -548,9 +492,6 @@ function ct_buildScrollCardData(itemName){
   };
 }
 
-// A recipe's own downtime/materials/skill requirements, read from the real
-// items/recipes/recipe_materials/recipe_skill_requirements catalog. Returns
-// null when the item has no recipe row at all (e.g. a raw-material item).
 async function ct_fetchRecipeDetail(itemId){
   const { data: recipes, error } = await membersSupabase.from('recipes')
     .select('id, hours, rep, me_cost, se_cost, e_cost').eq('item_id', itemId).limit(1);
@@ -573,14 +514,6 @@ async function ct_fetchRecipeDetail(itemId){
   return { hours: recipe.hours, rep: recipe.rep, meCost: recipe.me_cost, seCost: recipe.se_cost, eCost: recipe.e_cost, materialsText, skillsText };
 }
 
-// A Recipe/Formula Tag shows two sets of requirements: making the item
-// itself ("make", from the base item's own recipe row, found by stripping
-// the " - Recipe"/" - Formula" suffix) and copying the formula paperwork
-// ("copy", from the Recipe/Formula item's own, separate recipe row) --
-// matching the legacy tag sheet's "Downtime Required" vs "Downtime
-// Required to Copy" split. Instruction items (e.g. Magical Components) are
-// crafted directly rather than copied from a base item -- their own
-// recipe row IS the "make" data, with no base item or "copy" concept.
 async function ct_buildRecipeCardData(name){
   const recipeItem = REAL_ITEMS_BY_NAME.get(name.trim().toLowerCase());
   if(!recipeItem) throw new Error('Item not found in catalog');
@@ -608,7 +541,6 @@ async function ct_buildRecipeCardData(name){
   };
 }
 
-/* ---------- player tag requests ---------- */
 
 let PENDING_REQUESTS = [];
 
@@ -634,14 +566,6 @@ async function ptr_load(){
   printBtn.disabled = false;
 }
 
-// Each request's item_name is checked against the real catalog so a
-// requested Recipe/Formula/Instruction item prints with the structured
-// Recipe Tag layout, a Scroll prints as its own full page, and anything
-// else (or anything not in the real catalog at all, e.g. a hand-typed loot
-// item) falls back to the plain item tag exactly as before. Scroll pages
-// print after the grouped item/recipe grids since a full page per spell
-// doesn't fit inside a per-player mini-section -- each one is labelled
-// "For: <player>" instead so it's still clear who it's for.
 async function ptr_print(){
   if(!PENDING_REQUESTS.length){ alert('No pending tag requests to print.'); return; }
 
@@ -664,7 +588,7 @@ async function ptr_print(){
           const cardData = await ct_buildRecipeCardData(r.item_name);
           recipeCells.push(recipeTagCellHtml(cardData, r.quantity));
           continue;
-        } catch(err){ /* fall through to plain item card below */ }
+        } catch(err){  }
       } else if(kind === 'scroll'){
         scrollCells.push(scrollTagCellHtml(ct_buildScrollCardData(r.item_name), r.quantity, g.player));
         continue;
@@ -680,14 +604,10 @@ async function ptr_print(){
     `;
   }));
 
-  // Same reasoning as ct_printBatch: an empty .tag-print-page wrapper
-  // would still count as a sibling for the page-break rule and force an
-  // unwanted blank leading page when every request is a scroll.
   const itemRecipeHtml = hasItemOrRecipe ? `<div class="tag-print-page">${groupsHtml.join('')}</div>` : '';
   pt_doPrint(`${itemRecipeHtml}${scrollCells.join('')}`);
 }
 
-/* ---------- category browser ---------- */
 
 let TAG_CATEGORY = null;
 let TAG_SEARCH = '';
@@ -776,7 +696,6 @@ async function tb_addToBatch(id){
   ct_renderBatch();
 }
 
-/* ---------- custom tag: flexible modifier-line builder ---------- */
 
 let CT_MODIFIER_LINES = [];
 let CT_LINE_SEQ = 0;
@@ -836,7 +755,6 @@ function ctm_resetLines(){
   ctm_renderLines();
 }
 
-/* ---------- custom tag form + batch ---------- */
 
 let BATCH = [];
 
@@ -905,9 +823,6 @@ function ct_removeFromBatch(i){
   ct_renderBatch();
 }
 
-// Typing a casting prefix updates the queued print immediately; Save
-// persists it to scroll_spell_tags so the next time that spell is printed,
-// it's already filled in.
 function bt_updateScrollPrefix(i, value){
   const entry = BATCH[i];
   if(entry && entry.kind === 'scroll') entry.data.castPrefix = value;
@@ -924,14 +839,6 @@ async function bt_saveScrollPrefix(i){
   if(spell) spell.cast_prefix = entry.data.castPrefix || null;
 }
 
-// Printing doesn't clear the batch -- staff often print the same batch more
-// than once (e.g. a second copy), so clearing is its own explicit action.
-// Scroll pages print after the item/recipe grid since each is a full page
-// of its own, not a grid card.
-// The item/recipe wrapper is only emitted when there's actually an item
-// or recipe queued -- an empty .tag-print-page div would still count as
-// a sibling for the .tag-print-page + .scroll-tag-page page-break rule,
-// forcing an unwanted blank leading page on a scroll-only batch.
 function ct_printBatch(){
   if(!BATCH.length) return;
   const itemEntries = BATCH.filter(b => b.kind === 'item');

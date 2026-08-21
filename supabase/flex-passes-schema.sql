@@ -1,14 +1,3 @@
--- Flex Passes: multi-event prepaid bundles, moved from the old
--- endlessadventures.ca Shopify store onto this site's own payment flow
--- (the Stripe-style checkout already used for event Registration).
--- Purchasing one grants a block of credits to the PLAYER's account, not
--- tied to a single character or event; each credit is later redeemed at
--- Registration to cover one event's admission or one event's Full Event
--- Meal Plan. Same running-ledger pattern as XP/OC -- current balance is
--- the sum of every transaction. Requires character-admin-schema.sql
--- (oc_transactions) and event-log-schema.sql (event_log_set_oc_spend,
--- which this file also extends to raise the OC-to-XP cap for holders of
--- an active pass).
 
 create table if not exists flex_pass_transactions (
   id uuid primary key default gen_random_uuid(),
@@ -36,10 +25,6 @@ create policy "Players and staff see their flex pass transactions"
 
 grant select on flex_pass_transactions to authenticated;
 
--- Server-side catalog (mirrors the old store's three variants) so a
--- purchase can't grant itself arbitrary credits/OC by calling the RPC
--- with a made-up pass ID -- the client only ever sends which pass was
--- bought, never the amounts.
 create or replace function fa_flex_pass_catalog(p_pass_id text)
 returns table(pass_name text, price integer, event_credits integer, meal_credits integer, oc_bonus integer)
 language sql immutable
@@ -60,8 +45,6 @@ as $$
     from flex_pass_transactions where player_id = auth.uid();
 $$;
 
--- Internal helper for the OC-to-XP cap raise below: "active" means the
--- player currently holds at least one unredeemed credit of either kind.
 create or replace function fa_flex_pass_active(p_player uuid)
 returns boolean language sql stable security definer
 set search_path = public
@@ -125,10 +108,6 @@ begin
 end;
 $$;
 
--- Raises the OC-to-XP/Copper cap from 100 to 150 while a Flex Pass is
--- active, per the old store's "150 OC bonus events" benefit. The table
--- check constraint has to allow the higher ceiling; the per-player cap
--- is still enforced inside the function itself.
 alter table event_log_oc_spends drop constraint if exists event_log_oc_spends_oc_amount_check;
 alter table event_log_oc_spends add constraint event_log_oc_spends_oc_amount_check check (oc_amount >= 0 and oc_amount <= 150);
 

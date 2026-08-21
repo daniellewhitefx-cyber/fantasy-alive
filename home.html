@@ -20,7 +20,6 @@
 <link rel="stylesheet" href="css/members.css">
 <script src="js/vendor/supabase-js.min.js"></script>
 <style>
-/* Members Home dashboard: every element here is sharp-cornered by design. */
 .home-hero{
   display:flex;
   gap: 1.4rem;
@@ -241,7 +240,6 @@ function fmtDateTime(iso){
 
 function nameFor(id){ return profileMap[id] || 'Unknown player'; }
 
-/* ---------- hero: primary character spotlight ---------- */
 
 const RACE_STATS = {
   'Curtainborn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 5, baseMe: 0 },
@@ -374,7 +372,6 @@ async function updateRegisterCta(who, characterName){
   }
 }
 
-/* ---------- kpi row ---------- */
 
 async function loadKpis(){
   const me = window.faCurrentUser.id;
@@ -415,7 +412,6 @@ async function loadKpis(){
   }
 }
 
-/* ---------- auction spotlight (unchanged behaviour) ---------- */
 
 let currentAuctionItem = null;
 let currentAuctionItemClosed = false;
@@ -566,7 +562,6 @@ async function home_placeAuctionBid(){
 
 window.home_placeAuctionBid = home_placeAuctionBid;
 
-/* ---------- recent updates (unchanged behaviour) ---------- */
 
 async function loadAnnouncements(){
   const list = document.getElementById('home-announce-list');

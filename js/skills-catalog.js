@@ -1,16 +1,6 @@
-// Shared skill-catalog helpers built on the real relational skill/focus/
-// prerequisite data (js/skills-data.js): resolving a skill's cost and
-// prerequisites for a given race and (if it takes one) chosen focus, and
-// the focus options a skill offers. Used by Character Creator, Character
-// Edit (remort), the Current Event Training tab, and (in an unrestricted
-// mode) the staff character tool.
 
 function skillKey(s){ return s.category + '::' + s.title; }
 
-// A skill's cost/prerequisites can have a race-specific override; this
-// resolves the one that actually applies, falling back to the skill's
-// default (race-unrestricted) row. Works the same way for a focus's own
-// cost row.
 function skillDetailFor(skill, race){
   if(race && skill.costByRace && skill.costByRace[race]) return skill.costByRace[race];
   return skill.costDefault;
@@ -25,24 +15,6 @@ function findFocus(skill, focusName){
   return (skill.focusOptions || []).find(f => f.name === focusName) || null;
 }
 
-// Some skills (weapon proficiencies, craftsman/labourer specialties) get
-// their real price from the chosen focus rather than the skill itself --
-// the skill's own row is either a placeholder (no cost at all, e.g.
-// Weapon Skill, where every real price lives on the weapon-type focus) or
-// deliberately overridden per focus (overwriteCostForFocus). A skill with
-// its own real cost and no override -- e.g. Backstab, which shares the
-// same weapon-type focus catalog as Weapon Skill but always costs the
-// same regardless of which weapon it's taken with -- always uses its own
-// price and never looks at the focus's. When neither resolves to a real
-// number (no focus chosen yet, for a skill that needs one), there's no
-// computable cost.
-//
-// A race-specific override on the skill itself (e.g. Craftsman costing a
-// Dwarf less and a Curtainborn more than the default) always wins outright,
-// even for skills whose default price is normally replaced by the chosen
-// focus's -- it's this race's aptitude for the whole trade, and applies no
-// matter which specialty is picked within it. Only when there's no
-// race-specific row does the focus's (usually race-invariant) price apply.
 function resolveCostDetail(skill, level, race, focusName){
   const skillDetail = skillDetailFor(skill, race);
   const isRaceSpecific = !!(race && skill.costByRace && skill.costByRace[race] === skillDetail);
@@ -59,9 +31,6 @@ function resolveCostDetail(skill, level, race, focusName){
   return skillDetail;
 }
 
-// Resolves the SP cost of a skill at a given level, for a given race and
-// (if applicable) chosen focus. Returns null when there's no computable
-// cost yet (e.g. a focus is required but not chosen).
 function skillsParseCost(skill, level, race, focusName){
   const detail = resolveCostDetail(skill, level, race, focusName);
   if(!detail || detail.value === null || detail.value === undefined) return null;
@@ -71,20 +40,11 @@ function skillsParseCost(skill, level, race, focusName){
   return detail.value;
 }
 
-// Whether purchasing further levels of this skill is a real mechanic
-// (cost scales with level) rather than a flat one-time purchase.
 function isLeveledCost(skill, race, focusName){
   const detail = resolveCostDetail(skill, null, race, focusName);
   return !!(detail && detail.levelCost);
 }
 
-// skillsParseCost gives the price of one specific level -- correct for
-// releveling a skill you already know one step at a time (the live
-// Training tab always does this), but NOT the right price for buying a
-// leveled skill directly at a starting level higher than 1 (Character
-// Creator, Remort), which owes the full price of every level from 1 up
-// to that one, not just the last step's. Returns null under the same
-// conditions skillsParseCost does.
 function skillsCumulativeCost(skill, level, race, focusName){
   if(!isLeveledCost(skill, race, focusName)) return skillsParseCost(skill, 1, race, focusName);
   const lvl = Math.max(1, parseInt(level, 10) || 1);
@@ -97,19 +57,11 @@ function skillsCumulativeCost(skill, level, race, focusName){
   return total;
 }
 
-// The highest level this skill can be bought/releveled to, or null if
-// uncapped.
 function skillsLevelLimit(skill, race, focusName){
   const detail = resolveCostDetail(skill, null, race, focusName);
   return detail ? detail.levelLimit : null;
 }
 
-// focusName, when given, requires the known skill to have been learned
-// with that specific focus -- e.g. Lethal Hands needs Weapon Skill known
-// specifically in Hand to Hand, not just any weapon type. This is
-// distinct from mustMatchFocus (used elsewhere), which instead requires
-// a skill's own chosen focus to match whatever focus its prerequisite
-// was learned with.
 function hasKnownSkillLevel(knownSkills, name, minLevel, focusName){
   const norm = (name || '').trim().toLowerCase();
   const normFocus = focusName ? focusName.trim().toLowerCase() : null;
@@ -126,9 +78,6 @@ function prereqGroupSatisfied(group, knownSkills){
   return true;
 }
 
-// stats is the character's derived { lp, se, me } from faDeriveStats().
-// When stats is omitted (race not chosen yet), these checks pass
-// permissively rather than blocking on data that isn't available.
 function energyPrereqMet(detail, stats){
   if(!detail.energyPrereq) return true;
   if(!stats) return true;
@@ -140,11 +89,6 @@ function lpPrereqMet(detail, stats){
   return stats.lp >= detail.lpPrereq;
 }
 
-// A skill's own prerequisite groups are alternatives (satisfying any ONE
-// group is enough); within a group, both skill1 and skill2 (if present)
-// are required together. Some focuses (e.g. 2-Handed Sword requiring
-// Physical Prowess, where 1-Handed Sword requires nothing extra) add
-// their own prerequisite on top, required in addition to the skill's own.
 function isPrereqMet(skill, race, focusName, knownSkills, stats){
   const detail = skillDetailFor(skill, race);
   const skillOk = !detail || detail.prereqGroups.length === 0 || detail.prereqGroups.some(g => prereqGroupSatisfied(g, knownSkills));
@@ -166,9 +110,6 @@ function describePrereqGroup(g){
   return g.skill2 ? `${part1} and ${describePrereqPart(g.skill2)}` : part1;
 }
 
-// Human-readable text for the prerequisite(s) not yet met, or null once
-// they are. Reuses the same evaluation as isPrereqMet so the two can
-// never disagree on whether a skill is actually locked.
 function unmetPrereqText(skill, race, focusName, knownSkills, stats){
   const detail = skillDetailFor(skill, race);
   const parts = [];
@@ -189,16 +130,6 @@ function unmetPrereqText(skill, race, focusName, knownSkills, stats){
   return parts.length ? parts.join(', ') : null;
 }
 
-// The full set of focus values a skill can be taken with (weapon types,
-// deities, craftsman/labourer specialties, spell schools, and so on),
-// drawn from the real focus-type catalog rather than a hardcoded list.
-// Returns null for skills that don't take a focus at all.
-//
-// Some skills (e.g. combat techniques keyed to a specific weapon type)
-// require the chosen focus to match a focus the character already has in
-// a prerequisite skill -- e.g. you can only take Backstab [Dagger] if you
-// already know Weapon Skill [Dagger]. That's opt-out with
-// unrestricted:true for the staff tool, which grants skills freely.
 function focusOptionsFor(skill, knownSkills, race, opts){
   opts = opts || {};
   if(!skill.focusTypeId) return null;
@@ -209,10 +140,6 @@ function focusOptionsFor(skill, knownSkills, race, opts){
   const matchGroups = detail ? detail.prereqGroups.filter(g => g.mustMatchFocus) : [];
   if(!matchGroups.length) return names;
 
-  // Groups are alternatives (an "or"): e.g. Weapon Mastery accepts either
-  // Counter Attack or Aim in the same focus, so a focus should unlock as
-  // soon as ANY one of the alternative prerequisite skills is known in
-  // it, not just the first group's.
   const knownFoci = new Set();
   matchGroups.forEach(g => {
     const norm = (g.skill1.name || '').trim().toLowerCase();
@@ -223,19 +150,6 @@ function focusOptionsFor(skill, knownSkills, race, opts){
   return names.filter(n => knownFoci.has(n));
 }
 
-// Adds a skill purchase to a locally-built chosen-skills list (Character
-// Creator, remort), merging it into an existing entry for the same skill
-// (and same focus, if it takes one) instead of listing repeat purchases
-// as separate rows -- some skills (Dodge, Iron Will, Parry <weapon>, ...)
-// are meant to be taken multiple times and shown as one entry at a
-// higher level (the rulebook itself writes these as "Dodge x5").
-//
-// A skill whose cost scales with level (isLeveled) already has the
-// player choose their target level up front and pay its full price, so
-// re-adding it replaces the existing entry with the new target level/
-// cost outright rather than stacking. A flat-cost skill has no level
-// input -- each Add is one more rank, so it stacks: level +1, cost
-// added on top of what's already there.
 function mergeChosenSkill(chosen, entry, isLeveled){
   const existing = chosen.find(c => c.title === entry.title && c.focus === entry.focus);
   if(!existing){
@@ -251,13 +165,6 @@ function mergeChosenSkill(chosen, entry, isLeveled){
   }
 }
 
-// Clerical Investment locks a character to one deity: "A character may
-// not be invested with more than 1 deity at any time and switching
-// religions means losing all spells and abilities gained from the
-// previous investment" (rulebook). Once already invested, players should
-// just be releveling their existing god, not re-picking one -- changing
-// which god it's locked to is left to staff via the admin tool, which
-// grants focuses unrestricted.
 function clericalInvestmentLockedFocus(knownSkills){
   const existing = (knownSkills || []).find(s => s.title === 'Clerical Investment' && s.focus);
   return existing ? existing.focus : null;

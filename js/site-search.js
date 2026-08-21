@@ -1,20 +1,9 @@
-// Site-wide search: a nav search box that indexes Skills, Recipes, Spells,
-// and Lore, and deep-links results straight into that page's own existing
-// search UI (skill_selectSearchResult, recipe_selectSearchResult,
-// spell_selectSearchResult, lore_goto) via a ?open=&cat= URL param. This
-// file is self-contained (own CSV parser, own Supabase REST fetch for
-// lore) so it can safely load on every page regardless of what else that
-// page already has loaded.
 
 const SITE_SEARCH_ORDINAL_LEVEL_NAMES = {
   '1': '1st Level', '2': '2nd Level', '3': '3rd Level', '4': '4th Level',
   '5': '5th Level', '6': '6th Level', '7': '7th Level', '8': '8th Level', '9': '9th Level'
 };
 
-// group is the value each page's own selectSearchResult()/selectCategory()
-// function expects as its grouping key -- the skill/recipe Category column,
-// but for spells that's the Level tab label, not the sheet's Category
-// column (spell_selectSearchResult groups by level).
 const SITE_SEARCH_SOURCES = [
   { type: 'Skill', url: 'skill-list.html', csv: 'https://docs.google.com/spreadsheets/d/1ywI52NIOEB6EKIe5WvLzerY6w0ZmU0bAkOrKq5ggrP8/export?format=csv', titleCol: 'name', groupCol: 'category' },
   { type: 'Recipe', url: 'recipes.html', csv: 'https://docs.google.com/spreadsheets/d/1ItjkOYamXrQ0vLIZlkdMCqwF0PGw0DV82J4bk9zhu3c/export?format=csv', titleCol: 'name', groupCol: 'category' },

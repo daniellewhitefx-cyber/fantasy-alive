@@ -1,15 +1,4 @@
--- Training tab on the Current Event log: players spend downtime Hours
--- (see faTrainingHoursBudget() in js/registration-status.js for the
--- 100-hours-per-week-between-events budget) to learn brand-new skills,
--- or level up skills whose cost scales with level, for their
--- registered character. Each skill also has to fit within the
--- character's spendable Skill Points -- their starting SP plus
--- whatever SP their banked XP converts to, minus what they've already
--- spent (see faConvertXpToSp() in js/xp-convert.js for the client-side
--- mirror of this math).
 
--- Mirrors js/xp-convert.js's faXpPerSp(): the XP cost of the next SP
--- gets worse as a character invests more Skill Points overall.
 create or replace function fa_xp_per_sp(p_invested_sp integer)
 returns integer language sql immutable
 set search_path = public
@@ -38,9 +27,6 @@ create table if not exists event_log_training_purchases (
   created_at timestamptz not null default now()
 );
 
--- Tracks whether a purchase leveled up an existing skill rather than
--- learning a brand-new one, and what it leveled up from, so cancelling
--- it can revert the level instead of deleting the whole skill.
 alter table event_log_training_purchases add column if not exists is_relevel boolean not null default false;
 alter table event_log_training_purchases add column if not exists prev_level integer;
 alter table event_log_training_purchases add column if not exists prev_sp_cost integer;
@@ -55,8 +41,6 @@ create policy "Players see their own training purchases"
   on event_log_training_purchases for select
   using (player_id = auth.uid() or fa_is_logistics_or_admin());
 
--- Current spendable SP and hours already spent this log, for the
--- player's own character.
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
 returns jsonb language plpgsql stable security definer
 set search_path = public
@@ -89,8 +73,6 @@ begin
 end;
 $$;
 
--- Learns a brand-new skill (not releveling an existing one) for the
--- player's own character, paid for with both Hours and spendable SP.
 create or replace function event_log_train_skill(
   p_event_slug text,
   p_character_id uuid,
@@ -170,11 +152,6 @@ begin
 end;
 $$;
 
--- Levels up a skill the character already knows (skills whose cost
--- scales with level can be bought again at a higher level). Each level
--- is a fresh purchase at that level's own full cost -- e.g. level 2
--- costs a full 5 SP, level 3 a full 6 SP -- rather than only charging
--- the increase over what was already paid.
 create or replace function event_log_relevel_skill(
   p_event_slug text,
   p_character_id uuid,
@@ -250,10 +227,6 @@ begin
 end;
 $$;
 
--- Undoes a purchase made this log. A brand-new skill is removed
--- entirely (the training purchase row cascades away with it); a
--- relevel instead reverts the skill back to its level and cost from
--- before the purchase, since the skill itself may predate this log.
 create or replace function event_log_cancel_training(p_purchase_id uuid)
 returns void language plpgsql security definer
 set search_path = public

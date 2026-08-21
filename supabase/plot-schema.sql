@@ -1,8 +1,3 @@
--- Backs a Plot-only "Plotlines" tracker: a sidebar list of ongoing
--- plotlines, each with a Discord-style shared notes feed any Plot team
--- member can post to. Requires messaging-schema.sql (departments /
--- department_members) and event-splash-schema.sql (fa_is_plot_or_admin)
--- to already exist.
 
 create table if not exists plotlines (
   id uuid primary key default gen_random_uuid(),

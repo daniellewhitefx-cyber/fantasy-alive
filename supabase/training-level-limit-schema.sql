@@ -1,13 +1,3 @@
--- Re-defines event_log_train_skill and event_log_relevel_skill
--- (training-schema.sql, further redefined by teaching-schema.sql for
--- instructor hours-halving) to enforce each skill's catalog level cap
--- (skill_details.level_limit, via skills_level_limit -- see
--- skills-cost-validation-schema.sql) server-side. Nothing on the live
--- Training tab checked this before, so a character could keep
--- releveling a capped skill (e.g. Merchant, capped at 10) past its
--- intended maximum one step at a time. Requires training-schema.sql,
--- teaching-schema.sql, and skills-cost-validation-schema.sql to already
--- exist.
 
 create or replace function event_log_train_skill(
   p_event_slug text,

@@ -1,8 +1,3 @@
--- Social Class allowance: characters of higher standing (nobility and up)
--- receive a Copper stipend each event, based on the old site's per-class
--- "upkeep" reference numbers (characters_charactersocialclass.upkeep in
--- the legacy database). Granted automatically, once per character per
--- event, the first time they visit Current Event while registered.
 
 create table if not exists social_class_allowances (
   social_class text primary key,
@@ -57,10 +52,6 @@ create policy "Players see their own allowance claims"
     or fa_is_logistics_or_admin()
   );
 
--- Grants this character's Social Class allowance for this event, once.
--- Safe to call every time the player visits Current Event -- returns the
--- Copper amount only the first time (when it actually deposits it),
--- null on every later call for the same character/event.
 create or replace function event_log_claim_allowance(p_event_slug text, p_character_id uuid)
 returns integer language plpgsql security definer
 set search_path = public

@@ -1,10 +1,3 @@
--- Backs the staff "Print Tags" panels on admin-print-sheets.html: a
--- catalog of physical item tag details (the appraisal price code shown on
--- a tag, plus which modifier line it prints with) and fulfillment of
--- player-submitted tag requests (character_tag_requests, already defined
--- in inventory-schema.sql). Requires permissions-schema.sql
--- (fa_is_logistics_or_admin) and inventory-schema.sql
--- (character_tag_requests) to already exist.
 
 create table if not exists item_catalog (
   id uuid primary key default gen_random_uuid(),
@@ -12,12 +5,6 @@ create table if not exists item_catalog (
   code text,
   modifier_type text not null default 'none' check (modifier_type in ('none', 'shatter', 'uses')),
   use_count integer,
-  -- Richer modifier lines than modifier_type/use_count can express (custom
-  -- labels, multiple lines per item, e.g. "Shattered" + "Resist Corrode
-  -- Used"), as imported from the legacy tag sheet: [{"label": "...",
-  -- "count": N}], where count 0 means a write-in blank rather than
-  -- checkboxes. Printed instead of modifier_type/use_count when present;
-  -- items added by hand through the staff UI still use the simpler pair.
   modifiers jsonb,
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
@@ -34,13 +21,6 @@ create policy "Staff see item catalog"
 
 grant select on item_catalog to authenticated;
 
--- Adds or updates a catalog entry by item name (case-insensitive), so the
--- same physical item always prints with the same appraisal code and
--- modifier style, while staff can still edit either at any time.
--- p_modifiers carries the flexible custom modifier-line array a staffer
--- builds on a Custom Tag (label + box count per line, count 0 = write-in
--- blank); when provided it takes priority over modifier_type/use_count at
--- print time, same as the imported legacy modifier lines.
 create or replace function logistics_upsert_catalog_item(
   p_item_name text, p_code text, p_modifier_type text, p_use_count integer, p_modifiers jsonb default null
 )
@@ -83,8 +63,6 @@ $$;
 revoke all on function logistics_upsert_catalog_item(text, text, text, integer, jsonb) from public, anon;
 grant execute on function logistics_upsert_catalog_item(text, text, text, integer, jsonb) to authenticated;
 
--- Marks a pending tag request as fulfilled once its physical tag has been
--- printed and handed off.
 create or replace function logistics_fulfill_tag_request(p_request_id uuid)
 returns void language plpgsql security definer
 set search_path = public
@@ -106,11 +84,6 @@ $$;
 revoke all on function logistics_fulfill_tag_request(uuid) from public, anon;
 grant execute on function logistics_fulfill_tag_request(uuid) to authenticated;
 
--- Every pending tag request, with the player/character names resolved and
--- the matching catalog entry (appraisal code + modifier style) joined in,
--- ordered by player so a printed sheet keeps each player's tags together.
--- Dropped first since adding the modifiers column changes the function's
--- return type, which create or replace can't do in place.
 drop function if exists logistics_list_pending_tag_requests();
 create or replace function logistics_list_pending_tag_requests()
 returns table(

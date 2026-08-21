@@ -1,8 +1,3 @@
--- Lets a brand-new player mark themselves as a Townsperson (RP only, no
--- character, no combat, no downtime log) from the character creator instead
--- of building a player character, so they stop being redirected there on
--- every members-area page load. Mirrors is_cast/player_set_cast_only in
--- characters-schema.sql.
 alter table profiles add column if not exists is_townsperson boolean not null default false;
 
 create or replace function player_set_townsperson_only(p_enabled boolean)

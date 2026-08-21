@@ -1,7 +1,3 @@
--- Emergency Contact Form: one row per player, upsertable, so a player
--- can review and update their info before each event. Logistics needs
--- to be able to look this up in a real emergency, so it's readable by
--- fa_is_logistics_or_admin() in addition to the player themselves.
 
 create table if not exists emergency_contact_forms (
   id uuid primary key default gen_random_uuid(),

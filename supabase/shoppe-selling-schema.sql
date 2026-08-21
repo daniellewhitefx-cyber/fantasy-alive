@@ -1,23 +1,3 @@
--- Selling, and real Merchant-tier pricing for buying. The old site's
--- merchant_price_tiers table (already migrated, never wired up) sets
--- what a character actually pays/receives based on their Merchant Trade
--- Skill level: level 0 pays 150% to buy and gets 25% back selling; by
--- level 10 that's 80% to buy and 75% selling. Requires
--- item-catalog-schema.sql, item-catalog-import.sql, crafting-schema.sql,
--- and shoppe-schema.sql to already exist.
---
--- Both buying and selling cost 8 downtime hours "travel" the first time
--- a character deals in a given item category at an event -- buying and
--- selling in the same category on the same trip doesn't cost twice, and
--- once paid the hours aren't refunded by cancelling the purchase/sale
--- that triggered it.
---
--- Selling has two modes: from the character's tracked inventory
--- (character_material_inventory; deducts from the ledger immediately,
--- physical tag assumed handed over as part of the sale) or a promise to
--- turn in the physical tag later (no ledger effect now, but it shows up
--- in Event Info's "Tags Owed to Logistics" box, same as an uncovered
--- craft).
 
 create or replace function fa_character_merchant_level(p_character_id uuid)
 returns integer language sql stable security definer
@@ -79,10 +59,6 @@ create policy "Players see their own shoppe sales"
 
 grant select on shoppe_sales, event_log_shopping_trips to authenticated;
 
--- One-time 8-hour travel charge per character/event/category, shared by
--- buying and selling. Returns the number of NEW hours charged (8 the
--- first time this category is touched this event, 0 on every call
--- after) so callers can fold it into their own hours-budget check.
 create or replace function fa_charge_shopping_travel(p_character_id uuid, p_event_slug text, p_category text)
 returns integer language plpgsql security definer
 set search_path = public
@@ -96,11 +72,6 @@ begin
 end;
 $$;
 
--- Extends character_material_ledger (crafting-schema.sql) with a third
--- source: items sold from inventory (from_inventory = true) leave the
--- ledger as a negative delta, same shape as materials consumed by a
--- craft. Sales not from inventory don't touch the ledger at all -- the
--- item was never tracked as owned to begin with.
 create or replace function character_material_ledger(p_character_id uuid)
 returns table(material_name text, delta integer) language sql stable security definer
 set search_path = public
@@ -116,8 +87,6 @@ as $$
   select item_name, -quantity from shoppe_sales where character_id = p_character_id and from_inventory
 $$;
 
--- Extends event_log_training_summary (crafting-schema.sql) so Hours
--- Remaining also reflects shopping-trip travel time.
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
 returns jsonb language plpgsql stable security definer
 set search_path = public
@@ -156,11 +125,6 @@ begin
 end;
 $$;
 
--- Replaces shoppe_buy_item: now charges the Merchant-tier buy markup
--- (face value at Merchant level 0 and above -- 150% down to 80% -- not
--- the old flat face-value price) and the one-time 8-hour category
--- travel charge, when shopping as a character. Cast purchases (no
--- character) are unaffected: face value, no hours cost, same as before.
 create or replace function shoppe_buy_item(
   p_event_slug text,
   p_character_id uuid,
@@ -193,7 +157,6 @@ begin
   if p_character_id is not null then
     v_merchant_level := fa_character_merchant_level(p_character_id);
 
-    -- Merchant level N unlocks buying items at Availability tier N.
     if coalesce(p_availability_tier, 1) > 1 and p_availability_tier > v_merchant_level then
       raise exception 'Requires Merchant level % to buy this (this character has level %)', p_availability_tier, v_merchant_level;
     end if;

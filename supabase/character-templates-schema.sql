@@ -1,27 +1,3 @@
--- Quick-start character templates migrated from the legacy Django
--- database (database.fantasyalivelrp.com): pre-built skill loadouts a
--- player can load into Character Creator as a starting point, then trim
--- to fit their SP budget using the normal skill picker. This file only
--- defines the schema; the actual rows are loaded by
--- character-templates-import.sql, which must be run immediately after
--- this file.
---
--- Plain integer primary keys matching the source system's own IDs, same
--- convention as item-catalog-schema.sql and skills-catalog-schema.sql.
---
--- skill_id/focus_id reference the real skills catalog (see
--- skills-catalog-schema.sql); skill_name/focus_name are also stored
--- denormalized so the template can be displayed/loaded with a single
--- flat query, matching the convention used by recipe_skill_requirements
--- in item-catalog-schema.sql.
---
--- A template_skills row with archetype_id = null applies to every
--- archetype under that template (e.g. every Cleric gets Theology
--- regardless of which deity archetype they pick); a row with an
--- archetype_id set only applies to that specific archetype. Some
--- archetypes (e.g. the Mage schools) have no archetype-specific rows at
--- all in the source data -- loading them only applies the template's
--- base skills, which is expected, not a data gap to fix.
 
 create table if not exists character_templates (
   id integer primary key,

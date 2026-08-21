@@ -1,16 +1,3 @@
--- "Crafting" tab on the Current Event log: a character with a Trade Skill
--- spends downtime Hours (the same shared budget Training/Work draw from)
--- and consumes tracked Materials to produce a named item from the
--- rulebook's Production List. Materials come from a derived ledger
--- combining Shoppe purchases (raw materials bought as Material/Equipment
--- items) and previously crafted items, since some recipes consume other
--- crafted goods (e.g. Chain Links feeding into Chainmail, Hardware
--- feeding into a dozen other recipes).
---
--- At craft time a player can also mark that they're turning in a
--- physical tag for the item; unmarked crafts are still tracked in the
--- character's account/material ledger, just without a tag flagged as
--- needed yet.
 
 create table if not exists crafting_log (
   id uuid primary key default gen_random_uuid(),
@@ -57,10 +44,6 @@ create policy "Players see their own consumed materials"
 grant select on crafting_log to authenticated;
 grant select on crafting_materials_consumed to authenticated;
 
--- Combined per-character material ledger: positive rows from Shoppe
--- Material/Equipment purchases and from items the character has crafted
--- (which can themselves be used as materials in later recipes), negative
--- rows from materials already consumed by past crafts.
 create or replace function character_material_ledger(p_character_id uuid)
 returns table(material_name text, delta integer) language sql stable security definer
 set search_path = public
@@ -76,11 +59,6 @@ $$;
 
 revoke execute on function character_material_ledger(uuid) from public, authenticated, anon;
 
--- Only returns materials the character actually has on hand (balance >
--- 0). A tag-covered craft can drive a material negative in the ledger,
--- but that's a debt, not inventory -- it's surfaced separately on the
--- Event Info tab's "Tags Owed to Logistics" box instead of showing up
--- here as a confusing negative quantity.
 create or replace function character_material_inventory(p_character_id uuid)
 returns table(material_name text, balance integer) language plpgsql stable security definer
 set search_path = public
@@ -98,10 +76,6 @@ begin
 end;
 $$;
 
--- Extends event_log_training_summary (defined in training-schema.sql,
--- already extended once by working-schema.sql) so Hours Remaining
--- reflects Training, Working, and Crafting spend against the same
--- shared downtime budget.
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
 returns jsonb language plpgsql stable security definer
 set search_path = public
@@ -194,12 +168,6 @@ begin
     raise exception 'Not enough downtime hours left';
   end if;
 
-  -- A checked "tag" means the player is promising to hand logistics
-  -- physical tags covering these materials at the start of the next
-  -- event, so the on-hand check is skipped entirely rather than
-  -- blocking the craft. The materials are still recorded as consumed
-  -- below either way, so the ledger reflects what's actually owed
-  -- (surfaced on the Event Info tab's "Tags Owed to Logistics" box).
   if not coalesce(p_tag_turned_in, false) then
     for v_material in select * from jsonb_array_elements(coalesce(p_materials, '[]'::jsonb))
     loop

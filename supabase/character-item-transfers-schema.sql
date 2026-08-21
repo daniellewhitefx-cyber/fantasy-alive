@@ -1,19 +1,3 @@
--- Lets a player send items from one of their characters' inventory to
--- another character (any player's), for in-fiction trading/gifting.
--- Transfers are rows in their own table, folded into the same derived
--- material ledger that Shoppe purchases, crafted items, and staff grants
--- already use (character_material_ledger, defined in crafting-schema.sql
--- and extended by inventory-admin-schema.sql), so a sent item disappears
--- from the sender's Inventory and appears in the recipient's with no
--- other changes. Requires crafting-schema.sql, inventory-admin-schema.sql,
--- shoppe-selling-schema.sql, and permissions-schema.sql to already exist.
---
--- While extending this function, also fixes a real latent bug: shoppe-
--- selling-schema.sql's CREATE OR REPLACE (shipped after inventory-admin-
--- schema.sql) silently dropped the staff_item_grants branch that
--- inventory-admin-schema.sql had added, so any staff-granted item has
--- been invisible on a player's own Inventory page ever since. The
--- version below restores it alongside the shoppe_sales deduction.
 
 create table if not exists character_item_transfers (
   id uuid primary key default gen_random_uuid(),

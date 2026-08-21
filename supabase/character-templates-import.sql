@@ -1,4 +1,3 @@
--- Generated from the legacy Django db.sqlite3 export. Run after character-templates-schema.sql.
 
 insert into character_templates (id, name) values
   (1, 'Cleric'),

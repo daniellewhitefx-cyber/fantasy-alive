@@ -1,16 +1,3 @@
--- Teaching: a character with a skill marked teachable (see
--- character_set_skill_teachable in characters-schema.sql) can instruct
--- another player's character in that skill. Per the rulebook, having an
--- instructor halves the downtime Hours cost of learning or releveling
--- that skill (rounded up -- a 5-SP skill normally costs 25 hours, 13
--- with an instructor).
---
--- The flow: a student requests to learn a specific teachable skill row
--- from its owner for a specific event; the teacher approves or declines;
--- once approved, every Training-tab purchase the student makes this
--- event for that exact skill (new purchase or relevel) is charged at
--- the halved Hours rate. Requires characters-schema.sql and
--- training-schema.sql to already exist.
 
 create table if not exists character_teach_requests (
   id uuid primary key default gen_random_uuid(),
@@ -42,11 +29,6 @@ create policy "Students and teachers see their own teach requests"
 
 grant select on character_teach_requests to authenticated;
 
--- Cross-player directory of every skill currently marked teachable, for
--- the "Learn From a Teacher" browser -- mirrors character_names()'s
--- pattern of exposing a narrow, public-safe slice of other players'
--- characters. Excludes the caller's own characters (can't request to
--- learn from yourself).
 create or replace function teachable_skills_directory()
 returns table(
   character_skill_id uuid,
@@ -169,9 +151,6 @@ begin
 end;
 $$;
 
--- Whether the student character has an approved instructor for this
--- exact skill this event -- used by event_log_train_skill and
--- event_log_relevel_skill (training-schema.sql) to halve Hours cost.
 create or replace function fa_has_approved_teacher(
   p_student_character_id uuid, p_event_slug text, p_category text, p_skill_name text, p_focus text
 )
@@ -189,10 +168,6 @@ as $$
   );
 $$;
 
--- Re-defines event_log_train_skill (training-schema.sql) to halve the
--- Hours cost (rounded up) when an approved teacher exists for the
--- skill being learned this event. Everything else is unchanged from
--- the original definition.
 create or replace function event_log_train_skill(
   p_event_slug text,
   p_character_id uuid,
@@ -274,8 +249,6 @@ begin
 end;
 $$;
 
--- Re-defines event_log_relevel_skill (training-schema.sql) with the
--- same instructor-halving as event_log_train_skill above.
 create or replace function event_log_relevel_skill(
   p_event_slug text,
   p_character_id uuid,

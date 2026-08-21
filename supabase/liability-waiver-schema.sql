@@ -1,9 +1,3 @@
--- Consent to Participate in EAO Games and Release From Liability: one
--- row per player, re-signable so a returning player can re-sign after
--- a policy update. The full waiver text lives on the page itself
--- (mirrors the Policies page's Consent to Participate section), this
--- table just records that a specific player affirmed both required
--- acknowledgements and typed their name as a signature.
 
 create table if not exists liability_waivers (
   id uuid primary key default gen_random_uuid(),

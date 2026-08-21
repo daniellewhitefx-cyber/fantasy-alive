@@ -38,11 +38,6 @@ insert into storage.buckets (id, name, public)
 values ('lore-images', 'lore-images', true)
 on conflict (id) do nothing;
 
--- No SELECT policy: the bucket is public (public = true above), so
--- object bytes are already served at /storage/v1/object/public/... with
--- no RLS check at all. A SELECT policy here isn't needed for that and
--- only adds the ability to enumerate every file in the bucket via the
--- API, which Supabase's linter flags as unwanted (public_bucket_allows_listing).
 drop policy if exists "Public read for lore images" on storage.objects;
 
 drop policy if exists "Lore editors can upload images" on storage.objects;

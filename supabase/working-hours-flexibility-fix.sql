@@ -1,18 +1,3 @@
--- Two changes to the Work tab, per player request:
---
--- 1. Working for a Living (Trade Skills) can now be done for any number
---    of hours, not just multiples of 8. Pay scales proportionally to a
---    full 8 hour shift (5 Copper per level) and rounds up to the nearest
---    Copper.
---
--- 2. Adds Working for a Cause: characters can use their Clerical
---    Investment the same way, per the rulebook ("[Clerics] can use their
---    levels of Clerical Investment to work for a cause instead").
---    Deposited straight to the player's own bank balance, same as
---    Working for a Living.
---
--- Existing working sessions are unaffected; only new sessions use the new
--- rules.
 
 alter table event_log_working_sessions
   drop constraint if exists event_log_working_sessions_hours_worked_check;

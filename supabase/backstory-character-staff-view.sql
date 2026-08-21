@@ -1,9 +1,3 @@
--- Widens fa_is_backstory_viewer() (from backstory-remort-redo.sql) to also
--- cover character_staff, so the "View Backstory" button on
--- admin-characters.html actually has something to show -- that page is
--- gated on character_staff/site_admin, a different permission dimension
--- than the Lore/Logistics/Plot department checks the function already
--- covered. Requires backstory-remort-redo.sql to already exist.
 
 create or replace function fa_is_backstory_viewer()
 returns boolean language sql stable

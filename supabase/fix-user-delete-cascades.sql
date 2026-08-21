@@ -1,20 +1,3 @@
--- Several tables reference auth.users(id) without an ON DELETE action,
--- which defaults to "no action" and blocks deleting a user from the
--- Supabase Auth dashboard with a generic "Database error deleting user"
--- the moment that user has any row in one of these tables (a bank
--- transaction, an auction bid, a posted announcement, etc).
---
--- This patches the already-created tables in place. The corresponding
--- create-table statements in the other schema files have also been
--- updated so a fresh database gets this right from the start; this file
--- exists only to fix tables that already exist in production, where
--- "create table if not exists" is a no-op.
---
--- player-owned rows (a single row that belongs to one specific player)
--- cascade: deleting the player deletes their own row, nobody else's.
--- staff-audit or other-party columns (who created/reviewed/decided this,
--- or the other side of a bill/auction) are set null instead, so deleting
--- one account doesn't destroy someone else's records or real content.
 
 do $$
 declare

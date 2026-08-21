@@ -1,11 +1,3 @@
--- Character Status Effects: a staff-managed ledger of persistent
--- per-character mechanics (Resurrections used, Life Points changed by
--- plot, and anything else staff need to track over a character's
--- lifetime), mirroring the old site's characters_statuseffects table
--- (migrated data not imported here -- it's tied to legacy character IDs
--- that mostly predate this site's real character migration; this is a
--- going-forward tool). Current value per stat = sum of every entry
--- logged against it, same ledger pattern as XP/OC.
 
 create table if not exists character_status_effects (
   id uuid primary key default gen_random_uuid(),

@@ -1,13 +1,3 @@
--- Backs the per-event downtime log. Events themselves are defined
--- client-side in js/registration-status.js (FA_EVENT_DEFS) rather than
--- a table here, so log entries are keyed by the event's slug (see
--- faEventSlug()) instead of a foreign key. This file covers the first
--- log tab: converting Ogre Chips to XP or Copper.
---
--- Each player has one adjustable amount per direction per event (not a
--- running list of separate purchases), so they can raise or lower it
--- any time before the log closes; event_log_set_oc_spend reconciles
--- the OC/XP/Copper ledgers to whatever the new amount implies.
 
 drop function if exists event_log_spend_oc_for_xp(text, uuid, integer);
 drop function if exists event_log_spend_oc_for_copper(text, integer);
@@ -30,10 +20,6 @@ create policy "Players see their own OC spends"
   on event_log_oc_spends for select
   using (player_id = auth.uid() or fa_is_logistics_or_admin());
 
--- Sets how much OC this player has converted to XP or Copper for one
--- event, reconciling the difference against the OC/XP/Copper ledgers.
--- Raising the amount spends more OC; lowering it refunds the OC and
--- claws back the XP/Copper already granted.
 create or replace function event_log_set_oc_spend(p_event_slug text, p_kind text, p_character_id uuid, p_oc_amount integer)
 returns void language plpgsql security definer
 set search_path = public
@@ -95,7 +81,6 @@ begin
 end;
 $$;
 
--- Current committed amounts for this player + event, per direction.
 create or replace function event_log_oc_summary(p_event_slug text)
 returns jsonb language plpgsql stable security definer
 set search_path = public

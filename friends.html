@@ -202,7 +202,6 @@ async function friends_sendRequestFromSelect(){
 async function friends_sendRequest(charId){
   if(!activeCharId) return;
 
-  // If they already sent us a pending request, sending one back just accepts theirs.
   const { data: reverse } = await membersSupabase.from('character_friends')
     .select('status')
     .eq('character_id', charId).eq('friend_character_id', activeCharId)

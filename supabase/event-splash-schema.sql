@@ -1,7 +1,3 @@
--- Event Splash Page: a roster of who's attending an event and their
--- trades (with privacy opt-outs), plus a Plot-editable Event Info feed.
--- Run this after permissions-schema.sql and messaging-schema.sql (needs
--- fa_is_site_admin() and the departments/department_members tables).
 
 alter table characters add column if not exists is_anonymous boolean not null default false;
 alter table characters add column if not exists hide_trades boolean not null default false;
@@ -22,10 +18,6 @@ begin
 end;
 $$;
 
--- The Event Splash Page's roster is resolved server-side (rather than
--- in the client) so an anonymous character's real name never reaches
--- the browser, and a hide-trades character's trades are never sent
--- down at all.
 create or replace function event_splash_roster(p_character_names text[])
 returns table (
   character_name text,
@@ -51,8 +43,6 @@ as $$
     and lower(c.name) = any(select lower(x) from unnest(p_character_names) as x);
 $$;
 
--- The Event Info feed (per-event Plot updates) is scoped to the Plot
--- department + site admins, the same shape as fa_is_logistics_or_admin().
 create or replace function fa_is_plot_or_admin()
 returns boolean language sql stable
 set search_path = public

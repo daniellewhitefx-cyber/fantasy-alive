@@ -1,15 +1,6 @@
--- Per-item modifier lines (Shattered checkbox, Used boxes, Perm AP Dmg
--- boxes, write-in blanks like "Deity:", etc.) for the physical item tag
--- catalog, pulled from the legacy Tags spreadsheet's "Full Item List"
--- Boxes column. Only sets modifiers -- leaves any existing appraisal code
--- on the same item untouched. Run after
--- item-catalog-appraisal-codes-import.sql (or in either order; they
--- target different columns).
 
 alter table item_catalog add column if not exists modifiers jsonb;
 
--- Dropped first since adding the modifiers column changes the function's
--- return type, which create or replace can't do in place.
 drop function if exists logistics_list_pending_tag_requests();
 create or replace function logistics_list_pending_tag_requests()
 returns table(

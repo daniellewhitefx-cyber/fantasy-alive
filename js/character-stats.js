@@ -1,7 +1,3 @@
-// Shared derived-stat math (LP, SE, ME, Resurrections Left from race +
-// skills), used wherever a prerequisite or display needs a character's
-// real stats rather than a raw skill purchase. Mirrors the RACE_STATS
-// table used on the Characters page.
 
 const RACE_STATS = {
   'Curtainborn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 5, baseMe: 0 },
@@ -18,7 +14,6 @@ const RACE_STATS = {
 };
 const MAX_RESURRECTIONS = 5;
 
-// skills: [{ name, level }]
 function faSkillLevelTotal(skills, name){
   return skills
     .filter(s => s.name.trim().toLowerCase() === name.toLowerCase())
@@ -29,11 +24,6 @@ function faHasSkillNamed(skills, name){
   return skills.some(s => s.name.trim().toLowerCase() === name.toLowerCase());
 }
 
-// statusEffectTotals is an optional { statName: total } map from
-// character_my_status_effects/character_staff_status_effects (see
-// supabase/character-status-effects-schema.sql) -- staff-logged deltas
-// like Resurrections actually used or Life Points changed by plot,
-// applied on top of the race/skill-derived pool.
 function faDeriveStats(race, skills, statusEffectTotals){
   const r = RACE_STATS[race] || { baseLp: 5, maxLp: 10, baseResurrections: 2, baseSe: 0, baseMe: 0 };
   skills = skills || [];

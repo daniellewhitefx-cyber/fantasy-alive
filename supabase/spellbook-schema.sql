@@ -1,11 +1,3 @@
--- Character Spellbook: lets a player toggle which spells their character
--- personally knows via Magery, trust-based like the Luxuries checklist (no
--- server-side level/prereq check). Spells granted by Clerical Investment
--- are NOT stored here -- they're derived client-side (js/spellbook-data.js)
--- from the character's worshipped deity/level against the Deities lore
--- articles, since they're automatic rather than chosen.
--- Requires characters-schema.sql (characters) and permissions-schema.sql
--- (fa_is_site_admin) to already exist.
 
 create table if not exists character_known_spells (
   id uuid primary key default gen_random_uuid(),

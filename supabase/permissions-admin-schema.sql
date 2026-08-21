@@ -1,20 +1,9 @@
--- Lets site_admin accounts grant and revoke staff permissions and
--- department memberships for other players from the Permissions page,
--- instead of editing app_metadata by hand in the Supabase dashboard.
---
--- Permission changes only take effect for a player the next time their
--- session refreshes or they log in again, since app_metadata is baked
--- into the JWT at token issuance.
 
 drop policy if exists "Players see their own department memberships" on department_members;
 create policy "Players see their own department memberships"
   on department_members for select
   using (player_id = auth.uid() or fa_is_site_admin());
 
--- Lists every registered player for the Permissions page. Reads auth.users
--- directly rather than the profiles table, since a handful of accounts
--- predate profiles being reliably backfilled on signup (see
--- fix-signup-error.sql) and would otherwise be missing from the list.
 create or replace function admin_list_players()
 returns table(id uuid, display_name text) language plpgsql security definer
 set search_path = public

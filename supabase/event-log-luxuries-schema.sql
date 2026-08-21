@@ -1,8 +1,3 @@
--- Per-event Luxuries checklist. The old site tracked Luxuries (labs,
--- forges, a horse, ammunition, bandages, etc.) as yes/no boxes a
--- character checked off each event they attended, not as a one-time
--- purchase -- there's no coin transaction to reconcile here, just
--- whether the box is checked for this character at this event.
 
 create table if not exists event_log_luxuries (
   player_id uuid not null references auth.users(id) on delete cascade,
@@ -22,7 +17,6 @@ create policy "Players see their own luxuries"
   on event_log_luxuries for select
   using (player_id = auth.uid() or fa_is_logistics_or_admin());
 
--- Checks or unchecks one Luxury for a character at one event.
 create or replace function event_log_toggle_luxury(p_event_slug text, p_character_id uuid, p_item_id integer, p_has boolean)
 returns void language plpgsql security definer
 set search_path = public

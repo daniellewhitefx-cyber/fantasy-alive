@@ -1,15 +1,3 @@
--- "Log an Upkeep Cost" panel on the Other Task tab (current-event.html),
--- beneath "Log an In-Game Action": lets a player log a free-text
--- in-game cost that deducts Copper from their bank balance for the
--- event, optionally marked to repeat automatically at every future
--- event until they stop it. Requires characters-schema.sql and
--- bank-schema.sql to already exist.
---
--- A repeating cost is modeled as a chain of rows sharing one series_id
--- -- each event a new row is auto-generated (and auto-charged) as a
--- continuation of the latest row in the series, rather than storing a
--- separate "template" record. Only the latest row's repeating flag
--- matters for whether the series continues.
 
 create table if not exists event_log_upkeep_costs (
   id uuid primary key default gen_random_uuid(),
@@ -72,10 +60,6 @@ begin
 end;
 $$;
 
--- Removes and refunds this event's upkeep charge, and stops the series
--- from repeating further (a player who wants to keep the charge but
--- just stop future repeats should use event_log_stop_upkeep_repeat
--- instead).
 create or replace function event_log_cancel_upkeep(p_id uuid)
 returns void language plpgsql security definer
 set search_path = public
@@ -98,8 +82,6 @@ begin
 end;
 $$;
 
--- Keeps this event's charge but stops the series from generating any
--- further events' charges.
 create or replace function event_log_stop_upkeep_repeat(p_id uuid)
 returns void language plpgsql security definer
 set search_path = public
@@ -129,10 +111,6 @@ begin
 end;
 $$;
 
--- Auto-continues every repeating series for this character that hasn't
--- yet been charged for this event -- called once when the Other Task
--- tab loads, the same way event_log_claim_allowance auto-grants the
--- Social Class allowance on page load.
 create or replace function event_log_apply_repeating_upkeep(p_event_slug text, p_character_id uuid)
 returns void language plpgsql security definer
 set search_path = public

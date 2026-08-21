@@ -1,34 +1,3 @@
--- Fixes for two real findings from a site-wide audit.
---
--- 1. fa_character_merchant_level(uuid) and fa_charge_shopping_travel(uuid,
---    text, text) are internal helpers -- only ever called from inside
---    shoppe_buy_item/shoppe_sell_item (shoppe-selling-schema.sql,
---    merchant-rarity-quota-schema.sql), never directly by the client (no
---    RPC call to either exists anywhere in the front end). But
---    security-lint-fixes-2.sql granted them to `authenticated` directly
---    as part of a batch anon-lockdown pass, unlike the analogous internal
---    helpers (character_material_ledger, bank_balance, xp_balance,
---    oc_balance), which are correctly authenticated-revoked and callable
---    only from other SECURITY DEFINER functions. Neither function checks
---    that the caller owns p_character_id, so as shipped, any signed-in
---    player could call fa_charge_shopping_travel directly against
---    another player's character to burn 8 hours of their downtime
---    budget, or call fa_character_merchant_level to read another
---    character's Merchant Trade Skill level. Revoking authenticated
---    access closes both off without touching shoppe_buy_item/
---    shoppe_sell_item at all -- SECURITY DEFINER functions run with the
---    definer's privileges, not the caller's, so the internal calls keep
---    working exactly as before.
---
--- 2. event_log_work_for_copper's own hours-spent guard only summed
---    Training and Working hours, not Crafting, Shopping-trip travel, or
---    Other Task hours -- the other four sources that spend from the same
---    shared per-event downtime budget (per the canonical list in
---    event_log_training_summary, last extended by other-task-schema.sql).
---    A character could craft/shop/log an other task up to their full
---    hours budget, then still Work for Copper on top of that, spending
---    more hours than they actually had. Rewritten to sum all five
---    sources, matching event_log_training_summary exactly.
 
 revoke execute on function fa_character_merchant_level(uuid) from public, authenticated, anon;
 revoke execute on function fa_charge_shopping_travel(uuid, text, text) from public, authenticated, anon;

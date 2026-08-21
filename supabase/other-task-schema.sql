@@ -1,14 +1,3 @@
--- "Other Task" downtime log: a catch-all in-game action that doesn't
--- fit Training/Work/Crafting/Shopping, but still draws from the same
--- shared downtime Hours budget. The player describes what their
--- character is doing and how many hours it takes; the hours come off
--- their budget immediately, same as every other downtime tab (no staff
--- approval needed to take effect). Mirrors the old site's
--- events_othertask table (a free-text request against a player's event
--- log, with an "actioned" flag staff toggled once they'd reviewed it).
--- Requires crafting-schema.sql (event_log_training_summary) and
--- shoppe-selling-schema.sql (its latest extension of that function) to
--- already exist, and permissions-schema.sql for fa_is_logistics_or_admin.
 
 create table if not exists event_log_other_tasks (
   id uuid primary key default gen_random_uuid(),
@@ -35,9 +24,6 @@ create policy "Players and staff see other task log"
 
 grant select on event_log_other_tasks to authenticated;
 
--- Extends event_log_training_summary (last defined in
--- shoppe-selling-schema.sql) so Hours Remaining also reflects time
--- committed to an Other Task.
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
 returns jsonb language plpgsql stable security definer
 set search_path = public

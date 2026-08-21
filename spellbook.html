@@ -187,16 +187,8 @@ function costLabel(spell, unit, surcharge){
   return total + ' ' + unit;
 }
 
-// The user's own border artwork -- an eye/sunburst/orb/crescent-moon
-// corner frame drawn at exactly the card's 3.5:2 aspect ratio, so it's
-// meant to be stretched to fill the card edge-to-edge rather than
-// recreated as separate corner pieces.
 const SB_CARD_BORDER_URL = 'https://i.imgur.com/pn7oMpz.png';
 
-// Every spell a character actually has -- Clerical Investment's automatic
-// grants (tagged with their domain and SE surcharge) plus whatever they've
-// marked known through Magery (ME) -- deduped so a spell reachable through
-// both shows once, at its Clerical (free-er) source.
 function sb_buildCardList(c){
   const cards = [];
   const seen = new Set();
@@ -245,12 +237,6 @@ function sbCardHtml({ spell, unit, surcharge, source }){
   `;
 }
 
-// Every card uses the same border image; preloading it before print()
-// guarantees it's already in the browser cache by the time the <img> tags
-// below reference it. Without this, window.print() can fire before the
-// image has finished its first network fetch and capture a blank corner
-// instead -- calling print() right after setting innerHTML doesn't wait
-// for images the new markup just introduced.
 function sb_preloadBorderImage(){
   return new Promise(resolve => {
     const img = new Image();

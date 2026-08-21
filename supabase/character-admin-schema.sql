@@ -79,16 +79,6 @@ begin
 end;
 $$;
 
--- Some skills (Dodge, Iron Will, Parry <weapon>, ...) are meant to be
--- taken multiple times -- the rulebook itself writes builds as "Dodge
--- x5" rather than five separate Dodge lines. When staff grant a skill
--- the character already knows (same name and focus), this updates that
--- existing row -- level/sp_cost set to whatever the caller passes (the
--- client already computes the right value: +1 rank for a flat-cost
--- skill, or the new target level and its full price for a skill that
--- scales with level) -- instead of inserting a second row for it.
--- total_sp_paid always accumulates, since a relevel is a full-price
--- purchase, not a discounted top-up.
 create or replace function character_staff_add_skill(
   p_character_id uuid,
   p_category text,

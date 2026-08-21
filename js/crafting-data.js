@@ -1,16 +1,6 @@
-// Loads the Crafting production list from the real item/recipe catalog
-// (migrated from the legacy database into Supabase; see
-// supabase/item-catalog-schema.sql), grouped by the trade skill(s) each
-// recipe requires.
 
-// Merchant and Labourer are trade skills but have no "craft a named item"
-// mechanic in the rulebook (Merchant is detection/business-oriented,
-// Labourer extracts raw materials generically, which the Work tab's
-// Copper-earning mechanic already covers), so they're not part of this list.
 const CRAFTING_TRADE_ORDER = ['Armour Smith', 'Weapon Smith', 'Mechanic', 'Craftsman', 'Physician', 'Alchemist', 'Herbalist'];
 
-// The catalog's skill names differ slightly in spacing/casing from the
-// trade names shown on this page (and from the character skill list).
 const CRAFTING_TRADE_SKILL_NAMES = {
   'Armoursmith': 'Armour Smith',
   'Weaponsmith': 'Weapon Smith',
@@ -21,12 +11,6 @@ const CRAFTING_TRADE_SKILL_NAMES = {
   'Herbalist': 'Herbalist'
 };
 
-// Turns a recipe_requirements target item's raw catalog name into a
-// player-facing hint -- "Fireball - Spell" (already knowing a spell is
-// itself a prerequisite for some recipes) reads as "knows Fireball",
-// "Luxury - Forge" (e.g. every Adamantine/Mithril/Kereste weapon and
-// armour recipe) as "access to a Forge", "Tools - Craftsman - MC" as
-// "access to MC Craftsman Tools", and so on.
 function craftingRequirementLabel(name){
   if(name.endsWith(' - Spell')) return `knows ${name.slice(0, -' - Spell'.length)}`;
   const parts = name.split(' - ');
@@ -37,8 +21,6 @@ function craftingRequirementLabel(name){
   return rest.length ? `access to ${head} ${rest.join(' ')}` : `access to ${head}`;
 }
 
-// Supabase caps a single request at 1000 rows; several of these tables
-// have more than that, so every table is paged through in full.
 async function craftingFetchAllRows(table, select){
   const pageSize = 1000;
   let rows = [];
@@ -100,7 +82,7 @@ async function craftingLoadFromSheet(){
 
     const recipeSkillReqs = skillReqsByRecipe[r.id] || [];
     const tradeReqs = recipeSkillReqs.filter(s => CRAFTING_TRADE_SKILL_NAMES[s.skill_name]);
-    if(!tradeReqs.length) return; // no craft-trade gate -- a knowledge item (Scroll/Formula/Tutor Book/...), sold in the Shoppe instead
+    if(!tradeReqs.length) return;
 
     const otherSkillNotes = recipeSkillReqs
       .filter(s => !CRAFTING_TRADE_SKILL_NAMES[s.skill_name])

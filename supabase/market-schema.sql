@@ -1,13 +1,4 @@
--- Player-to-player (and NPC-to-player) Market: a shared board of items
--- for sale, gated to Logistics-controlled open/closed hours for browsing
--- and buying. Listing an item is allowed any time; only seeing OTHER
--- players' listings and buying requires the market to be open. Requires
--- characters-schema.sql, permissions-schema.sql, bank-schema.sql,
--- crafting-schema.sql, inventory-admin-schema.sql,
--- character-item-transfers-schema.sql, and event-splash-schema.sql
--- (fa_is_plot_or_admin) to already exist.
 
--- ---------- Open/closed toggle ----------
 
 create table if not exists market_settings (
   id boolean primary key default true check (id),
@@ -45,7 +36,6 @@ $$;
 revoke all on function market_set_open(boolean) from public, anon;
 grant execute on function market_set_open(boolean) to authenticated;
 
--- ---------- Listings ----------
 
 create table if not exists market_listings (
   id uuid primary key default gen_random_uuid(),
@@ -162,9 +152,6 @@ $$;
 revoke all on function market_cancel_listing(uuid) from public, anon;
 grant execute on function market_cancel_listing(uuid) to authenticated;
 
--- ---------- Buying ----------
--- Extends bank_transactions with two new ledger types so a Market sale
--- shows in bank history distinctly from a direct player-to-player gift.
 
 alter table bank_transactions drop constraint if exists bank_transactions_type_check;
 alter table bank_transactions add constraint bank_transactions_type_check check (type in (

@@ -1,9 +1,3 @@
--- Lets logistics/site admins grant items directly into a character's
--- inventory, alongside the existing Manage Characters (admin-characters.html)
--- tools for XP/OC. Grants are additive rows in their own table, folded
--- into the same derived material ledger that Shoppe purchases and
--- crafted items already use, so a granted item shows up in the
--- character's normal Inventory/Crafting views with no other changes.
 
 create table if not exists staff_item_grants (
   id uuid primary key default gen_random_uuid(),
@@ -28,9 +22,6 @@ create policy "Players and staff see item grants"
 
 grant select on staff_item_grants to authenticated;
 
--- Extends character_material_ledger (defined in crafting-schema.sql) to
--- also fold in staff-granted items alongside Shoppe purchases and
--- crafted items.
 create or replace function character_material_ledger(p_character_id uuid)
 returns table(material_name text, delta integer) language sql stable security definer
 set search_path = public
@@ -48,9 +39,6 @@ $$;
 
 revoke execute on function character_material_ledger(uuid) from public, authenticated, anon;
 
--- Staff-facing equivalent of character_material_inventory (defined in
--- crafting-schema.sql), which only allows a character's own player to
--- view it. This variant is for the Manage Characters admin tool.
 create or replace function character_staff_material_inventory(p_character_id uuid)
 returns table(material_name text, balance integer) language plpgsql stable security definer
 set search_path = public

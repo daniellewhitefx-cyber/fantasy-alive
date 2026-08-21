@@ -1,17 +1,6 @@
-// Shared Spellbook data: the public Spell Compendium sheet (same source
-// spell-compendium.html reads) plus per-deity domain data (Shared/Opposed
-// Domains and each deity's own per-level spell list) parsed out of the
-// Deities lore articles (supabase/lore-import.sql), which already carry
-// this exact structure as hand-written markdown -- see e.g. the "Clovis"
-// or "Brack" articles for the "Shared Domains: [[X]] Opposed Domain:
-// [[Y]]" line and the "| Level | Spells |" table.
 
 const SPELLBOOK_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1JEUuwBntPy8VxTATpzjb6juloHflbGBW4EgBXY7bSZE/export?format=csv';
 
-// A cleric pays more to draw on a deity outside their own worship: full
-// price for their own deity's spells, +5 SE for a Shared Domain deity's
-// (gods who share power with allies), +10 SE for an Opposed Domain
-// deity's (offered as temptation, not a boon).
 const SPELLBOOK_SHARED_DOMAIN_SURCHARGE = 5;
 const SPELLBOOK_OPPOSED_DOMAIN_SURCHARGE = 10;
 
@@ -42,9 +31,6 @@ function spellbookParseCSV(text){
   return rows;
 }
 
-// Loads the flat spell list: name, circle (1-9), energy cost, incant,
-// description, duration, category, MEL, Mix. Keyed by lowercased name
-// for matching against the deity spell-list links and Magery selections.
 async function spellbookLoadCompendium(){
   const res = await fetch(SPELLBOOK_SHEET_CSV_URL, { cache: 'no-store' });
   if(!res.ok) throw new Error('Spell sheet request failed (' + res.status + ')');
@@ -78,9 +64,6 @@ async function spellbookLoadCompendium(){
   return byName;
 }
 
-// Extracts [[Name]]-linked deity names out of a "Shared Domains: [[X]],
-// [[Y]] Opposed Domain(s): [[Z]]" line. "None" (no brackets at all)
-// yields an empty list.
 function spellbookExtractDomainNames(text){
   if(!text) return [];
   const names = [];
@@ -90,10 +73,6 @@ function spellbookExtractDomainNames(text){
   return names;
 }
 
-// Parses one Deities lore article body into { sharedDomains, opposedDomains,
-// spellsByLevel }. Returns null for lore articles that aren't a deity's own
-// page (e.g. "The Pantheon", "Clerics and the Gods") -- they don't have the
-// domain line or spell table this needs.
 function spellbookParseDeityArticle(body){
   const domainMatch = body.match(/Shared Domains?:\s*(.*?)\s*Opposed Domains?:\s*([^\n]*)/);
   if(!domainMatch) return null;
@@ -120,9 +99,6 @@ function spellbookParseDeityArticle(body){
   return { sharedDomains, opposedDomains, spellsByLevel };
 }
 
-// Loads every deity's parsed domain data, keyed by deity name exactly as
-// it appears as a Clerical Investment focus (skill_focuses.name), e.g.
-// "Clovis", "Brack" -- matches the lore article's title.
 async function spellbookLoadDeities(){
   const { data, error } = await membersSupabase
     .from('lore_entries')
@@ -138,12 +114,6 @@ async function spellbookLoadDeities(){
   return byDeity;
 }
 
-// Resolves the full set of spells a Clerical Investment grants at a given
-// level for a given deity: the deity's own list (home cost), every Shared
-// Domain deity's list (home cost + surcharge), every Opposed Domain
-// deity's list (home cost + steeper surcharge). A spell reachable through
-// more than one path (e.g. it's on both the home and a shared deity's
-// list) is kept at its cheapest source.
 function spellbookClericalSpells(deities, deityName, ciLevel){
   const home = deities[deityName];
   if(!home) return [];
