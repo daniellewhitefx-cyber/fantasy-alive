@@ -334,9 +334,8 @@ async function initMembersPage(){
     ['member-manage-downtime-link', canSeeRequests],
     ['member-plot-link', canSeePlot],
     ['member-bug-reports-link', isSiteAdmin],
-    ['member-print-sheets-link', canSeeRequests],
+    ['member-printing-link', canSeeRequests],
     ['member-registrations-link', canSeeRequests],
-    ['member-print-tags-link', canSeeRequests],
     ['member-manage-players-link', canSeeRequests],
   ];
   let anyStaffAccess = false;
