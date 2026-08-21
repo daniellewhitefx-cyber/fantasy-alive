@@ -37,5 +37,23 @@ function faConvertXpToSp(xpBalance, startingSp, spentSp){
   return { rate, xpConvertedSp, leftoverXp, totalPool, spendableSp, xpBalance };
 }
 
+function faXpCostForSp(currentTotalSp, additionalSp){
+  let currentSp = currentTotalSp;
+  let remainingSp = additionalSp;
+  let totalXp = 0;
+
+  for(const tier of FA_XP_SP_TIERS){
+    if(remainingSp <= 0) break;
+    if(currentSp >= tier.ceiling) continue;
+    const spThisTier = Math.min(tier.ceiling - currentSp, remainingSp);
+    totalXp += spThisTier * tier.rate;
+    currentSp += spThisTier;
+    remainingSp -= spThisTier;
+  }
+
+  return totalXp;
+}
+
 window.faXpPerSp = faXpPerSp;
 window.faConvertXpToSp = faConvertXpToSp;
+window.faXpCostForSp = faXpCostForSp;
