@@ -168,7 +168,7 @@ function renderCharPanel(c){
         <div class="stat-row"><span class="stat-label">SE/ME</span><span class="stat-value">${stats.se}/${stats.me}</span></div>
         <div class="stat-row"><span class="stat-label">Resurrections Left</span><span class="stat-value">${stats.resurrectionsLeft}</span></div>
         <div class="stat-row"><span class="stat-label">Experience</span><span class="stat-value">${conv.leftoverXp.toLocaleString()}</span></div>
-        <div class="stat-row"><span class="stat-label">XP Converted</span><span class="stat-value">${(conv.xpConvertedSp * conv.rate).toLocaleString()} / ${conv.xpBalance.toLocaleString()} Exp</span></div>
+        <div class="stat-row"><span class="stat-label">XP Converted</span><span class="stat-value">${(conv.xpBalance - conv.leftoverXp).toLocaleString()} / ${conv.xpBalance.toLocaleString()} Exp</span></div>
         <div class="stat-row"><span class="stat-label">XP:SP Ratio</span><span class="stat-value">${conv.rate}:1</span></div>
       </div>
       ${otherEffects.length ? `
