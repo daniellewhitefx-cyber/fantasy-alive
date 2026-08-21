@@ -141,7 +141,7 @@
 </div>
 <div>
 <label class="field-label" for="ac-birthday">Birthday</label>
-<input type="text" id="ac-birthday" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric">
+<input type="date" id="ac-birthday" min="1900-01-01">
 </div>
 <div>
 <label class="field-label" for="ac-social-class">Social Class</label>
@@ -351,6 +351,8 @@
 <script src="js/xp-convert.js"></script>
 <script>
 (function(){
+document.getElementById('ac-birthday').max = faMaxBirthdayDate();
+
 let allSkills = [];
 let activeCategory = 'Combat Skill';
 let browseState = {};
@@ -691,11 +693,11 @@ async function ac_saveDetails(){
   const name = document.getElementById('ac-name').value.trim();
   const race = document.getElementById('ac-race').value;
   const pronouns = document.getElementById('ac-pronouns').value.trim();
-  const birthdayRaw = document.getElementById('ac-birthday').value.trim();
-  const birthday = birthdayRaw || null;
+  const birthday = document.getElementById('ac-birthday').value.trim();
   const socialClass = document.getElementById('ac-social-class').value.trim();
 
-  if(birthdayRaw && !/^\d{4}-\d{2}-\d{2}$/.test(birthdayRaw)){ errorEl.textContent = 'Birthday must be in YYYY-MM-DD format.'; errorEl.style.display = 'block'; return; }
+  if(!birthday){ errorEl.textContent = 'Please pick a birthday.'; errorEl.style.display = 'block'; return; }
+  if(!faIsAtLeast18(birthday)){ errorEl.textContent = 'Characters must be at least 18 years old.'; errorEl.style.display = 'block'; return; }
 
   const { error } = await membersSupabase.rpc('character_staff_update_details', {
     p_character_id: selected.id, p_name: name, p_race: race, p_pronouns: pronouns, p_birthday: birthday, p_social_class: socialClass

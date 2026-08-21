@@ -110,7 +110,7 @@
 </div>
 <div class="ecf-row">
 <div class="ecf-field"><label for="ecf-c1-relationship">Relationship</label><input type="text" id="ecf-c1-relationship"></div>
-<div class="ecf-field"><label for="ecf-c1-email">Email</label><input type="text" id="ecf-c1-email"></div>
+<div class="ecf-field"><label for="ecf-c1-email">Email</label><input type="email" id="ecf-c1-email"></div>
 </div>
 
 <div class="ecf-subhead">Emergency Contact (2) <span style="text-transform:none; letter-spacing:normal; font-weight:400; color:var(--brown);">(optional)</span></div>
@@ -120,7 +120,7 @@
 </div>
 <div class="ecf-row">
 <div class="ecf-field"><label for="ecf-c2-relationship">Relationship</label><input type="text" id="ecf-c2-relationship"></div>
-<div class="ecf-field"><label for="ecf-c2-email">Email</label><input type="text" id="ecf-c2-email"></div>
+<div class="ecf-field"><label for="ecf-c2-email">Email</label><input type="email" id="ecf-c2-email"></div>
 </div>
 
 <div class="ecf-subhead">Medical Info</div>
@@ -165,6 +165,7 @@ function fmtDateTime(iso){
 
 function setVal(id, val){ document.getElementById(id).value = val || ''; }
 function getVal(id){ return document.getElementById(id).value.trim(); }
+function isValidEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 
 let hadExistingRecord = false;
 
@@ -202,6 +203,11 @@ async function loadExisting(){
 async function ecf_save(){
   const errorEl = document.getElementById('ecf-error');
   errorEl.style.display = 'none';
+
+  const c1Email = getVal('ecf-c1-email');
+  const c2Email = getVal('ecf-c2-email');
+  if(!isValidEmail(c1Email)){ errorEl.textContent = 'Please enter a valid email for Emergency Contact (1).'; errorEl.style.display = 'block'; return; }
+  if(c2Email && !isValidEmail(c2Email)){ errorEl.textContent = 'Please enter a valid email for Emergency Contact (2), or leave it blank.'; errorEl.style.display = 'block'; return; }
 
   const { error } = await membersSupabase.rpc('emergency_contact_save', {
     p_full_name: getVal('ecf-name'),
