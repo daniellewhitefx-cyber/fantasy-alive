@@ -22,17 +22,6 @@
 <style>
 #print-area{ display:none; }
 
-.printing-group-head{
-  font-family: 'Cinzel', serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--gold-dark);
-  margin: 2rem 0 1rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 2px solid var(--gold-dark);
-}
-.printing-group-head:first-child{ margin-top: 0; }
-
 .print-sheet-page{
   font-family: 'EB Garamond', serif;
   color: #000;
@@ -327,7 +316,12 @@
 
 <div id="pr-wrap" style="display:none;">
 
-<h2 class="printing-group-head">Character Sheets &amp; Meals</h2>
+<div class="day-toggle" id="pr-group-tabs">
+<button class="active" data-group="sheets" onclick="pr_selectGroup('sheets')">Character Sheets &amp; Meals</button>
+<button data-group="tags" onclick="pr_selectGroup('tags')">Tags</button>
+</div>
+
+<div id="pr-group-sheets">
 
 <div class="panel">
 <div class="panel-head"><h2>Print Setup</h2></div>
@@ -360,7 +354,9 @@
 </div>
 </div>
 
-<h2 class="printing-group-head">Tags</h2>
+</div>
+
+<div id="pr-group-tags" style="display:none;">
 
 <div class="panel">
 <div class="panel-head"><h2>Player Tag Requests</h2></div>
@@ -436,6 +432,8 @@
 
 </div>
 
+</div>
+
 <div id="print-area"></div>
 
 </div>
@@ -456,6 +454,14 @@ const MEAL_SLOTS = ['Saturday Breakfast', 'Saturday Lunch', 'Saturday Dinner', '
 
 function escapeHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function pr_selectGroup(group){
+  document.querySelectorAll('#pr-group-tabs button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.group === group);
+  });
+  document.getElementById('pr-group-sheets').style.display = group === 'sheets' ? '' : 'none';
+  document.getElementById('pr-group-tags').style.display = group === 'tags' ? '' : 'none';
 }
 
 function emptyState(msg){
@@ -1249,6 +1255,7 @@ function ct_clearBatch(){
   ct_renderBatch();
 }
 
+window.pr_selectGroup = pr_selectGroup;
 window.ps_onEventChange = ps_onEventChange;
 window.ps_printAll = ps_printAll;
 window.ps_printMeals = ps_printMeals;
