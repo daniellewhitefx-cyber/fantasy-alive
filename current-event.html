@@ -195,8 +195,6 @@ let TRAIN_LOAD_ERROR = null;
 let TRAIN_TAUGHT = new Set();
 let TRAIN_OC_PURCHASE = null;
 let TRAIN_TOTAL_POOL = 0;
-let TRAIN_OC_CONFIRM_IDX = null;
-let TRAIN_OC_CANCEL_CONFIRM = false;
 
 let WORK_SESSIONS = [];
 let WORK_LOAD_ERROR = null;
@@ -1204,8 +1202,6 @@ function taughtKey(category, skillName, focus){
 }
 
 async function refreshTrainingState(){
-  TRAIN_OC_CONFIRM_IDX = null;
-  TRAIN_OC_CANCEL_CONFIRM = false;
   const [{ data: skillRows }, { data: summary }, { data: purchases }, { data: teachRows }, { data: ocPurchaseRows }, { data: totalPool }] = await Promise.all([
     membersSupabase.from('character_skills').select('id, category, skill_name, focus, level, sp_cost').eq('character_id', MY_CHARACTER.id),
     membersSupabase.rpc('event_log_training_summary', { p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id }),
@@ -1263,9 +1259,7 @@ function renderLearningListHtml(){
   if(TRAIN_OC_PURCHASE){
     const p = TRAIN_OC_PURCHASE;
     const levelLabel = p.is_relevel ? `${p.prev_level} &rarr; ${p.level}` : `${p.level}`;
-    const actionCell = TRAIN_OC_CANCEL_CONFIRM
-      ? `<button class="btn-outline" onclick="ce_trainConfirmCancelOcPurchase()">Yes</button><button class="btn-outline" style="margin-left:0.3rem;" onclick="ce_trainDismissCancelOcConfirm()">No</button>`
-      : `<button class="btn-outline" onclick="ce_trainCancelOcPurchase()" title="Cancel this purchase">&times;</button>`;
+    const actionCell = `<button class="btn-outline" onclick="ce_trainCancelOcPurchase()" title="Cancel this purchase">&times;</button>`;
     ocRow = `
       <tr>
         <td>${escapeHtml(p.skill_name)}${p.focus ? ' (' + escapeHtml(p.focus) + ')' : ''}</td>
@@ -1336,7 +1330,6 @@ function renderTrainCatTabs(){
 
 function ce_trainSelectCategory(cat){
   TRAIN_CATEGORY = cat;
-  TRAIN_OC_CONFIRM_IDX = null;
   renderTrainCatTabs();
   renderTrainBrowser();
 }
@@ -1433,20 +1426,8 @@ function renderTrainBrowser(){
       + (info.atCap ? `<span class="skill-missing-prereq">Rank cap reached (max level ${info.levelLimit})</span>` : '');
     const actionLabel = info.isRelevel ? 'Level Up' : 'Learn';
     const ocLabel = info.ocCost !== null ? `${info.isRelevel ? 'Level Up' : 'Buy'} (${info.ocCost} OC)` : 'Buy with OC';
-
-    let actionCell;
-    if(TRAIN_OC_CONFIRM_IDX === idx){
-      const action = info.isRelevel ? `level ${escapeHtml(s.title)} up to level ${info.level}` : `buy ${escapeHtml(s.title)}`;
-      const warnText = TRAIN_PURCHASES.length
-        ? `Use ${info.ocCost} OC to ${action}? This cancels all training you've done this event.`
-        : `Use ${info.ocCost} OC to ${action}? You can't train any other skills this event.`;
-      actionCell = `<div class="reg-empty-note" style="margin-bottom:0.4rem;">${warnText}</div>`
-        + `<button class="btn-outline" onclick="ce_trainConfirmBuyWithOc(${idx})">Yes, confirm</button>`
-        + `<button class="btn-outline" style="margin-left:0.4rem;" onclick="ce_trainCancelOcConfirm()">Cancel</button>`;
-    } else {
-      const ocButton = `<button class="btn-outline" id="ce-train-buy-oc-${idx}" style="margin-left:0.4rem;" ${info.canBuyOc ? '' : 'disabled'} title="${escapeHtml(info.ocReason)}" onclick="ce_trainBuyWithOc(${idx})">${ocLabel}</button>`;
-      actionCell = `<button class="btn-outline" id="ce-train-learn-${idx}" ${info.canAct ? '' : 'disabled'} onclick="ce_trainAct(${idx})">${actionLabel}</button>${ocButton}`;
-    }
+    const ocButton = `<button class="btn-outline" id="ce-train-buy-oc-${idx}" style="margin-left:0.4rem;" ${info.canBuyOc ? '' : 'disabled'} title="${escapeHtml(info.ocReason)}" onclick="ce_trainBuyWithOc(${idx})">${ocLabel}</button>`;
+    const actionCell = `<button class="btn-outline" id="ce-train-learn-${idx}" ${info.canAct ? '' : 'disabled'} onclick="ce_trainAct(${idx})">${actionLabel}</button>${ocButton}`;
 
     return `
       <tr class="${info.missing || info.atCap ? 'skill-row-locked' : ''}">
@@ -1530,24 +1511,11 @@ async function ce_trainCancel(purchaseId){
   renderTrainingBody();
 }
 
-function ce_trainBuyWithOc(idx){
-  const info = ce_trainRowInfo(idx);
-  if(!info.canBuyOc) return;
-  TRAIN_OC_CONFIRM_IDX = idx;
-  renderTrainBrowser();
-}
-
-function ce_trainCancelOcConfirm(){
-  TRAIN_OC_CONFIRM_IDX = null;
-  renderTrainBrowser();
-}
-
-async function ce_trainConfirmBuyWithOc(idx){
+async function ce_trainBuyWithOc(idx){
   const errorEl = document.getElementById('ce-train-error');
   errorEl.style.display = 'none';
-  TRAIN_OC_CONFIRM_IDX = null;
   const info = ce_trainRowInfo(idx);
-  if(!info.canBuyOc){ renderTrainBrowser(); return; }
+  if(!info.canBuyOc) return;
   const { s, level, cost, focusVal } = info;
 
   const { key } = ce_trainRowState(idx);
@@ -1561,7 +1529,7 @@ async function ce_trainConfirmBuyWithOc(idx){
     p_sp_cost: cost
   });
 
-  if(error){ showError(errorEl, error.message); renderTrainBrowser(); return; }
+  if(error){ showError(errorEl, error.message); return; }
 
   delete TRAIN_BROWSE_STATE[key];
   await loadOcAndTraining();
@@ -1569,19 +1537,7 @@ async function ce_trainConfirmBuyWithOc(idx){
   renderTrainingBody();
 }
 
-function ce_trainCancelOcPurchase(){
-  if(!TRAIN_OC_PURCHASE) return;
-  TRAIN_OC_CANCEL_CONFIRM = true;
-  renderTrainingBody();
-}
-
-function ce_trainDismissCancelOcConfirm(){
-  TRAIN_OC_CANCEL_CONFIRM = false;
-  renderTrainingBody();
-}
-
-async function ce_trainConfirmCancelOcPurchase(){
-  TRAIN_OC_CANCEL_CONFIRM = false;
+async function ce_trainCancelOcPurchase(){
   if(!TRAIN_OC_PURCHASE) return;
 
   const { error } = await membersSupabase.rpc('event_log_cancel_oc_skill_purchase', { p_purchase_id: TRAIN_OC_PURCHASE.id });
