@@ -1394,7 +1394,7 @@ function ce_trainRowInfo(idx){
   const canAct = !missing && !atCap && cost !== null && cost > 0 && cost <= spendableSp && hoursCost <= hoursRemaining
     && !(s.focusTypeId && !focusVal);
 
-  const ocCost = (!isRelevel && cost !== null && cost > 0) ? window.faXpCostForSp(TRAIN_TOTAL_POOL, cost) : null;
+  const ocCost = (cost !== null && cost > 0) ? window.faXpCostForSp(TRAIN_TOTAL_POOL, cost) : null;
   const canBuyOc = !missing && !atCap && !TRAIN_OC_PURCHASE && ocCost !== null && ocCost <= OC_BALANCE
     && !(s.focusTypeId && !focusVal);
 
@@ -1429,7 +1429,8 @@ function renderTrainBrowser(){
       + (info.missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(info.missing)}</span>` : '')
       + (info.atCap ? `<span class="skill-missing-prereq">Rank cap reached (max level ${info.levelLimit})</span>` : '');
     const actionLabel = info.isRelevel ? 'Level Up' : 'Learn';
-    const ocButton = info.isRelevel ? '' : `<button class="btn-outline" id="ce-train-buy-oc-${idx}" style="margin-left:0.4rem;" ${info.canBuyOc ? '' : 'disabled'} onclick="ce_trainBuyWithOc(${idx})">${info.ocCost !== null ? `Buy (${info.ocCost} OC)` : 'Buy with OC'}</button>`;
+    const ocLabel = info.ocCost !== null ? `${info.isRelevel ? 'Level Up' : 'Buy'} (${info.ocCost} OC)` : 'Buy with OC';
+    const ocButton = `<button class="btn-outline" id="ce-train-buy-oc-${idx}" style="margin-left:0.4rem;" ${info.canBuyOc ? '' : 'disabled'} onclick="ce_trainBuyWithOc(${idx})">${ocLabel}</button>`;
 
     return `
       <tr class="${info.missing || info.atCap ? 'skill-row-locked' : ''}">
@@ -1457,7 +1458,7 @@ function ce_trainUpdateRowLive(idx){
   const ocBtn = document.getElementById('ce-train-buy-oc-' + idx);
   if(ocBtn){
     ocBtn.disabled = !info.canBuyOc;
-    ocBtn.textContent = info.ocCost !== null ? `Buy (${info.ocCost} OC)` : 'Buy with OC';
+    ocBtn.textContent = info.ocCost !== null ? `${info.isRelevel ? 'Level Up' : 'Buy'} (${info.ocCost} OC)` : 'Buy with OC';
   }
 }
 
@@ -1517,11 +1518,12 @@ async function ce_trainBuyWithOc(idx){
   errorEl.style.display = 'none';
   const info = ce_trainRowInfo(idx);
   if(!info.canBuyOc) return;
-  const { s, focusVal, ocCost } = info;
+  const { s, level, cost, focusVal, ocCost, isRelevel } = info;
 
+  const action = isRelevel ? `level ${s.title} up to level ${level}` : `buy ${s.title}`;
   const warning = TRAIN_PURCHASES.length
-    ? `Buying ${s.title} with ${ocCost} Ogre Chips will cancel all the skills you've trained this event and give you just this one instead. Continue?`
-    : `Buy ${s.title} for ${ocCost} Ogre Chips? You won't be able to train any other skills this event.`;
+    ? `Using ${ocCost} Ogre Chips to ${action} will cancel all the skills you've trained this event and give you just this one instead. Continue?`
+    : `Use ${ocCost} Ogre Chips to ${action}? You won't be able to train any other skills this event.`;
   if(!confirm(warning)) return;
 
   const { key } = ce_trainRowState(idx);
@@ -1531,7 +1533,8 @@ async function ce_trainBuyWithOc(idx){
     p_category: s.category,
     p_skill_name: s.title,
     p_focus: s.focusTypeId ? focusVal : null,
-    p_level: 1
+    p_level: level,
+    p_sp_cost: cost
   });
 
   if(error){ showError(errorEl, error.message); return; }

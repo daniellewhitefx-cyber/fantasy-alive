@@ -13,6 +13,10 @@ create table if not exists event_log_oc_skill_purchases (
   created_at timestamptz not null default now()
 );
 
+alter table event_log_oc_skill_purchases add column if not exists is_relevel boolean not null default false;
+alter table event_log_oc_skill_purchases add column if not exists prev_level integer;
+alter table event_log_oc_skill_purchases add column if not exists prev_sp_cost integer;
+
 create unique index if not exists event_log_oc_skill_purchases_char_event_idx
   on event_log_oc_skill_purchases(character_id, event_slug);
 
@@ -86,7 +90,8 @@ create or replace function event_log_buy_skill_with_oc(
   p_category text,
   p_skill_name text,
   p_focus text,
-  p_level integer
+  p_level integer,
+  p_sp_cost integer
 )
 returns uuid language plpgsql security definer
 set search_path = public
@@ -100,17 +105,19 @@ declare
   v_focus text := nullif(p_focus, '');
   v_level integer := greatest(1, coalesce(p_level, 1));
   v_limit integer;
-  v_true_cost integer;
   v_spent_sp integer;
   v_xp_balance integer;
   v_total_pool integer;
   v_oc_cost integer;
   v_oc_balance integer;
   v_skill_id uuid;
+  v_known character_skills;
+  v_is_relevel boolean;
   v_row record;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
   if v_skill_name = '' then raise exception 'Skill name cannot be empty'; end if;
+  if p_sp_cost is null or p_sp_cost < 0 then raise exception 'Invalid SP cost'; end if;
 
   select starting_sp, race into v_starting_sp, v_race from characters
     where id = p_character_id and player_id = v_player
@@ -131,26 +138,6 @@ begin
     raise exception 'You already bought a skill with Ogre Chips this event';
   end if;
 
-  v_limit := skills_level_limit(v_skill_name, v_race);
-  if v_limit is not null and v_level > v_limit then
-    raise exception '% cannot go above level %', v_skill_name, v_limit;
-  end if;
-
-  if exists (
-    select 1 from character_skills
-    where character_id = p_character_id
-      and lower(skill_name) = lower(v_skill_name)
-      and lower(coalesce(category, '')) = lower(v_category)
-      and lower(coalesce(focus, '')) = lower(coalesce(v_focus, ''))
-  ) then
-    raise exception 'You already know that skill';
-  end if;
-
-  v_true_cost := skills_true_total_cost(v_skill_name, v_focus, v_level, v_race);
-  if v_true_cost is null then
-    raise exception 'Could not price skill: % %', v_skill_name, coalesce(v_focus, '');
-  end if;
-
   for v_row in
     select * from event_log_training_purchases
     where character_id = p_character_id and event_slug = p_event_slug
@@ -167,26 +154,53 @@ begin
 
   delete from event_log_training_purchases where character_id = p_character_id and event_slug = p_event_slug;
 
+  select * into v_known
+    from character_skills
+    where character_id = p_character_id
+      and lower(skill_name) = lower(v_skill_name)
+      and lower(coalesce(category, '')) = lower(v_category)
+      and lower(coalesce(focus, '')) = lower(coalesce(v_focus, ''));
+  v_is_relevel := found;
+
+  if v_is_relevel and v_level <= v_known.level then
+    raise exception 'New level must be higher than the current level';
+  end if;
+
+  v_limit := skills_level_limit(v_skill_name, v_race);
+  if v_limit is not null and v_level > v_limit then
+    raise exception '% cannot go above level %', v_skill_name, v_limit;
+  end if;
+
   select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
   v_total_pool := fa_convert_xp_to_sp(v_xp_balance, v_starting_sp, v_spent_sp);
-  v_oc_cost := fa_xp_cost_for_sp(v_total_pool, v_true_cost);
+  v_oc_cost := fa_xp_cost_for_sp(v_total_pool, p_sp_cost);
 
   select coalesce(sum(amount), 0) into v_oc_balance from oc_transactions where player_id = v_player;
   if v_oc_cost > v_oc_balance then
     raise exception 'Not enough Ogre Chips';
   end if;
 
-  insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost, total_sp_paid)
-    values (p_character_id, v_player, v_category, v_skill_name, v_focus, v_level, 0, 0)
-    returning id into v_skill_id;
+  if v_is_relevel then
+    update character_skills set level = v_level, sp_cost = 0 where id = v_known.id;
+    v_skill_id := v_known.id;
+  else
+    insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost, total_sp_paid)
+      values (p_character_id, v_player, v_category, v_skill_name, v_focus, v_level, 0, 0)
+      returning id into v_skill_id;
+  end if;
 
   insert into oc_transactions (player_id, amount, note, created_by)
     values (v_player, -v_oc_cost, 'Bought ' || v_skill_name || ' with Ogre Chips (' || p_event_slug || ')', v_player);
 
   insert into event_log_oc_skill_purchases
-    (player_id, character_id, event_slug, character_skill_id, category, skill_name, focus, level, oc_cost)
-    values (v_player, p_character_id, p_event_slug, v_skill_id, v_category, v_skill_name, v_focus, v_level, v_oc_cost);
+    (player_id, character_id, event_slug, character_skill_id, category, skill_name, focus, level, oc_cost, is_relevel, prev_level, prev_sp_cost)
+    values (
+      v_player, p_character_id, p_event_slug, v_skill_id, v_category, v_skill_name, v_focus, v_level, v_oc_cost,
+      v_is_relevel,
+      case when v_is_relevel then v_known.level else null end,
+      case when v_is_relevel then v_known.sp_cost else null end
+    );
 
   return v_skill_id;
 end;
@@ -200,15 +214,24 @@ declare
   v_player uuid := auth.uid();
   v_char_skill_id uuid;
   v_oc_cost integer;
+  v_is_relevel boolean;
+  v_prev_level integer;
+  v_prev_sp_cost integer;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
 
-  select character_skill_id, oc_cost into v_char_skill_id, v_oc_cost
+  select character_skill_id, oc_cost, is_relevel, prev_level, prev_sp_cost
+    into v_char_skill_id, v_oc_cost, v_is_relevel, v_prev_level, v_prev_sp_cost
     from event_log_oc_skill_purchases
     where id = p_purchase_id and player_id = v_player;
   if not found then raise exception 'Purchase not found'; end if;
 
-  delete from character_skills where id = v_char_skill_id;
+  if v_is_relevel then
+    update character_skills set level = v_prev_level, sp_cost = v_prev_sp_cost where id = v_char_skill_id;
+    delete from event_log_oc_skill_purchases where id = p_purchase_id;
+  else
+    delete from character_skills where id = v_char_skill_id;
+  end if;
 
   insert into oc_transactions (player_id, amount, note, created_by)
     values (v_player, v_oc_cost, 'Refunded Ogre Chips (cancelled skill purchase)', v_player);
