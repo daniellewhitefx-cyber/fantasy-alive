@@ -8,17 +8,28 @@ const CATEGORY_ORDER = [
 let articles = [];
 let activeKey = null;
 let editorUser = null;
+let titleToSlugMap = {};
 
 async function loadAllArticles(){
   const rows = await loreLoadEntries();
   const allTitles = rows.map(row => row.title);
+  titleToSlugMap = {};
+  rows.forEach(row => { titleToSlugMap[row.title.toLowerCase()] = row.slug; });
   articles = rows.map(row => ({
     ...row,
     html: row.body_format === 'html'
-      ? loreRenderHtmlBody(row.body, row.title, allTitles)
-      : loreParseMarkup(row.body, row.title, allTitles),
+      ? loreRenderHtmlBody(row.body, row.title, allTitles, titleToSlugMap)
+      : loreParseMarkup(row.body, row.title, allTitles, titleToSlugMap),
     key: row.id
   }));
+}
+
+function findArticleBySlugOrTitle(value){
+  if(!value) return null;
+  const v = String(value).trim().toLowerCase();
+  return articles.find(a => (a.slug || '').toLowerCase() === v)
+    || articles.find(a => a.title.toLowerCase() === v)
+    || null;
 }
 
 function lore_selectItem(key){
@@ -70,7 +81,7 @@ function renderSidebar(){
           <span>${cat}</span><span class="chev">&#9656;</span>
         </button>
         <div class="lore-cat-items">
-          ${items.map(i => `<button class="${i.key===activeKey?'active':''}" onclick="lore_selectItem('${i.key}')">${i.title}</button>`).join('')}
+          ${items.map(i => `<a href="lore.html?open=${encodeURIComponent(i.slug)}" class="${i.key===activeKey?'active':''}" onclick="return lore_goto(event, '${(i.slug || '').replace(/'/g, "\\'")}')">${i.title}</a>`).join('')}
         </div>
       </div>`;
   }).join('');
@@ -114,7 +125,7 @@ function lore_search(rawQuery){
     const titleMatch = a.title.toLowerCase().includes(lowerQuery);
     const bodyMatch = bodyText.toLowerCase().includes(lowerQuery);
     if(!titleMatch && !bodyMatch) return null;
-    return { key: a.key, title: a.title, cat: a.category, bodyText, rank: titleMatch ? 0 : 1 };
+    return { key: a.key, slug: a.slug, title: a.title, cat: a.category, bodyText, rank: titleMatch ? 0 : 1 };
   }).filter(Boolean).sort((a, b) => a.rank - b.rank || a.title.localeCompare(b.title));
 
   if(results.length === 0){
@@ -123,11 +134,11 @@ function lore_search(rawQuery){
   }
 
   target.innerHTML = '<div class="lore-search-results">' + results.map(r => `
-    <button class="lore-search-result" onclick="lore_selectItem('${r.key}')">
+    <a class="lore-search-result" href="lore.html?open=${encodeURIComponent(r.slug)}" onclick="return lore_goto(event, '${(r.slug || '').replace(/'/g, "\\'")}')">
       <div class="lsr-cat">${escapeHtml(r.cat)}</div>
       <div class="lsr-title">${escapeHtml(r.title)}</div>
       <div class="lsr-excerpt">${r.rank === 0 ? escapeHtml(r.bodyText.slice(0, 140)) + (r.bodyText.length > 140 ? '&hellip;' : '') : makeExcerpt(r.bodyText, query)}</div>
-    </button>
+    </a>
   `).join('') + '</div>';
 }
 
@@ -150,13 +161,23 @@ function renderDisplay(){
   display.innerHTML = `<div class="lore-article-head"><h2>${found.title}</h2>${editorControls}</div>` + found.html;
 }
 
-function lore_goto(title){
-  const match = articles.find(a => a.title.toLowerCase() === title.toLowerCase());
+function lore_openArticle(match, opts){
+  opts = opts || {};
+  lore_selectItem(match.key);
+  if(opts.updateUrl !== false){
+    history.pushState(null, '', 'lore.html?open=' + encodeURIComponent(match.slug));
+  }
+  document.getElementById('lore-display').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function lore_goto(event, value){
+  if(event && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return true;
+  if(event) event.preventDefault();
+  const match = findArticleBySlugOrTitle(value);
   if(match){
-    lore_selectItem(match.key);
-    document.getElementById('lore-display').scrollIntoView({behavior:'smooth', block:'start'});
+    lore_openArticle(match);
   } else {
-    alert('That article isn\'t available yet: ' + title);
+    alert('That article isn\'t available yet: ' + value);
   }
   return false;
 }
@@ -192,7 +213,7 @@ function lore_openEditor(key){
   if(existing){
     seedHtml = existing.body_format === 'html'
       ? loreSanitizeHtml(existing.body)
-      : loreParseMarkup(existing.body, existing.title, articles.map(a => a.title));
+      : loreParseMarkup(existing.body, existing.title, articles.map(a => a.title), titleToSlugMap);
   }
 
   modal.innerHTML = `
@@ -547,8 +568,12 @@ async function init(){
   renderSidebar();
   renderDisplay();
 
-  const openTitle = new URLSearchParams(location.search).get('open');
-  if(openTitle) lore_goto(openTitle);
+  const openParam = new URLSearchParams(location.search).get('open');
+  if(openParam){
+    const match = findArticleBySlugOrTitle(openParam);
+    if(match) lore_openArticle(match, { updateUrl: false });
+    else alert('That article isn\'t available yet: ' + openParam);
+  }
 
   let savedDark = false;
   try{ savedDark = localStorage.getItem('fa-lore-dark') === '1'; }catch(e){}
@@ -557,6 +582,12 @@ async function init(){
     document.getElementById('lore-dark-toggle').classList.add('on');
   }
 }
+
+window.addEventListener('popstate', () => {
+  const openParam = new URLSearchParams(location.search).get('open');
+  const match = openParam ? findArticleBySlugOrTitle(openParam) : null;
+  lore_selectItem(match ? match.key : null);
+});
 
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', init);
