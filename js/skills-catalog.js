@@ -138,16 +138,26 @@ function focusOptionsFor(skill, knownSkills, race, opts){
 
   const detail = skillDetailFor(skill, race);
   const matchGroups = detail ? detail.prereqGroups.filter(g => g.mustMatchFocus) : [];
-  if(!matchGroups.length) return names;
+  let options = names;
+  if(matchGroups.length){
+    const knownFoci = new Set();
+    matchGroups.forEach(g => {
+      const norm = (g.skill1.name || '').trim().toLowerCase();
+      (knownSkills || [])
+        .filter(k => k.title.trim().toLowerCase() === norm && k.focus)
+        .forEach(k => knownFoci.add(k.focus));
+    });
+    options = names.filter(n => knownFoci.has(n));
+  }
 
-  const knownFoci = new Set();
-  matchGroups.forEach(g => {
-    const norm = (g.skill1.name || '').trim().toLowerCase();
-    (knownSkills || [])
-      .filter(k => k.title.trim().toLowerCase() === norm && k.focus)
-      .forEach(k => knownFoci.add(k.focus));
-  });
-  return names.filter(n => knownFoci.has(n));
+  if(!skill.levelable){
+    const ownedFoci = new Set((knownSkills || [])
+      .filter(k => k.title === skill.title && k.focus)
+      .map(k => k.focus));
+    options = options.filter(n => !ownedFoci.has(n));
+  }
+
+  return options;
 }
 
 function skillNextLevel(skill, chosen, focusName){
