@@ -81,7 +81,7 @@ Only show registrants with notes for logistics
 </label>
 <div class="table-scroll">
 <table class="data-table">
-<thead><tr><th>Character / Cast</th><th>Player</th><th>Who</th><th>Pass</th><th>Meal</th><th>Days</th><th>Payment</th><th>Notes for Logistics</th><th></th></tr></thead>
+<thead><tr><th>Character / Cast</th><th>Player</th><th>Who</th><th>Combat</th><th>Pass</th><th>Meal</th><th>Days</th><th>Payment</th><th>Notes for Logistics</th><th></th></tr></thead>
 <tbody id="ar-roster-body"></tbody>
 </table>
 </div>
@@ -205,11 +205,11 @@ async function ar_loadRoster(){
   const body = document.getElementById('ar-roster-body');
   if(!eventSlug) return;
 
-  body.innerHTML = `<tr><td colspan="9"><p class="reg-empty-note">Loading&hellip;</p></td></tr>`;
+  body.innerHTML = `<tr><td colspan="10"><p class="reg-empty-note">Loading&hellip;</p></td></tr>`;
 
   const { data, error } = await membersSupabase.rpc('staff_event_registrations', { p_event_slug: eventSlug });
   if(error){
-    body.innerHTML = `<tr><td colspan="9"><p class="reg-error-note">Couldn't load registrations: ${escapeHtml(error.message)}</p></td></tr>`;
+    body.innerHTML = `<tr><td colspan="10"><p class="reg-error-note">Couldn't load registrations: ${escapeHtml(error.message)}</p></td></tr>`;
     return;
   }
   REGISTRANTS = data || [];
@@ -236,7 +236,7 @@ function ar_render(){
     : REGISTRANTS;
 
   if(rows.length === 0){
-    body.innerHTML = `<tr><td colspan="9">${emptyState(notesOnly ? 'No registrants with logistics notes for this event.' : 'No one is registered for this event yet.')}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10">${emptyState(notesOnly ? 'No registrants with logistics notes for this event.' : 'No one is registered for this event yet.')}</td></tr>`;
     return;
   }
 
@@ -244,11 +244,15 @@ function ar_render(){
     const notes = [];
     if(r.allergy_notes && r.allergy_notes.trim()) notes.push(`<div><span class="ar-note-pill">Allergy</span> ${escapeHtml(r.allergy_notes)}</div>`);
     if(r.disability_notes && r.disability_notes.trim()) notes.push(`<div><span class="ar-note-pill disability">Access</span> ${escapeHtml(r.disability_notes)}</div>`);
+    const combatLabel = r.combat_status
+      ? `<span class="status-pill${r.combat_status === 'Non-Combat' ? ' noncombat' : ''}">${escapeHtml(r.combat_status)}</span>`
+      : '-';
     return `
       <tr>
         <td>${escapeHtml(r.character_name)}</td>
         <td>${escapeHtml(r.player_name)}</td>
         <td>${fmtWho(r.who)}</td>
+        <td>${combatLabel}</td>
         <td>${r.pass_name ? escapeHtml(r.pass_name) : '-'}</td>
         <td>${r.meal_name ? escapeHtml(r.meal_name) : '-'}</td>
         <td>${r.days_attending && r.days_attending.length ? escapeHtml(r.days_attending.join(', ')) : '-'}</td>
