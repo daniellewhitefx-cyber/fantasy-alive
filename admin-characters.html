@@ -757,7 +757,7 @@ function ac_updateLevel(idx, val){
   state.level = Math.max(1, parseInt(val, 10) || 1);
   if(state.cost === null){
     const el = document.getElementById('ac-costinput-' + idx);
-    const cost = skillsParseCost(s, state.level, selected.race, state.focus);
+    const cost = skillsCumulativeCost(s, state.level, selected.race, state.focus);
     if(el) el.value = cost === null ? 0 : cost;
   }
 }
@@ -793,7 +793,7 @@ function renderBrowser(){
     const key = skillKey(s);
     const state = browseState[key] || { level: 1, focus: '', cost: null };
     const isLeveled = isLeveledCost(s, selected.race, state.focus);
-    const defaultCost = skillsParseCost(s, state.level, selected.race, state.focus);
+    const defaultCost = skillsCumulativeCost(s, state.level, selected.race, state.focus);
 
     let focusCell = '-';
     if(s.focusTypeId && isLeveled){
