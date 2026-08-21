@@ -57,6 +57,7 @@
 <div data-include="partials/footer.html"></div>
 
 <script src="js/include.js"></script>
+<script src="js/image-exif-strip.js"></script>
 <script src="js/members-auth.js"></script>
 <script src="js/registration-status.js"></script>
 <script src="js/xp-convert.js"></script>
@@ -271,10 +272,11 @@ async function chars_uploadPortrait(charId){
   successEl.style.display = 'none';
   errorEl.style.display = 'none';
 
-  const file = document.getElementById('chars-portrait-file').files[0];
+  let file = document.getElementById('chars-portrait-file').files[0];
   if(!file){ errorEl.textContent = 'Choose an image file first.'; errorEl.style.display = 'block'; return; }
 
   try{
+    file = await stripImageExif(file);
     const ext = (file.name.split('.').pop() || 'png').toLowerCase();
     const path = charId + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
     const { error: uploadError } = await membersSupabase.storage.from('character-portraits').upload(path, file);

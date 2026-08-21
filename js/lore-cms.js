@@ -73,6 +73,7 @@ async function loreSwapOrder(idA, orderA, idB, orderB){
 }
 
 async function loreUploadImage(file){
+  file = await stripImageExif(file);
   const ext = (file.name.split('.').pop() || 'png').toLowerCase();
   const path = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
   const { error } = await loreSupabase.storage.from(LORE_IMAGE_BUCKET).upload(path, file);

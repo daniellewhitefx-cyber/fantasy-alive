@@ -84,6 +84,7 @@
 
 <script src="js/include.js"></script>
 <script src="js/registration-status.js"></script>
+<script src="js/image-exif-strip.js"></script>
 <script src="js/members-auth.js"></script>
 <script>
 (function(){
@@ -100,6 +101,7 @@ function fmtMoney(n){ return '$' + Number(n).toFixed(2).replace(/\.00$/, ''); }
 function nameFor(id){ return profileMap[id] || 'Unknown player'; }
 
 async function aa_uploadImage(file){
+  file = await stripImageExif(file);
   const ext = (file.name.split('.').pop() || 'png').toLowerCase();
   const path = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
   const { error } = await membersSupabase.storage.from('auction-images').upload(path, file);
