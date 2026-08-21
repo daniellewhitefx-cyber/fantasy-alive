@@ -7,7 +7,8 @@ const LORE_IMAGE_BUCKET = 'lore-images';
 async function loreLoadEntries(){
   const { data, error } = await loreSupabase
     .from('lore_entries')
-    .select('id, slug, title, category, body, body_format, updated_at')
+    .select('id, slug, title, category, body, body_format, sort_order, updated_at')
+    .order('sort_order', { ascending: true })
     .order('title', { ascending: true });
   if(error) throw error;
   return data || [];
@@ -39,9 +40,13 @@ async function loreCreateEntry({ title, category, body, body_format }){
     attempt++;
     slug = baseSlug + '-' + attempt;
   }
+  const { data: maxRow } = await loreSupabase
+    .from('lore_entries').select('sort_order').eq('category', category)
+    .order('sort_order', { ascending: false }).limit(1).maybeSingle();
+  const nextOrder = maxRow ? (maxRow.sort_order || 0) + 10 : 10;
   const { data: session } = await loreSupabase.auth.getSession();
   const { error: insertError } = await loreSupabase.from('lore_entries').insert({
-    slug, title, category, body, body_format: body_format || 'markdown',
+    slug, title, category, body, body_format: body_format || 'markdown', sort_order: nextOrder,
     created_by: session.session ? session.session.user.id : null
   });
   if(insertError) throw insertError;
@@ -58,6 +63,13 @@ async function loreUpdateEntry(id, { title, category, body, body_format }){
 async function loreDeleteEntry(id){
   const { error } = await loreSupabase.from('lore_entries').delete().eq('id', id);
   if(error) throw error;
+}
+
+async function loreSwapOrder(idA, orderA, idB, orderB){
+  const { error: e1 } = await loreSupabase.from('lore_entries').update({ sort_order: orderB }).eq('id', idA);
+  if(e1) throw e1;
+  const { error: e2 } = await loreSupabase.from('lore_entries').update({ sort_order: orderA }).eq('id', idB);
+  if(e2) throw e2;
 }
 
 async function loreUploadImage(file){
@@ -399,6 +411,7 @@ window.loreGetEditorRole = loreGetEditorRole;
 window.loreCreateEntry = loreCreateEntry;
 window.loreUpdateEntry = loreUpdateEntry;
 window.loreDeleteEntry = loreDeleteEntry;
+window.loreSwapOrder = loreSwapOrder;
 window.loreUploadImage = loreUploadImage;
 window.loreParseMarkup = loreParseMarkup;
 window.loreEscapeHtml = loreEscapeHtml;
