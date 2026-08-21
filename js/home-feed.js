@@ -27,6 +27,7 @@ async function homeFeedGetAdminSession(){
 }
 
 async function homeFeedUploadImage(file){
+  file = await stripImageExif(file);
   const ext = (file.name.split('.').pop() || 'png').toLowerCase();
   const path = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
   const { error } = await homeFeedSupabase.storage.from(HOME_FEED_IMAGE_BUCKET).upload(path, file);
