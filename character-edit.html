@@ -105,6 +105,7 @@
 <script src="js/skills-data.js"></script>
 <script src="js/skills-catalog.js"></script>
 <script src="js/character-stats.js"></script>
+<script src="js/xp-convert.js"></script>
 <script>
 (function(){
 document.getElementById('ce-birthday').max = faMaxBirthdayDate();
@@ -115,13 +116,14 @@ let chosen = [];
 let browseState = {};
 let character = null;
 let charId = null;
+let budgetSp = 0;
 
 function currentStats(){
   if(!character) return null;
   return faDeriveStats(character.race, chosen.map(s => ({ name: s.title, level: s.level })));
 }
 
-function startingSP(){ return character ? character.starting_sp : 0; }
+function startingSP(){ return budgetSp; }
 function spentSP(){ return chosen.reduce((sum, s) => sum + s.cost, 0); }
 
 function escapeHtml(str){
@@ -405,6 +407,9 @@ async function init(){
     level: sk.level,
     cost: sk.sp_cost
   }));
+  const realSpentSp = chosen.reduce((sum, s) => sum + s.cost, 0);
+  const { data: xpBalance } = await membersSupabase.rpc('xp_my_character_balance', { p_character_id: charId });
+  budgetSp = faConvertXpToSp(xpBalance || 0, character.starting_sp, realSpentSp).totalPool;
   updateBudgetLine();
 
   try{

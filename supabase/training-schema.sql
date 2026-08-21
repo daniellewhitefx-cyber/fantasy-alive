@@ -12,6 +12,42 @@ as $$
   end;
 $$;
 
+create or replace function fa_convert_xp_to_sp(p_xp_balance integer, p_starting_sp integer, p_spent_sp integer)
+returns integer language plpgsql immutable
+set search_path = public
+as $$
+declare
+  v_current_sp integer := p_spent_sp;
+  v_remaining_xp integer := p_xp_balance;
+  v_xp_converted_sp integer := 0;
+  v_tier record;
+  v_capacity_sp integer;
+  v_affordable_sp integer;
+  v_sp_this_tier integer;
+begin
+  for v_tier in
+    select * from (values
+      (40, 10),
+      (80, 15),
+      (150, 20),
+      (200, 25),
+      (2147483647, 30)
+    ) as t(ceiling, rate)
+  loop
+    exit when v_remaining_xp <= 0;
+    continue when v_current_sp >= v_tier.ceiling;
+    v_capacity_sp := v_tier.ceiling - v_current_sp;
+    v_affordable_sp := floor(v_remaining_xp::numeric / v_tier.rate)::integer;
+    v_sp_this_tier := least(v_capacity_sp, v_affordable_sp);
+    v_xp_converted_sp := v_xp_converted_sp + v_sp_this_tier;
+    v_current_sp := v_current_sp + v_sp_this_tier;
+    v_remaining_xp := v_remaining_xp - v_sp_this_tier * v_tier.rate;
+  end loop;
+
+  return p_starting_sp + v_xp_converted_sp;
+end;
+$$;
+
 create table if not exists event_log_training_purchases (
   id uuid primary key default gen_random_uuid(),
   player_id uuid not null references auth.users(id) on delete cascade,
@@ -50,7 +86,6 @@ declare
   v_starting_sp integer;
   v_spent_sp integer;
   v_xp_balance integer;
-  v_rate integer;
   v_spendable_sp integer;
   v_hours_spent integer;
 begin
@@ -62,8 +97,7 @@ begin
 
   select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
-  v_rate := fa_xp_per_sp(v_starting_sp + v_spent_sp);
-  v_spendable_sp := greatest(0, v_starting_sp + floor(v_xp_balance::numeric / v_rate)::integer - v_spent_sp);
+  v_spendable_sp := greatest(0, fa_convert_xp_to_sp(v_xp_balance, v_starting_sp, v_spent_sp) - v_spent_sp);
 
   select coalesce(sum(hours_cost), 0) into v_hours_spent
     from event_log_training_purchases
@@ -91,7 +125,6 @@ declare
   v_starting_sp integer;
   v_spent_sp integer;
   v_xp_balance integer;
-  v_rate integer;
   v_spendable_sp integer;
   v_hours_spent integer;
   v_hours_cost integer;
@@ -123,8 +156,7 @@ begin
 
   select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
-  v_rate := fa_xp_per_sp(v_starting_sp + v_spent_sp);
-  v_spendable_sp := greatest(0, v_starting_sp + floor(v_xp_balance::numeric / v_rate)::integer - v_spent_sp);
+  v_spendable_sp := greatest(0, fa_convert_xp_to_sp(v_xp_balance, v_starting_sp, v_spent_sp) - v_spent_sp);
 
   if p_sp_cost > v_spendable_sp then
     raise exception 'Not enough spendable Skill Points';
@@ -168,7 +200,6 @@ declare
   v_starting_sp integer;
   v_spent_sp integer;
   v_xp_balance integer;
-  v_rate integer;
   v_spendable_sp integer;
   v_hours_spent integer;
   v_prev_level integer;
@@ -196,8 +227,7 @@ begin
   select starting_sp into v_starting_sp from characters where id = p_character_id;
   select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
-  v_rate := fa_xp_per_sp(v_starting_sp + v_spent_sp);
-  v_spendable_sp := greatest(0, v_starting_sp + floor(v_xp_balance::numeric / v_rate)::integer - v_spent_sp);
+  v_spendable_sp := greatest(0, fa_convert_xp_to_sp(v_xp_balance, v_starting_sp, v_spent_sp) - v_spent_sp);
 
   if p_new_sp_cost > v_spendable_sp then
     raise exception 'Not enough spendable Skill Points';

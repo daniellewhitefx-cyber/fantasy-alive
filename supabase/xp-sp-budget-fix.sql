@@ -1,3 +1,78 @@
+create or replace function fa_convert_xp_to_sp(p_xp_balance integer, p_starting_sp integer, p_spent_sp integer)
+returns integer language plpgsql immutable
+set search_path = public
+as $$
+declare
+  v_current_sp integer := p_spent_sp;
+  v_remaining_xp integer := p_xp_balance;
+  v_xp_converted_sp integer := 0;
+  v_tier record;
+  v_capacity_sp integer;
+  v_affordable_sp integer;
+  v_sp_this_tier integer;
+begin
+  for v_tier in
+    select * from (values
+      (40, 10),
+      (80, 15),
+      (150, 20),
+      (200, 25),
+      (2147483647, 30)
+    ) as t(ceiling, rate)
+  loop
+    exit when v_remaining_xp <= 0;
+    continue when v_current_sp >= v_tier.ceiling;
+    v_capacity_sp := v_tier.ceiling - v_current_sp;
+    v_affordable_sp := floor(v_remaining_xp::numeric / v_tier.rate)::integer;
+    v_sp_this_tier := least(v_capacity_sp, v_affordable_sp);
+    v_xp_converted_sp := v_xp_converted_sp + v_sp_this_tier;
+    v_current_sp := v_current_sp + v_sp_this_tier;
+    v_remaining_xp := v_remaining_xp - v_sp_this_tier * v_tier.rate;
+  end loop;
+
+  return p_starting_sp + v_xp_converted_sp;
+end;
+$$;
+
+create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
+returns jsonb language plpgsql stable security definer
+set search_path = public
+as $$
+declare
+  v_player uuid := auth.uid();
+  v_starting_sp integer;
+  v_spent_sp integer;
+  v_xp_balance integer;
+  v_spendable_sp integer;
+  v_hours_spent integer;
+  v_hours_adjustment integer;
+begin
+  if v_player is null then raise exception 'Not signed in'; end if;
+
+  select starting_sp into v_starting_sp from characters
+    where id = p_character_id and player_id = v_player;
+  if not found then raise exception 'Character not found'; end if;
+
+  select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
+  v_xp_balance := xp_balance(p_character_id);
+  v_spendable_sp := greatest(0, fa_convert_xp_to_sp(v_xp_balance, v_starting_sp, v_spent_sp) - v_spent_sp);
+
+  select
+    coalesce((select sum(hours_cost) from event_log_training_purchases where character_id = p_character_id and event_slug = p_event_slug), 0)
+    + coalesce((select sum(hours_worked) from event_log_working_sessions where character_id = p_character_id and event_slug = p_event_slug), 0)
+    + coalesce((select sum(hours_spent) from crafting_log where character_id = p_character_id and event_slug = p_event_slug), 0)
+    + coalesce((select sum(hours) from event_log_shopping_trips where character_id = p_character_id and event_slug = p_event_slug), 0)
+    + coalesce((select sum(hours) from event_log_other_tasks where character_id = p_character_id and event_slug = p_event_slug), 0)
+  into v_hours_spent;
+
+  select coalesce(sum(hours_delta), 0) into v_hours_adjustment
+    from event_log_hours_adjustments
+    where event_slug = p_event_slug and (character_id = p_character_id or character_id is null);
+
+  return jsonb_build_object('spendable_sp', v_spendable_sp, 'hours_spent', v_hours_spent, 'hours_adjustment', v_hours_adjustment);
+end;
+$$;
+
 create or replace function event_log_train_skill(
   p_event_slug text,
   p_character_id uuid,
@@ -180,5 +255,110 @@ begin
   returning id into v_purchase_id;
 
   return v_purchase_id;
+end;
+$$;
+
+create or replace function character_update_remort(
+  p_character_id uuid,
+  p_name text,
+  p_pronouns text,
+  p_birthday date,
+  p_skills jsonb
+)
+returns void language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_player uuid := auth.uid();
+  v_char characters;
+  v_name text := trim(coalesce(p_name, ''));
+  v_spent integer := 0;
+  v_skill jsonb;
+  v_skill_name text;
+  v_focus text;
+  v_level integer;
+  v_true_cost integer;
+  v_limit integer;
+  v_real_spent_sp integer;
+  v_xp_balance integer;
+  v_budget_sp integer;
+begin
+  if v_player is null then raise exception 'Not signed in'; end if;
+
+  select * into v_char from characters where id = p_character_id and player_id = v_player;
+  if not found then raise exception 'Character not found'; end if;
+
+  if not exists (
+    select 1 from character_remort_requests
+    where character_id = p_character_id and status = 'approved'
+  ) then
+    raise exception 'This character does not have an approved remort in progress';
+  end if;
+
+  select coalesce(sum(sp_cost), 0) into v_real_spent_sp from character_skills where character_id = p_character_id;
+  v_xp_balance := xp_balance(p_character_id);
+  v_budget_sp := fa_convert_xp_to_sp(v_xp_balance, v_char.starting_sp, v_real_spent_sp);
+
+  if v_name = '' then raise exception 'Character name cannot be empty'; end if;
+  if length(v_name) > 60 then raise exception 'Character name is too long'; end if;
+
+  if p_birthday is null then raise exception 'Date of birth is required'; end if;
+  if p_birthday > (current_date - interval '18 years')::date then
+    raise exception 'Characters must be at least 18 years old';
+  end if;
+
+  if p_skills is not null then
+    for v_skill in select * from jsonb_array_elements(p_skills) loop
+      v_skill_name := trim(v_skill ->> 'skill_name');
+      if coalesce(v_skill_name, '') = '' then raise exception 'Every chosen skill needs a name'; end if;
+      v_focus := nullif(v_skill ->> 'focus', '');
+      v_level := coalesce((v_skill ->> 'level')::integer, 1);
+
+      v_true_cost := skills_true_total_cost(v_skill_name, v_focus, v_level, v_char.race);
+      if v_true_cost is null then
+        raise exception 'Could not price skill: % %', v_skill_name, coalesce(v_focus, '');
+      end if;
+
+      v_limit := skills_level_limit(v_skill_name, v_char.race);
+      if v_limit is not null and v_level > v_limit then
+        raise exception '% cannot go above level %', v_skill_name, v_limit;
+      end if;
+
+      v_spent := v_spent + v_true_cost;
+    end loop;
+  end if;
+
+  if v_spent > v_budget_sp then
+    raise exception 'Chosen skills cost % SP, more than the % SP budget', v_spent, v_budget_sp;
+  end if;
+
+  update characters set
+    name = v_name,
+    pronouns = nullif(trim(coalesce(p_pronouns, '')), ''),
+    birthday = p_birthday
+    where id = p_character_id;
+
+  delete from character_skills where character_id = p_character_id;
+
+  if p_skills is not null then
+    for v_skill in select * from jsonb_array_elements(p_skills) loop
+      v_skill_name := trim(v_skill ->> 'skill_name');
+      v_focus := nullif(v_skill ->> 'focus', '');
+      v_level := coalesce((v_skill ->> 'level')::integer, 1);
+      v_true_cost := skills_true_total_cost(v_skill_name, v_focus, v_level, v_char.race);
+
+      insert into character_skills (character_id, player_id, category, skill_name, focus, level, sp_cost, total_sp_paid)
+        values (
+          p_character_id,
+          v_player,
+          coalesce(nullif(trim(v_skill ->> 'category'), ''), 'Skill'),
+          v_skill_name,
+          v_focus,
+          v_level,
+          v_true_cost,
+          v_true_cost
+        );
+    end loop;
+  end if;
 end;
 $$;
