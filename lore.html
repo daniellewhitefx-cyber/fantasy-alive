@@ -109,10 +109,11 @@
   flex-direction: column;
 }
 .lore-cat.open .lore-cat-items{ display:flex; }
-.lore-cat-items button{
+.lore-cat-items a{
   display:block;
   width:100%;
   text-align:left;
+  text-decoration:none;
   background: var(--cream-deep);
   border: none;
   border-top: 1px dotted var(--gold-dark);
@@ -123,11 +124,11 @@
   padding: 0.65rem 1rem 0.65rem 1.4rem;
   cursor:pointer;
 }
-.lore-cat-items button.active{
+.lore-cat-items a.active{
   background: var(--gold);
   color: var(--ink);
 }
-.lore-cat-items button:not(.active):hover{ background: var(--gold-dark); color: var(--cream); }
+.lore-cat-items a:not(.active):hover{ background: var(--gold-dark); color: var(--cream); }
 
 .lore-mode-toggle{
   display:flex;
@@ -185,6 +186,7 @@
   display:block;
   width:100%;
   text-align:left;
+  text-decoration:none;
   background: var(--cream-deep);
   border: none;
   border-bottom: 1px dotted var(--gold-dark);
@@ -416,15 +418,15 @@
   --lore-dtext: #e8ddc8;
   --lore-dtext-soft: #c9bda0;
 }
-.lore-page.lore-dark .lore-cat-items button{
+.lore-page.lore-dark .lore-cat-items a{
   background: var(--lore-dpanel);
   color: var(--lore-dtext);
 }
-.lore-page.lore-dark .lore-cat-items button.active{
+.lore-page.lore-dark .lore-cat-items a.active{
   background: var(--gold);
   color: var(--ink);
 }
-.lore-page.lore-dark .lore-cat-items button:not(.active):hover{
+.lore-page.lore-dark .lore-cat-items a:not(.active):hover{
   background: var(--gold-dark);
   color: var(--ink);
 }
