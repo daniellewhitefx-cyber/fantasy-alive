@@ -156,6 +156,37 @@ function skillNextLevel(skill, chosen, focusName){
   return existing ? existing.level + 1 : 1;
 }
 
+function racialGrantEntries(allSkills, raceStartingSkills, race){
+  const grants = (raceStartingSkills && raceStartingSkills[race]) || [];
+  return grants.map(g => {
+    const skill = allSkills.find(s => s.id === g.skillId);
+    if(!skill) return null;
+    return {
+      category: skill.category,
+      title: skill.title,
+      focus: '',
+      level: g.level,
+      cost: 0,
+      racial: true,
+      needsFocus: !!skill.focusTypeId
+    };
+  }).filter(Boolean);
+}
+
+function applyRacialGrants(chosen, allSkills, raceStartingSkills, race){
+  const grants = racialGrantEntries(allSkills, raceStartingSkills, race);
+  const result = chosen.filter(s => !s.racial);
+  grants.forEach(g => {
+    const idx = result.findIndex(c => c.title === g.title && (g.needsFocus || c.focus === g.focus));
+    if(idx === -1){
+      result.push(g);
+    } else {
+      result[idx] = Object.assign({}, result[idx], { racial: true, needsFocus: g.needsFocus });
+    }
+  });
+  return result;
+}
+
 function skillFullyOwned(skill, owned){
   const matches = (owned || []).filter(o => o.title === skill.title);
   if(!matches.length) return false;
@@ -185,6 +216,8 @@ function clericalInvestmentLockedFocus(knownSkills){
 }
 
 window.mergeChosenSkill = mergeChosenSkill;
+window.racialGrantEntries = racialGrantEntries;
+window.applyRacialGrants = applyRacialGrants;
 window.skillFullyOwned = skillFullyOwned;
 window.skillNextLevel = skillNextLevel;
 window.skillKey = skillKey;

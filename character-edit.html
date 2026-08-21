@@ -111,6 +111,7 @@
 document.getElementById('ce-birthday').max = faMaxBirthdayDate();
 
 let allSkills = [];
+let raceStartingSkills = {};
 let activeCategory = 'Combat Skill';
 let chosen = [];
 let browseState = {};
@@ -207,10 +208,17 @@ function ce_addSkill(idx){
 }
 
 function ce_removeSkill(i){
+  if(chosen[i].racial) return;
   chosen.splice(i, 1);
   renderChosen();
   renderBrowser();
   updateBudgetLine();
+}
+
+function ce_setRacialFocus(i, val){
+  chosen[i].focus = val;
+  renderChosen();
+  renderBrowser();
 }
 
 function renderTabs(){
@@ -296,16 +304,30 @@ function renderChosen(){
     return;
   }
   empty.style.display = 'none';
-  body.innerHTML = chosen.map((s, i) => `
-    <tr>
-      <td>${escapeHtml(s.title)}</td>
-      <td>${escapeHtml(s.category)}</td>
-      <td>${escapeHtml(s.focus)}</td>
-      <td>${s.level}</td>
-      <td>${s.cost}</td>
-      <td><button class="btn-outline" onclick="ce_removeSkill(${i})" title="Remove">&times;</button></td>
-    </tr>
-  `).join('');
+  const race = character ? character.race : null;
+  body.innerHTML = chosen.map((s, i) => {
+    let focusCell = escapeHtml(s.focus);
+    if(s.racial && s.needsFocus && !s.focus){
+      const skillObj = allSkills.find(sk => sk.title === s.title);
+      const options = (skillObj && focusOptionsFor(skillObj, chosen, race)) || [];
+      focusCell = `<select onchange="ce_setRacialFocus(${i}, this.value)">`
+        + `<option value="">Choose&hellip;</option>`
+        + options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')
+        + `</select>`;
+    }
+    const costLabel = s.racial ? (s.cost > 0 ? s.cost : 'Free') : s.cost;
+    const removeCell = s.racial ? '' : `<button class="btn-outline" onclick="ce_removeSkill(${i})" title="Remove">&times;</button>`;
+    return `
+      <tr>
+        <td>${escapeHtml(s.title)}</td>
+        <td>${escapeHtml(s.category)}</td>
+        <td>${focusCell}</td>
+        <td>${s.level}</td>
+        <td>${costLabel}</td>
+        <td>${removeCell}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
 async function ce_save(){
@@ -323,6 +345,13 @@ async function ce_save(){
   if(!faIsAtLeast18(birthday)){ errorEl.textContent = 'Characters must be at least 18 years old.'; errorEl.style.display = 'block'; return; }
   if(spentSP() > startingSP()){ errorEl.textContent = 'Chosen skills exceed this character\'s Skill Points.'; errorEl.style.display = 'block'; return; }
 
+  const racialChoice = chosen.find(s => s.racial && s.needsFocus);
+  if(racialChoice && !racialChoice.focus){
+    errorEl.textContent = `Please choose a focus for your free ${racialChoice.title}.`;
+    errorEl.style.display = 'block';
+    return;
+  }
+
   const p_skills = chosen.map(s => ({
     category: s.category,
     skill_name: s.title,
@@ -336,7 +365,8 @@ async function ce_save(){
     p_name: name,
     p_pronouns: pronouns,
     p_birthday: birthday,
-    p_skills
+    p_skills,
+    p_racial_focus: racialChoice ? racialChoice.focus : null
   });
 
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
@@ -415,7 +445,8 @@ async function init(){
   updateBudgetLine();
 
   try{
-    allSkills = await skillsLoadCatalog();
+    [allSkills, raceStartingSkills] = await Promise.all([skillsLoadCatalog(), raceStartingSkillsLoad()]);
+    chosen = applyRacialGrants(chosen, allSkills, raceStartingSkills, character.race);
     document.getElementById('ce-skills-loading').style.display = 'none';
     document.getElementById('ce-skills-area').style.display = 'block';
     const categories = skillsOrderedCategories(allSkills);
@@ -433,6 +464,7 @@ window.ce_selectCategory = ce_selectCategory;
 window.ce_updateFocus = ce_updateFocus;
 window.ce_addSkill = ce_addSkill;
 window.ce_removeSkill = ce_removeSkill;
+window.ce_setRacialFocus = ce_setRacialFocus;
 window.ce_save = ce_save;
 window.ce_confirm = ce_confirm;
 

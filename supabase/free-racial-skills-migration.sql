@@ -1,3 +1,17 @@
+
+alter table race_notable_skills rename to race_starting_skills;
+alter table race_starting_skills add column if not exists level integer not null default 1;
+
+insert into race_starting_skills (id, race, skill_id, level) values
+  (12, 'Curtainborn', 73, 5),
+  (13, 'Elf', 68, 5)
+on conflict (id) do nothing;
+
+update skills set levelable = true where id in (53, 63, 69, 81);
+
+drop function if exists character_create(text, text, text, date, jsonb);
+drop function if exists character_update_remort(uuid, text, text, date, jsonb);
+
 create or replace function fa_apply_race_starting_skills(
   p_character_id uuid,
   p_player uuid,
@@ -256,52 +270,28 @@ begin
 end;
 $$;
 
-create or replace function character_staff_update_details(
-  p_character_id uuid,
-  p_name text,
-  p_race text,
-  p_pronouns text,
-  p_birthday date,
-  p_social_class text
-)
-returns void language plpgsql security definer
-set search_path = public
-as $$
+do $$
 declare
-  v_name text := trim(coalesce(p_name, ''));
-  v_race text := trim(coalesce(p_race, ''));
-  v_social_class text := trim(coalesce(p_social_class, ''));
+  v_char record;
+  v_focus text;
 begin
-  if not (coalesce((auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean, false) or fa_is_site_admin()) then
-    raise exception 'Staff only';
-  end if;
+  for v_char in select id, player_id, race from characters loop
+    if not exists (select 1 from race_starting_skills where race = v_char.race) then
+      continue;
+    end if;
 
-  if v_name = '' then raise exception 'Character name cannot be empty'; end if;
-  if length(v_name) > 60 then raise exception 'Character name is too long'; end if;
+    v_focus := null;
+    if v_char.race = 'Malkin' then
+      select focus into v_focus from character_skills
+        where character_id = v_char.id and skill_name = 'Weapon Skill' and focus is not null
+        limit 1;
+    end if;
 
-  if v_race not in (
-    'Human', 'Elf', 'Dwarf', 'Gnome', 'Curtainborn', 'Orc',
-    'D''Shunn', 'Minotaur', 'Malkin', 'Goblin', 'Lizardfolk'
-  ) then
-    raise exception 'Unknown race: %', v_race;
-  end if;
-
-  if v_social_class = '' then raise exception 'Social class cannot be empty'; end if;
-  if length(v_social_class) > 40 then raise exception 'Social class is too long'; end if;
-
-  if p_birthday is null then raise exception 'Date of birth is required'; end if;
-  if p_birthday > (current_date - interval '18 years')::date then
-    raise exception 'Characters must be at least 18 years old';
-  end if;
-
-  update characters set
-    name = v_name,
-    race = v_race,
-    pronouns = nullif(trim(coalesce(p_pronouns, '')), ''),
-    birthday = p_birthday,
-    social_class = v_social_class
-    where id = p_character_id;
-
-  if not found then raise exception 'Character not found'; end if;
+    begin
+      perform fa_apply_race_starting_skills(v_char.id, v_char.player_id, v_char.race, v_focus);
+    exception when others then
+      raise notice 'Skipped racial backfill for character %: %', v_char.id, sqlerrm;
+    end;
+  end loop;
 end;
 $$;

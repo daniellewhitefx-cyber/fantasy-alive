@@ -78,7 +78,8 @@ create or replace function character_create(
   p_race text,
   p_pronouns text,
   p_birthday date,
-  p_skills jsonb
+  p_skills jsonb,
+  p_racial_focus text default null
 )
 returns uuid language plpgsql security definer
 set search_path = public
@@ -154,6 +155,8 @@ begin
         );
     end loop;
   end if;
+
+  perform fa_apply_race_starting_skills(v_char_id, v_player, v_race, p_racial_focus);
 
   return v_char_id;
 end;
