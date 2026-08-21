@@ -186,7 +186,6 @@ declare
   v_starting_sp integer;
   v_spent_sp integer;
   v_xp_balance integer;
-  v_rate integer;
   v_spendable_sp integer;
   v_hours_spent integer;
   v_hours_cost integer;
@@ -219,8 +218,7 @@ begin
 
   select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
-  v_rate := fa_xp_per_sp(v_starting_sp + v_spent_sp);
-  v_spendable_sp := greatest(0, v_starting_sp + floor(v_xp_balance::numeric / v_rate)::integer - v_spent_sp);
+  v_spendable_sp := greatest(0, fa_convert_xp_to_sp(v_xp_balance, v_starting_sp, v_spent_sp) - v_spent_sp);
 
   if p_sp_cost > v_spendable_sp then
     raise exception 'Not enough spendable Skill Points';
@@ -265,7 +263,6 @@ declare
   v_starting_sp integer;
   v_spent_sp integer;
   v_xp_balance integer;
-  v_rate integer;
   v_spendable_sp integer;
   v_hours_spent integer;
   v_prev_level integer;
@@ -298,8 +295,7 @@ begin
   select starting_sp into v_starting_sp from characters where id = p_character_id;
   select coalesce(sum(total_sp_paid), 0) into v_spent_sp from character_skills where character_id = p_character_id;
   v_xp_balance := xp_balance(p_character_id);
-  v_rate := fa_xp_per_sp(v_starting_sp + v_spent_sp);
-  v_spendable_sp := greatest(0, v_starting_sp + floor(v_xp_balance::numeric / v_rate)::integer - v_spent_sp);
+  v_spendable_sp := greatest(0, fa_convert_xp_to_sp(v_xp_balance, v_starting_sp, v_spent_sp) - v_spent_sp);
 
   if p_new_sp_cost > v_spendable_sp then
     raise exception 'Not enough spendable Skill Points';

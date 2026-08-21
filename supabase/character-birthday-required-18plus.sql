@@ -132,6 +132,9 @@ declare
   v_level integer;
   v_true_cost integer;
   v_limit integer;
+  v_real_spent_sp integer;
+  v_xp_balance integer;
+  v_budget_sp integer;
 begin
   if v_player is null then raise exception 'Not signed in'; end if;
 
@@ -144,6 +147,10 @@ begin
   ) then
     raise exception 'This character does not have an approved remort in progress';
   end if;
+
+  select coalesce(sum(sp_cost), 0) into v_real_spent_sp from character_skills where character_id = p_character_id;
+  v_xp_balance := xp_balance(p_character_id);
+  v_budget_sp := fa_convert_xp_to_sp(v_xp_balance, v_char.starting_sp, v_real_spent_sp);
 
   if v_name = '' then raise exception 'Character name cannot be empty'; end if;
   if length(v_name) > 60 then raise exception 'Character name is too long'; end if;
@@ -174,8 +181,8 @@ begin
     end loop;
   end if;
 
-  if v_spent > v_char.starting_sp then
-    raise exception 'Chosen skills cost % SP, more than the % SP budget', v_spent, v_char.starting_sp;
+  if v_spent > v_budget_sp then
+    raise exception 'Chosen skills cost % SP, more than the % SP budget', v_spent, v_budget_sp;
   end if;
 
   update characters set
