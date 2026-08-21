@@ -17,7 +17,7 @@ returns integer language plpgsql immutable
 set search_path = public
 as $$
 declare
-  v_current_sp integer := p_spent_sp;
+  v_current_sp integer := p_starting_sp;
   v_remaining_xp integer := p_xp_balance;
   v_xp_converted_sp integer := 0;
   v_tier record;

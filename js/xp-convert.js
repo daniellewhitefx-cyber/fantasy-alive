@@ -15,8 +15,7 @@ const FA_XP_SP_TIERS = [
 ];
 
 function faConvertXpToSp(xpBalance, startingSp, spentSp){
-  const rate = faXpPerSp(spentSp);
-  let currentSp = spentSp;
+  let currentSp = startingSp;
   let remainingXp = xpBalance;
   let xpConvertedSp = 0;
 
@@ -34,6 +33,7 @@ function faConvertXpToSp(xpBalance, startingSp, spentSp){
   const leftoverXp = remainingXp;
   const totalPool = startingSp + xpConvertedSp;
   const spendableSp = Math.max(0, totalPool - spentSp);
+  const rate = faXpPerSp(totalPool);
   return { rate, xpConvertedSp, leftoverXp, totalPool, spendableSp, xpBalance };
 }
 
