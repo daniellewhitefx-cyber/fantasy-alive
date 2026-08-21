@@ -762,32 +762,30 @@ function renderInfoHtml(){
   ` : '';
 
   const tagsSection = (REGISTERED_AS === 'character' && MY_CHARACTER) ? `
-    <div class="ce-cols">
-      <div class="panel">
-        <div class="panel-head"><h2>Tags Owed to Logistics</h2></div>
-        <div class="panel-body">
-          ${INFO_TAGS_OWED.length ? `
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead><tr><th>Material</th><th>Qty</th></tr></thead>
-                <tbody>${INFO_TAGS_OWED.map(t => `<tr><td>${escapeHtml(t.name)}</td><td>${t.qty}</td></tr>`).join('')}</tbody>
-              </table>
-            </div>
-          ` : emptyState('Nothing owed. Every craft this event was covered by materials on hand.')}
-        </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Tags Owed to Logistics</h2></div>
+      <div class="panel-body">
+        ${INFO_TAGS_OWED.length ? `
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Material</th><th>Qty</th></tr></thead>
+              <tbody>${INFO_TAGS_OWED.map(t => `<tr><td>${escapeHtml(t.name)}</td><td>${t.qty}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+        ` : emptyState('Nothing owed. Every craft this event was covered by materials on hand.')}
       </div>
-      <div class="panel">
-        <div class="panel-head"><h2>Tags You'll Receive</h2></div>
-        <div class="panel-body">
-          ${INFO_TAGS_RECEIVING.length ? `
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead><tr><th>Item</th><th>Qty</th></tr></thead>
-                <tbody>${INFO_TAGS_RECEIVING.map(t => `<tr><td>${escapeHtml(t.name)}</td><td>${t.qty}</td></tr>`).join('')}</tbody>
-              </table>
-            </div>
-          ` : emptyState('Nothing pending for this event.')}
-        </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Tags You'll Receive</h2></div>
+      <div class="panel-body">
+        ${INFO_TAGS_RECEIVING.length ? `
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+              <tbody>${INFO_TAGS_RECEIVING.map(t => `<tr><td>${escapeHtml(t.name)}</td><td>${t.qty}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+        ` : emptyState('Nothing pending for this event.')}
       </div>
     </div>
   ` : '';
