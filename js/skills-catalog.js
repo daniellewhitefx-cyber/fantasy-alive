@@ -150,6 +150,14 @@ function focusOptionsFor(skill, knownSkills, race, opts){
   return names.filter(n => knownFoci.has(n));
 }
 
+function skillFullyOwned(skill, owned){
+  const matches = (owned || []).filter(o => o.title === skill.title);
+  if(!matches.length) return false;
+  if(!skill.focusTypeId) return matches.some(o => !o.focus);
+  const ownedFoci = new Set(matches.map(o => o.focus || ''));
+  return skill.focusOptions.every(f => ownedFoci.has(f.name));
+}
+
 function mergeChosenSkill(chosen, entry, isLeveled){
   const existing = chosen.find(c => c.title === entry.title && c.focus === entry.focus);
   if(!existing){
@@ -171,6 +179,7 @@ function clericalInvestmentLockedFocus(knownSkills){
 }
 
 window.mergeChosenSkill = mergeChosenSkill;
+window.skillFullyOwned = skillFullyOwned;
 window.skillKey = skillKey;
 window.skillDetailFor = skillDetailFor;
 window.skillsParseCost = skillsParseCost;

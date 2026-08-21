@@ -785,9 +785,15 @@ function renderTabs(){
 }
 
 function renderBrowser(){
+  const owned = knownSkills.map(k => ({ title: k.skill_name, focus: k.focus }));
   const rows = allSkills
     .map((s, idx) => ({ s, idx }))
-    .filter(({ s }) => s.category === activeCategory);
+    .filter(({ s }) => {
+      if(s.category !== activeCategory) return false;
+      const state = browseState[skillKey(s)] || { level: 1, focus: '' };
+      if(!isLeveledCost(s, selected.race, state.focus) && skillFullyOwned(s, owned)) return false;
+      return true;
+    });
 
   document.getElementById('ac-browser-body').innerHTML = rows.map(({ s, idx }) => {
     const key = skillKey(s);
