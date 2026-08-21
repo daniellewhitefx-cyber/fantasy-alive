@@ -39,6 +39,13 @@ begin
     for update;
   if not found then raise exception 'Character not found'; end if;
 
+  if exists (
+    select 1 from event_log_oc_skill_purchases
+    where character_id = p_character_id and event_slug = p_event_slug
+  ) then
+    raise exception 'You bought a skill with Ogre Chips this event, so you can''t also train skills';
+  end if;
+
   v_limit := skills_level_limit(v_skill_name, v_race);
   if v_limit is not null and v_level > v_limit then
     raise exception '% cannot go above level %', v_skill_name, v_limit;
@@ -128,6 +135,13 @@ begin
     where id = p_character_skill_id and character_id = p_character_id
     for update;
   if not found then raise exception 'Skill not found'; end if;
+
+  if exists (
+    select 1 from event_log_oc_skill_purchases
+    where character_id = p_character_id and event_slug = p_event_slug
+  ) then
+    raise exception 'You bought a skill with Ogre Chips this event, so you can''t also train skills';
+  end if;
 
   if p_new_level <= v_prev_level then raise exception 'New level must be higher than the current level'; end if;
 

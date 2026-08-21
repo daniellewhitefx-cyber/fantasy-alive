@@ -193,6 +193,8 @@ let TRAIN_BUDGET = 0;
 let TRAIN_BROWSE_STATE = {};
 let TRAIN_LOAD_ERROR = null;
 let TRAIN_TAUGHT = new Set();
+let TRAIN_OC_PURCHASE = null;
+let TRAIN_TOTAL_POOL = 0;
 
 let WORK_SESSIONS = [];
 let WORK_LOAD_ERROR = null;
@@ -1200,13 +1202,16 @@ function taughtKey(category, skillName, focus){
 }
 
 async function refreshTrainingState(){
-  const [{ data: skillRows }, { data: summary }, { data: purchases }, { data: teachRows }] = await Promise.all([
+  const [{ data: skillRows }, { data: summary }, { data: purchases }, { data: teachRows }, { data: ocPurchaseRows }, { data: totalPool }] = await Promise.all([
     membersSupabase.from('character_skills').select('id, category, skill_name, focus, level, sp_cost').eq('character_id', MY_CHARACTER.id),
     membersSupabase.rpc('event_log_training_summary', { p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id }),
     membersSupabase.from('event_log_training_purchases').select('id, category, skill_name, focus, level, sp_cost, hours_cost, is_relevel, prev_level')
       .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).order('created_at', { ascending: true }),
     membersSupabase.from('character_teach_requests').select('category, skill_name, focus')
-      .eq('student_character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).eq('status', 'approved')
+      .eq('student_character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).eq('status', 'approved'),
+    membersSupabase.from('event_log_oc_skill_purchases').select('id, category, skill_name, focus, level, oc_cost')
+      .eq('character_id', MY_CHARACTER.id).eq('event_slug', EVENT.value).limit(1),
+    membersSupabase.rpc('character_total_sp_pool', { p_character_id: MY_CHARACTER.id })
   ]);
   TRAIN_KNOWN = (skillRows || []).map(sk => ({ id: sk.id, category: sk.category, title: sk.skill_name, focus: sk.focus || '', level: sk.level, spCost: sk.sp_cost }));
   TRAIN_STATS = faDeriveStats(MY_CHARACTER.race, TRAIN_KNOWN.map(k => ({ name: k.title, level: k.level })));
@@ -1214,6 +1219,8 @@ async function refreshTrainingState(){
   TRAIN_PURCHASES = purchases || [];
   TRAIN_BUDGET = window.faTrainingHoursBudget(EVENT) + (TRAIN_SUMMARY.hours_adjustment || 0);
   TRAIN_TAUGHT = new Set((teachRows || []).map(r => taughtKey(r.category, r.skill_name, r.focus)));
+  TRAIN_OC_PURCHASE = (ocPurchaseRows && ocPurchaseRows[0]) || null;
+  TRAIN_TOTAL_POOL = Number(totalPool || 0);
 }
 
 async function loadTrainingData(){
@@ -1262,11 +1269,42 @@ function renderLearningListHtml(){
   `;
 }
 
+function renderOcPurchasePanelHtml(){
+  const p = TRAIN_OC_PURCHASE;
+  return `
+    <div class="panel">
+      <div class="panel-head"><h2>Bought with Ogre Chips</h2></div>
+      <div class="panel-body">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Skill</th><th>Type</th><th>Level</th><th>Cost</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td>${escapeHtml(p.skill_name)}${p.focus ? ' (' + escapeHtml(p.focus) + ')' : ''}</td>
+                <td>${escapeHtml(p.category)}</td>
+                <td>${p.level}</td>
+                <td>${p.oc_cost} OC</td>
+                <td><button class="btn-outline" onclick="ce_trainCancelOcPurchase()" title="Cancel this purchase">&times;</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="reg-empty-note" style="margin-top:0.6rem;">You bought a skill with Ogre Chips this event, so training is locked for the rest of the event.</p>
+      </div>
+    </div>
+  `;
+}
+
 function renderTrainingBody(){
   const body = document.getElementById('ce-tab-body');
 
   if(TRAIN_LOAD_ERROR){
     body.innerHTML = `<div class="panel"><div class="panel-head"><h2>Training</h2></div><div class="panel-body"><p class="reg-error-note">Couldn't load the skill list: ${escapeHtml(TRAIN_LOAD_ERROR)}</p></div></div>`;
+    return;
+  }
+
+  if(TRAIN_OC_PURCHASE){
+    body.innerHTML = renderOcPurchasePanelHtml();
     return;
   }
 
@@ -1356,7 +1394,11 @@ function ce_trainRowInfo(idx){
   const canAct = !missing && !atCap && cost !== null && cost > 0 && cost <= spendableSp && hoursCost <= hoursRemaining
     && !(s.focusTypeId && !focusVal);
 
-  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, taught, missing, levelLimit, atCap, canAct };
+  const ocCost = (!isRelevel && cost !== null && cost > 0) ? window.faXpCostForSp(TRAIN_TOTAL_POOL, cost) : null;
+  const canBuyOc = !missing && !atCap && !TRAIN_OC_PURCHASE && ocCost !== null && ocCost <= OC_BALANCE
+    && !(s.focusTypeId && !focusVal);
+
+  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, taught, missing, levelLimit, atCap, canAct, ocCost, canBuyOc };
 }
 
 function trainCostLabel(info){
@@ -1387,13 +1429,14 @@ function renderTrainBrowser(){
       + (info.missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(info.missing)}</span>` : '')
       + (info.atCap ? `<span class="skill-missing-prereq">Rank cap reached (max level ${info.levelLimit})</span>` : '');
     const actionLabel = info.isRelevel ? 'Level Up' : 'Learn';
+    const ocButton = info.isRelevel ? '' : `<button class="btn-outline" id="ce-train-buy-oc-${idx}" style="margin-left:0.4rem;" ${info.canBuyOc ? '' : 'disabled'} onclick="ce_trainBuyWithOc(${idx})">${info.ocCost !== null ? `Buy (${info.ocCost} OC)` : 'Buy with OC'}</button>`;
 
     return `
       <tr class="${info.missing || info.atCap ? 'skill-row-locked' : ''}">
         <td>${nameLabel}</td>
         <td id="ce-train-cost-${idx}">${escapeHtml(trainCostLabel(info))}</td>
         <td>${focusCell}</td>
-        <td><button class="btn-outline" id="ce-train-learn-${idx}" ${info.canAct ? '' : 'disabled'} onclick="ce_trainAct(${idx})">${actionLabel}</button></td>
+        <td><button class="btn-outline" id="ce-train-learn-${idx}" ${info.canAct ? '' : 'disabled'} onclick="ce_trainAct(${idx})">${actionLabel}</button>${ocButton}</td>
       </tr>
     `;
   }).join('') : `<tr><td colspan="4">Nothing left to learn in this category.</td></tr>`;
@@ -1409,6 +1452,12 @@ function ce_trainUpdateRowLive(idx){
   if(btn){
     btn.disabled = !info.canAct;
     btn.textContent = info.isRelevel ? 'Level Up' : 'Learn';
+  }
+
+  const ocBtn = document.getElementById('ce-train-buy-oc-' + idx);
+  if(ocBtn){
+    ocBtn.disabled = !info.canBuyOc;
+    ocBtn.textContent = info.ocCost !== null ? `Buy (${info.ocCost} OC)` : 'Buy with OC';
   }
 }
 
@@ -1459,6 +1508,48 @@ async function ce_trainCancel(purchaseId){
   if(error){ alert(error.message); return; }
 
   await refreshTrainingState();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+  renderTrainingBody();
+}
+
+async function ce_trainBuyWithOc(idx){
+  const errorEl = document.getElementById('ce-train-error');
+  errorEl.style.display = 'none';
+  const info = ce_trainRowInfo(idx);
+  if(!info.canBuyOc) return;
+  const { s, focusVal, ocCost } = info;
+
+  const warning = TRAIN_PURCHASES.length
+    ? `Buying ${s.title} with ${ocCost} Ogre Chips will cancel all the skills you've trained this event and give you just this one instead. Continue?`
+    : `Buy ${s.title} for ${ocCost} Ogre Chips? You won't be able to train any other skills this event.`;
+  if(!confirm(warning)) return;
+
+  const { key } = ce_trainRowState(idx);
+  const { error } = await membersSupabase.rpc('event_log_buy_skill_with_oc', {
+    p_event_slug: EVENT.value,
+    p_character_id: MY_CHARACTER.id,
+    p_category: s.category,
+    p_skill_name: s.title,
+    p_focus: s.focusTypeId ? focusVal : null,
+    p_level: 1
+  });
+
+  if(error){ showError(errorEl, error.message); return; }
+
+  delete TRAIN_BROWSE_STATE[key];
+  await loadOcAndTraining();
+  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+  renderTrainingBody();
+}
+
+async function ce_trainCancelOcPurchase(){
+  if(!TRAIN_OC_PURCHASE) return;
+  if(!confirm('Cancel this Ogre Chips purchase and refund the Ogre Chips?')) return;
+
+  const { error } = await membersSupabase.rpc('event_log_cancel_oc_skill_purchase', { p_purchase_id: TRAIN_OC_PURCHASE.id });
+  if(error){ alert(error.message); return; }
+
+  await loadOcAndTraining();
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
   renderTrainingBody();
 }

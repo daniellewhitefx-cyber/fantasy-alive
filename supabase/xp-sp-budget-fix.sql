@@ -113,6 +113,13 @@ begin
     for update;
   if not found then raise exception 'Character not found'; end if;
 
+  if exists (
+    select 1 from event_log_oc_skill_purchases
+    where character_id = p_character_id and event_slug = p_event_slug
+  ) then
+    raise exception 'You bought a skill with Ogre Chips this event, so you can''t also train skills';
+  end if;
+
   if v_category in ('Combat Skill', 'Weapon Skill') and exists (
     select 1 from registrations
     where event_slug = p_event_slug and character_id = p_character_id and combat_status = 'Non-Combat'
@@ -209,6 +216,13 @@ begin
     where id = p_character_skill_id and character_id = p_character_id
     for update;
   if not found then raise exception 'Skill not found'; end if;
+
+  if exists (
+    select 1 from event_log_oc_skill_purchases
+    where character_id = p_character_id and event_slug = p_event_slug
+  ) then
+    raise exception 'You bought a skill with Ogre Chips this event, so you can''t also train skills';
+  end if;
 
   if v_category in ('Combat Skill', 'Weapon Skill') and exists (
     select 1 from registrations
