@@ -126,7 +126,7 @@ async function skillsLoadCatalog(){
       costDefault: defaultRow ? skillsBuildCostDetail(defaultRow, prereqGroupsBySkillDetail[defaultRow.id] || []) : null,
       costByRace: costByRace
     };
-  });
+  }).sort((a, b) => a.title.localeCompare(b.title));
 }
 
 function skillsOrderedCategories(allSkills){
