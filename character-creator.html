@@ -212,12 +212,16 @@ function existingChosenCost(s, race, focus){
 function updateRowLive(idx){
   const { s, state } = rowState(idx);
   const race = currentRace();
+  const isLeveled = isLeveledCost(s, race, state.focus);
+  const level = isLeveled ? skillNextLevel(s, chosen, state.focus) : 1;
+  const limit = skillsLevelLimit(s, race, state.focus);
+  const atCap = isLeveled && limit != null && level > limit;
   const remaining = startingSP() - spentSP() + existingChosenCost(s, race, state.focus);
-  const cost = skillsCumulativeCost(s, state.level, race, state.focus);
-  const canAdd = race && cost !== null && cost <= remaining && !(s.focusTypeId && !state.focus.trim());
+  const cost = atCap ? null : skillsCumulativeCost(s, level, race, state.focus);
+  const canAdd = race && !atCap && cost !== null && cost <= remaining && !(s.focusTypeId && !state.focus.trim());
 
   const costEl = document.getElementById('cc-cost-' + idx);
-  if(costEl) costEl.textContent = cost === null ? '-' : cost + ' SP';
+  if(costEl) costEl.textContent = atCap ? '-' : (cost === null ? '-' : cost + ' SP');
 
   const btn = document.getElementById('cc-add-' + idx);
   if(btn) btn.disabled = !canAdd;
@@ -229,32 +233,23 @@ function cc_updateFocus(idx, val){
   updateRowLive(idx);
 }
 
-function cc_updateLevel(idx, val){
-  const { s, state } = rowState(idx);
-  const race = currentRace();
-  const limit = skillsLevelLimit(s, race, state.focus);
-  let level = Math.max(1, parseInt(val, 10) || 1);
-  if(limit != null) level = Math.min(level, limit);
-  state.level = level;
-  updateRowLive(idx);
-}
-
 function cc_addSkill(idx){
   const { s, key, state } = rowState(idx);
   const race = currentRace();
+  const isLeveled = isLeveledCost(s, race, state.focus);
+  const level = isLeveled ? skillNextLevel(s, chosen, state.focus) : 1;
   const limit = skillsLevelLimit(s, race, state.focus);
-  if(limit != null && state.level > limit) return;
-  const cost = skillsCumulativeCost(s, state.level, race, state.focus);
+  if(limit != null && level > limit) return;
+  const cost = skillsCumulativeCost(s, level, race, state.focus);
   if(cost === null) return;
   if(s.focusTypeId && !state.focus.trim()) return;
   if(spentSP() - existingChosenCost(s, race, state.focus) + cost > startingSP()) return;
 
-  const isLeveled = isLeveledCost(s, race, state.focus);
   mergeChosenSkill(chosen, {
     category: s.category,
     title: s.title,
     focus: s.focusTypeId ? state.focus.trim() : '',
-    level: isLeveled ? state.level : 1,
+    level: isLeveled ? level : 1,
     cost: cost
   }, isLeveled);
 
@@ -377,23 +372,25 @@ function renderBrowser(){
     const key = skillKey(s);
     const state = browseState[key] || { level: 1, focus: '' };
     const isLeveled = isLeveledCost(s, race, state.focus);
-    const cost = skillsCumulativeCost(s, state.level, race, state.focus);
+    const level = isLeveled ? skillNextLevel(s, chosen, state.focus) : 1;
     const limit = skillsLevelLimit(s, race, state.focus);
+    const atCap = isLeveled && limit != null && level > limit;
+    const cost = atCap ? null : skillsCumulativeCost(s, level, race, state.focus);
     const remaining = startingSP() - spentSP() + existingChosenCost(s, race, state.focus);
     const missing = unmetPrereqText(s, race, state.focus, chosen, stats);
 
     let focusCell = '-';
     if(s.focusTypeId && isLeveled){
       focusCell = focusFieldHtml(idx, s, state, true)
-        + `<input type="number" min="1" ${limit != null ? `max="${limit}"` : ''} value="${state.level}" oninput="cc_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+        + `<span>${atCap ? 'Max level' : 'Level ' + level}</span>`;
     } else if(s.focusTypeId){
       focusCell = focusFieldHtml(idx, s, state, false);
     } else if(isLeveled){
-      focusCell = `Level <input type="number" min="1" ${limit != null ? `max="${limit}"` : ''} value="${state.level}" oninput="cc_updateLevel(${idx}, this.value)" style="max-width:70px;display:inline-block;">`;
+      focusCell = atCap ? 'Max level' : 'Level ' + level;
     }
 
-    const canAdd = !missing && race && cost !== null && cost <= remaining && !(s.focusTypeId && !state.focus.trim());
-    const costLabel = cost === null ? '-' : cost + ' SP';
+    const canAdd = !missing && race && !atCap && cost !== null && cost <= remaining && !(s.focusTypeId && !state.focus.trim());
+    const costLabel = atCap ? '-' : (cost === null ? '-' : cost + ' SP');
     const nameCell = escapeHtml(s.title) + (missing ? `<span class="skill-missing-prereq">Requires: ${escapeHtml(missing)}</span>` : '');
 
     return `
@@ -541,7 +538,6 @@ window.cc_becomeTownspersonOnly = cc_becomeTownspersonOnly;
 window.cc_onRaceChange = cc_onRaceChange;
 window.cc_selectCategory = cc_selectCategory;
 window.cc_updateFocus = cc_updateFocus;
-window.cc_updateLevel = cc_updateLevel;
 window.cc_addSkill = cc_addSkill;
 window.cc_removeSkill = cc_removeSkill;
 window.cc_onTemplateChange = cc_onTemplateChange;

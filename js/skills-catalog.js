@@ -42,7 +42,7 @@ function skillsParseCost(skill, level, race, focusName){
 
 function isLeveledCost(skill, race, focusName){
   const detail = resolveCostDetail(skill, null, race, focusName);
-  return !!(detail && detail.levelCost);
+  return !!(detail && (detail.levelCost || skill.levelable));
 }
 
 function skillsCumulativeCost(skill, level, race, focusName){
@@ -150,6 +150,12 @@ function focusOptionsFor(skill, knownSkills, race, opts){
   return names.filter(n => knownFoci.has(n));
 }
 
+function skillNextLevel(skill, chosen, focusName){
+  const key = skill.focusTypeId ? (focusName || '').trim() : '';
+  const existing = (chosen || []).find(c => c.title === skill.title && c.focus === key);
+  return existing ? existing.level + 1 : 1;
+}
+
 function skillFullyOwned(skill, owned){
   const matches = (owned || []).filter(o => o.title === skill.title);
   if(!matches.length) return false;
@@ -180,6 +186,7 @@ function clericalInvestmentLockedFocus(knownSkills){
 
 window.mergeChosenSkill = mergeChosenSkill;
 window.skillFullyOwned = skillFullyOwned;
+window.skillNextLevel = skillNextLevel;
 window.skillKey = skillKey;
 window.skillDetailFor = skillDetailFor;
 window.skillsParseCost = skillsParseCost;
