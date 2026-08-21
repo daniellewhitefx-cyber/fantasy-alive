@@ -892,6 +892,11 @@ document.addEventListener('fa-members-ready', async (e) => {
     allSkills = await skillsLoadCatalog();
   } catch(err){
   }
+
+  const preselectId = new URLSearchParams(location.search).get('character');
+  if(preselectId && allCharacters.some(c => c.id === preselectId)){
+    ac_selectCharacter(preselectId);
+  }
 });
 })();
 </script>
