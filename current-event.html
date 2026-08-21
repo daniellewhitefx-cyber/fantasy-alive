@@ -1514,38 +1514,46 @@ async function ce_trainCancel(purchaseId){
 async function ce_trainBuyWithOc(idx){
   const errorEl = document.getElementById('ce-train-error');
   errorEl.style.display = 'none';
-  const info = ce_trainRowInfo(idx);
-  if(!info.canBuyOc) return;
-  const { s, level, cost, focusVal } = info;
+  try {
+    const info = ce_trainRowInfo(idx);
+    if(!info.canBuyOc){ alert('Cannot buy with Ogre Chips right now: ' + (info.ocReason || 'unknown reason')); return; }
+    const { s, level, cost, focusVal } = info;
 
-  const { key } = ce_trainRowState(idx);
-  const { error } = await membersSupabase.rpc('event_log_buy_skill_with_oc', {
-    p_event_slug: EVENT.value,
-    p_character_id: MY_CHARACTER.id,
-    p_category: s.category,
-    p_skill_name: s.title,
-    p_focus: s.focusTypeId ? focusVal : null,
-    p_level: level,
-    p_sp_cost: cost
-  });
+    const { key } = ce_trainRowState(idx);
+    const { error } = await membersSupabase.rpc('event_log_buy_skill_with_oc', {
+      p_event_slug: EVENT.value,
+      p_character_id: MY_CHARACTER.id,
+      p_category: s.category,
+      p_skill_name: s.title,
+      p_focus: s.focusTypeId ? focusVal : null,
+      p_level: level,
+      p_sp_cost: cost
+    });
 
-  if(error){ showError(errorEl, error.message); return; }
+    if(error){ showError(errorEl, error.message); return; }
 
-  delete TRAIN_BROWSE_STATE[key];
-  await loadOcAndTraining();
-  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
-  renderTrainingBody();
+    delete TRAIN_BROWSE_STATE[key];
+    await loadOcAndTraining();
+    document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+    renderTrainingBody();
+  } catch(err){
+    alert('Buy with Ogre Chips failed unexpectedly: ' + (err && err.message ? err.message : String(err)));
+  }
 }
 
 async function ce_trainCancelOcPurchase(){
-  if(!TRAIN_OC_PURCHASE) return;
+  try {
+    if(!TRAIN_OC_PURCHASE) return;
 
-  const { error } = await membersSupabase.rpc('event_log_cancel_oc_skill_purchase', { p_purchase_id: TRAIN_OC_PURCHASE.id });
-  if(error){ alert(error.message); return; }
+    const { error } = await membersSupabase.rpc('event_log_cancel_oc_skill_purchase', { p_purchase_id: TRAIN_OC_PURCHASE.id });
+    if(error){ alert(error.message); return; }
 
-  await loadOcAndTraining();
-  document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
-  renderTrainingBody();
+    await loadOcAndTraining();
+    document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
+    renderTrainingBody();
+  } catch(err){
+    alert('Cancelling the Ogre Chips purchase failed unexpectedly: ' + (err && err.message ? err.message : String(err)));
+  }
 }
 
 
