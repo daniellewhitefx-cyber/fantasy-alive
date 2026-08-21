@@ -419,12 +419,19 @@ function render(){
   const combatSection = document.getElementById('reg-combat-section');
   if(state.who === 'character'){
     combatSection.style.display = 'block';
-    document.getElementById('reg-combat-grid').innerHTML = COMBAT_OPTIONS.map(c => `
-      <div class="reg-pass-card ${selectedCombat===c.id?'selected':''}" onclick="reg_selectCombat('${c.id}')">
+    const activeChar = CHARACTERS.find(c => c.id === state.character);
+    const hasNoncombatBuild = !!(activeChar && activeChar.noncombat_build_saved_at);
+    document.getElementById('reg-combat-grid').innerHTML = COMBAT_OPTIONS.map(c => {
+      const disabled = c.id === 'noncombat' && !hasNoncombatBuild;
+      return `
+      <div class="reg-pass-card ${selectedCombat===c.id?'selected':''} ${disabled ? 'disabled' : ''}" ${disabled ? '' : `onclick="reg_selectCombat('${c.id}')"`}>
         <div class="pname">${escapeHtml(c.name)}</div>
         <p class="pgrants">${escapeHtml(c.grants)}</p>
+        ${disabled ? `<p class="reg-empty-note">Set up a <a href="character-noncombat-build.html?id=${activeChar.id}">Non-Combat Build</a> for this character first.</p>` : ''}
       </div>
-    `).join('');
+    `;
+    }).join('');
+    if(selectedCombat === 'noncombat' && !hasNoncombatBuild) selectedCombat = null;
   } else {
     combatSection.style.display = 'none';
     selectedCombat = null;
@@ -849,7 +856,7 @@ selectedDays = state.event ? new Set(state.event.days.map(d => d.id)) : new Set(
 async function loadCharacters(){
   const { data } = await membersSupabase
     .from('characters')
-    .select('id, name')
+    .select('id, name, noncombat_build_saved_at')
     .eq('player_id', window.faCurrentUser.id)
     .order('created_at', { ascending: true });
   CHARACTERS = data || [];

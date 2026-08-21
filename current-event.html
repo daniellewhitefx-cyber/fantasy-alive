@@ -149,6 +149,9 @@ let REG_CHECKED = false;
 let REG_ERROR = null;
 let REGISTERED_AS = null;
 let MY_CHARACTER = null;
+let MY_COMBAT_STATUS = null;
+let MY_REGISTRATION_ID = null;
+let MY_NONCOMBAT_SKILLS = [];
 let OC_BALANCE = 0;
 let COPPER_BALANCE = 0;
 let OC_CAP = 100;
@@ -295,10 +298,24 @@ async function loadRegistration(){
   const mine = registrants.find(r => r.player_id === me.id);
   REGISTERED_AS = mine ? mine.who : null;
   MY_CHARACTER = null;
+  MY_COMBAT_STATUS = null;
+  MY_REGISTRATION_ID = null;
+  MY_NONCOMBAT_SKILLS = [];
 
   if(mine && mine.who === 'character'){
     const { data: chars } = await membersSupabase.from('characters').select('id, name, race, social_class').eq('player_id', me.id);
     MY_CHARACTER = (chars || []).find(c => c.id === mine.character_id) || null;
+
+    const { data: myReg } = await membersSupabase.rpc('my_event_registration', { p_event_slug: EVENT.value });
+    const myRegRow = (myReg && myReg[0]) || null;
+    MY_COMBAT_STATUS = myRegRow ? myRegRow.combat_status : null;
+    MY_REGISTRATION_ID = myRegRow ? myRegRow.id : null;
+
+    if(MY_COMBAT_STATUS === 'Non-Combat' && MY_REGISTRATION_ID){
+      const { data: ncSkills } = await membersSupabase.from('registration_noncombat_skills')
+        .select('category, skill_name, focus, level, sp_cost').eq('registration_id', MY_REGISTRATION_ID);
+      MY_NONCOMBAT_SKILLS = ncSkills || [];
+    }
   }
 
   if(REGISTERED_AS) await loadOcAndTraining();
@@ -727,6 +744,23 @@ function renderInfoHtml(){
     </div>
   `;
 
+  const noncombatSection = (REGISTERED_AS === 'character' && MY_CHARACTER && MY_COMBAT_STATUS === 'Non-Combat') ? `
+    <div class="panel">
+      <div class="panel-head"><h2>Your Non-Combat Sheet <span class="status-pill noncombat" style="margin-left:0.6rem;">Non-Combat</span></h2></div>
+      <div class="panel-body">
+        <p class="page-subhead">${escapeHtml(MY_CHARACTER.name)} is registered Non-Combat for this event. This is the locked-in Non-Combat Build being used as ${escapeHtml(MY_CHARACTER.name)}'s character sheet - it can't be swapped for a combat build mid-event.</p>
+        ${MY_NONCOMBAT_SKILLS.length ? `
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Skill</th><th>Type</th><th>Focus</th><th>Level</th></tr></thead>
+              <tbody>${MY_NONCOMBAT_SKILLS.map(s => `<tr><td>${escapeHtml(s.skill_name)}</td><td>${escapeHtml(s.category)}</td><td>${escapeHtml(s.focus || '-')}</td><td>${s.level}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+        ` : emptyState('No skills were chosen on this Non-Combat Build.')}
+      </div>
+    </div>
+  ` : '';
+
   const tagsSection = (REGISTERED_AS === 'character' && MY_CHARACTER) ? `
     <div class="ce-cols">
       <div class="panel">
@@ -758,7 +792,7 @@ function renderInfoHtml(){
     </div>
   ` : '';
 
-  body.innerHTML = `<div class="ce-cols">${rosterSection}${infoSection}</div>${tagsSection}`;
+  body.innerHTML = `<div class="ce-cols">${rosterSection}${infoSection}</div>${noncombatSection}${tagsSection}`;
 }
 
 async function ce_infoPost(){
@@ -1155,7 +1189,10 @@ async function ce_shopCancelSale(saleId){
 
 async function ensureTrainingCatalogLoaded(){
   if(TRAIN_ALL_SKILLS.length) return;
-  TRAIN_ALL_SKILLS = await skillsLoadCatalog();
+  const catalog = await skillsLoadCatalog();
+  TRAIN_ALL_SKILLS = MY_COMBAT_STATUS === 'Non-Combat'
+    ? catalog.filter(s => s.category !== 'Combat Skill' && s.category !== 'Weapon Skill')
+    : catalog;
   const categories = skillsOrderedCategories(TRAIN_ALL_SKILLS);
   TRAIN_CATEGORY = categories.length ? categories[0] : null;
 }
@@ -1235,11 +1272,16 @@ function renderTrainingBody(){
     return;
   }
 
+  const noncombatNote = MY_COMBAT_STATUS === 'Non-Combat'
+    ? `<p class="page-subhead">${escapeHtml(MY_CHARACTER.name)} is registered Non-Combat this event, so Combat and Weapon skills aren't available to train.</p>`
+    : '';
+
   body.innerHTML = `
     ${renderLearningListHtml()}
     <div class="panel">
       <div class="panel-head"><h2>Training</h2></div>
       <div class="panel-body">
+        ${noncombatNote}
         <div class="day-toggle" id="ce-train-cat-tabs"></div>
         <div class="table-scroll">
           <table class="data-table">
