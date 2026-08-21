@@ -224,10 +224,14 @@ function ar_render(){
   const total = REGISTRANTS.length;
   const withMeal = REGISTRANTS.filter(r => r.meal_name).length;
   const withNotes = REGISTRANTS.filter(r => (r.allergy_notes && r.allergy_notes.trim()) || (r.disability_notes && r.disability_notes.trim())).length;
+  const combatCount = REGISTRANTS.filter(r => r.combat_status === 'Combat').length;
+  const noncombatCount = REGISTRANTS.filter(r => r.combat_status === 'Non-Combat').length;
 
   summaryEl.innerHTML = `
     <div class="ar-summary-stat"><strong>${total}</strong> registered</div>
     <div class="ar-summary-stat"><strong>${withMeal}</strong> with a meal plan</div>
+    <div class="ar-summary-stat"><strong>${combatCount}</strong> Combat</div>
+    <div class="ar-summary-stat"><strong>${noncombatCount}</strong> Non-Combat</div>
     <div class="ar-summary-stat"><strong>${withNotes}</strong> with logistics notes</div>
   `;
 
