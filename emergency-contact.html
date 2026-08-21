@@ -144,6 +144,7 @@
 </div>
 
 <button class="btn-gold" onclick="ecf_save()">Save</button>
+<p class="reg-success-note" id="ecf-success" style="display:none; margin-top:0.6rem;"></p>
 <p class="reg-error-note" id="ecf-error" style="display:none; margin-top:0.6rem;"></p>
 
 </div>
@@ -202,7 +203,9 @@ async function loadExisting(){
 
 async function ecf_save(){
   const errorEl = document.getElementById('ecf-error');
+  const successEl = document.getElementById('ecf-success');
   errorEl.style.display = 'none';
+  successEl.style.display = 'none';
 
   const c1Email = getVal('ecf-c1-email');
   const c2Email = getVal('ecf-c2-email');
@@ -233,7 +236,11 @@ async function ecf_save(){
 
   const isFirstSave = !hadExistingRecord;
   await loadExisting();
-  if(isFirstSave) window.location.href = 'account.html';
+
+  successEl.textContent = isFirstSave ? 'Saved! Thanks for completing your Emergency Contact Form.' : 'Saved! Your emergency contact information is up to date.';
+  successEl.style.display = 'block';
+
+  if(isFirstSave) setTimeout(() => { window.location.href = 'account.html'; }, 1400);
 }
 
 window.ecf_save = ecf_save;
