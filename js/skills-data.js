@@ -138,6 +138,16 @@ function skillsOrderedCategories(allSkills){
   return [...known, ...unknown];
 }
 
+async function raceStartingSkillsLoad(){
+  const rows = await skillsFetchAllRows('race_starting_skills', 'race, skill_id, level');
+  const byRace = {};
+  rows.forEach(r => {
+    (byRace[r.race] = byRace[r.race] || []).push({ skillId: r.skill_id, level: r.level });
+  });
+  return byRace;
+}
+
 window.SKILL_CATEGORY_ORDER = SKILL_CATEGORY_ORDER;
 window.skillsLoadCatalog = skillsLoadCatalog;
 window.skillsOrderedCategories = skillsOrderedCategories;
+window.raceStartingSkillsLoad = raceStartingSkillsLoad;

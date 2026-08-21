@@ -152,6 +152,7 @@
 document.getElementById('cc-birthday').max = faMaxBirthdayDate();
 
 let allSkills = [];
+let raceStartingSkills = {};
 let activeCategory = 'Combat Skill';
 let chosen = [];
 let browseState = {};
@@ -173,6 +174,8 @@ function startingSP(){
 function spentSP(){ return chosen.reduce((sum, s) => sum + s.cost, 0); }
 
 function cc_onRaceChange(){
+  chosen = applyRacialGrants(chosen, allSkills, raceStartingSkills, currentRace());
+
   const race = currentRace();
   const budgetLine = document.getElementById('cc-budget-line');
   if(!race){
@@ -182,6 +185,7 @@ function cc_onRaceChange(){
   } else {
     budgetLine.textContent = `Starting Skill Points: ${spentSP()} / ${startingSP()} used (${race} characters start with ${startingSP()} SP).`;
   }
+  renderChosen();
   renderBrowser();
 }
 
@@ -261,10 +265,17 @@ function cc_addSkill(idx){
 }
 
 function cc_removeSkill(i){
+  if(chosen[i].racial) return;
   chosen.splice(i, 1);
   renderChosen();
   renderBrowser();
   cc_onRaceChange();
+}
+
+function cc_setRacialFocus(i, val){
+  chosen[i].focus = val;
+  renderChosen();
+  renderBrowser();
 }
 
 function renderTemplateOptions(){
@@ -413,16 +424,29 @@ function renderChosen(){
     return;
   }
   empty.style.display = 'none';
-  body.innerHTML = chosen.map((s, i) => `
-    <tr>
-      <td>${escapeHtml(s.title)}</td>
-      <td>${escapeHtml(s.category)}</td>
-      <td>${escapeHtml(s.focus)}</td>
-      <td>${s.level}</td>
-      <td>${s.cost}</td>
-      <td><button class="btn-outline" onclick="cc_removeSkill(${i})" title="Remove">&times;</button></td>
-    </tr>
-  `).join('');
+  body.innerHTML = chosen.map((s, i) => {
+    let focusCell = escapeHtml(s.focus);
+    if(s.racial && s.needsFocus && !s.focus){
+      const skillObj = allSkills.find(sk => sk.title === s.title);
+      const options = (skillObj && focusOptionsFor(skillObj, chosen, currentRace())) || [];
+      focusCell = `<select onchange="cc_setRacialFocus(${i}, this.value)">`
+        + `<option value="">Choose&hellip;</option>`
+        + options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')
+        + `</select>`;
+    }
+    const costLabel = s.racial ? 'Free' : s.cost;
+    const removeCell = s.racial ? '' : `<button class="btn-outline" onclick="cc_removeSkill(${i})" title="Remove">&times;</button>`;
+    return `
+      <tr>
+        <td>${escapeHtml(s.title)}</td>
+        <td>${escapeHtml(s.category)}</td>
+        <td>${focusCell}</td>
+        <td>${s.level}</td>
+        <td>${costLabel}</td>
+        <td>${removeCell}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
 async function cc_submit(){
@@ -442,6 +466,13 @@ async function cc_submit(){
   if(!faIsAtLeast18(birthday)){ errorEl.textContent = 'Characters must be at least 18 years old.'; errorEl.style.display = 'block'; return; }
   if(spentSP() > startingSP()){ errorEl.textContent = 'Chosen skills exceed your starting Skill Points.'; errorEl.style.display = 'block'; return; }
 
+  const racialChoice = chosen.find(s => s.racial && s.needsFocus);
+  if(racialChoice && !racialChoice.focus){
+    errorEl.textContent = `Please choose a focus for your free ${racialChoice.title}.`;
+    errorEl.style.display = 'block';
+    return;
+  }
+
   const p_skills = chosen.map(s => ({
     category: s.category,
     skill_name: s.title,
@@ -455,7 +486,8 @@ async function cc_submit(){
     p_race: race,
     p_pronouns: pronouns,
     p_birthday: birthday,
-    p_skills
+    p_skills,
+    p_racial_focus: racialChoice ? racialChoice.focus : null
   });
 
   if(error){ errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
@@ -518,7 +550,7 @@ async function init(){
   await checkCap();
 
   try{
-    allSkills = await skillsLoadCatalog();
+    [allSkills, raceStartingSkills] = await Promise.all([skillsLoadCatalog(), raceStartingSkillsLoad()]);
     document.getElementById('cc-skills-loading').style.display = 'none';
     document.getElementById('cc-skills-area').style.display = 'block';
     const categories = skillsOrderedCategories(allSkills);
@@ -540,6 +572,7 @@ window.cc_selectCategory = cc_selectCategory;
 window.cc_updateFocus = cc_updateFocus;
 window.cc_addSkill = cc_addSkill;
 window.cc_removeSkill = cc_removeSkill;
+window.cc_setRacialFocus = cc_setRacialFocus;
 window.cc_onTemplateChange = cc_onTemplateChange;
 window.cc_loadTemplate = cc_loadTemplate;
 window.cc_submit = cc_submit;

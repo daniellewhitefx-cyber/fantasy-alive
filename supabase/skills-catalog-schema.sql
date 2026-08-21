@@ -88,12 +88,13 @@ create table if not exists skill_focus_prerequisites (
 );
 create index if not exists skill_focus_prerequisites_focus_idx on skill_focus_prerequisites(focus_id);
 
-create table if not exists race_notable_skills (
+create table if not exists race_starting_skills (
   id integer primary key,
   race text not null,
-  skill_id integer not null references skills(id) on delete cascade
+  skill_id integer not null references skills(id) on delete cascade,
+  level integer not null default 1
 );
-create index if not exists race_notable_skills_race_idx on race_notable_skills(race);
+create index if not exists race_starting_skills_race_idx on race_starting_skills(race);
 
 alter table skill_types enable row level security;
 alter table focus_types enable row level security;
@@ -104,7 +105,7 @@ alter table skill_details enable row level security;
 alter table skill_focus_details enable row level security;
 alter table skill_prerequisites enable row level security;
 alter table skill_focus_prerequisites enable row level security;
-alter table race_notable_skills enable row level security;
+alter table race_starting_skills enable row level security;
 
 drop policy if exists "Members read skill catalog" on skill_types;
 drop policy if exists "Anyone can read skill catalog" on skill_types;
@@ -133,10 +134,10 @@ create policy "Anyone can read skill catalog" on skill_prerequisites for select 
 drop policy if exists "Members read skill catalog" on skill_focus_prerequisites;
 drop policy if exists "Anyone can read skill catalog" on skill_focus_prerequisites;
 create policy "Anyone can read skill catalog" on skill_focus_prerequisites for select using (true);
-drop policy if exists "Members read skill catalog" on race_notable_skills;
-drop policy if exists "Anyone can read skill catalog" on race_notable_skills;
-create policy "Anyone can read skill catalog" on race_notable_skills for select using (true);
+drop policy if exists "Members read skill catalog" on race_starting_skills;
+drop policy if exists "Anyone can read skill catalog" on race_starting_skills;
+create policy "Anyone can read skill catalog" on race_starting_skills for select using (true);
 
 grant select on skill_types, focus_types, skills, skill_focuses, skill_focus_type_map,
   skill_details, skill_focus_details, skill_prerequisites, skill_focus_prerequisites,
-  race_notable_skills to authenticated, anon;
+  race_starting_skills to authenticated, anon;
