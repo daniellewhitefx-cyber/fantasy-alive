@@ -1392,7 +1392,16 @@ function ce_trainRowInfo(idx){
   const canBuyOc = !missing && !atCap && !TRAIN_OC_PURCHASE && ocCost !== null && ocCost <= OC_BALANCE
     && !(s.focusTypeId && !focusVal);
 
-  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, taught, missing, levelLimit, atCap, canAct, ocCost, canBuyOc };
+  let ocReason = '';
+  if(!canBuyOc){
+    if(TRAIN_OC_PURCHASE) ocReason = 'You already bought a skill with Ogre Chips this event';
+    else if(missing) ocReason = 'Missing prerequisites';
+    else if(atCap) ocReason = 'Already at the rank cap';
+    else if(s.focusTypeId && !focusVal) ocReason = 'Choose a focus first';
+    else if(ocCost !== null && ocCost > OC_BALANCE) ocReason = `Not enough Ogre Chips (need ${ocCost}, have ${OC_BALANCE})`;
+  }
+
+  return { s, state, isLeveled, focusVal, focusLocked, known, isRelevel, level, cost, hoursCost, taught, missing, levelLimit, atCap, canAct, ocCost, canBuyOc, ocReason };
 }
 
 function trainCostLabel(info){
@@ -1435,7 +1444,7 @@ function renderTrainBrowser(){
         + `<button class="btn-outline" onclick="ce_trainConfirmBuyWithOc(${idx})">Yes, confirm</button>`
         + `<button class="btn-outline" style="margin-left:0.4rem;" onclick="ce_trainCancelOcConfirm()">Cancel</button>`;
     } else {
-      const ocButton = `<button class="btn-outline" id="ce-train-buy-oc-${idx}" style="margin-left:0.4rem;" ${info.canBuyOc ? '' : 'disabled'} onclick="ce_trainBuyWithOc(${idx})">${ocLabel}</button>`;
+      const ocButton = `<button class="btn-outline" id="ce-train-buy-oc-${idx}" style="margin-left:0.4rem;" ${info.canBuyOc ? '' : 'disabled'} title="${escapeHtml(info.ocReason)}" onclick="ce_trainBuyWithOc(${idx})">${ocLabel}</button>`;
       actionCell = `<button class="btn-outline" id="ce-train-learn-${idx}" ${info.canAct ? '' : 'disabled'} onclick="ce_trainAct(${idx})">${actionLabel}</button>${ocButton}`;
     }
 
@@ -1466,6 +1475,7 @@ function ce_trainUpdateRowLive(idx){
   if(ocBtn){
     ocBtn.disabled = !info.canBuyOc;
     ocBtn.textContent = info.ocCost !== null ? `${info.isRelevel ? 'Level Up' : 'Buy'} (${info.ocCost} OC)` : 'Buy with OC';
+    ocBtn.title = info.ocReason;
   }
 }
 
