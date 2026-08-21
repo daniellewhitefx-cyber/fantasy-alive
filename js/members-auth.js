@@ -18,6 +18,25 @@ async function faFetchAllRows(table, select){
 }
 window.faFetchAllRows = faFetchAllRows;
 
+function faMaxBirthdayDate(){
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 18);
+  return d.toISOString().slice(0, 10);
+}
+window.faMaxBirthdayDate = faMaxBirthdayDate;
+
+function faIsAtLeast18(dateStr){
+  if(!dateStr) return false;
+  const bday = new Date(dateStr + 'T00:00:00');
+  if(isNaN(bday.getTime())) return false;
+  const today = new Date();
+  let age = today.getFullYear() - bday.getFullYear();
+  const m = today.getMonth() - bday.getMonth();
+  if(m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--;
+  return age >= 18;
+}
+window.faIsAtLeast18 = faIsAtLeast18;
+
 function loadTutorialScript(){
   return new Promise(resolve => {
     if(window.faTutorialLoaded){ resolve(); return; }

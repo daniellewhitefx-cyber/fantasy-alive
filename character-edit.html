@@ -57,7 +57,7 @@
 </div>
 <div>
 <label class="field-label" for="ce-birthday">Birthday</label>
-<input type="text" id="ce-birthday" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric">
+<input type="date" id="ce-birthday" min="1900-01-01">
 </div>
 </div>
 </div>
@@ -107,6 +107,8 @@
 <script src="js/character-stats.js"></script>
 <script>
 (function(){
+document.getElementById('ce-birthday').max = faMaxBirthdayDate();
+
 let allSkills = [];
 let activeCategory = 'Combat Skill';
 let chosen = [];
@@ -310,11 +312,11 @@ async function ce_save(){
 
   const name = document.getElementById('ce-name').value.trim();
   const pronouns = document.getElementById('ce-pronouns').value.trim();
-  const birthdayRaw = document.getElementById('ce-birthday').value.trim();
-  const birthday = birthdayRaw || null;
+  const birthday = document.getElementById('ce-birthday').value.trim();
 
   if(!name){ errorEl.textContent = 'Character name cannot be empty.'; errorEl.style.display = 'block'; return; }
-  if(birthdayRaw && !/^\d{4}-\d{2}-\d{2}$/.test(birthdayRaw)){ errorEl.textContent = 'Birthday must be in YYYY-MM-DD format.'; errorEl.style.display = 'block'; return; }
+  if(!birthday){ errorEl.textContent = 'Please pick a birthday.'; errorEl.style.display = 'block'; return; }
+  if(!faIsAtLeast18(birthday)){ errorEl.textContent = 'Characters must be at least 18 years old.'; errorEl.style.display = 'block'; return; }
   if(spentSP() > startingSP()){ errorEl.textContent = 'Chosen skills exceed this character\'s Skill Points.'; errorEl.style.display = 'block'; return; }
 
   const p_skills = chosen.map(s => ({
