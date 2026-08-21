@@ -293,7 +293,7 @@ async function ps_loadRoster(){
   registrants.forEach(r => {
     if(!r.character_id){ UNMATCHED.push(r); return; }
     if(!ROSTER.some(x => x.id === r.character_id)){
-      ROSTER.push({ id: r.character_id, name: r.character_name, playerName: r.player_name });
+      ROSTER.push({ id: r.character_id, name: r.character_name, playerName: r.player_name, combatStatus: r.combat_status });
     }
   });
 
@@ -313,7 +313,8 @@ async function ps_printAll(){
   printBtn.textContent = 'Preparing…';
 
   const ids = ROSTER.map(r => r.id);
-  const { data: sheets, error } = await membersSupabase.rpc('admin_character_sheets', { p_character_ids: ids });
+  const eventSlug = document.getElementById('ps-event-select').value;
+  const { data: sheets, error } = await membersSupabase.rpc('admin_character_sheets', { p_character_ids: ids, p_event_slug: eventSlug });
 
   printBtn.disabled = false;
   printBtn.textContent = 'Print All Character Sheets';
@@ -326,14 +327,15 @@ async function ps_printAll(){
   const html = ROSTER.map(r => {
     const s = sheetById[r.id];
     if(!s) return '';
-    const skills = s.skills || [];
+    const isNoncombat = s.combat_status === 'Non-Combat';
+    const skills = (isNoncombat ? s.noncombat_skills : s.skills) || [];
     const spent = skills.reduce((sum, sk) => sum + (sk.sp || 0), 0);
     const stats = deriveStats(s.race, skills);
     const ratio = xpPerSp(s.starting_sp) + ':1';
     return `
       <div class="print-sheet-page">
         <div class="print-sheet-head">
-          <h2>${escapeHtml(s.name)}</h2>
+          <h2>${escapeHtml(s.name)}${isNoncombat ? ' <span class="status-pill noncombat">Non-Combat</span>' : ''}</h2>
           <p class="print-sheet-player">Played by ${escapeHtml(r.playerName)}</p>
         </div>
         <div class="print-sheet-stats">
