@@ -802,8 +802,6 @@ insert into race_starting_skills (id, race, skill_id, level) values
   (8, 'Goblin', 8, 1),
   (9, 'Lizardfolk', 46, 1),
   (10, 'Malkin', 81, 1),
-  (11, 'Malkin', 2, 1),
-  (12, 'Curtainborn', 73, 5),
-  (13, 'Elf', 68, 5)
+  (11, 'Malkin', 2, 1)
 on conflict (id) do nothing;
 
