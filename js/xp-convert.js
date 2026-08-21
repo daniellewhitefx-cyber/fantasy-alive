@@ -7,7 +7,7 @@ function faXpPerSp(investedSp){
 }
 
 function faConvertXpToSp(xpBalance, startingSp, spentSp){
-  const rate = faXpPerSp(startingSp + spentSp);
+  const rate = faXpPerSp(spentSp);
   const xpConvertedSp = Math.floor(xpBalance / rate);
   const leftoverXp = xpBalance - xpConvertedSp * rate;
   const totalPool = startingSp + xpConvertedSp;
