@@ -1243,8 +1243,9 @@ function ce_trainFindKnown(category, title, focus){
 }
 
 function renderLearningListHtml(){
-  if(!TRAIN_PURCHASES.length) return '';
-  const rows = TRAIN_PURCHASES.map(p => {
+  if(!TRAIN_PURCHASES.length && !TRAIN_OC_PURCHASE) return '';
+
+  const trainedRows = TRAIN_PURCHASES.map(p => {
     const levelLabel = p.is_relevel ? `${p.prev_level} &rarr; ${p.level}` : `${p.level}`;
     const costLabel = `${p.sp_cost} SP (${p.hours_cost} hrs)`;
     return `
@@ -1258,6 +1259,24 @@ function renderLearningListHtml(){
     `;
   }).join('');
 
+  let ocRow = '';
+  if(TRAIN_OC_PURCHASE){
+    const p = TRAIN_OC_PURCHASE;
+    const levelLabel = p.is_relevel ? `${p.prev_level} &rarr; ${p.level}` : `${p.level}`;
+    const actionCell = TRAIN_OC_CANCEL_CONFIRM
+      ? `<button class="btn-outline" onclick="ce_trainConfirmCancelOcPurchase()">Yes</button><button class="btn-outline" style="margin-left:0.3rem;" onclick="ce_trainDismissCancelOcConfirm()">No</button>`
+      : `<button class="btn-outline" onclick="ce_trainCancelOcPurchase()" title="Cancel this purchase">&times;</button>`;
+    ocRow = `
+      <tr>
+        <td>${escapeHtml(p.skill_name)}${p.focus ? ' (' + escapeHtml(p.focus) + ')' : ''}</td>
+        <td>${escapeHtml(p.category)}</td>
+        <td>${levelLabel}</td>
+        <td>${p.oc_cost} OC</td>
+        <td>${actionCell}</td>
+      </tr>
+    `;
+  }
+
   return `
     <div class="panel">
       <div class="panel-head"><h2>Learning Skills</h2></div>
@@ -1265,42 +1284,10 @@ function renderLearningListHtml(){
         <div class="table-scroll">
           <table class="data-table">
             <thead><tr><th>Skill</th><th>Type</th><th>Level</th><th>Cost</th><th></th></tr></thead>
-            <tbody>${rows}</tbody>
+            <tbody>${trainedRows}${ocRow}</tbody>
           </table>
         </div>
-      </div>
-    </div>
-  `;
-}
-
-function renderOcPurchasePanelHtml(){
-  const p = TRAIN_OC_PURCHASE;
-  const cancelCell = TRAIN_OC_CANCEL_CONFIRM
-    ? `<button class="btn-outline" onclick="ce_trainConfirmCancelOcPurchase()">Yes, cancel</button><button class="btn-outline" style="margin-left:0.4rem;" onclick="ce_trainDismissCancelOcConfirm()">Never mind</button>`
-    : `<button class="btn-outline" onclick="ce_trainCancelOcPurchase()" title="Cancel this purchase">&times;</button>`;
-  const confirmNote = TRAIN_OC_CANCEL_CONFIRM
-    ? `<p class="reg-empty-note" style="margin-top:0.6rem;">Cancelling refunds the ${p.oc_cost} Ogre Chips and removes the skill.</p>`
-    : '';
-  return `
-    <div class="panel">
-      <div class="panel-head"><h2>Bought with Ogre Chips</h2></div>
-      <div class="panel-body">
-        <div class="table-scroll">
-          <table class="data-table">
-            <thead><tr><th>Skill</th><th>Type</th><th>Level</th><th>Cost</th><th></th></tr></thead>
-            <tbody>
-              <tr>
-                <td>${escapeHtml(p.skill_name)}${p.focus ? ' (' + escapeHtml(p.focus) + ')' : ''}</td>
-                <td>${escapeHtml(p.category)}</td>
-                <td>${p.level}</td>
-                <td>${p.oc_cost} OC</td>
-                <td>${cancelCell}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="reg-empty-note" style="margin-top:0.6rem;">You bought a skill with Ogre Chips this event, so training is locked for the rest of the event.</p>
-        ${confirmNote}
+        ${TRAIN_OC_PURCHASE ? `<p class="reg-empty-note" style="margin-top:0.6rem;">Bought with Ogre Chips this event, so training is locked for the rest of the event.</p>` : ''}
       </div>
     </div>
   `;
@@ -1311,11 +1298,6 @@ function renderTrainingBody(){
 
   if(TRAIN_LOAD_ERROR){
     body.innerHTML = `<div class="panel"><div class="panel-head"><h2>Training</h2></div><div class="panel-body"><p class="reg-error-note">Couldn't load the skill list: ${escapeHtml(TRAIN_LOAD_ERROR)}</p></div></div>`;
-    return;
-  }
-
-  if(TRAIN_OC_PURCHASE){
-    body.innerHTML = renderOcPurchasePanelHtml();
     return;
   }
 
@@ -1403,7 +1385,7 @@ function ce_trainRowInfo(idx){
   const missing = unmetPrereqText(s, race, focusVal, TRAIN_KNOWN, TRAIN_STATS);
   const levelLimit = skillsLevelLimit(s, race, focusVal);
   const atCap = levelLimit != null && level > levelLimit;
-  const canAct = !missing && !atCap && cost !== null && cost > 0 && cost <= spendableSp && hoursCost <= hoursRemaining
+  const canAct = !missing && !atCap && !TRAIN_OC_PURCHASE && cost !== null && cost > 0 && cost <= spendableSp && hoursCost <= hoursRemaining
     && !(s.focusTypeId && !focusVal);
 
   const ocCost = (cost !== null && cost > 0) ? window.faXpCostForSp(TRAIN_TOTAL_POOL, cost) : null;
