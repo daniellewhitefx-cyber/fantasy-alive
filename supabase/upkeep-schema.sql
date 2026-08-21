@@ -22,7 +22,7 @@ alter table event_log_upkeep_costs enable row level security;
 drop policy if exists "Players see their own upkeep costs" on event_log_upkeep_costs;
 create policy "Players see their own upkeep costs"
   on event_log_upkeep_costs for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 grant select on event_log_upkeep_costs to authenticated;
 

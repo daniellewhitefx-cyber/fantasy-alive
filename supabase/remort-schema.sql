@@ -2,9 +2,9 @@ drop policy if exists "Players see their own characters" on characters;
 create policy "Players see their own characters"
   on characters for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
-    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'remort_staff')::boolean is true
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'character_staff')::boolean is true
     or fa_is_site_admin()
   );
 
@@ -27,8 +27,8 @@ drop policy if exists "Players and staff see remort requests" on character_remor
 create policy "Players and staff see remort requests"
   on character_remort_requests for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'remort_staff')::boolean is true
     or fa_is_logistics_or_admin()
   );
 

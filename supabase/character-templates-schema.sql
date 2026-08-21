@@ -29,10 +29,10 @@ alter table character_template_archetypes enable row level security;
 alter table character_template_skills enable row level security;
 
 drop policy if exists "Members read character templates" on character_templates;
-create policy "Members read character templates" on character_templates for select using (auth.uid() is not null);
+create policy "Members read character templates" on character_templates for select using ((select auth.uid()) is not null);
 drop policy if exists "Members read character templates" on character_template_archetypes;
-create policy "Members read character templates" on character_template_archetypes for select using (auth.uid() is not null);
+create policy "Members read character templates" on character_template_archetypes for select using ((select auth.uid()) is not null);
 drop policy if exists "Members read character templates" on character_template_skills;
-create policy "Members read character templates" on character_template_skills for select using (auth.uid() is not null);
+create policy "Members read character templates" on character_template_skills for select using ((select auth.uid()) is not null);
 
 grant select on character_templates, character_template_archetypes, character_template_skills to authenticated;

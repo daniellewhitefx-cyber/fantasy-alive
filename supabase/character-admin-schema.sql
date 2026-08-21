@@ -2,9 +2,9 @@ drop policy if exists "Players see their own characters" on characters;
 create policy "Players see their own characters"
   on characters for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'remort_staff')::boolean is true
-    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'remort_staff')::boolean is true
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'character_staff')::boolean is true
     or fa_is_site_admin()
   );
 
@@ -12,8 +12,8 @@ drop policy if exists "Players see their own character skills" on character_skil
 create policy "Players see their own character skills"
   on character_skills for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'character_staff')::boolean is true
     or fa_is_site_admin()
   );
 
@@ -168,8 +168,8 @@ drop policy if exists "Players and staff see XP transactions" on xp_transactions
 create policy "Players and staff see XP transactions"
   on xp_transactions for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'character_staff')::boolean is true
     or fa_is_site_admin()
   );
 
@@ -190,8 +190,8 @@ drop policy if exists "Players and staff see OC transactions" on oc_transactions
 create policy "Players and staff see OC transactions"
   on oc_transactions for select
   using (
-    player_id = auth.uid()
-    or (auth.jwt() -> 'app_metadata' ->> 'character_staff')::boolean is true
+    player_id = (select auth.uid())
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'character_staff')::boolean is true
     or fa_is_site_admin()
   );
 

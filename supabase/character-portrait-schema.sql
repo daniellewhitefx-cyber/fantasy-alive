@@ -29,9 +29,9 @@ on conflict (id) do nothing;
 drop policy if exists "Members can upload character portraits" on storage.objects;
 create policy "Members can upload character portraits"
   on storage.objects for insert
-  with check (bucket_id = 'character-portraits' and auth.uid() is not null);
+  with check (bucket_id = 'character-portraits' and (select auth.uid()) is not null);
 
 drop policy if exists "Members can delete character portraits" on storage.objects;
 create policy "Members can delete character portraits"
   on storage.objects for delete
-  using (bucket_id = 'character-portraits' and auth.uid() is not null);
+  using (bucket_id = 'character-portraits' and (select auth.uid()) is not null);

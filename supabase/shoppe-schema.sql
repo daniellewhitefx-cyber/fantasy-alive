@@ -18,7 +18,7 @@ alter table shoppe_purchases enable row level security;
 drop policy if exists "Players see their own shoppe purchases" on shoppe_purchases;
 create policy "Players see their own shoppe purchases"
   on shoppe_purchases for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 create or replace function shoppe_buy_item(
   p_event_slug text,

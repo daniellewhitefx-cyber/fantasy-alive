@@ -17,8 +17,8 @@ drop policy if exists "Players and staff see item transfers" on character_item_t
 create policy "Players and staff see item transfers"
   on character_item_transfers for select
   using (
-    exists (select 1 from characters c where c.id = from_character_id and c.player_id = auth.uid())
-    or exists (select 1 from characters c where c.id = to_character_id and c.player_id = auth.uid())
+    exists (select 1 from characters c where c.id = from_character_id and c.player_id = (select auth.uid()))
+    or exists (select 1 from characters c where c.id = to_character_id and c.player_id = (select auth.uid()))
     or fa_is_logistics_or_admin()
   );
 

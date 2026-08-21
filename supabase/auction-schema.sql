@@ -20,14 +20,14 @@ create unique index if not exists auction_items_one_live on auction_items ((true
 
 alter table auction_items enable row level security;
 drop policy if exists "Auction items are publicly readable" on auction_items;
-create policy "Auction items are publicly readable"
-  on auction_items for select
-  using (status in ('live', 'closed'));
-
 drop policy if exists "Auction staff see everything including drafts" on auction_items;
-create policy "Auction staff see everything including drafts"
+create policy "Auction items visible to everyone, staff also see drafts"
   on auction_items for select
-  using ((auth.jwt() -> 'app_metadata' ->> 'auction_staff')::boolean is true or fa_is_site_admin());
+  using (
+    status in ('live', 'closed')
+    or ((select auth.jwt()) -> 'app_metadata' ->> 'auction_staff')::boolean is true
+    or fa_is_site_admin()
+  );
 
 create table if not exists auction_bids (
   id uuid primary key default gen_random_uuid(),

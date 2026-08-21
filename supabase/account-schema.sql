@@ -12,7 +12,7 @@ alter table member_private_notes enable row level security;
 drop policy if exists "Members see only their own private notes" on member_private_notes;
 create policy "Members see only their own private notes"
   on member_private_notes for select
-  using (id = auth.uid());
+  using (id = (select auth.uid()));
 
 create or replace function ensure_profile()
 returns void language plpgsql security definer

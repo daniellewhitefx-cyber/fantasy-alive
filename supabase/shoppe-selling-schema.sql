@@ -29,7 +29,7 @@ drop policy if exists "Players see their own shopping trips" on event_log_shoppi
 create policy "Players see their own shopping trips"
   on event_log_shopping_trips for select
   using (
-    character_id in (select id from characters where player_id = auth.uid())
+    character_id in (select id from characters where player_id = (select auth.uid()))
     or fa_is_logistics_or_admin()
   );
 
@@ -55,7 +55,7 @@ alter table shoppe_sales enable row level security;
 drop policy if exists "Players see their own shoppe sales" on shoppe_sales;
 create policy "Players see their own shoppe sales"
   on shoppe_sales for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 grant select on shoppe_sales, event_log_shopping_trips to authenticated;
 

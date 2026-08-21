@@ -43,7 +43,7 @@ create table if not exists luxury_recipes (
 alter table luxury_recipes enable row level security;
 
 drop policy if exists "Members read luxury recipes" on luxury_recipes;
-create policy "Members read luxury recipes" on luxury_recipes for select using (auth.uid() is not null);
+create policy "Members read luxury recipes" on luxury_recipes for select using ((select auth.uid()) is not null);
 
 grant select on luxury_recipes to authenticated;
 

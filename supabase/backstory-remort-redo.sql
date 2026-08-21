@@ -124,4 +124,4 @@ drop policy if exists "Players and Lore see backstory submissions" on character_
 drop policy if exists "Players and staff see backstory submissions" on character_backstories;
 create policy "Players and staff see backstory submissions"
   on character_backstories for select
-  using (player_id = auth.uid() or fa_is_backstory_viewer());
+  using (player_id = (select auth.uid()) or fa_is_backstory_viewer());

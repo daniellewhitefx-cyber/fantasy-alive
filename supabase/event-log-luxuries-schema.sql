@@ -15,7 +15,7 @@ alter table event_log_luxuries enable row level security;
 drop policy if exists "Players see their own luxuries" on event_log_luxuries;
 create policy "Players see their own luxuries"
   on event_log_luxuries for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 create or replace function event_log_toggle_luxury(p_event_slug text, p_character_id uuid, p_item_id integer, p_has boolean)
 returns void language plpgsql security definer

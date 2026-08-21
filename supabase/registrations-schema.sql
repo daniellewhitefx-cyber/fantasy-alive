@@ -30,7 +30,7 @@ alter table registrations enable row level security;
 drop policy if exists "Players and staff see registrations" on registrations;
 create policy "Players and staff see registrations"
   on registrations for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 grant select on registrations to authenticated;
 

@@ -14,7 +14,7 @@ alter table liability_waivers enable row level security;
 drop policy if exists "Players see their own liability waiver" on liability_waivers;
 create policy "Players see their own liability waiver"
   on liability_waivers for select
-  using (player_id = auth.uid() or fa_is_logistics_or_admin());
+  using (player_id = (select auth.uid()) or fa_is_logistics_or_admin());
 
 grant select on liability_waivers to authenticated;
 
