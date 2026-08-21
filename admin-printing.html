@@ -444,6 +444,7 @@
 <script src="js/include.js"></script>
 <script src="js/registration-status.js"></script>
 <script src="js/crafting-data.js"></script>
+<script src="js/xp-convert.js"></script>
 <script src="js/members-auth.js"></script>
 <script>
 (function(){
@@ -518,14 +519,6 @@ function deriveStats(race, skills){
   const me = r.baseMe + skillLevelTotal(skills, 'Magical Energy') + (hasSkill(skills, 'Magery') ? 1 : 0);
   return { lp, se, me, resurrectionsLeft };
 }
-function xpPerSp(currentSp){
-  if(currentSp <= 40) return 10;
-  if(currentSp <= 80) return 15;
-  if(currentSp <= 150) return 20;
-  if(currentSp <= 200) return 25;
-  return 30;
-}
-
 function populateEventSelect(){
   const sel = document.getElementById('ps-event-select');
   sel.innerHTML = (window.FA_EVENTS || []).map(e => `<option value="${escapeHtml(e.value)}">${escapeHtml(e.longLabel)}</option>`).join('');
@@ -606,7 +599,8 @@ async function ps_printAll(){
     const skills = (isNoncombat ? s.noncombat_skills : s.skills) || [];
     const spent = skills.reduce((sum, sk) => sum + (sk.sp || 0), 0);
     const stats = deriveStats(s.race, skills);
-    const ratio = xpPerSp(s.starting_sp) + ':1';
+    const conv = faConvertXpToSp(s.xp, s.starting_sp, spent);
+    const ratio = conv.rate + ':1';
     return `
       <div class="print-sheet-page">
         <div class="print-sheet-head">
@@ -617,7 +611,7 @@ async function ps_printAll(){
           <div><span>Race</span><strong>${escapeHtml(s.race || '-')}</strong></div>
           <div><span>Social Class</span><strong>${escapeHtml(s.social_class || '-')}</strong></div>
           <div><span>Birthday</span><strong>${escapeHtml(s.birthday || '-')}</strong></div>
-          <div><span>Skill Points</span><strong>${spent}/${s.starting_sp}</strong></div>
+          <div><span>Skill Points</span><strong>${spent}/${conv.totalPool}</strong></div>
           <div><span>LP</span><strong>${stats.lp}</strong></div>
           <div><span>SE/ME</span><strong>${stats.se}/${stats.me}</strong></div>
           <div><span>Resurrections Left</span><strong>${stats.resurrectionsLeft}</strong></div>
