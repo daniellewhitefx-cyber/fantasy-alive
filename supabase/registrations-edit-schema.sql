@@ -1,16 +1,4 @@
--- Staff edit/delete for the Registrations screen. There's still no
--- self-serve edit for players (register.html just says "contact us"),
--- so this is the fix-a-mistake tool for staff. Deleting a registration
--- that was actually paid for online refunds it as a Flex Pass event
--- credit -- same ledger flex_pass_redeem/flex_pass_purchase_grant use --
--- so the player can put it toward a future event. A registration
--- marked "At Event" never had money change hands, so deleting one
--- grants nothing. Requires registrations-schema.sql and
--- flex-passes-schema.sql to already exist.
 
--- The characters table's own RLS only grants broad read access to
--- character_staff/site_admin, not Logistics -- this lets the edit
--- form's character picker work for any Logistics staffer on this page.
 create or replace function staff_player_characters(p_player_id uuid)
 returns table(id uuid, name text) language plpgsql stable security definer
 set search_path = public
@@ -79,8 +67,6 @@ begin
 end;
 $$;
 
--- Returns true when a Flex event credit was issued as part of the
--- delete, so the client can tell the staffer what actually happened.
 create or replace function staff_delete_registration(p_id uuid)
 returns boolean language plpgsql security definer
 set search_path = public

@@ -1,15 +1,3 @@
--- Character Backstory submissions, now a real in-app record instead of
--- an emailed file attachment (the old public backstory.html form and
--- supabase/functions/submit-backstory edge function, both retired).
--- Both the submitting player and the Lore team can read a submission;
--- Lore decides approve/deny/revision-requested, with notes and, on
--- approval, an XP score. A player may have any number of submissions
--- per character over time (first submission, then later revisions),
--- always as a fresh row rather than an edit-in-place, matching the
--- remort/OC/kudos request pattern elsewhere on the site.
--- Requires characters-schema.sql, permissions-schema.sql
--- (fa_is_lore_or_admin), character-admin-schema.sql (xp_transactions),
--- and messaging-schema.sql (message_send) to already exist.
 
 create table if not exists character_backstories (
   id uuid primary key default gen_random_uuid(),
@@ -62,11 +50,6 @@ begin
     raise exception 'This character already has a backstory submission awaiting review';
   end if;
 
-  -- "Resubmission" means updating an already-accepted backstory with new
-  -- in-game developments (the rubric below is literally about describing
-  -- adventures since approval) -- not a second attempt at a first backstory
-  -- that was denied or sent back for revision, which still gets the first-
-  -- submission rubric since nothing has been accepted yet.
   v_is_resubmission := exists (select 1 from character_backstories where character_id = p_character_id and status = 'approved');
 
   insert into character_backstories (character_id, player_id, body, is_resubmission)

@@ -100,8 +100,6 @@ const FA_ALL_EVENTS = FA_EVENT_DEFS
   .map(e => Object.assign(e, { isPast: e.end < FA_TODAY }))
   .sort((a, b) => a.start - b.start);
 
-// The log for an event opens two weeks before it starts at 6pm, and
-// closes the Monday before the event at 9pm.
 function faLogWindow(event){
   const opensAt = new Date(event.start);
   opensAt.setDate(opensAt.getDate() - 14);
@@ -114,9 +112,6 @@ function faLogWindow(event){
   closesAt.setDate(closesAt.getDate() - daysBack);
   closesAt.setHours(21, 0, 0, 0);
 
-  // TEMPORARY (testing only): force the Sep 11-13 log open early so it
-  // can be tried out before its real Aug 28 open date. Remove this block
-  // once testing is done.
   if(event.value === 'sep-11-13') opensAt.setTime(Date.now() - 60000);
 
   return { opensAt, closesAt };
@@ -130,10 +125,6 @@ function faLogStatus(event){
   return { state: 'open', opensAt, closesAt };
 }
 
-// Downtime hours available to spend on Training during an event's log:
-// 100 hours per week between the previous event's end and this event's
-// start. The first tracked event has no prior event to measure from,
-// so it gets a flat 400 hours (about four weeks' worth).
 function faTrainingHoursBudget(event){
   const idx = FA_EVENT_DEFS.findIndex(d => faEventSlug(faParseDateOnly(d.start), faParseDateOnly(d.end)) === event.value);
   if(idx > 0){

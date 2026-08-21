@@ -1,12 +1,3 @@
--- Lets Logistics add or remove downtime Hours for one character, or for
--- every registered character at once, at a specific event -- e.g.
--- compensating a character who missed downtime due to a plot event, or
--- docking hours site-wide for a shortened event. Scoped to a single
--- event, matching how the base Hours budget itself is already computed
--- per-event (faTrainingHoursBudget in js/registration-status.js).
--- Requires characters-schema.sql, permissions-schema.sql, and
--- other-task-schema.sql (the last file that currently redefines
--- event_log_training_summary) to already exist.
 
 create table if not exists event_log_hours_adjustments (
   id uuid primary key default gen_random_uuid(),
@@ -33,8 +24,6 @@ create policy "Players see adjustments that affect them, staff see all"
 
 grant select on event_log_hours_adjustments to authenticated;
 
--- p_character_id null applies the adjustment to every character at
--- this event (the "player base as a whole" case).
 create or replace function event_log_admin_adjust_hours(
   p_event_slug text,
   p_character_id uuid,
@@ -74,11 +63,6 @@ begin
 end;
 $$;
 
--- Re-defines event_log_training_summary (last redefined in
--- other-task-schema.sql) to also report the total Hours adjustment for
--- this character at this event -- their own character-specific
--- adjustments plus any event-wide (character_id is null) ones -- so
--- the client can add it to the base Hours budget.
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
 returns jsonb language plpgsql stable security definer
 set search_path = public

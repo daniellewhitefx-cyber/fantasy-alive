@@ -1,12 +1,3 @@
--- Re-defines character_create (characters-schema.sql) and
--- character_update_remort (remort-schema.sql) to price every submitted
--- skill from the real catalog via skills_true_total_cost/
--- skills_level_limit instead of trusting the client's claimed sp_cost
--- and level outright. A client bug (or a deliberately crafted RPC call)
--- could otherwise buy a leveled skill directly at a high level for the
--- price of a single relevel step, or push a skill's level past its
--- catalog-defined cap. Requires characters-schema.sql, remort-schema.sql,
--- and skills-cost-validation-schema.sql to already exist.
 
 create or replace function character_create(
   p_name text,
@@ -51,10 +42,6 @@ begin
     raise exception 'You already have 2 characters. Only 2 characters are allowed per player.';
   end if;
 
-  -- A player's very first character gets a flat 30 SP, since everyone is
-  -- starting fresh on the new site rather than a brand new player at their
-  -- first event. Every character after that follows the normal rulebook
-  -- starting SP for their race.
   if v_existing_count = 0 then
     v_starting_sp := 30;
   else

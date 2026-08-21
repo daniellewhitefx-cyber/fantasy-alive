@@ -144,11 +144,6 @@ function rowState(idx){
   return { s, key, state: browseState[key] };
 }
 
-// A skill already in the chosen list gets REPLACED (not added to) when
-// re-picked at a new level -- see mergeChosenSkill -- so its current
-// cost has to come back out of spentSP() before checking the new
-// cumulative cost against the SP budget, or every relevel-by-rebrowsing
-// would look like it costs its old price on top of its new one.
 function existingChosenCost(s, race, focus){
   if(!isLeveledCost(s, race, focus)) return 0;
   const key = s.focusTypeId ? focus.trim() : '';

@@ -213,7 +213,6 @@ function ps_doPrint(html){
   setTimeout(() => window.print(), 200);
 }
 
-/* ---------- character sheets ---------- */
 
 const RACE_STATS = {
   'Curtainborn': { baseLp: 4, maxLp: 10, baseResurrections: 2, baseSe: 5, baseMe: 0 },
@@ -356,9 +355,6 @@ async function ps_printAll(){
   ps_doPrint(html);
 }
 
-// Skill/Focus/Level only (Type and SP dropped) split across two side-by-side
-// tables instead of one tall single-column list, so a character with a full
-// build fits in roughly half the vertical space on the printed sheet.
 function printSkillColumnsHtml(skills){
   if(!skills.length) return '<p class="print-sheet-player">No skills chosen.</p>';
 
@@ -377,7 +373,6 @@ function printSkillColumnsHtml(skills){
   return `<div class="print-sheet-skill-cols">${columns.map(tableHtml).join('')}</div>`;
 }
 
-/* ---------- kitchen sheets ---------- */
 
 async function ps_loadKitchen(){
   const summaryEl = document.getElementById('ps-kitchen-summary');

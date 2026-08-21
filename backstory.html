@@ -159,11 +159,6 @@ function kindLabel(kind){
   return 'First Submission';
 }
 
-// Mirrors character_submit_backstory's own kind detection: a fresh
-// character (or one that's never had a backstory approved) is a first
-// submission; if the most recent completed remort happened after the
-// most recent approval, the next submission is a remort redo; otherwise
-// it's a normal revision.
 function nextSubmissionKind(c){
   const approvals = c.submissions.filter(s => s.status === 'approved');
   if(!approvals.length) return 'first';

@@ -1,10 +1,3 @@
--- Backstory Requests was merged into the unified admin-requests.html hub as
--- a new tab, so requests_pending_count() (the sidebar "Requests" badge) now
--- folds in pending backstory submissions for whoever can act on them (Lore
--- or admins), alongside the existing Logistics-scoped remort/OC/kudos
--- counts. lore_pending_backstory_count() (from backstory-schema.sql) is now
--- unused now that the standalone Backstory Requests page/badge is gone.
--- Requires requests-schema.sql and backstory-schema.sql to already exist.
 
 create or replace function requests_pending_count()
 returns integer language plpgsql stable security definer

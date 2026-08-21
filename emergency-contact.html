@@ -166,10 +166,6 @@ function fmtDateTime(iso){
 function setVal(id, val){ document.getElementById(id).value = val || ''; }
 function getVal(id){ return document.getElementById(id).value.trim(); }
 
-// Tracks whether this player already had a saved form when the page
-// loaded, so a first-time save (the tail end of onboarding) can move them
-// on to Account Info, without yanking a returning player away from this
-// page every time they come back to update a phone number or address.
 let hadExistingRecord = false;
 
 async function loadExisting(){

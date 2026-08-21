@@ -8,10 +8,6 @@ create table if not exists character_friends (
 
 alter table character_friends enable row level security;
 
--- Friendship now requires the other side to accept: character_id is the
--- requester, friend_character_id is the requestee, and a row starts
--- 'pending' until the requestee accepts it. Existing rows predate this and
--- were already treated as mutual, so they're backfilled to 'accepted' once.
 do $$
 begin
   if not exists (

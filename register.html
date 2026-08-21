@@ -108,11 +108,6 @@ let CHARACTERS = [];
 
 const EVENTS = window.FA_EVENTS;
 
-// Multi-event prepaid bundles, bought here through the same online
-// checkout used for event passes below rather than the old external
-// endlessadventures.ca store. Server-side values live in
-// fa_flex_pass_catalog() (supabase/flex-passes-schema.sql) -- this is
-// just the display copy, kept in sync by hand.
 const FLEX_PASSES = [
   { id:'flex3', name:'3-Event Flex Pass', price:219, grants:'3 event admission credits + 150 bonus OC (raises your OC-to-XP/Copper cap to 150 while you hold an active Flex Pass)' },
   { id:'flex6', name:'6-Event Flex Pass', price:438, grants:'6 event admission credits + 300 bonus OC (raises your OC-to-XP/Copper cap to 150 while you hold an active Flex Pass)' },
@@ -656,10 +651,6 @@ function showRegistrationSuccess(payload){
   `;
 }
 
-// Flex credit redemption happens inside register_for_event itself
-// (atomic with the registration insert), so a failed registration
-// never silently spends a Flex Pass and a failed redemption never
-// leaves a registration behind with nothing paid for it.
 async function submitRegistration(payload){
   const { error } = await membersSupabase.rpc('register_for_event', {
     p_event_slug: payload.eventValue,

@@ -1,21 +1,10 @@
-// Loads the Skill catalog from the real skill/focus/prerequisite catalog
-// (migrated from the legacy database into Supabase; see
-// supabase/skills-catalog-schema.sql), replacing the flat Google Sheet
-// this used to read live at page load.
 
 const SKILL_CATEGORY_ORDER = ['Combat Skill', 'Weapon Skill', 'Academic Skill', 'Trade Skill', 'Ability'];
 
-// The catalog's skill_type names are singular ('Combat', 'Weapon', ...);
-// every page on this site expects the "X Skill" category labels the old
-// sheet used, except Trade ("Trade Skill", to match the trade-skill
-// category used sitewide) and Ability, which already has no suffix.
 function skillsCategoryName(skillTypeName){
   return skillTypeName === 'Ability' ? 'Ability' : skillTypeName + ' Skill';
 }
 
-// Supabase caps a single request at 1000 rows; none of these tables are
-// that big today, but the same paginated-fetch-all pattern used by the
-// item/crafting catalogs is used here too so it keeps working if they grow.
 async function skillsFetchAllRows(table, select){
   const pageSize = 1000;
   let rows = [];
@@ -30,13 +19,6 @@ async function skillsFetchAllRows(table, select){
   return rows;
 }
 
-// Resolves one cost-bearing row (a skill_details row, or a skill_focuses
-// row treated the same way) into a flat cost/level-cost formula plus its
-// own structured prerequisite groups. Each group in prereqGroups must be
-// satisfied entirely (skill1 AND skill2, if present); satisfying ANY ONE
-// group is enough (an "or" between groups), matching the source data's
-// habit of using multiple prerequisite rows on one detail row for
-// alternative requirements.
 function skillsBuildCostDetail(row, prereqGroups){
   return {
     id: row.id,
@@ -74,11 +56,6 @@ async function skillsLoadCatalog(){
   const focusNameById = {};
   focuses.forEach(f => { focusNameById[f.id] = f.name; });
 
-  // A prerequisite can be pinned to one specific focus of skill1 (e.g.
-  // Lethal Hands requires Weapon Skill specifically in Hand to Hand, not
-  // just any weapon type) -- distinct from mustMatchFocus, which instead
-  // requires skill1's focus to match whatever focus the player is
-  // choosing for the skill they're trying to learn.
   const prereqGroupsBySkillDetail = {};
   prereqs.forEach(p => {
     (prereqGroupsBySkillDetail[p.skill_detail_id] = prereqGroupsBySkillDetail[p.skill_detail_id] || []).push({

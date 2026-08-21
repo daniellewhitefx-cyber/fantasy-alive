@@ -1,9 +1,3 @@
--- Scroll Tags data import, part 4 of 18.
--- Run scroll-tags-schema.sql first. These chunk files exist because the
--- full import (all 213 spells + symbol art at once) is too large for the
--- Supabase SQL Editor to run as a single query. Run each chunk in order;
--- each is a self-contained, idempotent upsert, so it's safe to re-run any
--- individual chunk if needed.
 
 insert into scroll_spell_tags (spell_name, incant, cast_prefix, symbol_data)
 values

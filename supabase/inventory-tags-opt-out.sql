@@ -1,11 +1,4 @@
--- Flips Inventory tag requests from opt-in to opt-out: previously a
--- player had to click "Receive Tag at Next Event" per item to ask for
--- one; now every on-hand item is auto-queued for a tag the moment they
--- open Inventory, and declining an item is the explicit action instead.
--- Requires inventory-schema.sql to already exist.
 
--- Dedupe first so the new unique index can be created: keep the most
--- recently created row per (character, item, event).
 delete from character_tag_requests t
   using character_tag_requests newer
   where t.character_id = newer.character_id
@@ -19,10 +12,6 @@ delete from character_tag_requests t
 create unique index if not exists character_tag_requests_char_item_event_uidx
   on character_tag_requests (character_id, lower(item_name), event_slug);
 
--- Requesting a tag is now an upsert: a fresh item gets a new pending
--- row, an item the player previously declined gets flipped back to
--- pending (with whatever quantity is asked for now) instead of failing
--- with "already requested".
 create or replace function character_request_tag(
   p_character_id uuid,
   p_item_name text,
@@ -57,9 +46,6 @@ begin
 end;
 $$;
 
--- Declining a tag is now a soft cancel (not a delete), so it sticks --
--- re-opening Inventory won't silently re-request something the player
--- already turned down.
 create or replace function character_cancel_tag_request(p_request_id uuid)
 returns void language plpgsql security definer
 set search_path = public
@@ -76,13 +62,6 @@ begin
 end;
 $$;
 
--- Auto-queues a tag request for every on-hand inventory item that
--- doesn't already have a request (of any status) for this event, so a
--- player who never visits Inventory still gets their tags queued by
--- default. Called from the Inventory page on load; safe to call
--- repeatedly since it only fills in the gaps left by items that don't
--- have a request yet -- it never touches one a player already decided
--- on, whether that's a pending request or a decline.
 create or replace function character_ensure_tag_requests(p_character_id uuid, p_event_slug text)
 returns void language plpgsql security definer
 set search_path = public

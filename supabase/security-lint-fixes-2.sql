@@ -1,34 +1,3 @@
--- Fixes for the two new categories of real findings from Supabase's latest
--- Performance/Security Advisor report (the "authenticated_security_
--- definer_function_executable" category -- 131 rows -- was already spot-
--- checked and resolved in security-lint-fixes.sql; every one of those
--- checks fa_is_site_admin() / fa_is_logistics_or_admin() /
--- fa_is_plot_or_admin() / fa_is_lore_or_admin(), a character_staff/other
--- app_metadata claim, or scopes its query to auth.uid() directly, so no
--- further action there).
---
--- 1. anon_security_definer_function_executable (22 rows): these SECURITY
---    DEFINER functions are reachable over PostgREST by the `anon` Postgres
---    role, i.e. a request with no session at all. Every one of them is
---    meant to be used only by a signed-in player or staff member, and
---    each already checks auth.uid()/a staff flag internally and raises an
---    exception when it's null/false -- so this was never exploitable, but
---    it's still bad practice to let an unauthenticated request reach the
---    function body at all. The Supabase client always sends the `anon`
---    API key as a header, but once a player is logged in that request
---    executes as the Postgres `authenticated` role (from their JWT), not
---    `anon` -- so revoking from `anon` only does not affect any signed-in
---    player or staff action.
---
--- 2. function_search_path_mutable (4 rows): these functions don't pin
---    search_path, so a malicious search_path set on the calling session
---    could in principle redirect an unqualified identifier inside the
---    function body to an attacker-controlled object. None of them
---    reference unqualified tables/functions in a way that's actually
---    exploitable today, but pinning search_path is a one-line, zero-risk
---    hardening. ALTER FUNCTION ... SET search_path only touches the
---    function's config, not its body, so this is safe to run regardless
---    of which exact version of each function is currently live.
 
 revoke execute on function character_ensure_tag_requests(uuid, text) from public, anon;
 grant execute on function character_ensure_tag_requests(uuid, text) to authenticated;

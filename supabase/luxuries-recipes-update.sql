@@ -1,16 +1,4 @@
--- Corrects the hand-typed Luxuries catalog (item-catalog-luxuries-import.sql,
--- items 2429-2444) against the real reference sheet (FA_Luxuries.xlsx):
--- consolidates the Alchemical/Herbalism Laboratory split into one generic
--- Laboratory (the rulebook doesn't distinguish them), renames a few items
--- to match the rulebook's own naming, and drops the plain "Tools" entry,
--- which isn't a real purchasable Luxury -- only the Master-Crafted upgrade
--- is. Also adds the crafting skill/ingredients/time/effect for each
--- Luxury, for display on the Luxuries tab alongside the weekly upkeep.
--- Requires item-catalog-luxuries-import.sql to already have run.
 
--- Reassign anyone who already checked off the lab entries being merged
--- onto the surviving item before removing the old ones, so no
--- character's per-event Luxuries selections are silently dropped.
 update event_log_luxuries set item_id = 2429
   where item_id = 2430
     and not exists (

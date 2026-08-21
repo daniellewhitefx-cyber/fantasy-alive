@@ -1,9 +1,3 @@
--- Event Shoppe: players spend Copper (their existing bank_transactions
--- balance -- the same wallet the Spend OC tab's OC-to-Copper conversion
--- already feeds) to buy items from the catalog sheet. Purchases are
--- logged per event so they show up in a "Purchased This Event" list
--- with the option to cancel/refund, the same shape as Training's
--- event_log_training_purchases.
 
 create table if not exists shoppe_purchases (
   id uuid primary key default gen_random_uuid(),
@@ -51,10 +45,6 @@ begin
     raise exception 'Character not found';
   end if;
 
-  -- Merchant level N unlocks buying items at Availability tier N. Only
-  -- enforced when shopping as a character (Cast purchases aren't tied to
-  -- a character's Trade Skills) and only for tiers above Common (1),
-  -- which anyone can buy without any Merchant training.
   if p_character_id is not null and coalesce(p_availability_tier, 1) > 1 then
     select coalesce(max(level), 0) into v_merchant_level
       from character_skills

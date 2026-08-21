@@ -1,6 +1,3 @@
--- Tracks whether a player has completed (or skipped) the members-area
--- walkthrough tutorial, so it only auto-plays once. Players can always
--- replay it manually regardless of this flag.
 alter table profiles add column if not exists has_seen_tutorial boolean not null default false;
 
 create or replace function player_mark_tutorial_seen()

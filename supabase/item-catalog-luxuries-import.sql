@@ -1,9 +1,3 @@
--- Luxuries (labs, forges, hired help, housing, horses, and other
--- coin-bought conveniences) lived in their own small table in the old
--- site (characters_luxury) and were never carried over when the rest of
--- the item catalog was migrated. Adding them as a real Luxuries category
--- in the shared item catalog so they show up in the Shoppe (and Print
--- Tags) like everything else.
 
 insert into item_category (id, name) values
   (17, 'Luxuries')

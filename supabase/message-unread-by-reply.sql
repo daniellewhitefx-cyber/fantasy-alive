@@ -1,10 +1,3 @@
--- Redefines "unread" for the Messages badge as "needs your reply" rather
--- than "you haven't opened it yet" -- opening a thread to read it
--- currently clears the notification even if you never actually answer.
--- A thread now counts as needing attention when the most recent message
--- in it wasn't sent by you. A department thread counts as answered once
--- ANY member of that department has sent the latest message in it, not
--- just you personally, since department inboxes are shared.
 
 create or replace function message_unread_count()
 returns integer language sql stable security definer

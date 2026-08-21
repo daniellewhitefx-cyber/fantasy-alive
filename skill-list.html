@@ -324,11 +324,6 @@
 <script src="js/include.js"></script>
 <script src="js/registration-status.js"></script>
 <script>
-// This page is public (linked from the main site nav, not the members
-// area), so it reads the skill catalog with a plain anonymous client --
-// js/skills-data.js expects a global named membersSupabase, the same
-// convention the members area's own pages use, just without a signed-in
-// session attached. The catalog's RLS policies allow anonymous reads.
 const membersSupabase = window.supabase.createClient('https://xdchluuvicuuqyqsejnq.supabase.co', 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99');
 </script>
 <script src="js/skills-data.js"></script>
@@ -341,11 +336,6 @@ let highlightedSkill = null;
 let allSkills = [];
 let loadError = null;
 
-// This page has no logged-in character or race context, so costs and
-// prerequisites are shown as reference text covering every race rather
-// than resolved for one specific purchase -- unlike the interactive
-// purchase flows (Character Creator, Training tab), which resolve a
-// single applicable cost/prerequisite via skillDetailFor().
 function costFormula(detail){
   if(!detail || detail.value === null || detail.value === undefined) return null;
   if(detail.levelCost === '+') return `${detail.value}+lvl SP`;

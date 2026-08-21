@@ -1,8 +1,3 @@
--- One-time patch for lore content already imported into the live database.
--- Removes the "Fantasy Alive: Ottawa/Kingston" paragraph from the welcome
--- lore entry, regardless of which import script (lore-schema.sql or
--- lore-import.sql) was used to originally create it. Safe to run more than
--- once: if the paragraph is already gone, each replace() is a no-op.
 
 update lore_entries
 set body = replace(

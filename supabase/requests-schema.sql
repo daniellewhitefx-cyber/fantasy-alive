@@ -1,12 +1,4 @@
--- Backs the staff "Requests" hub: a single place for Admins and
--- Logistics to review Remort Requests, OC Submissions, and Kudos, each
--- needing approval before they take effect. Requires permissions-schema.sql
--- (fa_is_logistics_or_admin) and messaging-schema.sql (departments /
--- department_members) to already exist.
 
--- ---------- OC submissions ----------
--- oc-submission.html previously didn't persist anything; submitting just
--- showed a fake confirmation. This is the first real backing for it.
 
 create table if not exists oc_submission_requests (
   id uuid primary key default gen_random_uuid(),
@@ -89,9 +81,6 @@ $$;
 
 grant select on oc_submission_requests to authenticated;
 
--- ---------- Kudos approval ----------
--- Kudos now need review before they count, so they get the same
--- pending/approved/denied lifecycle as the other request types.
 
 alter table kudos add column if not exists status text not null default 'pending' check (status in ('pending', 'approved', 'denied'));
 alter table kudos add column if not exists decided_at timestamptz;
@@ -131,9 +120,6 @@ begin
 end;
 $$;
 
--- ---------- Remort requests ----------
--- Broaden the existing remort_staff-gated policy/RPCs so Logistics and
--- site admins can review remorts from the same hub as everything else.
 
 drop policy if exists "Players and staff see remort requests" on character_remort_requests;
 create policy "Players and staff see remort requests"
@@ -182,7 +168,6 @@ begin
 end;
 $$;
 
--- ---------- Badge count ----------
 
 create or replace function requests_pending_count()
 returns integer language plpgsql stable security definer

@@ -1,18 +1,3 @@
--- Every SECURITY DEFINER function in the schema was missing an explicit
--- search_path, which Supabase's linter flags as "Function Search Path
--- Mutable": since the function runs with the privileges of whoever
--- created it (not the caller), a mutable/inherited search_path lets a
--- malicious user shadow expected objects (tables, other functions) by
--- creating same-named objects earlier in their own search_path, tricking
--- the function into operating on attacker-controlled objects.
---
--- The corresponding create-or-replace statements in every other schema
--- file have also been updated to set search_path = public going forward,
--- so this file exists only to patch the functions that already exist in
--- production without needing to re-run every schema file. It finds every
--- security definer function in the public schema that doesn't already
--- have a search_path configured and sets one, using each function's
--- actual signature from the catalog rather than guessing.
 
 do $$
 declare

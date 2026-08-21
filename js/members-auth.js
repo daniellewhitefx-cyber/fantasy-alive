@@ -3,10 +3,6 @@ const SUPABASE_URL = 'https://xdchluuvicuuqyqsejnq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JL4nY9-fcOAwYzwpwiJa9w_nypZCt99';
 const membersSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Supabase caps a single request at 1000 rows. Any unfiltered (or loosely
-// filtered) full-table fetch -- profiles chief among them, since it's one
-// row per registered player -- needs to page through in full rather than
-// silently dropping everything past the cutoff.
 async function faFetchAllRows(table, select){
   const pageSize = 1000;
   let rows = [];
@@ -56,9 +52,6 @@ async function membersSignOut(){
 
 async function needsCharacterCreation(playerId){
   const current = location.pathname.split('/').pop();
-  // Also skip on the two waiver pages themselves, or a player with zero
-  // characters gets bounced to character-creator.html while still in the
-  // middle of the waiver gate, which bounces them right back, forever.
   if(current === 'character-creator.html' || current === 'liability-waiver.html' || current === 'emergency-contact.html') return false;
 
   const { count } = await membersSupabase
@@ -72,10 +65,6 @@ async function needsCharacterCreation(playerId){
   return !(profile && (profile.is_cast || profile.is_townsperson));
 }
 
-// New players must sign the liability waiver and submit an emergency
-// contact form before doing anything else on the site, including creating
-// a character. Returns the page to redirect to, or null if both are done
-// (or the current page is one of the two waiver pages themselves).
 async function needsWaiverCompletion(playerId){
   const current = location.pathname.split('/').pop();
   if(current === 'liability-waiver.html' || current === 'emergency-contact.html') return null;
@@ -97,11 +86,6 @@ async function needsWaiverCompletion(playerId){
   return null;
 }
 
-// Waivers don't expire outright, but a year on, we want players nudged to
-// confirm their liability waiver and emergency contact info are still
-// accurate rather than silently relying on year-old details. This is a
-// soft reminder (dismissible, shown at most once a day), not a hard gate
-// like needsWaiverCompletion above.
 const WAIVER_RENEWAL_DAYS = 365;
 
 async function checkWaiverExpiry(playerId){
@@ -255,11 +239,6 @@ async function initMembersPage(){
   insertBugReportButton();
   markActiveNavLink();
 
-  // Nav is trimmed down for Cast-only and Townsperson-only accounts, since
-  // neither has a character to spend coin/XP/OC on or attend events as.
-  // The moment either account creates a real character, hasCharacters
-  // flips true and the full nav comes back, regardless of whether the
-  // is_cast/is_townsperson flag itself ever gets cleared.
   const { count: charCount } = await membersSupabase
     .from('characters')
     .select('id', { count: 'exact', head: true })
@@ -287,8 +266,6 @@ async function initMembersPage(){
 
   if(isTownspersonOnly){
     hideNavLinks(['member-bank-link', 'member-auction-link', 'member-oc-submission-link', 'member-xp-oc-log-link', 'member-inventory-link', 'member-friends-link', 'member-teachable-skills-link']);
-    // Every item in the Progress group is hidden for a Townsperson, so
-    // hide the now-empty group heading too, the same way Events is hidden.
     const eventsGroup = document.getElementById('member-events-group');
     if(eventsGroup) eventsGroup.style.display = 'none';
     const progressGroup = document.getElementById('member-progress-group');
@@ -355,12 +332,6 @@ async function initMembersPage(){
   refreshRequestsBadge();
   refreshBugReportsBadge();
 
-  // The walkthrough tutorial auto-plays once, the first time a player
-  // reaches the members area -- which for a brand-new account is the
-  // liability waiver page, since that's the first hard gate. It's never
-  // auto-played on top of the emergency contact or character-creator
-  // forms themselves (the player is already mid-flow at that point), but
-  // the Replay Tutorial sidebar link works everywhere.
   const skipAutoTutorialPages = ['emergency-contact.html', 'character-creator.html'];
   loadTutorialScript().then(() => {
     if(!skipAutoTutorialPages.includes(current) && !(acctProfile && acctProfile.has_seen_tutorial)){
@@ -369,11 +340,6 @@ async function initMembersPage(){
   });
 }
 
-// A "Report a Bug" button right below the player's name in the sidebar,
-// with a small popup for describing the problem. Built here (not as
-// markup in partials/members-sidebar.html) because that partial is
-// loaded via innerHTML, so a <script> inside it would never run -- see
-// js/include.js's comment on the same issue for site-search.js.
 function insertBugReportButton(){
   if(document.getElementById('bug-report-btn')) return;
 

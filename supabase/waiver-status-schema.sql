@@ -1,14 +1,3 @@
--- Backs the staff "Waivers & Contacts" page (admin-waivers.html): lets
--- Logistics see who has signed their liability waiver and who has an
--- emergency contact form on file, plus the actual contact details for
--- use in a real emergency. liability_waivers and emergency_contact_forms
--- (see liability-waiver-schema.sql / emergency-contact-schema.sql) already
--- have RLS policies allowing fa_is_logistics_or_admin() to select them
--- directly, but resolving every player's email/display name requires
--- reading auth.users, which client-side RLS can't do -- so this is one
--- security definer RPC that joins everything server-side in one call.
--- Requires permissions-schema.sql (fa_is_logistics_or_admin) to already
--- exist.
 
 create or replace function admin_list_waiver_status()
 returns table(

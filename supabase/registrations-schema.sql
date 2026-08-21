@@ -1,12 +1,3 @@
--- Event registration, moved off the external Google Sheet (see
--- js/registration-status.js's old FA_REGISTRATION_ENDPOINT) and onto
--- Supabase. Registering is still a one-shot action per player per
--- event (no self-serve edit -- same limitation the Sheet had), but now
--- lives alongside everything else the site already tracks, keyed by
--- character_id instead of fragile email/character-name string
--- matching. Requires characters-schema.sql, permissions-schema.sql
--- (fa_is_logistics_or_admin), and flex-passes-schema.sql
--- (flex_pass_redeem) to already exist.
 
 create table if not exists registrations (
   id uuid primary key default gen_random_uuid(),
@@ -122,11 +113,6 @@ as $$
   select * from registrations where player_id = auth.uid() and event_slug = p_event_slug;
 $$;
 
--- Semi-public roster: who's registered and as what, for the currently
--- signed-in player to find their own entry and for the Event Info tab's
--- character splash roster / cast count. Deliberately excludes payment
--- and logistics-only fields (allergy/disability notes, pass/meal
--- pricing) -- those stay staff-only, see staff_event_registrations.
 create or replace function event_roster(p_event_slug text)
 returns table(player_id uuid, who text, character_id uuid, character_name text)
 language plpgsql stable security definer

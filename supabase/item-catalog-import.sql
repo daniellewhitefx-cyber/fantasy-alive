@@ -1,4 +1,3 @@
--- Generated from the legacy Django db.sqlite3 export. Run after item-catalog-schema.sql.
 
 insert into item_availability (id, name) values
   (1, 'Common'),

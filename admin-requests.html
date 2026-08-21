@@ -291,7 +291,6 @@ async function loadNames(playerIds, characterIds){
   }
 }
 
-/* ---------- Remort ---------- */
 
 async function loadRemort(){
   const { data } = await membersSupabase
@@ -344,7 +343,6 @@ function renderRemort(){
   });
 }
 
-/* ---------- OC Submissions ---------- */
 
 async function loadOc(){
   const { data } = await membersSupabase
@@ -394,7 +392,6 @@ function renderOc(){
   });
 }
 
-/* ---------- Kudos ---------- */
 
 async function loadKudos(){
   const { data } = await membersSupabase
@@ -450,7 +447,6 @@ function renderKudos(){
   });
 }
 
-/* ---------- Other Tasks ---------- */
 
 async function loadOtherTasks(){
   const { data } = await membersSupabase
@@ -503,7 +499,6 @@ async function req_ackAllOther(){
   await loadOtherTasks();
 }
 
-/* ---------- Backstories ---------- */
 
 function bsKindLabel(kind){
   if(kind === 'remort') return 'Remort';
@@ -647,7 +642,6 @@ function renderBackstoriesPast(){
   }).join('');
 }
 
-/* ---------- Approve All ---------- */
 
 async function req_approveAll(kind){
   let rows, rpcName, paramKey, reload;

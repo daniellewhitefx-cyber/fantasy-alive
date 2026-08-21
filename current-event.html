@@ -338,16 +338,10 @@ async function loadOcAndTraining(){
   const flex = (flexBalance && flexBalance[0]) || { event_credits: 0, meal_credits: 0 };
   OC_CAP = (flex.event_credits > 0 || flex.meal_credits > 0) ? 150 : 100;
 
-  // Fetched after claimAllowance() (above) has already settled, so a
-  // just-granted allowance is reflected in this total, not one request
-  // behind it.
   const { data: copperBalance } = await membersSupabase.rpc('bank_my_balance');
   COPPER_BALANCE = Number(copperBalance || 0);
 }
 
-// A Social Class allowance is a standing entitlement, not something a
-// player opts into, so it's claimed automatically (once per character
-// per event) rather than needing its own tab or button.
 async function claimAllowance(){
   const { data } = await membersSupabase.rpc('event_log_claim_allowance', {
     p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id
@@ -592,7 +586,6 @@ async function refreshAfterOcChange(){
   await renderTabBody();
 }
 
-// --- Event Info tab ---
 
 async function renderInfoBody(){
   const body = document.getElementById('ce-tab-body');
@@ -629,12 +622,6 @@ async function loadInfoData(){
   INFO_LOADED = true;
 }
 
-// Tags Owed to Logistics: materials consumed by crafts this event where
-// the player promised to cover them with physical tags instead of
-// having them on hand (see craft_item's p_tag_turned_in). Tags You'll
-// Receive: every item crafted this event (each needs a freshly printed
-// tag) plus anything explicitly requested via the Inventory page for
-// this event.
 async function loadEventInfoTags(){
   INFO_TAGS_OWED = [];
   INFO_TAGS_RECEIVING = [];
@@ -680,7 +667,6 @@ async function loadEventInfoTags(){
     });
     INFO_TAGS_RECEIVING = Object.entries(receivingMap).map(([name, qty]) => ({ name, qty })).sort((a, b) => a.name.localeCompare(b.name));
   } catch(err){
-    // Fail soft -- the tags boxes just stay empty rather than breaking the whole Info tab.
   }
 }
 
@@ -797,7 +783,6 @@ async function ce_infoDelete(id){
   await renderInfoBody();
 }
 
-// --- Shoppe tab ---
 
 async function loadShopData(){
   SHOP_LOAD_ERROR = null;
@@ -1167,7 +1152,6 @@ async function ce_shopCancelSale(saleId){
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
 }
 
-// --- Training tab ---
 
 async function ensureTrainingCatalogLoaded(){
   if(TRAIN_ALL_SKILLS.length) return;
@@ -1304,16 +1288,6 @@ function trainFocusFieldHtml(idx, s, state, isLeveled, focusLocked){
     + `</select>`;
 }
 
-// Resolves everything needed to render or act on one browse row: the
-// matching known skill (if any), whether acting on it is a relevel,
-// the level to act on (auto-detected: the next level up from whatever
-// is already known, or level 1 if it isn't known at all), and the full
-// SP/Hours cost of that level -- leveling up is a fresh full-price
-// purchase of the new level, not just the increase over what's already
-// been paid. This applies to flat-cost skills too -- some (Dodge, Iron
-// Will, Master Dodge, ...) are meant to be bought multiple times, each
-// purchase adding another rank at the same flat cost -- so a skill
-// already known isn't blocked, it's just aimed at the next rank up.
 function ce_trainRowInfo(idx){
   const { s, state } = ce_trainRowState(idx);
   const race = MY_CHARACTER.race;
@@ -1449,7 +1423,6 @@ async function ce_trainCancel(purchaseId){
   renderTrainingBody();
 }
 
-// --- Work tab ---
 
 async function loadWorkData(){
   WORK_LOAD_ERROR = null;
@@ -1468,10 +1441,6 @@ async function loadWorkData(){
   }
 }
 
-// Copper earned scales proportionally to a full 8 hour shift (5 Copper
-// per level of the skill used) and rounds up to the nearest whole Copper,
-// so working any number of hours is never worth less than a straight
-// 8-hour fraction would suggest.
 function ce_workCopperFor(hours, level){
   return Math.ceil((hours * 5 * level) / 8);
 }
@@ -1607,7 +1576,6 @@ async function ce_workCancel(sessionId){
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
 }
 
-// --- Crafting tab ---
 
 async function loadCraftData(){
   CRAFT_LOAD_ERROR = null;
@@ -1717,10 +1685,6 @@ function ce_craftSearch(value){
   renderCraftGrid();
 }
 
-// A character can hold more than one focus of the same trade (e.g.
-// Craftsman: Blacksmith and Craftsman: Mason as two separate skill
-// rows), so matching by trade name alone isn't enough -- a recipe that
-// names a required focus only unlocks for the matching discipline.
 function findTradeSkillFor(trade, focusRequired){
   const candidates = TRAIN_KNOWN.filter(k => k.category === 'Trade Skill' && k.title.trim().toLowerCase() === trade.trim().toLowerCase());
   if(!candidates.length) return null;
@@ -1824,19 +1788,12 @@ async function ce_craftCancel(logId){
   document.getElementById('ce-header-stats').innerHTML = renderHeaderStatsHtml();
 }
 
-// --- Other Task tab ---
-// A catch-all for in-game downtime actions that don't fit Training,
-// Work, Crafting, or Shopping -- a free-text description plus how many
-// hours it takes, drawing from the same shared Hours budget.
 
 async function loadOtherTaskData(){
   OTHER_TASK_LOAD_ERROR = null;
   try{
     await refreshTrainingState();
 
-    // Continues any of this character's repeating Upkeep costs into
-    // this event before loading the list, the same way the Social
-    // Class allowance auto-grants itself on page load.
     await membersSupabase.rpc('event_log_apply_repeating_upkeep', {
       p_event_slug: EVENT.value, p_character_id: MY_CHARACTER.id
     });
@@ -2053,11 +2010,6 @@ async function ce_upkeepStopRepeat(id){
   renderOtherTaskHtml();
 }
 
-// --- Luxuries tab ---
-// A per-event checklist, not a purchase -- matches how the old site
-// tracked Luxuries (labs, forges, a horse, ammunition, bandages, and so
-// on) as boxes a character checked off each event, rather than a
-// one-time Copper purchase.
 
 async function loadLuxuriesData(){
   LUX_LOAD_ERROR = null;

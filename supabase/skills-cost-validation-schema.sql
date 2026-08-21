@@ -1,9 +1,3 @@
--- Server-side mirror of js/skills-catalog.js's resolveCostDetail() and
--- skillsParseCost(), promoted from the one-off skills-cost-backfill.sql
--- audit script into a permanent function so character_create and
--- character_update_remort can validate a skill purchase's SP cost and
--- level cap instead of trusting whatever the client submits. Requires
--- skills-catalog-schema.sql to already exist.
 
 create or replace function skills_true_cost(p_skill_name text, p_focus text, p_level integer, p_race text)
 returns integer
@@ -26,7 +20,7 @@ begin
   from skills where name = p_skill_name;
 
   if v_skill_id is null then
-    return null; -- unrecognized skill name
+    return null;
   end if;
 
   select cost, level_cost into v_skill_cost, v_skill_level_cost
@@ -43,11 +37,6 @@ begin
     limit 1;
   end if;
 
-  -- Mirrors js/skills-catalog.js's resolveCostDetail(): a race-specific
-  -- override on the skill always wins outright; otherwise a skill with
-  -- its own real (non-overwritten) cost uses that; otherwise fall
-  -- through to the chosen focus's own price (Craftsman/Labourer/Weapon
-  -- Skill), falling back to the skill's own row if the focus has none.
   if v_skill_cost is not null and v_is_race_specific then
     v_value := v_skill_cost;
     v_level_cost := v_skill_level_cost;
@@ -93,11 +82,6 @@ begin
 end;
 $$;
 
--- The cost of a single relevel step (levels N to N+1) is skills_true_cost
--- at level N+1 -- correct for the live Training tab, where a skill is
--- always releveled one step at a time. Buying a skill directly at a
--- starting level (character creation, remort) instead needs the sum of
--- every level's own price from 1 up to that level.
 create or replace function skills_true_total_cost(p_skill_name text, p_focus text, p_level integer, p_race text)
 returns integer
 language plpgsql
@@ -118,9 +102,6 @@ begin
 end;
 $$;
 
--- The highest level a skill can be bought/releveled to (null = uncapped).
--- Level caps live only on skill_details, not skill_focus_details -- a
--- capped skill's limit applies no matter which focus it's taken with.
 create or replace function skills_level_limit(p_skill_name text, p_race text)
 returns integer
 language plpgsql

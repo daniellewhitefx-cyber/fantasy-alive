@@ -1,35 +1,3 @@
--- Real skill/focus/prerequisite catalog migrated from the legacy Django
--- database (database.fantasyalivelrp.com), replacing the flat Google Sheet
--- (name/cost-string/prerequisite-text) that js/skills-data.js currently
--- reads live at page load, and the hand-parsed prerequisite/focus logic in
--- js/skills-catalog.js. This file only defines the schema; the actual rows
--- are loaded by skills-catalog-import.sql, which must be run immediately
--- after this file.
---
--- These tables use plain integer primary keys matching the source
--- system's own IDs, rather than this project's usual uuid convention,
--- since they're a straight import of an existing relational dataset and
--- preserving the original IDs makes every foreign key in the import file
--- a direct copy instead of a generated remapping (same convention as
--- item-catalog-schema.sql).
---
--- Race is stored as plain text matching the exact strings already used by
--- characters.race and RACE_STATS in js/character-stats.js ('Human',
--- 'Elf', 'Dwarf', 'Gnome', 'Curtainborn', 'Orc', 'D''Shunn', 'Minotaur',
--- 'Malkin', 'Goblin', 'Lizardfolk') rather than a foreign key, since this
--- project has no races table -- race lives as free text on characters.
---
--- Costs are resolved per (skill, race): skill_details has one row with
--- race = null (the default cost for any race) and, only where the source
--- rulebook varies it, additional rows with a specific race that override
--- the default for that race only. The same override pattern applies to
--- skill_focus_details for the rare focuses with a race-specific cost.
---
--- race_notable_skills is carried over from the source data as-is but its
--- gameplay meaning wasn't confirmed during migration -- the skills it
--- lists already have their own normal, race-unrestricted skill_details
--- rows, so it does not appear to gate purchases. Treat it as informational
--- (e.g. "notable for this race") rather than an enforced restriction.
 
 create table if not exists skill_types (
   id integer primary key,
@@ -138,13 +106,6 @@ alter table skill_prerequisites enable row level security;
 alter table skill_focus_prerequisites enable row level security;
 alter table race_notable_skills enable row level security;
 
--- Public reference data: skill-list.html shows this catalog to every
--- site visitor, not just logged-in members (it's the same information
--- that used to sit in a publicly-readable Google Sheet), so read access
--- is open rather than gated on auth.uid(), matching that prior behavior.
--- The old "Members read skill catalog" policy name is also dropped here
--- so this file is safe to re-run whether or not an earlier version of it
--- was already applied.
 drop policy if exists "Members read skill catalog" on skill_types;
 drop policy if exists "Anyone can read skill catalog" on skill_types;
 create policy "Anyone can read skill catalog" on skill_types for select using (true);

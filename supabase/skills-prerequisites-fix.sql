@@ -1,23 +1,3 @@
--- Rebuilds the Combat/Academic/Trade/Ability skill_prerequisites rows for
--- this catalog against the real rulebook table (Table 7: Combat Skills,
--- Weapon Skills, Academic Skills, Trade Skills, & Abilities). The legacy
--- import had these badly scrambled -- nearly every skill pointed at the
--- wrong prerequisite (e.g. Clerical Investment required Arcane Research 6
--- instead of Theology). Costs, energy_prereq, and lp_prereq were already
--- correct and are untouched. Applies to every skill_details row for each
--- affected skill, including race-specific overrides, which had their own
--- separately-scrambled (and separately wrong) prerequisite rows.
---
--- Two skills are deliberately left as-is, since the reference table can't
--- be represented exactly with the current data model:
---   - Spell Specialization's rulebook prerequisite is "See Text" (an
---     unwritten special rule) -- left at its current Magery-or-Clerical
---     Investment simplification.
---   - Lethal Hands technically requires Weapon Skill specifically in Hand
---     to Hand, and Shield's Physical Prowess requirement technically only
---     applies to large shields -- both simplified to a flat requirement
---     (Weapon Skill / Physical Prowess with no focus restriction) since the
---     engine doesn't support a prerequisite pinned to one specific focus.
 
 delete from skill_prerequisites where skill_detail_id in (2, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 55, 56, 57, 59, 60, 61, 62, 63, 64, 66, 68, 71, 72, 73, 74, 75, 76, 77, 78, 80, 82, 83, 84, 85, 86, 88, 89, 93, 94, 95, 97, 98, 100, 101, 102, 103, 105, 106, 109, 111, 112, 113, 114, 116, 128, 129, 130, 131, 153, 154, 155, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 179, 180, 181, 182);
 

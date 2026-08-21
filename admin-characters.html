@@ -766,10 +766,6 @@ function ac_updateCost(idx, val){
   if(isNaN(state.cost)) state.cost = 0;
 }
 
-// Staff grant a skill regardless of what the character already knows, so
-// the focus picker here is unrestricted (see focusOptionsFor's opts) --
-// e.g. a combat technique tied to a weapon type doesn't require staff to
-// already have granted that weapon skill first.
 function focusFieldHtml(idx, s, state, isLeveled){
   const widthStyle = `style="max-width:${isLeveled ? 140 : 180}px;display:inline-block;${isLeveled ? 'margin-right:0.5rem;' : ''}"`;
   const options = focusOptionsFor(s, [], selected.race, { unrestricted: true }) || [];
@@ -820,13 +816,6 @@ function renderBrowser(){
   }).join('');
 }
 
-// Skills like Dodge or Iron Will are meant to be taken multiple times
-// and shown as one entry at a higher level (the rulebook writes builds
-// as "Dodge x5", not five separate Dodge lines) -- so granting a
-// flat-cost skill the character already knows adds one more rank to
-// the existing row instead of creating a second one. A skill whose
-// cost scales with level already has the level typed in directly as
-// the new target, so that case just replaces the level outright.
 async function ac_addSkill(idx){
   const { s, key, state } = rowState(idx);
   if(s.focusTypeId && !state.focus.trim()){

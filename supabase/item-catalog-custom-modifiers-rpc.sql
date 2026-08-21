@@ -1,14 +1,3 @@
--- Lets staff save a completely custom tag (with flexible, custom-labeled
--- modifier lines, not just the Shattered/Uses pair) to the catalog for
--- reuse from the new Custom Tag panel on admin-print-tags.html.
---
--- Extends logistics_upsert_catalog_item with an optional p_modifiers jsonb
--- array. Adding a parameter to a function does NOT replace it in place --
--- Postgres treats the old and new argument lists as different overloads,
--- so the old 4-argument version has to be dropped first or both would
--- exist side by side (confirmed locally: calling with 4 args became
--- ambiguous between the two once the 5-arg version was added without a
--- drop).
 
 drop function if exists logistics_upsert_catalog_item(text, text, text, integer);
 

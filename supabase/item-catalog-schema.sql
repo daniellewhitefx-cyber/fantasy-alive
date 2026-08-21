@@ -1,24 +1,3 @@
--- Real item/recipe catalog migrated from the legacy Django database
--- (database.fantasyalivelrp.com), replacing the ad-hoc Google Sheets that
--- js/shoppe-data.js, js/crafting-data.js, and js/recipes-data.js currently
--- read live at page load. This file only defines the schema; the actual
--- ~17,000 rows are loaded by item-catalog-import.sql, which must be run
--- immediately after this file.
---
--- These tables use plain integer primary keys matching the source
--- system's own IDs, rather than this project's usual uuid convention,
--- since they're a straight import of an existing relational dataset and
--- preserving the original IDs makes every foreign key in the import file
--- a direct copy instead of a generated remapping.
---
--- recipe_skill_requirements.skill_id/focus_id are plain integers with no
--- foreign key yet, since the Skills subsystem hasn't been migrated in
--- this phase -- skill_name/focus_name are included alongside them so the
--- data is usable now, and the FK can be added once Skills lands.
---
--- All tables are read-only reference data for every signed-in member
--- (matching how the Shoppe/Crafting/Recipes pages are open to any
--- logged-in player today); nothing here is staff-only.
 
 create table if not exists item_availability (
   id integer primary key,

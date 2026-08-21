@@ -86,9 +86,6 @@ async function loadHistoryFromOldSite(){
   (charsRes.data || []).forEach(c => { charName[c.id] = c.name; });
   const myCharIds = new Set((charsRes.data || []).map(c => c.id));
 
-  // Kudos aimed at one of my characters, but sent from someone else's
-  // account, won't show up in the .or() filter above (that only checks
-  // from/to player id) -- fetch those separately.
   let charKudos = [];
   if(myCharIds.size){
     const { data } = await membersSupabase.from('kudos')

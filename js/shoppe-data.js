@@ -1,5 +1,3 @@
-// Loads the Shoppe item catalog from the real item catalog (migrated from
-// the legacy database into Supabase; see supabase/item-catalog-schema.sql).
 
 const SHOPPE_CATEGORY_ORDER = [
   'Weapon', 'Armour', 'Equipment', 'Mechanical',
@@ -7,13 +5,8 @@ const SHOPPE_CATEGORY_ORDER = [
   'Formula', 'Recipe', 'Scroll', 'Spell', 'Instruction', 'Tutor Book'
 ];
 
-// Luxuries aren't a Copper purchase like everything else here -- they're
-// a per-event checklist (see the Luxuries tab / event_log_luxuries),
-// matching how the old site tracked them. Keep them out of the Shoppe.
 const SHOPPE_EXCLUDED_CATEGORIES = ['Luxuries'];
 
-// The item catalog's own availability tier (1=Common up to 8=Super
-// Powered), gated against a character's Merchant trade skill level.
 const SHOPPE_AVAILABILITY_ORDER = ['Common', 'Uncommon', 'Very Uncommon', 'Rare', 'Very Rare', 'Unique', 'Illegal', 'Super Powered'];
 
 function shoppeAvailabilityTier(text){
@@ -21,8 +14,6 @@ function shoppeAvailabilityTier(text){
   return idx === -1 ? 1 : idx + 1;
 }
 
-// Supabase caps a single request at 1000 rows; the item table has more
-// than that, so it's paged through in full.
 async function shoppeFetchAllRows(table, select){
   const pageSize = 1000;
   let rows = [];
@@ -62,9 +53,6 @@ async function shoppeLoadFromSheet(){
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// The Luxuries item list (id + name + weekly upkeep + crafting recipe),
-// for the per-event Luxuries checklist rather than the Shoppe purchase
-// flow.
 async function shoppeLoadLuxuries(){
   const [items, categories, recipes] = await Promise.all([
     shoppeFetchAllRows('items', 'id, name, copper_value, category_id'),
@@ -91,9 +79,6 @@ async function shoppeLoadLuxuries(){
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// Merchant-tier buy/sell pricing (merchant_price_tiers, migrated from
-// the old site, id-per-level 0-10). Level 0 pays 150% to buy and gets
-// 25% back selling; by level 10 that's 80% to buy and 75% selling.
 async function shoppeLoadPriceTiers(){
   return shoppeFetchAllRows('merchant_price_tiers', 'merchant_level, buy_pct, sell_pct');
 }

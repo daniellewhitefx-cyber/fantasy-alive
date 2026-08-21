@@ -1,12 +1,3 @@
--- "Work" tab on the Current Event log: a character spends downtime Hours
--- (the same shared budget Training draws from) using either a Trade Skill
--- ("Working for a Living") or their Clerical Investment ("Working for a
--- Cause") to earn Copper, per the rulebook: "a tradesperson can command 5
--- copper pieces per level of their trade skill, per eight hour shift" --
--- and "[Clerics] can use their levels of Clerical Investment to work for
--- a cause instead." Any number of hours can be worked; pay scales
--- proportionally to a full 8 hour shift and rounds up to the nearest
--- Copper.
 
 create table if not exists event_log_working_sessions (
   id uuid primary key default gen_random_uuid(),
@@ -32,9 +23,6 @@ create policy "Players see their own working sessions"
   on event_log_working_sessions for select
   using (player_id = auth.uid() or fa_is_logistics_or_admin());
 
--- Extends event_log_training_summary (defined in training-schema.sql) so
--- Hours Remaining reflects both Training and Working spend against the
--- same shared downtime budget.
 create or replace function event_log_training_summary(p_event_slug text, p_character_id uuid)
 returns jsonb language plpgsql stable security definer
 set search_path = public

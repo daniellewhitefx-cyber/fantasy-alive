@@ -1,10 +1,3 @@
--- Merchant rarity quotas. The old site's merchant_rarity_tiers table
--- (migrated in item-catalog-import.sql, never wired up) caps how many
--- units of a given Availability tier a character can buy or sell per
--- event, scaled by Merchant Trade Skill level -- separate from, and on
--- top of, the buy/sell Copper percentages in shoppe-selling-schema.sql.
--- Only Common through Very Rare (availability 1-5) have quota rows; any
--- tier without a row is unlimited. Requires shoppe-selling-schema.sql.
 
 alter table shoppe_purchases add column if not exists availability_id integer;
 alter table shoppe_sales add column if not exists availability_id integer;
@@ -17,13 +10,6 @@ as $$
       and availability_id = p_availability_id;
 $$;
 
--- Postgres treats a different argument list as a distinct function, so
--- "create or replace" alone leaves stale overloads behind rather than
--- replacing them: shoppe-schema.sql's original 7-arg shoppe_buy_item
--- (pre-dating p_hours_budget) was never dropped when
--- shoppe-selling-schema.sql added it, and adding p_availability_tier to
--- shoppe_sell_item here would do the same. Drop both old signatures so
--- only the current one exists.
 drop function if exists shoppe_buy_item(text, uuid, text, text, integer, integer, integer);
 drop function if exists shoppe_sell_item(text, uuid, text, text, integer, integer, boolean, integer);
 
@@ -61,7 +47,6 @@ begin
   if p_character_id is not null then
     v_merchant_level := fa_character_merchant_level(p_character_id);
 
-    -- Merchant level N unlocks buying items at Availability tier N.
     if coalesce(p_availability_tier, 1) > 1 and p_availability_tier > v_merchant_level then
       raise exception 'Requires Merchant level % to buy this (this character has level %)', p_availability_tier, v_merchant_level;
     end if;

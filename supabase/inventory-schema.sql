@@ -1,9 +1,3 @@
--- Character Inventory: a read view of a character's material/item ledger
--- (character_material_inventory, defined in crafting-schema.sql, already
--- combines Shoppe purchases and crafted items) plus the ability to
--- request that logistics prepare a physical tag for an on-hand item, to
--- be picked up at the next event. Requesting a tag doesn't change the
--- digital ledger -- it's just a fulfillment queue for staff.
 
 create table if not exists character_tag_requests (
   id uuid primary key default gen_random_uuid(),

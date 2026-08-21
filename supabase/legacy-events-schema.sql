@@ -1,7 +1,3 @@
--- Reference table of game weekends from the old (pre-migration) site, plus
--- FK columns so imported historical XP/OC/kudos rows can be grouped by the
--- real event they happened at. Populated by the old-site data import, not
--- by anything in the live app.
 
 create table if not exists legacy_events (
   id bigint primary key,
