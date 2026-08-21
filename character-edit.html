@@ -249,7 +249,12 @@ function renderBrowser(){
 
   const rows = allSkills
     .map((s, idx) => ({ s, idx }))
-    .filter(({ s }) => s.category === activeCategory);
+    .filter(({ s }) => {
+      if(s.category !== activeCategory) return false;
+      const state = browseState[skillKey(s)] || { level: 1, focus: '' };
+      if(!isLeveledCost(s, race, state.focus) && skillFullyOwned(s, chosen)) return false;
+      return true;
+    });
 
   document.getElementById('ce-browser-body').innerHTML = rows.map(({ s, idx }) => {
     const key = skillKey(s);
