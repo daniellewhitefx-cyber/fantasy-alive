@@ -121,6 +121,7 @@ async function skillsLoadCatalog(){
       focusOptions: s.focus_type_id
         ? (focusesByType[s.focus_type_id] || []).slice().sort((a, b) => a.name.localeCompare(b.name))
         : [],
+      levelable: !!s.levelable,
       overwriteCostForFocus: !!s.overwrite_cost_for_focus,
       desc: s.description || '',
       costDefault: defaultRow ? skillsBuildCostDetail(defaultRow, prereqGroupsBySkillDetail[defaultRow.id] || []) : null,
