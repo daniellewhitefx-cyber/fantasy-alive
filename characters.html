@@ -160,7 +160,7 @@ function renderCharPanel(c){
     <div>
       <div class="stat-panel">
         ${c.portraitUrl ? `<img src="${escapeHtml(c.portraitUrl)}" alt="${escapeHtml(c.name)} portrait" style="width:100%; display:block; aspect-ratio:1; object-fit:cover; border-bottom:2px solid var(--gold);">` : ''}
-        <div class="stat-row"><span class="stat-label">Race</span><span class="stat-value">${escapeHtml(c.race)}</span></div>
+        <div class="stat-row"><span class="stat-label">Species</span><span class="stat-value">${escapeHtml(c.race)}</span></div>
         <div class="stat-row"><span class="stat-label">Social Class</span><span class="stat-value">${c.socialClass ? escapeHtml(c.socialClass) : '-'}</span></div>
         <div class="stat-row"><span class="stat-label">Birthday</span><span class="stat-value">${c.birthday ? escapeHtml(c.birthday) : '-'}</span></div>
         <div class="stat-row"><span class="stat-label">Skill Points</span><span class="stat-value">${spent}/${conv.totalPool}</span></div>
